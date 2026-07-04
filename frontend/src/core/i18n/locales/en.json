@@ -1,0 +1,110 @@
+{
+  "common": {
+    "appName": "SportMind AI",
+    "loading": "Loading...",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "close": "Close",
+    "continue": "Continue",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "error": "Something went wrong",
+    "tryAgain": "Please try again"
+  },
+  "language": {
+    "english": "English",
+    "arabic": "العربية",
+    "switchLanguage": "Switch language",
+    "currentLanguage": "Language"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "aiCoach": "AI Coach",
+    "athletes": "Athletes",
+    "performanceLab": "Lab",
+    "more": "More"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "greetingMorning": "Good morning",
+    "greetingAfternoon": "Good afternoon",
+    "greetingEvening": "Good evening",
+    "welcome": "Welcome to SportMind AI",
+    "overview": "Overview",
+    "quickActions": "Quick Actions",
+    "athletesCount": "Athletes",
+    "sessionsCount": "Sessions",
+    "insights": "AI Insights",
+    "noInsightsYet": "No insights yet — add athletes to get started"
+  },
+  "actions": {
+    "aiCoach": "AI Coach",
+    "calculator": "Calculator",
+    "reports": "Reports",
+    "research": "Research",
+    "newTest": "New Test",
+    "addAthlete": "Add Athlete",
+    "export": "Export",
+    "share": "Share"
+  },
+  "athletes": {
+    "title": "Athletes",
+    "empty": {
+      "title": "No athletes yet",
+      "description": "Add your first athlete to begin tracking performance.",
+      "cta": "Add athlete"
+    },
+    "count": "{{count}} athlete",
+    "count_other": "{{count}} athletes"
+  },
+  "aiCoach": {
+    "title": "AI Coach",
+    "welcome": "Ask anything about training, recovery, or performance.",
+    "whyLabel": "Why?",
+    "confidenceLabel": "Confidence"
+  },
+  "lab": {
+    "title": "Performance Lab",
+    "newTest": "New Test",
+    "calculator": "Calculator"
+  },
+  "more": {
+    "title": "More",
+    "settings": "Settings",
+    "reports": "Reports",
+    "research": "Research",
+    "teamManagement": "Team Management",
+    "knowledgeCenter": "Knowledge Center",
+    "helpSupport": "Help & Support",
+    "signOut": "Sign Out",
+    "version": "Version"
+  },
+  "settings": {
+    "title": "Settings",
+    "preferences": "Preferences",
+    "appearance": "Appearance",
+    "language": "Language",
+    "theme": "Theme",
+    "about": "About"
+  },
+  "states": {
+    "empty": {
+      "defaultTitle": "Nothing here yet",
+      "defaultDescription": "Content will appear here once available."
+    },
+    "error": {
+      "defaultTitle": "We couldn't load this",
+      "defaultDescription": "Check your connection and try again."
+    },
+    "offline": {
+      "banner": "You're offline — changes will sync automatically"
+    }
+  }
+}

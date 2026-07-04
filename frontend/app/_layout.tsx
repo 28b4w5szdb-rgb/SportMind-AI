@@ -1,46 +1,67 @@
-import { Stack } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
-import { LogBox } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
+import { LogBox, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { useIconFonts } from "@/src/hooks/use-icon-fonts";
-
+import { useIconFonts } from '@/src/hooks/use-icon-fonts';
+import { useAppFonts } from '@/src/hooks/use-app-fonts';
+import { DirectionProvider, useDirection } from '@/src/providers/DirectionProvider';
 
 // Disable logbox errors etc so that users can see the app
 // and agent works as expected.
-LogBox.ignoreAllLogs(true)
+LogBox.ignoreAllLogs(true);
 
-// Keep the native splash visible from cold start until icon fonts register.
-// Required because @expo/vector-icons' componentDidMount fallback fires
-// Font.loadAsync against a broken vendor path if any <Icon> mounts before
-// the family is registered — which throws on Android Expo Go.
+// Keep the native splash visible from cold start until fonts + i18n are ready.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  const [loaded, error] = useIconFonts();
+/**
+ * Inner shell: sits inside DirectionProvider so it can wait for i18n boot,
+ * then hides the splash and mounts the router. Note we do NOT block on font
+ * CDN failures — if fonts fail to load, we still boot with system fallbacks
+ * so the app remains usable offline / on restricted networks.
+ */
+function AppShell() {
+  const [iconsLoaded, iconsError] = useIconFonts();
+  const [appFontsLoaded, appFontsError] = useAppFonts();
+  const { ready: i18nReady } = useDirection();
+
+  const iconsSettled = iconsLoaded || !!iconsError;
+  const fontsSettled = appFontsLoaded || !!appFontsError;
+  const ready = iconsSettled && fontsSettled && i18nReady;
 
   useEffect(() => {
-    if (loaded || error) {
-      SplashScreen.hideAsync();
+    if (ready) {
+      SplashScreen.hideAsync().catch(() => {
+        // ignore — splash may already be gone in dev
+      });
     }
-  }, [loaded, error]);
+  }, [ready]);
 
-  // If the CDN is unreachable we fall through on error rather than wedging
-  // the app — icons will tofu, but the app still boots.
-  if (!loaded && !error) return null;
+  if (!ready) {
+    // Splash is still visible native-side; render nothing to avoid flash.
+    return <View style={{ flex: 1 }} />;
+  }
 
   return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="calculator" />
+      <Stack.Screen name="research" />
+      <Stack.Screen name="reports" />
+      <Stack.Screen name="team-management" />
+      <Stack.Screen name="settings" />
+    </Stack>
+  );
+}
+
+export default function RootLayout() {
+  return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="calculator" />
-        <Stack.Screen name="research" />
-        <Stack.Screen name="reports" />
-        <Stack.Screen name="team-management" />
-        <Stack.Screen name="settings" />
-      </Stack>
+      <DirectionProvider>
+        <AppShell />
+      </DirectionProvider>
     </GestureHandlerRootView>
   );
 }

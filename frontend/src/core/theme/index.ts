@@ -39,5 +39,11 @@ export function useTheme(): Theme {
 // Export individual theme parts
 export { colors, typography, spacing, borderRadius, shadows, layout, fontSizes, fontWeights, lineHeights };
 
+// Bilingual typography hook (Latin vs Arabic)
+export { useTypography } from './useTypography';
+export type { AppTypography } from './useTypography';
+export { FONT_FAMILIES, resolveFontFamily } from './fonts';
+export type { FontWeightKey } from './fonts';
+
 // Export types
 export type { ColorScheme, Colors, Typography, Spacing, BorderRadius, Shadows };

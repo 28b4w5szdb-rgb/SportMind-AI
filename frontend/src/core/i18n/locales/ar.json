@@ -1,0 +1,114 @@
+{
+  "common": {
+    "appName": "سبورت مايند",
+    "loading": "جارٍ التحميل...",
+    "retry": "إعادة المحاولة",
+    "cancel": "إلغاء",
+    "confirm": "تأكيد",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "add": "إضافة",
+    "search": "بحث",
+    "close": "إغلاق",
+    "continue": "متابعة",
+    "back": "رجوع",
+    "next": "التالي",
+    "done": "تم",
+    "error": "حدث خطأ ما",
+    "tryAgain": "يرجى المحاولة مرة أخرى"
+  },
+  "language": {
+    "english": "English",
+    "arabic": "العربية",
+    "switchLanguage": "تغيير اللغة",
+    "currentLanguage": "اللغة"
+  },
+  "nav": {
+    "dashboard": "الرئيسية",
+    "aiCoach": "المدرب الذكي",
+    "athletes": "اللاعبون",
+    "performanceLab": "المختبر",
+    "more": "المزيد"
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "greetingMorning": "صباح الخير",
+    "greetingAfternoon": "مساء الخير",
+    "greetingEvening": "مساء الخير",
+    "welcome": "مرحبًا بك في سبورت مايند",
+    "overview": "نظرة عامة",
+    "quickActions": "إجراءات سريعة",
+    "athletesCount": "اللاعبون",
+    "sessionsCount": "الجلسات",
+    "insights": "رؤى الذكاء الاصطناعي",
+    "noInsightsYet": "لا توجد رؤى بعد — أضف لاعبين للبدء"
+  },
+  "actions": {
+    "aiCoach": "المدرب الذكي",
+    "calculator": "الحاسبة",
+    "reports": "التقارير",
+    "research": "البحث",
+    "newTest": "اختبار جديد",
+    "addAthlete": "إضافة لاعب",
+    "export": "تصدير",
+    "share": "مشاركة"
+  },
+  "athletes": {
+    "title": "اللاعبون",
+    "empty": {
+      "title": "لا يوجد لاعبون بعد",
+      "description": "أضف أول لاعب لبدء تتبع الأداء.",
+      "cta": "إضافة لاعب"
+    },
+    "count_zero": "لا يوجد لاعبون",
+    "count_one": "لاعب واحد",
+    "count_two": "لاعبان",
+    "count_few": "{{count}} لاعبين",
+    "count_many": "{{count}} لاعبًا",
+    "count_other": "{{count}} لاعب"
+  },
+  "aiCoach": {
+    "title": "المدرب الذكي",
+    "welcome": "اسأل أي شيء عن التدريب أو التعافي أو الأداء.",
+    "whyLabel": "لماذا؟",
+    "confidenceLabel": "مستوى الثقة"
+  },
+  "lab": {
+    "title": "مختبر الأداء",
+    "newTest": "اختبار جديد",
+    "calculator": "الحاسبة"
+  },
+  "more": {
+    "title": "المزيد",
+    "settings": "الإعدادات",
+    "reports": "التقارير",
+    "research": "البحث",
+    "teamManagement": "إدارة الفريق",
+    "knowledgeCenter": "مركز المعرفة",
+    "helpSupport": "المساعدة والدعم",
+    "signOut": "تسجيل الخروج",
+    "version": "الإصدار"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "preferences": "التفضيلات",
+    "appearance": "المظهر",
+    "language": "اللغة",
+    "theme": "السمة",
+    "about": "حول التطبيق"
+  },
+  "states": {
+    "empty": {
+      "defaultTitle": "لا يوجد شيء هنا بعد",
+      "defaultDescription": "سيظهر المحتوى هنا عند توفره."
+    },
+    "error": {
+      "defaultTitle": "تعذر تحميل هذا العنصر",
+      "defaultDescription": "تحقق من اتصالك وحاول مرة أخرى."
+    },
+    "offline": {
+      "banner": "أنت غير متصل — ستتم المزامنة تلقائيًا"
+    }
+  }
+}

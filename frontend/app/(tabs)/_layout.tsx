@@ -1,17 +1,21 @@
 /**
  * SportMind AI - Tabs Layout
- * Bottom tab navigation for main app sections
+ * Bottom tab navigation for main app sections.
+ * Titles resolve from i18n; icons flip start/end based on direction where relevant.
  */
 
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '@/src/core/theme';
 import { Platform } from 'react-native';
+import { useTranslation } from 'react-i18next';
+
+import { useTheme } from '@/src/core/theme';
 
 export default function TabsLayout() {
   const theme = useTheme();
-  
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
@@ -35,35 +39,37 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="dashboard"
         options={{
-          title: 'Dashboard',
+          title: t('nav.dashboard'),
           tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="ai-coach"
         options={{
-          title: 'AI Coach',
+          title: t('nav.aiCoach'),
           tabBarIcon: ({ color, size }) => <Ionicons name="sparkles" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="athletes"
         options={{
-          title: 'Athletes',
+          title: t('nav.athletes'),
           tabBarIcon: ({ color, size }) => <Ionicons name="people" size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="performance-lab"
         options={{
-          title: 'Lab',
-          tabBarIcon: ({ color, size }) => <Ionicons name="stats-chart" size={size} color={color} />,
+          title: t('nav.performanceLab'),
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="stats-chart" size={size} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="more"
         options={{
-          title: 'More',
+          title: t('nav.more'),
           tabBarIcon: ({ color, size }) => <Ionicons name="grid" size={size} color={color} />,
         }}
       />
