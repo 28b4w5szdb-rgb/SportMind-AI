@@ -42,13 +42,13 @@ export default function NewTeamScreen() {
       return;
     }
     run(() => {
-      addTeam({
+      const team = addTeam({
         name: name.trim(),
         sport: sport.trim() || 'Football',
         head_coach: headCoach.trim() || undefined,
         athlete_ids: selected,
       });
-      setTimeout(() => router.replace(APP_ROUTES.teamManagement), 600);
+      setTimeout(() => router.replace(APP_ROUTES.teamDetail(team.id)), 600);
     });
   };
 

@@ -19,12 +19,18 @@ export interface MockAthlete {
   created_at: string;
 }
 
+export interface MockTeamStaff {
+  role: string;
+  name: string;
+}
+
 export interface MockTeam {
   id: string;
   name: string;
   sport: string;
   athlete_ids: string[];
   head_coach?: string;
+  staff?: MockTeamStaff[];
   created_at: string;
 }
 
@@ -40,13 +46,24 @@ export interface MockPerformanceTest {
   notes?: string;
 }
 
+export type MockReportStatus = 'draft' | 'ready' | 'exported';
+
+export interface MockReportSections {
+  athlete_summary: string;
+  performance_tests: string;
+  ai_insights: string;
+  recommendations: string;
+}
+
 export interface MockReport {
   id: string;
   title: string;
   type: 'athlete' | 'team' | 'session' | 'custom';
-  status: 'draft' | 'ready';
+  status: MockReportStatus;
   created_at: string;
   summary: string;
+  athlete_id?: string;
+  sections: MockReportSections;
 }
 
 export interface MockResearchProject {
@@ -54,6 +71,12 @@ export interface MockResearchProject {
   title: string;
   status: 'planning' | 'active' | 'completed';
   hypothesis: string;
+  sample?: string;
+  method?: string;
+  variables?: string;
+  notes?: string;
+  references?: string;
+  mock_analysis?: string;
   progress: number;
   updated_at: string;
 }

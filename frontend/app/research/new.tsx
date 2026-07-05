@@ -19,6 +19,11 @@ export default function NewResearchScreen() {
 
   const [title, setTitle] = useState('');
   const [hypothesis, setHypothesis] = useState('');
+  const [sample, setSample] = useState('');
+  const [method, setMethod] = useState('');
+  const [variables, setVariables] = useState('');
+  const [notes, setNotes] = useState('');
+  const [references, setReferences] = useState('');
   const [titleError, setTitleError] = useState<string | undefined>();
 
   const handleSave = () => {
@@ -27,8 +32,16 @@ export default function NewResearchScreen() {
       return;
     }
     run(() => {
-      addResearch({ title: title.trim(), hypothesis: hypothesis.trim() || '—' });
-      setTimeout(() => router.replace(APP_ROUTES.research), 600);
+      const project = addResearch({
+        title: title.trim(),
+        hypothesis: hypothesis.trim() || '—',
+        sample: sample.trim() || undefined,
+        method: method.trim() || undefined,
+        variables: variables.trim() || undefined,
+        notes: notes.trim() || undefined,
+        references: references.trim() || undefined,
+      });
+      setTimeout(() => router.replace(APP_ROUTES.researchDetail(project.id)), 600);
     });
   };
 
@@ -46,29 +59,21 @@ export default function NewResearchScreen() {
           }}
           error={titleError}
         />
-        <Input
-          label={t('features.research.hypothesis')}
-          value={hypothesis}
-          onChangeText={setHypothesis}
-          multiline
-          numberOfLines={5}
-          containerStyle={{ marginTop: 16 }}
-          style={{ minHeight: 120, textAlignVertical: 'top' }}
-        />
+        <Input label={t('features.research.hypothesis')} value={hypothesis} onChangeText={setHypothesis} multiline containerStyle={{ marginTop: 16 }} style={{ minHeight: 100, textAlignVertical: 'top' }} />
       </FormSection>
 
-      <FormSection title={t('features.research.progress')}>
-        <Input label={t('features.research.progress')} value="10%" editable={false} containerStyle={{ opacity: 0.7 }} />
+      <FormSection title={t('features.research.designTitle')} subtitle={t('features.research.designSubtitle')}>
+        <Input label={t('features.research.sample')} value={sample} onChangeText={setSample} placeholder={t('features.research.samplePlaceholder')} />
+        <Input label={t('features.research.method')} value={method} onChangeText={setMethod} multiline containerStyle={{ marginTop: 16 }} style={{ minHeight: 80, textAlignVertical: 'top' }} />
+        <Input label={t('features.research.variables')} value={variables} onChangeText={setVariables} multiline containerStyle={{ marginTop: 16 }} style={{ minHeight: 80, textAlignVertical: 'top' }} />
+        <Input label={t('features.research.notes')} value={notes} onChangeText={setNotes} multiline containerStyle={{ marginTop: 16 }} style={{ minHeight: 80, textAlignVertical: 'top' }} />
       </FormSection>
 
-      <Button
-        title={loading ? t('common.saving') : t('common.save')}
-        onPress={handleSave}
-        loading={loading}
-        disabled={loading}
-        fullWidth
-        icon="book-outline"
-      />
+      <FormSection title={t('features.research.referencesTitle')} subtitle={t('features.research.referencesSubtitle')}>
+        <Input label={t('features.research.references')} value={references} onChangeText={setReferences} multiline style={{ minHeight: 100, textAlignVertical: 'top' }} placeholder={t('features.research.referencesPlaceholder')} />
+      </FormSection>
+
+      <Button title={loading ? t('common.saving') : t('common.save')} onPress={handleSave} loading={loading} disabled={loading} fullWidth icon="book-outline" />
     </FeatureScrollScreen>
   );
 }

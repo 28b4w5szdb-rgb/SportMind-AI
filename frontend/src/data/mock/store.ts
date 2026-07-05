@@ -60,7 +60,10 @@ export interface MockStore {
   addTeam: (input: Omit<MockTeam, 'id' | 'created_at'>) => MockTeam;
   addTest: (input: Omit<MockPerformanceTest, 'id'>) => MockPerformanceTest;
   addReport: (input: Omit<MockReport, 'id' | 'created_at' | 'status'>) => MockReport;
+  updateReport: (id: string, patch: Partial<MockReport>) => void;
   addResearch: (input: Omit<MockResearchProject, 'id' | 'updated_at' | 'progress' | 'status'>) => MockResearchProject;
+  updateResearch: (id: string, patch: Partial<MockResearchProject>) => void;
+  updateTeam: (id: string, patch: Partial<MockTeam>) => void;
   runCalculation: (type: CalculatorType, title: string, inputs: Record<string, number>) => MockCalculationRecord;
 
   setSelectedAgent: (agentId: AiAgentId) => void;
@@ -131,8 +134,10 @@ export const useMockStore = create<MockStore>()(
       getAthlete: (id) => get().athletes.find((a) => a.id === id),
 
       addTeam: (input) => {
+        const staff = input.staff ?? (input.head_coach ? [{ role: 'Head coach', name: input.head_coach }] : []);
         const team: MockTeam = {
           ...input,
+          staff,
           id: uid('team'),
           created_at: new Date().toISOString(),
         };
@@ -154,6 +159,12 @@ export const useMockStore = create<MockStore>()(
       addReport: (input) => {
         const report: MockReport = {
           ...input,
+          sections: input.sections ?? {
+            athlete_summary: input.summary,
+            performance_tests: '',
+            ai_insights: '',
+            recommendations: '',
+          },
           id: uid('rep'),
           status: 'draft',
           created_at: new Date().toISOString(),
@@ -162,16 +173,39 @@ export const useMockStore = create<MockStore>()(
         return report;
       },
 
+      updateReport: (id, patch) => {
+        set((s) => ({
+          reports: s.reports.map((r) => (r.id === id ? { ...r, ...patch, sections: patch.sections ? { ...r.sections, ...patch.sections } : r.sections } : r)),
+        }));
+      },
+
       addResearch: (input) => {
         const project: MockResearchProject = {
           ...input,
           id: uid('res'),
           status: 'planning',
           progress: 10,
+          mock_analysis:
+            input.mock_analysis ??
+            'Preliminary mock analysis: effect sizes and confidence intervals will populate when data collection begins.',
           updated_at: new Date().toISOString(),
         };
         set((s) => ({ research: [project, ...s.research] }));
         return project;
+      },
+
+      updateResearch: (id, patch) => {
+        set((s) => ({
+          research: s.research.map((p) =>
+            p.id === id ? { ...p, ...patch, updated_at: new Date().toISOString() } : p
+          ),
+        }));
+      },
+
+      updateTeam: (id, patch) => {
+        set((s) => ({
+          teams: s.teams.map((t) => (t.id === id ? { ...t, ...patch } : t)),
+        }));
       },
 
       runCalculation: (type, title, inputs) => {
