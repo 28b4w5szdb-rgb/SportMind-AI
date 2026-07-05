@@ -1,87 +1,88 @@
 /**
  * SportMind AI - Sports Science Calculator
- * Scientific calculations for sports performance
  */
 
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { Screen } from '@/src/components/layout/Screen';
-import { Header } from '@/src/components/layout/Header';
-import { Card } from '@/src/components/common/Card';
-import { useTheme } from '@/src/core/theme';
-import { useDirection } from '@/src/providers/DirectionProvider';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
+
+import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
+import { Card } from '@/src/components/common/Card';
+import { CALCULATOR_DEFINITIONS } from '@/src/data/mock/calculators';
+import { useMockStore } from '@/src/data/mock/store';
+import { APP_ROUTES } from '@/src/core/constants/routes';
+import { useTheme, useTypography } from '@/src/core/theme';
+import { useDirection } from '@/src/providers/DirectionProvider';
 
 export default function CalculatorScreen() {
   const theme = useTheme();
-  const { flexRow, chevronIcon } = useDirection();
-  
-  const calculators = [
-    { id: '1', title: 'VO2 Max', icon: 'fitness' as const, description: 'Calculate maximum oxygen uptake' },
-    { id: '2', title: 'BMI Calculator', icon: 'body' as const, description: 'Body Mass Index calculation' },
-    { id: '3', title: 'Body Fat %', icon: 'analytics' as const, description: 'Estimate body fat percentage' },
-    { id: '4', title: 'Heart Rate Zones', icon: 'heart' as const, description: 'Training heart rate zones' },
-    { id: '5', title: 'Training Load', icon: 'barbell' as const, description: 'Calculate training load' },
-    { id: '6', title: 'Recovery Time', icon: 'time' as const, description: 'Optimal recovery duration' },
-  ];
-  
+  const type = useTypography();
+  const router = useRouter();
+  const { t } = useTranslation();
+  const { flexRow, chevronIcon, textAlign } = useDirection();
+  const calculations = useMockStore((s) => s.calculations);
+
   return (
-    <Screen padding={false}>
-      <Header title="Calculator" showBack />
-      
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: theme.spacing.md }}>
-        <Text style={[theme.typography.body, { color: theme.colors.textSecondary, marginBottom: theme.spacing.lg }]}>
-          Professional sports science calculations
-        </Text>
-        
-        {calculators.map((calc) => (
-          <TouchableOpacity key={calc.id} activeOpacity={0.7}>
-            <Card
+    <FeatureScrollScreen title={t('features.calculator.title')}>
+      <Text style={[type.body, { color: theme.colors.textSecondary, marginBottom: theme.spacing.lg, textAlign: textAlign('start') }]}>
+        {t('features.calculator.subtitle')}
+      </Text>
+
+      {CALCULATOR_DEFINITIONS.map((calc) => (
+        <TouchableOpacity
+          key={calc.id}
+          activeOpacity={0.7}
+          onPress={() => router.push(APP_ROUTES.calculatorType(calc.id))}
+        >
+          <Card
+            style={{
+              marginBottom: theme.spacing.md,
+              flexDirection: flexRow(true),
+              alignItems: 'center',
+              padding: 16,
+              borderRadius: theme.borderRadius['2xl'],
+            }}
+          >
+            <View
               style={{
-                ...styles.calcCard,
-                marginBottom: theme.spacing.md,
-                flexDirection: flexRow(true),
+                width: 56,
+                height: 56,
+                backgroundColor: theme.colors.primary + '20',
+                borderRadius: theme.borderRadius.lg,
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              <View
-                style={[
-                  styles.calcIcon,
-                  {
-                    backgroundColor: theme.colors.primary + '20',
-                    borderRadius: theme.borderRadius.lg,
-                  },
-                ]}
-              >
-                <Ionicons name={calc.icon} size={28} color={theme.colors.primary} />
-              </View>
-              <View style={styles.calcContent}>
-                <Text style={[theme.typography.h4, { color: theme.colors.text }]}>{calc.title}</Text>
-                <Text style={[theme.typography.bodySm, { color: theme.colors.textSecondary, marginTop: 4 }]}>
-                  {calc.description}
-                </Text>
-              </View>
-              <Ionicons name={chevronIcon()} size={20} color={theme.colors.textTertiary} />
+              <Ionicons name={calc.icon} size={28} color={theme.colors.primary} />
+            </View>
+            <View style={{ flex: 1, marginHorizontal: theme.spacing.md }}>
+              <Text style={[type.h5, { color: theme.colors.text, textAlign: textAlign('start') }]}>{t(calc.titleKey)}</Text>
+              <Text style={[type.bodySm, { color: theme.colors.textSecondary, marginTop: 4, textAlign: textAlign('start') }]}>
+                {t(calc.descKey)}
+              </Text>
+            </View>
+            <Ionicons name={chevronIcon()} size={20} color={theme.colors.textTertiary} />
+          </Card>
+        </TouchableOpacity>
+      ))}
+
+      {calculations.length > 0 && (
+        <>
+          <Text style={[type.label, { color: theme.colors.textTertiary, marginTop: theme.spacing.lg, marginBottom: theme.spacing.md, textAlign: textAlign('start') }]}>
+            {t('features.calculator.recent')}
+          </Text>
+          {calculations.slice(0, 5).map((c) => (
+            <Card key={c.id} variant="outlined" padding="md" style={{ marginBottom: theme.spacing.sm, borderRadius: theme.borderRadius.lg }}>
+              <Text style={[type.body, { color: theme.colors.text, textAlign: textAlign('start') }]}>{c.title}</Text>
+              <Text style={[type.numberSm, { color: theme.colors.primary, marginTop: 4, textAlign: textAlign('start') }]}>
+                {c.result.value} {c.result.unit}
+              </Text>
             </Card>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </Screen>
+          ))}
+        </>
+      )}
+    </FeatureScrollScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  calcCard: {
-    alignItems: 'center',
-    padding: 16,
-    gap: 16,
-  },
-  calcIcon: {
-    width: 56,
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  calcContent: {
-    flex: 1,
-  },
-});

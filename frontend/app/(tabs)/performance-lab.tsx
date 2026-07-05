@@ -17,11 +17,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 
 import { Card } from '@/src/components/common/Card';
 import { Button } from '@/src/components/common/Button';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
+import { useMockStore } from '@/src/data/mock/store';
+import { APP_ROUTES } from '@/src/core/constants/routes';
 
 const labTools = [
   { id: '1', key: 'lab.newTest', icon: 'analytics' as const, color: '#0066FF', desc: 'Conduct new assessments' },
@@ -39,7 +42,7 @@ const testCategories = [
   { id: 'flexibility', icon: 'accessibility', labelEn: 'Flexibility', labelAr: 'المرونة', count: 1, color: '#EC4899' },
 ];
 
-const recentTests = [
+const recentTestsFallback = [
   { id: '1', title: 'VO2 Max Test', athlete: 'Ahmed Hassan', date: '2h ago', score: '52.4 ml/kg/min', trend: 'up' },
   { id: '2', title: '10m Sprint', athlete: 'Mohammed Ali', date: 'Yesterday', score: '1.82s', trend: 'up' },
   { id: '3', title: 'Vertical Jump', athlete: 'Omar Farouk', date: '3 days ago', score: '45cm', trend: 'down' },
@@ -55,9 +58,28 @@ const labLabels = {
 export default function PerformanceLabScreen() {
   const theme = useTheme();
   const type = useTypography();
+  const router = useRouter();
   const { t } = useTranslation();
   const { flexRow, textAlign, isRTL } = useDirection();
+  const storeTests = useMockStore((s) => s.tests);
   const { width: windowWidth } = useWindowDimensions();
+
+  const recentTests = useMemo(() => {
+    if (storeTests.length === 0) return recentTestsFallback;
+    return storeTests.slice(0, 5).map((test) => ({
+      id: test.id,
+      title: test.test_type,
+      athlete: test.athlete_name,
+      date: test.date,
+      score: `${test.value} ${test.unit}`,
+      trend: 'up' as const,
+    }));
+  }, [storeTests]);
+
+  const handleToolPress = (toolId: string) => {
+    if (toolId === '1') router.push(APP_ROUTES.performanceLabEntry);
+    else if (toolId === '2') router.push(APP_ROUTES.calculator);
+  };
 
   const isWeb = Platform.OS === 'web';
   const isTablet = windowWidth >= 768;
@@ -163,6 +185,7 @@ export default function PerformanceLabScreen() {
                   key={tool.id}
                   activeOpacity={0.85}
                   style={{ flex: 1, maxWidth: gridConfig.cardWidth }}
+                  onPress={() => handleToolPress(tool.id)}
                 >
                   <Card
                     variant="elevated"
@@ -439,7 +462,7 @@ export default function PerformanceLabScreen() {
                 variant="primary"
                 size="large"
                 icon="analytics"
-                onPress={() => {}}
+                onPress={() => router.push(APP_ROUTES.performanceLabEntry)}
                 style={{ marginTop: theme.spacing[6] }}
                 fullWidth
               />

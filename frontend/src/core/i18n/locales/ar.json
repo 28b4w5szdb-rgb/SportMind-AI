@@ -188,5 +188,159 @@
       "confirm": "تسجيل الخروج",
       "loading": "جارٍ تسجيل الخروج…"
     }
+  },
+  "features": {
+    "athletes": {
+      "addTitle": "إضافة لاعب",
+      "editTitle": "تعديل اللاعب",
+      "detailTitle": "ملف اللاعب",
+      "fields": {
+        "firstName": "الاسم الأول",
+        "lastName": "اسم العائلة",
+        "position": "المركز",
+        "status": "الحالة",
+        "dateOfBirth": "تاريخ الميلاد",
+        "jerseyNumber": "رقم القميص",
+        "height": "الطول (سم)",
+        "weight": "الوزن (كغ)",
+        "nationality": "الجنسية"
+      },
+      "status": {
+        "active": "نشط",
+        "injured": "مصاب",
+        "rest": "راحة"
+      },
+      "validation": {
+        "firstName": "الاسم الأول مطلوب",
+        "lastName": "اسم العائلة مطلوب",
+        "position": "المركز مطلوب"
+      },
+      "testsCount": "{{count}} اختبار",
+      "trend": "الاتجاه",
+      "saved": "تم حفظ اللاعب"
+    },
+    "calculator": {
+      "title": "حاسبة علوم الرياضة",
+      "subtitle": "حسابات علمية للأداء الرياضي",
+      "recent": "الحسابات الأخيرة",
+      "calculate": "احسب",
+      "result": "النتيجة",
+      "interpretation": "التفسير",
+      "vo2max": { "title": "VO2 Max", "desc": "تقدير أقصى استهلاك للأكسجين" },
+      "bmi": { "title": "مؤشر كتلة الجسم", "desc": "حساب مؤشر كتلة الجسم" },
+      "bodyFat": { "title": "نسبة الدهون", "desc": "تقدير نسبة دهون الجسم" },
+      "hrZones": { "title": "مناطق نبض القلب", "desc": "مناطق التدريب لنبض القلب" },
+      "trainingLoad": { "title": "حمل التدريب", "desc": "حمل الجلسة (المدة × RPE)" },
+      "recovery": { "title": "وقت التعافي", "desc": "مدة التعافي المقترحة" },
+      "fields": {
+        "distance": "المسافة",
+        "age": "العمر",
+        "weight": "الوزن",
+        "height": "الطول",
+        "waist": "محيط الخصر",
+        "neck": "محيط الرقبة",
+        "maxHr": "أقصى نبض",
+        "duration": "المدة",
+        "rpe": "RPE",
+        "sessionLoad": "حمل الجلسة",
+        "sleep": "ساعات النوم"
+      }
+    },
+    "reports": {
+      "title": "مركز التقارير",
+      "subtitle": "إنشاء تقارير أداء شاملة",
+      "emptyTitle": "لا توجد تقارير",
+      "emptyDesc": "أنشئ تقارير للاعبين أو الفريق أو الجلسات",
+      "createReport": "إنشاء تقرير",
+      "builderTitle": "منشئ التقارير",
+      "reportTitle": "عنوان التقرير",
+      "reportType": "نوع التقرير",
+      "summary": "ملخص / ملاحظات",
+      "types": {
+        "athlete": "لاعب",
+        "team": "فريق",
+        "session": "جلسة",
+        "custom": "مخصص"
+      },
+      "status": {
+        "draft": "مسودة",
+        "ready": "جاهز"
+      },
+      "saved": "تم حفظ التقرير كمسودة"
+    },
+    "research": {
+      "title": "مساعد البحث",
+      "subtitle": "خطط وتتبع مشاريع علوم الرياضة",
+      "emptyTitle": "لا توجد مشاريع بحث",
+      "emptyDesc": "ابدأ مشروعًا جديدًا لتنظيم الفرضيات والتقدم",
+      "newProject": "مشروع جديد",
+      "projectTitle": "عنوان المشروع",
+      "hypothesis": "الفرضية",
+      "progress": "التقدم",
+      "status": {
+        "planning": "تخطيط",
+        "active": "نشط",
+        "completed": "مكتمل"
+      },
+      "saved": "تم إنشاء المشروع"
+    },
+    "team": {
+      "title": "إدارة الفريق",
+      "subtitle": "نظم التشكيلات وعيّن اللاعبين",
+      "emptyTitle": "لا توجد فرق",
+      "emptyDesc": "أنشئ فريقًا لتجميع اللاعبين والمدربين",
+      "createTeam": "إنشاء فريق",
+      "teamName": "اسم الفريق",
+      "sport": "الرياضة",
+      "headCoach": "المدرب الرئيسي",
+      "selectAthletes": "اختر اللاعبين",
+      "members": "{{count}} لاعب",
+      "saved": "تم إنشاء الفريق"
+    },
+    "lab": {
+      "entryTitle": "تسجيل اختبار",
+      "selectAthlete": "اللاعب",
+      "testType": "نوع الاختبار",
+      "value": "قيمة النتيجة",
+      "unit": "الوحدة",
+      "date": "تاريخ الاختبار",
+      "notes": "ملاحظات",
+      "saved": "تم تسجيل الاختبار",
+      "testTypes": {
+        "yoyo": "Yo-Yo IR1",
+        "sprint30": "30m Sprint",
+        "cmj": "Countermovement Jump",
+        "beep": "Beep Test"
+      }
+    },
+    "help": {
+      "title": "المساعدة والدعم",
+      "subtitle": "احصل على إجابات وتواصل مع الدعم",
+      "faq": "الأسئلة الشائعة",
+      "contact": "تواصل مع الدعم",
+      "docs": "التوثيق",
+      "email": "support@sportmind.ai"
+    },
+    "knowledge": {
+      "title": "مركز المعرفة",
+      "subtitle": "أدلة وبروتوكولات وأفضل الممارسات",
+      "categories": {
+        "testing": "بروتوكولات الاختبار",
+        "training": "حمل التدريب",
+        "recovery": "علوم التعافي",
+        "nutrition": "التغذية الرياضية"
+      }
+    },
+    "settings": {
+      "darkModeNote": "الوضع الداكن يتبع إعدادات جهازك. سيتوفر تبديل يدوي في تحديث لاحق.",
+      "notifications": "الإشعارات",
+      "profile": "الملف الشخصي",
+      "privacy": "الخصوصية",
+      "security": "الأمان",
+      "help": "المساعدة والدعم",
+      "terms": "شروط الخدمة",
+      "privacyPolicy": "سياسة الخصوصية",
+      "account": "الحساب"
+    }
   }
 }

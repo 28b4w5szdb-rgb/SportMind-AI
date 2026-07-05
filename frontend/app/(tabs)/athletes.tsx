@@ -19,11 +19,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'expo-router';
 
 import { Card } from '@/src/components/common/Card';
 import { Button } from '@/src/components/common/Button';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
+import { useMockStore } from '@/src/data/mock/store';
+import { APP_ROUTES } from '@/src/core/constants/routes';
+import type { MockAthlete } from '@/src/data/mock/types';
 
 const filterChips = [
   { id: 'all', labelEn: 'All', labelAr: 'الكل' },
@@ -32,18 +36,13 @@ const filterChips = [
   { id: 'rest', labelEn: 'Rest', labelAr: 'راحة' },
 ];
 
-const sampleAthletes = [
-  { id: '1', name: 'Ahmed Hassan', position: 'Forward', status: 'active', avatar: null },
-  { id: '2', name: 'Mohammed Ali', position: 'Midfielder', status: 'active', avatar: null },
-  { id: '3', name: 'Omar Farouk', position: 'Defender', status: 'injured', avatar: null },
-  { id: '4', name: 'Yusuf Ibrahim', position: 'Goalkeeper', status: 'rest', avatar: null },
-];
-
 export default function AthletesScreen() {
   const theme = useTheme();
   const type = useTypography();
+  const router = useRouter();
   const { t } = useTranslation();
   const { flexRow, textAlign, isRTL } = useDirection();
+  const athletes = useMockStore((s) => s.athletes);
   const { width: windowWidth } = useWindowDimensions();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
@@ -60,16 +59,14 @@ export default function AthletesScreen() {
 
   const filteredAthletes = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
-    return sampleAthletes.filter((a) => {
+    return athletes.filter((a) => {
       const matchesFilter = selectedFilter === 'all' || a.status === selectedFilter;
       if (!matchesFilter) return false;
       if (!query) return true;
-      return (
-        a.name.toLowerCase().includes(query) ||
-        a.position.toLowerCase().includes(query)
-      );
+      const name = `${a.first_name} ${a.last_name}`.toLowerCase();
+      return name.includes(query) || a.position.toLowerCase().includes(query);
     });
-  }, [selectedFilter, searchQuery]);
+  }, [selectedFilter, searchQuery, athletes]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -84,10 +81,15 @@ export default function AthletesScreen() {
     }
   };
 
-  const renderAthlete = ({ item }: { item: typeof sampleAthletes[0] }) => {
+  const renderAthlete = ({ item }: { item: MockAthlete }) => {
     const statusColor = getStatusColor(item.status);
+    const fullName = `${item.first_name} ${item.last_name}`;
     return (
-      <TouchableOpacity activeOpacity={0.85} style={{ flex: 1, maxWidth: gridConfig.cardWidth }}>
+      <TouchableOpacity
+        activeOpacity={0.85}
+        style={{ flex: 1, maxWidth: gridConfig.cardWidth }}
+        onPress={() => router.push(APP_ROUTES.athleteDetail(item.id))}
+      >
         <Card
           variant="elevated"
           padding="lg"
@@ -109,7 +111,7 @@ export default function AthletesScreen() {
               <Ionicons name="person" size={24} color="#FFFFFF" />
             </LinearGradient>
             <View style={{ flex: 1, marginHorizontal: theme.spacing[3] }}>
-              <Text style={[type.h5, { color: theme.colors.text }]}>{item.name}</Text>
+              <Text style={[type.h5, { color: theme.colors.text }]}>{fullName}</Text>
               <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 2 }]}>
                 {item.position}
               </Text>
@@ -138,7 +140,7 @@ export default function AthletesScreen() {
           </View>
           <View style={[styles.athleteStats, { flexDirection: flexRow(true), marginTop: theme.spacing[4] }]}>
             <View style={styles.statItem}>
-              <Text style={[type.numberSm, { color: theme.colors.text }]}>24</Text>
+              <Text style={[type.numberSm, { color: theme.colors.text }]}>{item.tests_count}</Text>
               <Text style={[type.caption, { color: theme.colors.textTertiary }]}>
                 {isRTL ? 'الاختبارات' : 'Tests'}
               </Text>
@@ -152,7 +154,9 @@ export default function AthletesScreen() {
             </View>
             <View style={[styles.statItem, { borderLeftWidth: 1, borderLeftColor: theme.colors.border }]} />
             <View style={styles.statItem}>
-              <Text style={[type.numberSm, { color: theme.colors.success }]}>+12%</Text>
+              <Text style={[type.numberSm, { color: item.trend_percent >= 0 ? theme.colors.success : theme.colors.warning }]}>
+                {item.trend_percent > 0 ? '+' : ''}{item.trend_percent}%
+              </Text>
               <Text style={[type.caption, { color: theme.colors.textTertiary }]}>
                 {isRTL ? 'التحسن' : 'Progress'}
               </Text>
@@ -206,7 +210,7 @@ export default function AthletesScreen() {
                 {t('athletes.title')}
               </Text>
             </View>
-            <TouchableOpacity activeOpacity={0.85}>
+            <TouchableOpacity activeOpacity={0.85} onPress={() => router.push(APP_ROUTES.athleteAdd)}>
               <LinearGradient
                 colors={['#0066FF', '#0D9488']}
                 start={{ x: 0, y: 0 }}
@@ -340,7 +344,7 @@ export default function AthletesScreen() {
               <View style={[styles.statsSummary, { flexDirection: flexRow(true) }]}>
                 <View style={styles.summaryItem}>
                   <Text style={[type.numberMedium, { color: theme.colors.text }]}>
-                    {sampleAthletes.length}
+                    {athletes.length}
                   </Text>
                   <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 2 }]}>
                     {isRTL ? 'نشط' : 'Active'}
@@ -430,11 +434,11 @@ export default function AthletesScreen() {
                     {t('athletes.empty.description')}
                   </Text>
                   <Button
-                    title={isRTL ? 'إضافة رياضي' : 'Add Athlete'}
+                    title={t('actions.addAthlete')}
                     variant="primary"
                     size="large"
                     icon="person-add"
-                    onPress={() => console.log('Add athlete')}
+                    onPress={() => router.push(APP_ROUTES.athleteAdd)}
                     style={{ marginTop: theme.spacing[6] }}
                     fullWidth
                   />

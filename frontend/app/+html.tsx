@@ -35,6 +35,14 @@ export default function Root({ children }: PropsWithChildren) {
               html[dir="ltr"], html[dir="ltr"] body, html[dir="ltr"] #root {
                 direction: ltr;
               }
+              /* Arabic script font stack for web rendering */
+              html[lang="ar"], html[lang="ar"] body, html[lang="ar"] #root,
+              html[dir="rtl"] [lang="ar"], html[dir="rtl"] [dir="rtl"] {
+                font-family: "Noto Sans Arabic", "Segoe UI", Tahoma, Arial, sans-serif;
+                font-feature-settings: "liga" 1, "calt" 1;
+                text-rendering: optimizeLegibility;
+                -webkit-font-smoothing: antialiased;
+              }
             `,
           }}
         />

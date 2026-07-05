@@ -184,5 +184,159 @@
       "confirm": "Sign out",
       "loading": "Signing out…"
     }
+  },
+  "features": {
+    "athletes": {
+      "addTitle": "Add Athlete",
+      "editTitle": "Edit Athlete",
+      "detailTitle": "Athlete Profile",
+      "fields": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "position": "Position",
+        "status": "Status",
+        "dateOfBirth": "Date of birth",
+        "jerseyNumber": "Jersey number",
+        "height": "Height (cm)",
+        "weight": "Weight (kg)",
+        "nationality": "Nationality"
+      },
+      "status": {
+        "active": "Active",
+        "injured": "Injured",
+        "rest": "Rest"
+      },
+      "validation": {
+        "firstName": "First name is required",
+        "lastName": "Last name is required",
+        "position": "Position is required"
+      },
+      "testsCount": "{{count}} tests",
+      "trend": "Trend",
+      "saved": "Athlete saved"
+    },
+    "calculator": {
+      "title": "Sports Science Calculator",
+      "subtitle": "Professional sports science calculations",
+      "recent": "Recent calculations",
+      "calculate": "Calculate",
+      "result": "Result",
+      "interpretation": "Interpretation",
+      "vo2max": { "title": "VO2 Max", "desc": "Estimate maximum oxygen uptake" },
+      "bmi": { "title": "BMI", "desc": "Body Mass Index calculation" },
+      "bodyFat": { "title": "Body Fat %", "desc": "Estimate body fat percentage" },
+      "hrZones": { "title": "Heart Rate Zones", "desc": "Training heart rate zones" },
+      "trainingLoad": { "title": "Training Load", "desc": "Session load (duration × RPE)" },
+      "recovery": { "title": "Recovery Time", "desc": "Suggested recovery duration" },
+      "fields": {
+        "distance": "Distance",
+        "age": "Age",
+        "weight": "Weight",
+        "height": "Height",
+        "waist": "Waist",
+        "neck": "Neck",
+        "maxHr": "Max heart rate",
+        "duration": "Duration",
+        "rpe": "RPE",
+        "sessionLoad": "Session load",
+        "sleep": "Sleep hours"
+      }
+    },
+    "reports": {
+      "title": "Reports Center",
+      "subtitle": "Generate comprehensive performance reports",
+      "emptyTitle": "No reports yet",
+      "emptyDesc": "Build athlete, team, or session reports from your data",
+      "createReport": "Create Report",
+      "builderTitle": "Report Builder",
+      "reportTitle": "Report title",
+      "reportType": "Report type",
+      "summary": "Summary / notes",
+      "types": {
+        "athlete": "Athlete",
+        "team": "Team",
+        "session": "Session",
+        "custom": "Custom"
+      },
+      "status": {
+        "draft": "Draft",
+        "ready": "Ready"
+      },
+      "saved": "Report saved as draft"
+    },
+    "research": {
+      "title": "Research Assistant",
+      "subtitle": "Plan and track sports science research projects",
+      "emptyTitle": "No research projects",
+      "emptyDesc": "Start a new project to organize hypotheses and progress",
+      "newProject": "New Project",
+      "projectTitle": "Project title",
+      "hypothesis": "Hypothesis",
+      "progress": "Progress",
+      "status": {
+        "planning": "Planning",
+        "active": "Active",
+        "completed": "Completed"
+      },
+      "saved": "Project created"
+    },
+    "team": {
+      "title": "Team Management",
+      "subtitle": "Organize squads and assign athletes",
+      "emptyTitle": "No teams yet",
+      "emptyDesc": "Create a team to group athletes and coaches",
+      "createTeam": "Create Team",
+      "teamName": "Team name",
+      "sport": "Sport",
+      "headCoach": "Head coach",
+      "selectAthletes": "Select athletes",
+      "members": "{{count}} athletes",
+      "saved": "Team created"
+    },
+    "lab": {
+      "entryTitle": "Record Test",
+      "selectAthlete": "Athlete",
+      "testType": "Test type",
+      "value": "Result value",
+      "unit": "Unit",
+      "date": "Test date",
+      "notes": "Notes",
+      "saved": "Test recorded",
+      "testTypes": {
+        "yoyo": "Yo-Yo IR1",
+        "sprint30": "30m Sprint",
+        "cmj": "Countermovement Jump",
+        "beep": "Beep Test"
+      }
+    },
+    "help": {
+      "title": "Help & Support",
+      "subtitle": "Get answers and contact support",
+      "faq": "Frequently asked questions",
+      "contact": "Contact support",
+      "docs": "Documentation",
+      "email": "support@sportmind.ai"
+    },
+    "knowledge": {
+      "title": "Knowledge Center",
+      "subtitle": "Guides, protocols, and best practices",
+      "categories": {
+        "testing": "Testing protocols",
+        "training": "Training load",
+        "recovery": "Recovery science",
+        "nutrition": "Sports nutrition"
+      }
+    },
+    "settings": {
+      "darkModeNote": "Dark mode follows your device system setting. A manual theme toggle will be available in a future update.",
+      "notifications": "Notifications",
+      "profile": "Profile",
+      "privacy": "Privacy",
+      "security": "Security",
+      "help": "Help & Support",
+      "terms": "Terms of Service",
+      "privacyPolicy": "Privacy Policy",
+      "account": "Account"
+    }
   }
 }

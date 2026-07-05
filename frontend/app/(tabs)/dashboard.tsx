@@ -24,6 +24,7 @@ import { Card } from '@/src/components/common/Card';
 import { LanguageToggle } from '@/src/components/common/LanguageToggle';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
+import { useMockStore } from '@/src/data/mock/store';
 
 function getGreetingKey(): string {
   const h = new Date().getHours();
@@ -39,9 +40,9 @@ const quickActions = [
   { id: '4', key: 'actions.research', icon: 'book' as const, color: '#8B5CF6', route: '/research' },
 ] as const;
 
-const statsData = [
-  { id: 'athletes', icon: 'people' as const, value: '0', key: 'dashboard.athletesCount', color: '#0066FF', trend: '+12%' },
-  { id: 'sessions', icon: 'stats-chart' as const, value: '0', key: 'dashboard.sessionsCount', color: '#10B981', trend: '+8%' },
+const statsMeta = [
+  { id: 'athletes', icon: 'people' as const, key: 'dashboard.athletesCount', color: '#0066FF', trend: '+12%' },
+  { id: 'sessions', icon: 'stats-chart' as const, key: 'dashboard.sessionsCount', color: '#10B981', trend: '+8%' },
 ];
 
 const recentActivities = [
@@ -63,7 +64,18 @@ export default function DashboardScreen() {
   const isTablet = windowWidth >= 768;
   const isDesktop = windowWidth >= 1024;
 
-  // Calculate grid columns
+  const athletes = useMockStore((s) => s.athletes);
+  const tests = useMockStore((s) => s.tests);
+
+  const statsData = useMemo(
+    () =>
+      statsMeta.map((stat) => ({
+        ...stat,
+        value: stat.id === 'athletes' ? String(athletes.length) : String(tests.length),
+      })),
+    [athletes.length, tests.length]
+  );
+
   const gridConfig = useMemo(() => {
     if (isDesktop) return { columns: 4, cardWidth: 260, gap: 20 };
     if (isTablet) return { columns: 2, cardWidth: 280, gap: 16 };
