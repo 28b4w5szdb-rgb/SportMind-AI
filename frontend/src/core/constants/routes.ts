@@ -13,6 +13,7 @@ export const AUTH_ROUTES = {
 /** Typed main app routes. */
 export const APP_ROUTES = {
   dashboard: '/(tabs)/dashboard' as Href,
+  aiCoach: '/(tabs)/ai-coach' as Href,
   home: '/' as Href,
   athletes: '/(tabs)/athletes' as Href,
   athleteAdd: '/athletes/add' as Href,

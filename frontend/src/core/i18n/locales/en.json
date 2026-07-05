@@ -691,5 +691,86 @@
       "actionStrength": "Plan strength block",
       "actionCompliance": "Schedule assessments"
     }
+  },
+  "athleteWorkspace": {
+    "screenTitle": "Athlete Intelligence",
+    "heroLabel": "Athlete profile",
+    "biometrics": "Biometrics",
+    "injuryRisk": {
+      "low": "Injury: low",
+      "medium": "Injury: medium",
+      "high": "Injury: high"
+    },
+    "latestTest": "Latest test",
+    "noLatestTest": "No tests recorded yet",
+    "latestAiRec": "Latest AI recommendation",
+    "daysSinceInjury": "Days since injury",
+    "noRecentInjury": "No recent injury",
+    "performanceTrend": "Performance trend",
+    "analyticsSubtitle": "Powered by Performance Analytics Engine",
+    "bodyMapTitle": "Body & muscle map",
+    "bodyMapSubtitle": "Zone heat map from module scores",
+    "bodyMapHint": "Placeholder visualization — no copyrighted anatomy assets.",
+    "body": {
+      "head": "Head / CNS",
+      "chest": "Chest / upper",
+      "core": "Core",
+      "arms": "Arms",
+      "hips": "Hips",
+      "legs": "Legs"
+    },
+    "timelineTitle": "Athlete timeline",
+    "timelineSubtitle": "Tests, training, recovery, and AI events",
+    "timelineEmpty": "No timeline events yet",
+    "timeline": {
+      "test": "Performance test",
+      "training": "Training session",
+      "recovery": "Recovery note",
+      "injury": "Injury note",
+      "nutrition": "Nutrition note",
+      "ai": "AI recommendation",
+      "report": "Report"
+    },
+    "goalsTitle": "Performance goals",
+    "goalsSubtitle": "Track progress toward training objectives",
+    "goalsProgress": "{{percent}}% toward target",
+    "goals": {
+      "sprint30": "Improve 30 m sprint",
+      "strength": "Increase strength score",
+      "recovery": "Improve recovery",
+      "injuryRisk": "Reduce injury risk",
+      "flexibility": "Improve flexibility"
+    },
+    "summariesTitle": "Summaries & notes",
+    "summariesSubtitle": "Medical, recovery, and coaching context",
+    "summaries": {
+      "medical": "Medical summary",
+      "medicalClear": "No active medical flags. Cleared for full training load.",
+      "medicalRest": "Active rest protocol. Monitor load and sleep daily.",
+      "medicalInjured": "Injury management active. Follow RTP protocol and physio plan.",
+      "recovery": "Recovery summary",
+      "recoveryBody": "Sleep and HRV trending stable. Continue current recovery block.",
+      "nutrition": "Nutrition summary",
+      "nutritionBody": "Placeholder — connect nutrition logs in a future phase.",
+      "coachNotes": "Coach notes",
+      "coachNotesBody": "Placeholder — add session notes and observations here.",
+      "aiNotes": "AI notes",
+      "aiNotesBody": "Placeholder — AI-generated session insights will appear here."
+    },
+    "profileDetails": "Profile details",
+    "priority": {
+      "high": "High priority",
+      "medium": "Medium priority",
+      "low": "Low priority"
+    },
+    "actions": {
+      "addTest": "Add test",
+      "editAthlete": "Edit athlete",
+      "createReport": "Create report",
+      "compare": "Compare",
+      "askAi": "Ask AI Coach",
+      "export": "Export profile",
+      "exportHint": "Profile export will be available in a future release."
+    }
   }
 }

@@ -695,5 +695,86 @@
       "actionStrength": "تخطيط block القوة",
       "actionCompliance": "جدولة التقييمات"
     }
+  },
+  "athleteWorkspace": {
+    "screenTitle": "ذكاء اللاعب",
+    "heroLabel": "ملف اللاعب",
+    "biometrics": "القياسات",
+    "injuryRisk": {
+      "low": "إصابة: منخفض",
+      "medium": "إصابة: متوسط",
+      "high": "إصابة: مرتفع"
+    },
+    "latestTest": "آخر اختبار",
+    "noLatestTest": "لا توجد اختبارات مسجلة",
+    "latestAiRec": "آخر توصية AI",
+    "daysSinceInjury": "أيام منذ الإصابة",
+    "noRecentInjury": "لا إصابة حديثة",
+    "performanceTrend": "اتجاه الأداء",
+    "analyticsSubtitle": "مدعوم من محرك تحليلات الأداء",
+    "bodyMapTitle": "خريطة الجسم والعضلات",
+    "bodyMapSubtitle": "خريطة حرارية من درجات الوحدات",
+    "bodyMapHint": "تصور placeholder — بدون أصول تشريحية محمية.",
+    "body": {
+      "head": "الرأس / الجهاز العصبي",
+      "chest": "الصدر / علوي",
+      "core": "الجذع",
+      "arms": "الذراعان",
+      "hips": "الورك",
+      "legs": "الساقان"
+    },
+    "timelineTitle": "الخط الزمني للاعب",
+    "timelineSubtitle": "اختبارات، تدريب، تعافٍ، وأحداث AI",
+    "timelineEmpty": "لا أحداث في الخط الزمني",
+    "timeline": {
+      "test": "اختبار أداء",
+      "training": "جلسة تدريب",
+      "recovery": "ملاحظة تعافٍ",
+      "injury": "ملاحظة إصابة",
+      "nutrition": "ملاحظة تغذية",
+      "ai": "توصية AI",
+      "report": "تقرير"
+    },
+    "goalsTitle": "أهداف الأداء",
+    "goalsSubtitle": "تتبع التقدم نحو أهداف التدريب",
+    "goalsProgress": "{{percent}}% نحو الهدف",
+    "goals": {
+      "sprint30": "تحسين sprint 30م",
+      "strength": "رفع درجة القوة",
+      "recovery": "تحسين التعافي",
+      "injuryRisk": "تقليل خطر الإصابة",
+      "flexibility": "تحسين المرونة"
+    },
+    "summariesTitle": "ملخصات وملاحظات",
+    "summariesSubtitle": "سياق طبي وتعافٍ وتدريب",
+    "summaries": {
+      "medical": "ملخص طبي",
+      "medicalClear": "لا مؤشرات طبية نشطة. مؤهل للحمل الكامل.",
+      "medicalRest": "بروتوكول راحة نشط. راقب الحمل والنوم يومياً.",
+      "medicalInjured": "إدارة إصابة نشطة. اتبع بروتوكول RTP والعلاج الطبيعي.",
+      "recovery": "ملخص التعافي",
+      "recoveryBody": "اتجاه النوم وHRV مستقر. تابع block التعافي الحالي.",
+      "nutrition": "ملخص التغذية",
+      "nutritionBody": "Placeholder — ربط سجلات التغذية في مرحلة لاحقة.",
+      "coachNotes": "ملاحظات المدرب",
+      "coachNotesBody": "Placeholder — أضف ملاحظات الجلسات هنا.",
+      "aiNotes": "ملاحظات AI",
+      "aiNotesBody": "Placeholder — رؤى AI للجلسات ستظهر هنا."
+    },
+    "profileDetails": "تفاصيل الملف",
+    "priority": {
+      "high": "أولوية عالية",
+      "medium": "أولوية متوسطة",
+      "low": "أولوية منخفضة"
+    },
+    "actions": {
+      "addTest": "إضافة اختبار",
+      "editAthlete": "تعديل اللاعب",
+      "createReport": "إنشاء تقرير",
+      "compare": "مقارنة",
+      "askAi": "اسأل AI Coach",
+      "export": "تصدير الملف",
+      "exportHint": "تصدير الملف متاح في إصدار لاحق."
+    }
   }
 }
