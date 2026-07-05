@@ -1,5 +1,5 @@
 import type { RecommendationItem } from '@/src/analytics/types';
-import type { MockAthlete, MockPerformanceTest, MockReport, DailyCheckIn } from '@/src/data/mock/types';
+import type { MockAthlete, MockPerformanceTest, MockReport, DailyCheckIn, InjuryRecord } from '@/src/data/mock/types';
 import type { AthleteTimelineEvent } from '../types';
 
 const MOCK_EXTRAS: Record<
@@ -141,7 +141,8 @@ export function buildAthleteTimeline(
   tests: MockPerformanceTest[],
   reports: MockReport[],
   recommendations: RecommendationItem[],
-  latestCheckIn?: DailyCheckIn
+  latestCheckIn?: DailyCheckIn,
+  injuries: InjuryRecord[] = []
 ): AthleteTimelineEvent[] {
   const athleteTests = tests.filter((t) => t.athlete_id === athlete.id).map(testToEvent);
   const athleteReports = reports
@@ -169,7 +170,21 @@ export function buildAthleteTimeline(
       ]
     : [];
 
-  return [...checkInEvents, ...athleteTests, ...athleteReports, ...extras, ...aiEvents].sort(
+  const injuryEvents: AthleteTimelineEvent[] = injuries
+    .filter((i) => i.athlete_id === athlete.id)
+    .slice(0, 5)
+    .map((inj) => ({
+      id: `injury_${inj.id}`,
+      athleteId: athlete.id,
+      type: 'injury' as const,
+      titleEn: `${inj.body_region} injury`,
+      titleAr: `إصابة ${inj.body_region}`,
+      subtitleEn: `${inj.status} · pain ${inj.pain_level}/10`,
+      subtitleAr: `${inj.status} · ألم ${inj.pain_level}/10`,
+      date: inj.injury_date,
+    }));
+
+  return [...injuryEvents, ...checkInEvents, ...athleteTests, ...athleteReports, ...extras, ...aiEvents].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 }

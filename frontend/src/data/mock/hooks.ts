@@ -6,13 +6,14 @@ import { useMemo } from 'react';
 
 import type { AiMessage } from './ai-coach';
 import { useMockStore } from './store';
-import type { MockAthlete, MockPerformanceTest, MockReport, MockResearchProject, MockTeam, DailyCheckIn } from './types';
+import type { MockAthlete, MockPerformanceTest, MockReport, MockResearchProject, MockTeam, DailyCheckIn, InjuryRecord } from './types';
 import { getLatestCheckIn } from '@/src/features/daily-checkin/validation';
 
 const EMPTY_MESSAGES: AiMessage[] = [];
 const EMPTY_TESTS: MockPerformanceTest[] = [];
 const EMPTY_ATHLETES: MockAthlete[] = [];
 const EMPTY_CHECKINS: DailyCheckIn[] = [];
+const EMPTY_INJURIES: InjuryRecord[] = [];
 
 export function useAthleteById(id: string | undefined): MockAthlete | undefined {
   return useMockStore((s) => (id ? s.athletes.find((a) => a.id === id) : undefined));
@@ -51,6 +52,15 @@ export function useCheckInsForAthlete(athleteId: string | undefined): DailyCheck
     const filtered = dailyCheckIns.filter((c) => c.athlete_id === athleteId);
     return filtered.length > 0 ? filtered : EMPTY_CHECKINS;
   }, [dailyCheckIns, athleteId]);
+}
+
+export function useInjuriesForAthlete(athleteId: string | undefined): InjuryRecord[] {
+  const injuryRecords = useMockStore((s) => s.injuryRecords);
+  return useMemo(() => {
+    if (!athleteId) return EMPTY_INJURIES;
+    const filtered = injuryRecords.filter((i) => i.athlete_id === athleteId);
+    return filtered.length > 0 ? filtered : EMPTY_INJURIES;
+  }, [injuryRecords, athleteId]);
 }
 
 export function useReportById(id: string | undefined): MockReport | undefined {

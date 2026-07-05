@@ -32,6 +32,8 @@ export interface AthleteGoal {
 export type QuickActionId =
   | 'add_test'
   | 'daily_checkin'
+  | 'add_injury'
+  | 'injury_prevention'
   | 'edit_athlete'
   | 'create_report'
   | 'compare'

@@ -1,4 +1,5 @@
 import type { AnalyticsModuleId, AnalyticsModuleResult, ModuleStatus } from '@/src/analytics/types';
+import type { BodyRegion } from '@/src/features/sports-medicine/types';
 
 export interface BodyMapZoneDef {
   id: string;
@@ -64,4 +65,52 @@ export function bodyBalanceIndex(modules: AnalyticsModuleResult[]): number {
   const moduleIds = [...new Set(BODY_MAP_ZONES.map((z) => z.moduleId))];
   const total = moduleIds.reduce((sum, id) => sum + zoneScore(modules, id), 0);
   return Math.round(total / moduleIds.length);
+}
+
+export const ZONE_REGION_MAP: Record<string, BodyRegion[]> = {
+  leg_l: ['hamstring', 'knee'],
+  leg_r: ['hamstring', 'knee'],
+  calf_l: ['ankle'],
+  calf_r: ['ankle'],
+  glutes: ['hamstring', 'groin'],
+  hips: ['groin', 'hip'],
+  core: ['back'],
+  shoulder_l: ['shoulder'],
+  shoulder_r: ['shoulder'],
+  arm_l: ['shoulder'],
+  arm_r: ['shoulder'],
+};
+
+function riskHeatColor(risk: number): string {
+  if (risk >= 65) return '#EF4444';
+  if (risk >= 50) return '#F97316';
+  if (risk >= 35) return '#0066FF';
+  return '#10B981';
+}
+
+export function resolveZoneVisual(
+  zoneId: string,
+  moduleId: AnalyticsModuleId,
+  modules: AnalyticsModuleResult[],
+  regionRisks?: Partial<Record<BodyRegion, number>>,
+  injuryRegions?: BodyRegion[],
+  attentionRegions?: BodyRegion[]
+): { fill: string; opacity: number; stroke?: string } {
+  const mapped = ZONE_REGION_MAP[zoneId] ?? [];
+  const maxRisk = mapped.reduce((max, region) => Math.max(max, regionRisks?.[region] ?? 0), 0);
+  const hasInjuryHistory = mapped.some((r) => injuryRegions?.includes(r));
+  const needsAttention = mapped.some((r) => attentionRegions?.includes(r));
+
+  if (needsAttention && maxRisk > 0) {
+    return { fill: riskHeatColor(maxRisk), opacity: 0.72, stroke: riskHeatColor(maxRisk) };
+  }
+  if (hasInjuryHistory) {
+    return { fill: '#8B5CF6', opacity: 0.55, stroke: '#8B5CF6' };
+  }
+  if (maxRisk >= 50) {
+    return { fill: riskHeatColor(maxRisk), opacity: 0.5, stroke: riskHeatColor(maxRisk) };
+  }
+
+  const score = zoneScore(modules, moduleId);
+  return { fill: scoreColor(score), opacity: 0.48, stroke: scoreColor(score) };
 }

@@ -11,6 +11,8 @@ import type {
   MockCalculationRecord,
   DailyCheckIn,
   DailyCheckInInput,
+  InjuryRecord,
+  InjuryRecordInput,
   MockPerformanceTest,
   MockReport,
   MockResearchProject,
@@ -23,6 +25,7 @@ import {
   SEED_ATHLETES,
   SEED_CALCULATIONS,
   SEED_CHECKINS,
+  SEED_INJURIES,
   SEED_REPORTS,
   SEED_RESEARCH,
   SEED_TEAMS,
@@ -64,6 +67,7 @@ export interface MockStore {
   recentTestKeys: string[];
   customTestDefinitions: TestDefinition[];
   dailyCheckIns: DailyCheckIn[];
+  injuryRecords: InjuryRecord[];
 
   addAthlete: (input: Omit<MockAthlete, 'id' | 'created_at' | 'tests_count' | 'trend_percent'>) => MockAthlete;
   updateAthlete: (id: string, patch: Partial<MockAthlete>) => void;
@@ -91,6 +95,8 @@ export interface MockStore {
   pushRecentTest: (key: string) => void;
   addCustomTestDefinition: (input: CustomTestInput) => TestDefinition;
   addDailyCheckIn: (input: DailyCheckInInput) => DailyCheckIn;
+  addInjuryRecord: (input: InjuryRecordInput) => InjuryRecord;
+  updateInjuryRecord: (id: string, patch: Partial<InjuryRecord>) => void;
 }
 
 function ensureActiveConversation(get: () => MockStore, set: (partial: Partial<MockStore>) => void): string {
@@ -133,6 +139,7 @@ export const useMockStore = create<MockStore>()(
       recentTestKeys: [],
       customTestDefinitions: [],
       dailyCheckIns: SEED_CHECKINS,
+      injuryRecords: SEED_INJURIES,
 
       addAthlete: (input) => {
         const athlete: MockAthlete = {
@@ -364,6 +371,22 @@ export const useMockStore = create<MockStore>()(
         }));
         return record;
       },
+
+      addInjuryRecord: (input) => {
+        const record: InjuryRecord = {
+          ...input,
+          id: uid('inj'),
+          created_at: new Date().toISOString(),
+        };
+        set((s) => ({ injuryRecords: [record, ...s.injuryRecords] }));
+        return record;
+      },
+
+      updateInjuryRecord: (id, patch) => {
+        set((s) => ({
+          injuryRecords: s.injuryRecords.map((r) => (r.id === id ? { ...r, ...patch } : r)),
+        }));
+      },
     }),
     {
       name: STORAGE_KEY,
@@ -381,6 +404,7 @@ export const useMockStore = create<MockStore>()(
         recentTestKeys: state.recentTestKeys,
         customTestDefinitions: state.customTestDefinitions,
         dailyCheckIns: state.dailyCheckIns,
+        injuryRecords: state.injuryRecords,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

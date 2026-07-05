@@ -63,8 +63,18 @@ export default function ReportBuilderScreen() {
     setDecisionSupport(sections.decision_support ?? '');
   };
 
+  const injuryRecords = useMockStore((s) => s.injuryRecords);
+  const dailyCheckIns = useMockStore((s) => s.dailyCheckIns);
+  const reportContext = useMemo(() => {
+    if (!athleteId) return undefined;
+    const checkIn = dailyCheckIns
+      .filter((c) => c.athlete_id === athleteId)
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
+    return { injuries: injuryRecords, checkIn };
+  }, [athleteId, injuryRecords, dailyCheckIns]);
+
   const autoFillSections = () => {
-    applySections(buildDefaultReportSections(selectedAthlete, athleteTests, summary, isRTL, t));
+    applySections(buildDefaultReportSections(selectedAthlete, athleteTests, summary, isRTL, t, reportContext));
   };
 
   const handleSave = () => {
@@ -73,7 +83,7 @@ export default function ReportBuilderScreen() {
       return;
     }
     run(() => {
-      const sections = buildDefaultReportSections(selectedAthlete, athleteTests, summary, isRTL, t);
+      const sections = buildDefaultReportSections(selectedAthlete, athleteTests, summary, isRTL, t, reportContext);
       const report = addReport({
         title: title.trim(),
         type: reportType,

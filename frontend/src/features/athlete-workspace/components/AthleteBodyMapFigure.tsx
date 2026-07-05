@@ -6,10 +6,10 @@ import {
   BODY_MAP_VIEWBOX,
   BODY_MAP_ZONES,
   type BodyMapZoneDef,
-  scoreColor,
-  zoneScore,
+  resolveZoneVisual,
 } from '../utils/bodyMapZones';
 import type { AnalyticsModuleResult } from '@/src/analytics/types';
+import type { BodyRegion } from '@/src/features/sports-medicine/types';
 import { useTheme } from '@/src/core/theme';
 
 interface AthleteBodyMapFigureProps {
@@ -17,6 +17,9 @@ interface AthleteBodyMapFigureProps {
   selectedZoneId: string | null;
   onSelectZone: (zoneId: string) => void;
   size?: number;
+  regionRisks?: Partial<Record<BodyRegion, number>>;
+  injuryRegions?: BodyRegion[];
+  attentionRegions?: BodyRegion[];
 }
 
 function ZoneShape({
@@ -25,21 +28,26 @@ function ZoneShape({
   selected,
   onPress,
   ghostStroke,
+  regionRisks,
+  injuryRegions,
+  attentionRegions,
 }: {
   zone: BodyMapZoneDef;
   modules: AnalyticsModuleResult[];
   selected: boolean;
   onPress: () => void;
   ghostStroke: string;
+  regionRisks?: Partial<Record<BodyRegion, number>>;
+  injuryRegions?: BodyRegion[];
+  attentionRegions?: BodyRegion[];
 }) {
-  const score = zoneScore(modules, zone.moduleId);
-  const fill = scoreColor(score);
-  const fillOpacity = selected ? 0.72 : 0.48;
-  const stroke = selected ? fill : ghostStroke;
-  const strokeWidth = selected ? 2.5 : 1;
+  const visual = resolveZoneVisual(zone.id, zone.moduleId, modules, regionRisks, injuryRegions, attentionRegions);
+  const fillOpacity = selected ? Math.min(0.85, visual.opacity + 0.2) : visual.opacity;
+  const stroke = selected ? visual.stroke ?? visual.fill : ghostStroke;
+  const strokeWidth = selected ? 2.5 : visual.stroke ? 1.5 : 1;
 
   const common = {
-    fill,
+    fill: visual.fill,
     fillOpacity,
     stroke,
     strokeWidth,
@@ -80,6 +88,9 @@ export function AthleteBodyMapFigure({
   selectedZoneId,
   onSelectZone,
   size = 220,
+  regionRisks,
+  injuryRegions,
+  attentionRegions,
 }: AthleteBodyMapFigureProps) {
   const theme = useTheme();
   const scale = size / BODY_MAP_VIEWBOX.width;
@@ -102,6 +113,9 @@ export function AthleteBodyMapFigure({
             selected={selectedZoneId === zone.id}
             onPress={() => onSelectZone(zone.id)}
             ghostStroke={ghost}
+            regionRisks={regionRisks}
+            injuryRegions={injuryRegions}
+            attentionRegions={attentionRegions}
           />
         ))}
       </Svg>

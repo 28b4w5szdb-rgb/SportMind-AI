@@ -1,8 +1,11 @@
 import type { TFunction } from 'i18next';
 
-import type { MockAthlete, MockPerformanceTest, MockReportSections } from '@/src/data/mock/types';
+import type { MockAthlete, MockPerformanceTest, MockReportSections, DailyCheckIn, InjuryRecord } from '@/src/data/mock/types';
 import { computeAthleteAnalytics } from '@/src/analytics';
+import { buildRawSignals } from '@/src/analytics/input/buildSignals';
 import { buildAnalyticsReportSections } from '@/src/analytics/summary/teamOverview';
+import { buildSportsMedicineSnapshot } from '@/src/features/sports-medicine/utils/sportsMedicineHelpers';
+import { RTP_PHASES } from '@/src/features/sports-medicine/registry/rtpPhases';
 
 export function buildPerformanceTestsSummary(tests: MockPerformanceTest[], isRTL: boolean): string {
   if (tests.length === 0) {
@@ -35,12 +38,47 @@ export function buildMockRecommendations(isRTL: boolean): string {
     : '1. Maintain current training volume\n2. Add mobility session pre-match\n3. Review post-training nutrition';
 }
 
+export function buildInjuryReportSections(
+  athlete: MockAthlete,
+  tests: MockPerformanceTest[],
+  injuries: InjuryRecord[],
+  checkIn: DailyCheckIn | undefined,
+  t: TFunction,
+  isRTL: boolean
+): Pick<MockReportSections, 'injury_summary' | 'rtp_status' | 'prevention_recommendations'> {
+  const athleteInjuries = injuries.filter((i) => i.athlete_id === athlete.id);
+  const snapshot = buildSportsMedicineSnapshot({
+    athlete,
+    injuries: athleteInjuries,
+    checkIn,
+    signals: buildRawSignals(athlete, tests.filter((tst) => tst.athlete_id === athlete.id), checkIn),
+  });
+
+  const active = snapshot.profile.activeInjuries;
+  const injurySummary = isRTL
+    ? `إصابات نشطة: ${active.length}. مخاطر إجمالية: ${snapshot.profile.regional.overall}%.`
+    : `Active injuries: ${active.length}. Overall risk: ${snapshot.profile.regional.overall}%.`;
+
+  const rtpStatus = snapshot.primaryInjury
+    ? isRTL
+      ? `مرحلة RTP: ${snapshot.primaryInjury.rtp_phase} (${snapshot.rtpProgress}%)`
+      : `RTP phase: ${t(RTP_PHASES.find((p) => p.id === snapshot.primaryInjury!.rtp_phase)?.labelKey ?? 'sportsMedicine.rtp.phase1')} (${snapshot.rtpProgress}%)`
+    : isRTL
+      ? 'لا توجد خطة RTP نشطة'
+      : 'No active RTP plan';
+
+  const preventionRecommendations = snapshot.profile.preventionKeys.map((key) => `• ${t(key)}`).join('\n');
+
+  return { injury_summary: injurySummary, rtp_status: rtpStatus, prevention_recommendations: preventionRecommendations };
+}
+
 export function buildDefaultReportSections(
   athlete: MockAthlete | undefined,
   tests: MockPerformanceTest[],
   summary: string,
   isRTL: boolean,
-  t?: TFunction
+  t?: TFunction,
+  context?: { injuries?: InjuryRecord[]; checkIn?: DailyCheckIn }
 ): MockReportSections {
   const base: MockReportSections = {
     athlete_summary: summary.trim() || buildAthleteSummary(athlete, isRTL),
@@ -51,8 +89,21 @@ export function buildDefaultReportSections(
 
   if (!athlete || !t) return base;
 
-  const analytics = computeAthleteAnalytics({ athlete, tests });
+  const analytics = computeAthleteAnalytics({
+    athlete,
+    tests,
+    checkIn: context?.checkIn,
+    injuries: context?.injuries?.filter((i) => i.athlete_id === athlete.id),
+  });
   const enriched = buildAnalyticsReportSections(analytics, t);
+  const injurySections = buildInjuryReportSections(
+    athlete,
+    tests,
+    context?.injuries ?? [],
+    context?.checkIn,
+    t,
+    isRTL
+  );
 
   return {
     ...base,
@@ -64,6 +115,7 @@ export function buildDefaultReportSections(
     decision_support: enriched.decision_support,
     ai_insights: `${enriched.kpi_summary}\n\n${base.ai_insights}`,
     athlete_summary: `${base.athlete_summary}\n\n${enriched.overall_score}`,
+    ...injurySections,
   };
 }
 

@@ -1,4 +1,11 @@
 import type { AnalyticsModuleId, AnalyticsModuleResult, AnalyticsRawSignals } from '../types';
+import type { InjuryPreventionProfile } from '@/src/features/sports-medicine/types';
+import {
+  fatigueAdjustment,
+  injuryRiskModuleAdjustment,
+  readinessAdjustment,
+  recoveryAdjustment,
+} from '@/src/features/sports-medicine/engine/injuryPreventionEngine';
 import { ANALYTICS_MODULES } from '../registry/modules';
 import { scoreToColor, scoreToStatus, trendFromDelta } from '../scoring/statusColors';
 
@@ -154,19 +161,26 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
   }),
 };
 
-export function scoreAllModules(signals: AnalyticsRawSignals): AnalyticsModuleResult[] {
+export function scoreAllModules(signals: AnalyticsRawSignals, injuryProfile?: InjuryPreventionProfile): AnalyticsModuleResult[] {
   return ANALYTICS_MODULES.map((def) => {
     const result = MODULE_SCORERS[def.id](signals);
-    const status = scoreToStatus(result.score);
+    let score = result.score;
+    if (injuryProfile) {
+      if (def.id === 'injury_risk') score = clamp(score + injuryRiskModuleAdjustment(injuryProfile));
+      if (def.id === 'readiness') score = clamp(score + readinessAdjustment(injuryProfile));
+      if (def.id === 'recovery') score = clamp(score + recoveryAdjustment(injuryProfile));
+      if (def.id === 'fatigue') score = clamp(score + fatigueAdjustment(injuryProfile));
+    }
+    const status = scoreToStatus(score);
     return {
       id: def.id,
       labelKey: def.labelKey,
-      score: result.score,
+      score,
       maxScore: 100,
       status,
       trend: trendFromDelta(result.trendDelta),
       trendDelta: Math.round(result.trendDelta * 10) / 10,
-      color: scoreToColor(result.score),
+      color: scoreToColor(score),
       recommendationKey: result.recommendationKey,
       weight: def.weight,
     };

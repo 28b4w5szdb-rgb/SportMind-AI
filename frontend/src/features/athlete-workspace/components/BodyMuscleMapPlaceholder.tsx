@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Card } from '@/src/components/common/Card';
 import type { AnalyticsModuleResult } from '@/src/analytics/types';
+import type { BodyRegion } from '@/src/features/sports-medicine/types';
 import { useTheme } from '@/src/core/theme';
 import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
 import { useDirection } from '@/src/providers/DirectionProvider';
@@ -14,9 +15,12 @@ import { BodyMapZonePanel } from './BodyMapZonePanel';
 
 interface BodyMuscleMapPlaceholderProps {
   modules: AnalyticsModuleResult[];
+  regionRisks?: Partial<Record<BodyRegion, number>>;
+  injuryRegions?: BodyRegion[];
+  attentionRegions?: BodyRegion[];
 }
 
-export function BodyMuscleMapPlaceholder({ modules }: BodyMuscleMapPlaceholderProps) {
+export function BodyMuscleMapPlaceholder({ modules, regionRisks, injuryRegions, attentionRegions }: BodyMuscleMapPlaceholderProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const { flexRow } = useDirection();
@@ -56,6 +60,9 @@ export function BodyMuscleMapPlaceholder({ modules }: BodyMuscleMapPlaceholderPr
                 selectedZoneId={selectedZoneId}
                 onSelectZone={setSelectedZoneId}
                 size={figureSize}
+                regionRisks={regionRisks}
+                injuryRegions={injuryRegions}
+                attentionRegions={attentionRegions}
               />
             </View>
             <BodyMapZonePanel modules={modules} selectedZoneId={selectedZoneId} onSelectZone={setSelectedZoneId} />

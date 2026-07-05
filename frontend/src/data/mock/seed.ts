@@ -6,6 +6,7 @@ import type {
   MockReport,
   MockResearchProject,
   MockTeam,
+  InjuryRecord,
 } from './types';
 
 export const SEED_ATHLETES: MockAthlete[] = [
@@ -134,6 +135,41 @@ export const SEED_CHECKINS: DailyCheckIn[] = [
     morning_heart_rate: 64,
     rpe: 3,
     notes: 'Hamstring tightness during warm-up.',
+  },
+];
+
+export const SEED_INJURIES: InjuryRecord[] = [
+  {
+    id: 'inj1',
+    athlete_id: '3',
+    injury_date: '2026-06-15',
+    body_region: 'hamstring',
+    tissue_type: 'muscle',
+    severity_grade: 'grade_1',
+    pain_level: 4,
+    swelling: 3,
+    rom_limitation: 4,
+    status: 'rehab',
+    expected_absence_days: 14,
+    rtp_phase: 'phase_2',
+    notes: 'Left hamstring strain during sprint deceleration.',
+    created_at: '2026-06-15T10:00:00Z',
+  },
+  {
+    id: 'inj2',
+    athlete_id: '1',
+    injury_date: '2025-11-20',
+    body_region: 'ankle',
+    tissue_type: 'ligament',
+    severity_grade: 'grade_1',
+    pain_level: 2,
+    swelling: 2,
+    rom_limitation: 2,
+    status: 'resolved',
+    expected_absence_days: 10,
+    rtp_phase: 'ready',
+    notes: 'Lateral ankle sprain — resolved.',
+    created_at: '2025-11-20T08:00:00Z',
   },
 ];
 

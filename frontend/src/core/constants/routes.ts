@@ -43,6 +43,10 @@ export const APP_ROUTES = {
     (athleteId ? `/check-in?athleteId=${encodeURIComponent(athleteId)}` : '/check-in') as Href,
   recoveryCenter: (athleteId?: string): Href =>
     (athleteId ? `/recovery?athleteId=${encodeURIComponent(athleteId)}` : '/recovery') as Href,
+  sportsMedicine: (athleteId?: string): Href =>
+    (athleteId ? `/sports-medicine?athleteId=${encodeURIComponent(athleteId)}` : '/sports-medicine') as Href,
+  addInjury: (athleteId?: string): Href =>
+    (athleteId ? `/sports-medicine/injury/new?athleteId=${encodeURIComponent(athleteId)}` : '/sports-medicine/injury/new') as Href,
   knowledgeCategory: (key: string): Href => `/knowledge/${key}` as Href,
   settings: '/settings' as Href,
   help: '/help' as Href,

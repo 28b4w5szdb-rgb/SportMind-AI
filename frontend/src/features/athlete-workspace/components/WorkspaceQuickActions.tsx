@@ -22,6 +22,8 @@ const ACTIONS: Array<{
 }> = [
   { id: 'add_test', icon: 'analytics', labelKey: 'athleteWorkspace.actions.addTest', color: '#0066FF' },
   { id: 'daily_checkin', icon: 'heart-circle', labelKey: 'athleteWorkspace.actions.dailyCheckIn', color: '#10B981' },
+  { id: 'add_injury', icon: 'medkit', labelKey: 'athleteWorkspace.actions.addInjury', color: '#EF4444' },
+  { id: 'injury_prevention', icon: 'shield-checkmark', labelKey: 'athleteWorkspace.actions.injuryPrevention', color: '#8B5CF6' },
   { id: 'edit_athlete', icon: 'create-outline', labelKey: 'athleteWorkspace.actions.editAthlete', color: '#0D9488' },
   { id: 'create_report', icon: 'document-text', labelKey: 'athleteWorkspace.actions.createReport', color: '#8B5CF6' },
   { id: 'compare', icon: 'git-compare', labelKey: 'athleteWorkspace.actions.compare', color: '#F97316' },
@@ -43,6 +45,12 @@ export function WorkspaceQuickActions({ athlete }: WorkspaceQuickActionsProps) {
         break;
       case 'daily_checkin':
         router.push(APP_ROUTES.dailyCheckIn(athlete.id));
+        break;
+      case 'add_injury':
+        router.push(APP_ROUTES.addInjury(athlete.id));
+        break;
+      case 'injury_prevention':
+        router.push(APP_ROUTES.sportsMedicine(athlete.id));
         break;
       case 'edit_athlete':
         router.push(APP_ROUTES.athleteEdit(athlete.id));

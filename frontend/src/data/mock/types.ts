@@ -58,6 +58,9 @@ export interface MockReportSections {
   strengths?: string;
   weaknesses?: string;
   decision_support?: string;
+  injury_summary?: string;
+  rtp_status?: string;
+  prevention_recommendations?: string;
 }
 
 export interface MockReport {
@@ -123,6 +126,16 @@ export interface DailyCheckIn {
 }
 
 export type DailyCheckInInput = Omit<DailyCheckIn, 'id' | 'created_at' | 'date'> & { date?: string };
+
+export type {
+  BodyRegion,
+  TissueType,
+  InjurySeverity,
+  InjuryStatus,
+  RTPPhaseId,
+  InjuryRecord,
+  InjuryRecordInput,
+} from '@/src/features/sports-medicine/types';
 
 export interface CalculatorDefinition {
   id: CalculatorType;
