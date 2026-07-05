@@ -81,9 +81,32 @@ export default function AthletesScreen() {
     }
   };
 
+  const getRiskLevel = (item: MockAthlete): 'low' | 'medium' | 'high' => {
+    if (item.status === 'injured') return 'high';
+    if (item.trend_percent < 0) return 'medium';
+    return 'low';
+  };
+
+  const getRiskColor = (risk: 'low' | 'medium' | 'high') => {
+    if (risk === 'high') return theme.colors.error;
+    if (risk === 'medium') return theme.colors.warning;
+    return theme.colors.success;
+  };
+
+  const filterCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: athletes.length };
+    filterChips.forEach((chip) => {
+      if (chip.id !== 'all') counts[chip.id] = athletes.filter((a) => a.status === chip.id).length;
+    });
+    return counts;
+  }, [athletes]);
+
   const renderAthlete = ({ item }: { item: MockAthlete }) => {
     const statusColor = getStatusColor(item.status);
     const fullName = `${item.first_name} ${item.last_name}`;
+    const initials = `${item.first_name[0] ?? ''}${item.last_name[0] ?? ''}`.toUpperCase();
+    const risk = getRiskLevel(item);
+    const riskColor = getRiskColor(risk);
     return (
       <TouchableOpacity
         activeOpacity={0.85}
@@ -96,6 +119,8 @@ export default function AthletesScreen() {
           style={{
             borderRadius: theme.borderRadius['2xl'],
             marginBottom: theme.spacing[3],
+            borderLeftWidth: risk === 'high' ? 3 : 0,
+            borderLeftColor: riskColor,
           }}
         >
           <View style={[styles.athleteRow, { flexDirection: flexRow(true) }]}>
@@ -108,34 +133,44 @@ export default function AthletesScreen() {
                 { borderRadius: theme.borderRadius.xl },
               ]}
             >
-              <Ionicons name="person" size={24} color="#FFFFFF" />
+              <Text style={[type.label, { color: '#FFF', fontWeight: '700' }]}>{initials}</Text>
             </LinearGradient>
             <View style={{ flex: 1, marginHorizontal: theme.spacing[3] }}>
-              <Text style={[type.h5, { color: theme.colors.text }]}>{fullName}</Text>
+              <View style={{ flexDirection: flexRow(true), alignItems: 'center', gap: 8 }}>
+                <Text style={[type.h5, { color: theme.colors.text, flex: 1 }]}>{fullName}</Text>
+                {item.jersey_number != null && (
+                  <View style={[styles.jerseyBadge, { backgroundColor: theme.colors.backgroundSecondary, borderRadius: theme.borderRadius.sm }]}>
+                    <Text style={[type.caption, { color: theme.colors.textSecondary, fontWeight: '700' }]}>#{item.jersey_number}</Text>
+                  </View>
+                )}
+              </View>
               <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 2 }]}>
                 {item.position}
               </Text>
             </View>
-            <View
-              style={[
-                styles.statusBadge,
-                {
-                  backgroundColor: statusColor + '15',
-                  borderRadius: theme.borderRadius.full,
-                },
-              ]}
-            >
+            <View style={{ alignItems: 'flex-end', gap: 6 }}>
               <View
                 style={[
-                  styles.statusDot,
-                  { backgroundColor: statusColor, borderRadius: 4 },
+                  styles.statusBadge,
+                  {
+                    backgroundColor: statusColor + '15',
+                    borderRadius: theme.borderRadius.full,
+                  },
                 ]}
-              />
-              <Text style={[type.caption, { color: statusColor, marginLeft: 6 }]}>
-                {isRTL
-                  ? filterChips.find((f) => f.id === item.status)?.labelAr
-                  : filterChips.find((f) => f.id === item.status)?.labelEn}
-              </Text>
+              >
+                <View style={[styles.statusDot, { backgroundColor: statusColor, borderRadius: 4 }]} />
+                <Text style={[type.caption, { color: statusColor, marginLeft: 6 }]}>
+                  {isRTL
+                    ? filterChips.find((f) => f.id === item.status)?.labelAr
+                    : filterChips.find((f) => f.id === item.status)?.labelEn}
+                </Text>
+              </View>
+              <View style={[styles.riskBadge, { backgroundColor: riskColor + '15', borderRadius: theme.borderRadius.sm }]}>
+                <Ionicons name="shield" size={12} color={riskColor} />
+                <Text style={[type.caption, { color: riskColor, marginLeft: 4, fontSize: 10 }]}>
+                  {risk === 'high' ? (isRTL ? 'خطر' : 'Risk') : risk === 'medium' ? (isRTL ? 'انتباه' : 'Watch') : (isRTL ? 'جيد' : 'OK')}
+                </Text>
+              </View>
             </View>
           </View>
           <View style={[styles.athleteStats, { flexDirection: flexRow(true), marginTop: theme.spacing[4] }]}>
@@ -313,6 +348,8 @@ export default function AthletesScreen() {
                     ]}
                   >
                     {isRTL ? chip.labelAr : chip.labelEn}
+                    {' '}
+                    <Text style={{ opacity: 0.8 }}>({filterCounts[chip.id] ?? 0})</Text>
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -502,6 +539,16 @@ const styles = StyleSheet.create({
     height: 48,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  jerseyBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  riskBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
   statusBadge: {
     flexDirection: 'row',

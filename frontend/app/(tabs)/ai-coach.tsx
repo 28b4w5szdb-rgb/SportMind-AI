@@ -1,17 +1,20 @@
 /**
  * SportMind AI - AI Coach Screen
- * Premium AI assistant interface with responsive design for web/tablet/mobile
+ * Premium ChatGPT-style AI assistant with mock local responses.
  */
 
-import React, { useMemo } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  useWindowDimensions,
+  TextInput,
+  FlatList,
+  KeyboardAvoidingView,
   Platform,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,29 +22,27 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 
 import { Card } from '@/src/components/common/Card';
-import { Button } from '@/src/components/common/Button';
+import { ChatMessage, TypingIndicator } from '@/src/components/features/ai-coach';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
+import {
+  AI_AGENTS,
+  RECENT_CONVERSATIONS,
+  SUGGESTED_PROMPTS,
+  generateMockResponse,
+  type AiAgentId,
+  type AiMessage,
+} from '@/src/data/mock/ai-coach';
 
-const agentSuggestions = [
-  { id: '1', icon: 'fitness', title: 'Performance Analysis', titleAr: 'تحليل الأداء', desc: 'Get detailed insights' },
-  { id: '2', icon: 'heart', title: 'Recovery Plan', titleAr: 'خطة التعافي', desc: 'Optimal rest periods' },
-  { id: '3', icon: 'bar-chart', title: 'Compare Stats', titleAr: 'مقارنة الإحصائيات', desc: 'Benchmark athletes' },
-  { id: '4', icon: 'accessibility', title: 'Workout Program', titleAr: 'برنامج تمرين', desc: 'Custom routines' },
-];
-
-const aiCapabilities = [
-  { id: 'analysis', icon: 'analytics', label: 'Analyze', labelAr: 'تحليل', color: '#0066FF' },
-  { id: 'plan', icon: 'calendar', label: 'Plan', labelAr: 'تخطيط', color: '#F97316' },
-  { id: 'insight', icon: 'bulb', label: 'Insight', labelAr: 'رؤى', color: '#10B981' },
-  { id: 'recommend', icon: 'star', label: 'Recommend', labelAr: 'نصائح', color: '#8B5CF6' },
-];
-
-const recentChats = [
-  { id: '1', title: 'Sprint training optimization', time: '2h ago', messages: 12 },
-  { id: '2', title: 'Recovery strategies discussion', time: 'Yesterday', messages: 8 },
-  { id: '3', title: 'Performance benchmarks review', time: '3 days ago', messages: 15 },
-];
+function createMessage(role: AiMessage['role'], content: string, agentId?: AiAgentId): AiMessage {
+  return {
+    id: `${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    role,
+    content,
+    timestamp: new Date().toISOString(),
+    agentId,
+  };
+}
 
 export default function AICoachScreen() {
   const theme = useTheme();
@@ -49,448 +50,324 @@ export default function AICoachScreen() {
   const { t } = useTranslation();
   const { flexRow, textAlign, isRTL } = useDirection();
   const { width: windowWidth } = useWindowDimensions();
+  const listRef = useRef<FlatList>(null);
 
-  const isWeb = Platform.OS === 'web';
-  const isTablet = windowWidth >= 768;
+  const [selectedAgent, setSelectedAgent] = useState<AiAgentId>('performance');
+  const [messages, setMessages] = useState<AiMessage[]>([]);
+  const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
+
   const isDesktop = windowWidth >= 1024;
+  const hasMessages = messages.length > 0 || isTyping;
 
-  const gridConfig = useMemo(() => {
-    if (isDesktop) return { cardWidth: 280, gap: 24 };
-    if (isTablet) return { cardWidth: 260, gap: 16 };
-    return { cardWidth: (windowWidth - 48) / 2, gap: 12 };
-  }, [windowWidth, isDesktop, isTablet]);
+  const scrollToEnd = useCallback(() => {
+    setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
+  }, []);
+
+  const sendMessage = useCallback(
+    (text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed || isTyping) return;
+
+      const userMsg = createMessage('user', trimmed, selectedAgent);
+      setMessages((prev) => [...prev, userMsg]);
+      setInput('');
+      setIsTyping(true);
+      scrollToEnd();
+
+      setTimeout(() => {
+        const reply = generateMockResponse(selectedAgent, trimmed, isRTL);
+        setMessages((prev) => [...prev, createMessage('assistant', reply, selectedAgent)]);
+        setIsTyping(false);
+        scrollToEnd();
+      }, 1400 + Math.random() * 800);
+    },
+    [isTyping, isRTL, scrollToEnd, selectedAgent]
+  );
+
+  const handleNewChat = () => {
+    setMessages([]);
+    setInput('');
+    setIsTyping(false);
+    setShowSidebar(false);
+  };
+
+  const renderEmptyState = () => (
+    <ScrollView
+      contentContainerStyle={{ paddingBottom: theme.spacing[8] }}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={[styles.emptyHero, { alignItems: 'center', paddingVertical: theme.spacing[8] }]}>
+        <LinearGradient
+          colors={['#0066FF', '#0D9488']}
+          style={[styles.emptyIcon, { borderRadius: theme.borderRadius['3xl'] }]}
+        >
+          <Ionicons name="sparkles" size={36} color="#FFF" />
+        </LinearGradient>
+        <Text style={[type.h3, { color: theme.colors.text, marginTop: theme.spacing[4], textAlign: 'center' }]}>
+          {t('aiCoach.title')}
+        </Text>
+        <Text style={[type.body, { color: theme.colors.textSecondary, marginTop: theme.spacing[2], textAlign: 'center', maxWidth: 320 }]}>
+          {t('aiCoach.welcome')}
+        </Text>
+      </View>
+
+      <Text style={[type.label, { color: theme.colors.textTertiary, marginBottom: theme.spacing[3], textAlign: textAlign('start') }]}>
+        {isRTL ? 'أسئلة مقترحة' : 'Suggested prompts'}
+      </Text>
+      <View style={{ gap: theme.spacing.sm }}>
+        {SUGGESTED_PROMPTS.map((prompt) => (
+          <TouchableOpacity
+            key={prompt.id}
+            activeOpacity={0.85}
+            onPress={() => {
+              setSelectedAgent(prompt.agentId);
+              sendMessage(isRTL ? prompt.textAr : prompt.textEn);
+            }}
+          >
+            <Card variant="outlined" padding="md" style={{ borderRadius: theme.borderRadius.xl }}>
+              <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
+                <Ionicons name="chatbubble-ellipses-outline" size={20} color={theme.colors.primary} />
+                <Text style={[type.bodySm, { color: theme.colors.text, flex: 1, marginHorizontal: theme.spacing[3], textAlign: textAlign('start') }]}>
+                  {isRTL ? prompt.textAr : prompt.textEn}
+                </Text>
+                <Ionicons name={isRTL ? 'arrow-back' : 'arrow-forward'} size={16} color={theme.colors.textTertiary} />
+              </View>
+            </Card>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </ScrollView>
+  );
+
+  const chatPanel = (
+    <View style={{ flex: 1 }}>
+      {hasMessages ? (
+        <FlatList
+          ref={listRef}
+          data={messages}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <ChatMessage message={item} />}
+          ListFooterComponent={isTyping ? <TypingIndicator /> : null}
+          contentContainerStyle={{ paddingVertical: theme.spacing[4], paddingHorizontal: theme.spacing[1] }}
+          onContentSizeChange={scrollToEnd}
+        />
+      ) : (
+        renderEmptyState()
+      )}
+    </View>
+  );
+
+  const sidebar = (
+    <View style={[styles.sidebar, { borderColor: theme.colors.border, backgroundColor: theme.colors.backgroundSecondary }]}>
+      <TouchableOpacity onPress={handleNewChat} activeOpacity={0.85} style={{ marginBottom: theme.spacing.md }}>
+        <LinearGradient
+          colors={['#0066FF', '#0D9488']}
+          style={[styles.newChatBtn, { borderRadius: theme.borderRadius.lg }]}
+        >
+          <Ionicons name="add" size={20} color="#FFF" />
+          <Text style={[type.button, { color: '#FFF', marginStart: theme.spacing.sm, fontSize: 14 }]}>
+            {isRTL ? 'محادثة جديدة' : 'New chat'}
+          </Text>
+        </LinearGradient>
+      </TouchableOpacity>
+      <Text style={[type.label, { color: theme.colors.textTertiary, marginBottom: theme.spacing[2], textAlign: textAlign('start') }]}>
+        {isRTL ? 'الأخيرة' : 'Recent'}
+      </Text>
+      {RECENT_CONVERSATIONS.map((conv) => (
+        <TouchableOpacity
+          key={conv.id}
+          activeOpacity={0.85}
+          onPress={() => {
+            setSelectedAgent(conv.agentId);
+            setMessages([
+              createMessage('user', isRTL ? conv.titleAr : conv.title, conv.agentId),
+              createMessage('assistant', generateMockResponse(conv.agentId, conv.title, isRTL), conv.agentId),
+            ]);
+            setShowSidebar(false);
+          }}
+          style={[styles.convItem, { borderRadius: theme.borderRadius.lg, backgroundColor: theme.colors.surface }]}
+        >
+          <Text style={[type.bodySm, { color: theme.colors.text, textAlign: textAlign('start') }]} numberOfLines={1}>
+            {isRTL ? conv.titleAr : conv.title}
+          </Text>
+          <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 2, textAlign: textAlign('start') }]}>
+            {conv.updatedAt} · {conv.messageCount}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
 
   return (
-    <SafeAreaView
-      style={[styles.safe, { backgroundColor: theme.colors.background }]}
-      edges={['top']}
-    >
-      <ScrollView
-        style={{ flex: 1, backgroundColor: theme.colors.background }}
-        contentContainerStyle={{
-          paddingBottom: theme.spacing[20],
-          paddingHorizontal: isWeb && isDesktop ? theme.spacing[12] : theme.spacing[4],
-        }}
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={[styles.safe, { backgroundColor: theme.colors.background }]} edges={['top']}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
-        {/* Hero Header */}
-        <View
-          style={{
-            maxWidth: isDesktop ? 1400 : undefined,
-            marginHorizontal: isDesktop ? 'auto' : undefined,
-            width: '100%',
-            paddingTop: isDesktop ? theme.spacing[8] : theme.spacing[5],
-          }}
-        >
-          <View style={[styles.hero, { flexDirection: flexRow(true), alignItems: 'center' }]}>
-            <View style={{ flex: 1 }}>
-              <Text
-                style={[
-                  type.overline,
-                  {
-                    color: theme.colors.primary,
-                    textAlign: textAlign('start'),
-                    letterSpacing: 2,
-                  },
-                ]}
-              >
-                {isRTL ? 'الذكاء الاصطناعي' : 'AI POWERED'}
-              </Text>
-              <Text
-                style={[
-                  type.displaySmall,
-                  {
-                    color: theme.colors.text,
-                    textAlign: textAlign('start'),
-                    marginTop: theme.spacing[1],
-                  },
-                ]}
-              >
-                {t('aiCoach.title')}
-              </Text>
-              <Text
-                style={[
-                  type.body,
-                  {
-                    color: theme.colors.textSecondary,
-                    textAlign: textAlign('start'),
-                    marginTop: theme.spacing[2],
-                  },
-                ]}
-              >
-                {t('aiCoach.welcome')}
-              </Text>
-            </View>
-            <LinearGradient
-              colors={['#0066FF', '#0D9488']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={[
-                styles.heroIcon,
-                { borderRadius: theme.borderRadius['3xl'] },
-              ]}
-            >
-              <Ionicons name="sparkles" size={isDesktop ? 40 : 32} color="#FFFFFF" />
-            </LinearGradient>
-          </View>
-        </View>
-
-        {/* Capability Pills */}
-        <View
-          style={{
-            marginTop: theme.spacing[5],
-            maxWidth: isDesktop ? 1400 : undefined,
-            marginHorizontal: isDesktop ? 'auto' : undefined,
-            width: '100%',
-          }}
-        >
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: theme.spacing[2] }}
-          >
-            {aiCapabilities.map((cap) => (
-              <TouchableOpacity key={cap.id} activeOpacity={0.85}>
-                <View
-                  style={[
-                    styles.capabilityPill,
-                    {
-                      backgroundColor: cap.color + '15',
-                      borderRadius: theme.borderRadius.full,
-                      borderColor: cap.color + '30',
-                      borderWidth: 1,
-                    },
-                  ]}
-                >
-                  <Ionicons
-                    name={cap.icon as keyof typeof Ionicons.glyphMap}
-                    size={18}
-                    color={cap.color}
-                  />
-                  <Text style={[type.label, { color: cap.color, marginLeft: theme.spacing[2] }]}>
-                    {isRTL ? cap.labelAr : cap.label}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Suggested Questions Grid */}
-        <View
-          style={{
-            marginTop: theme.spacing[6],
-            maxWidth: isDesktop ? 1400 : undefined,
-            marginHorizontal: isDesktop ? 'auto' : undefined,
-            width: '100%',
-          }}
-        >
-          <Text
-            style={[
-              type.h4,
-              {
-                color: theme.colors.text,
-                marginBottom: theme.spacing[3],
-                textAlign: textAlign('start'),
-              },
-            ]}
-          >
-            {isRTL ? 'أسئلة مقترحة' : 'Suggested Questions'}
-          </Text>
-          <View
-            style={[
-              styles.suggestionsGrid,
-              { flexDirection: flexRow(true), gap: gridConfig.gap },
-            ]}
-          >
-            {agentSuggestions.map((suggestion) => (
-              <TouchableOpacity key={suggestion.id} activeOpacity={0.85} style={{ flex: 1, maxWidth: gridConfig.cardWidth }}>
-                <Card
-                  variant="elevated"
-                  padding="lg"
-                  style={{ borderRadius: theme.borderRadius['2xl'] }}
-                >
-                  <View
-                    style={[
-                      styles.suggestionIcon,
-                      {
-                        backgroundColor: theme.colors.primary + '15',
-                        borderRadius: theme.borderRadius.xl,
-                      },
-                    ]}
-                  >
-                    <Ionicons name={suggestion.icon as any} size={28} color={theme.colors.primary} />
-                  </View>
-                  <Text
-                    style={[
-                      type.h5,
-                      {
-                        color: theme.colors.text,
-                        marginTop: theme.spacing[4],
-                        textAlign: textAlign('start'),
-                      },
-                    ]}
-                  >
-                    {isRTL ? suggestion.titleAr : suggestion.title}
-                  </Text>
-                  <Text
-                    style={[
-                      type.caption,
-                      { color: theme.colors.textTertiary, marginTop: theme.spacing[1] },
-                    ]}
-                  >
-                    {suggestion.desc}
-                  </Text>
-                </Card>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Chat Input */}
-        <View
-          style={{
-            marginTop: theme.spacing[6],
-            maxWidth: isDesktop ? 800 : undefined,
-            marginHorizontal: isDesktop ? 'auto' : undefined,
-            width: '100%',
-          }}
-        >
-          <Card variant="elevated" padding="none" style={{ borderRadius: theme.borderRadius['2xl'] }}>
-            <View
-              style={[
-                styles.chatInput,
-                { flexDirection: flexRow(true) },
-              ]}
-            >
-              <View
-                style={[
-                  styles.inputField,
-                  {
-                    backgroundColor: theme.colors.backgroundSecondary,
-                    borderRadius: theme.borderRadius.xl,
-                    flex: 1,
-                    minWidth: 200,
-                  },
-                ]}
-              >
-                <Ionicons name="chatbubble-outline" size={20} color={theme.colors.textTertiary} />
-                <Text
-                  style={[
-                    type.body,
-                    {
-                      color: theme.colors.textTertiary,
-                      marginLeft: theme.spacing[3],
-                    },
-                  ]}
-                >
-                  {isRTL ? 'اسأل أي شيء...' : 'Ask anything...'}
-                </Text>
-              </View>
-              <TouchableOpacity activeOpacity={0.85}>
-                <LinearGradient
-                  colors={['#0066FF', '#0D9488']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={[
-                    styles.sendButton,
-                    {
-                      borderRadius: theme.borderRadius.xl,
-                      width: isDesktop ? 56 : 48,
-                      height: isDesktop ? 56 : 48,
-                    },
-                  ]}
-                >
-                  <Ionicons name={isRTL ? 'send' : 'send'} size={22} color="#FFFFFF" />
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </Card>
-        </View>
-
-        {/* Recent Chats */}
-        <View
-          style={{
-            marginTop: theme.spacing[6],
-            maxWidth: isDesktop ? 1400 : undefined,
-            marginHorizontal: isDesktop ? 'auto' : undefined,
-            width: '100%',
-          }}
-        >
-          <View
-            style={[
-              styles.sectionHeader,
-              { flexDirection: flexRow(true) },
-            ]}
-          >
-            <Text style={[type.h4, { color: theme.colors.text }]}>
-              {isRTL ? 'المحادثات الأخيرة' : 'Recent Chats'}
+        {/* Header */}
+        <View style={[styles.header, { flexDirection: flexRow(true), borderBottomColor: theme.colors.border, paddingHorizontal: theme.spacing[4] }]}>
+          {!isDesktop && (
+            <TouchableOpacity onPress={() => setShowSidebar(!showSidebar)} style={styles.iconBtn}>
+              <Ionicons name="menu" size={22} color={theme.colors.text} />
+            </TouchableOpacity>
+          )}
+          <View style={{ flex: 1 }}>
+            <Text style={[type.h4, { color: theme.colors.text, textAlign: textAlign('start') }]}>{t('aiCoach.title')}</Text>
+            <Text style={[type.caption, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>
+              {isRTL ? 'مساعد علوم رياضية' : 'Sports science assistant'}
             </Text>
-            <TouchableOpacity activeOpacity={0.7}>
-              <Text style={[type.label, { color: theme.colors.primary }]}>
-                {isRTL ? 'عرض الكل' : 'View All'}
-              </Text>
-            </TouchableOpacity>
           </View>
-          {recentChats.map((chat) => (
-            <TouchableOpacity key={chat.id} activeOpacity={0.85}>
-              <Card
-                variant="outlined"
-                padding="md"
-                style={{
-                  borderRadius: theme.borderRadius.xl,
-                  marginBottom: theme.spacing[3],
-                }}
-              >
-                <View style={[styles.chatItem, { flexDirection: flexRow(true), alignItems: 'center' }]}>
-                  <View
-                    style={[
-                      styles.chatIcon,
-                      {
-                        backgroundColor: theme.colors.primary + '10',
-                        borderRadius: theme.borderRadius.lg,
-                      },
-                    ]}
-                  >
-                    <Ionicons name="chatbox" size={20} color={theme.colors.primary} />
-                  </View>
-                  <View style={{ flex: 1, marginHorizontal: theme.spacing[3] }}>
-                    <Text style={[type.body, { color: theme.colors.text }]}>{chat.title}</Text>
-                    <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 2 }]}>
-                      {chat.time} · {chat.messages} {isRTL ? 'رسائل' : 'messages'}
-                    </Text>
-                  </View>
-                  <Ionicons
-                    name={isRTL ? 'chevron-back' : 'chevron-forward'}
-                    size={18}
-                    color={theme.colors.textTertiary}
-                  />
-                </View>
-              </Card>
-            </TouchableOpacity>
-          ))}
+          <TouchableOpacity onPress={handleNewChat} style={styles.iconBtn}>
+            <Ionicons name="create-outline" size={22} color={theme.colors.text} />
+          </TouchableOpacity>
         </View>
 
-        {/* Coming Soon Banner */}
-        <View
-          style={{
-            marginTop: theme.spacing[8],
-            maxWidth: isDesktop ? 800 : undefined,
-            marginHorizontal: isDesktop ? 'auto' : undefined,
-            width: '100%',
-          }}
+        {/* Agent selector */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: theme.spacing[4], paddingVertical: theme.spacing[3], gap: theme.spacing[2] }}
         >
-          <Card variant="filled" padding="none" style={{ borderRadius: theme.borderRadius['2xl'], overflow: 'hidden' }}>
-            <LinearGradient
-              colors={['#F9731615', '#EA580C10']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{ padding: theme.spacing[6] }}
-            >
-              <View style={styles.comingSoon}>
+          {AI_AGENTS.map((agent) => {
+            const active = selectedAgent === agent.id;
+            return (
+              <TouchableOpacity key={agent.id} onPress={() => setSelectedAgent(agent.id)} activeOpacity={0.85}>
                 <View
                   style={[
-                    styles.comingSoonIcon,
+                    styles.agentChip,
                     {
-                      backgroundColor: theme.colors.accent + '20',
-                      borderRadius: theme.borderRadius['3xl'],
+                      flexDirection: flexRow(true),
+                      backgroundColor: active ? agent.color : theme.colors.surface,
+                      borderColor: active ? agent.color : theme.colors.border,
+                      borderRadius: theme.borderRadius.full,
                     },
                   ]}
                 >
-                  <Ionicons name="rocket" size={36} color={theme.colors.accent} />
-                </View>
-                <View style={{ flex: 1, marginLeft: theme.spacing[4] }}>
-                  <Text style={[type.h4, { color: theme.colors.text }]}>
-                    {isRTL ? 'قريبًا' : 'Coming Soon'}
-                  </Text>
-                  <Text
-                    style={[
-                      type.bodySm,
-                      { color: theme.colors.textSecondary, marginTop: theme.spacing[2] },
-                    ]}
-                  >
-                    {isRTL
-                      ? 'المدرب الذكي المستند إلى الذكاء الاصطناعي سيكون متاحًا قريبًا'
-                      : 'AI-powered coaching assistant will be available soon'}
+                  <Ionicons name={agent.icon as keyof typeof Ionicons.glyphMap} size={16} color={active ? '#FFF' : agent.color} />
+                  <Text style={[type.label, { color: active ? '#FFF' : theme.colors.text, marginStart: 6 }]}>
+                    {isRTL ? agent.labelAr : agent.labelEn}
                   </Text>
                 </View>
-              </View>
-              <Button
-                title={isRTL ? 'إشعني عند التوفر' : 'Notify Me'}
-                variant="outline"
-                size="medium"
-                icon="notifications-outline"
-                onPress={() => {}}
-                style={{ marginTop: theme.spacing[5] }}
-              />
-            </LinearGradient>
-          </Card>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+
+        {/* Main layout */}
+        <View style={[styles.main, { flexDirection: isDesktop ? flexRow(true) : 'column' }]}>
+          {(isDesktop || showSidebar) && sidebar}
+          <View style={{ flex: 1, paddingHorizontal: isDesktop ? theme.spacing[6] : theme.spacing[3] }}>
+            {chatPanel}
+          </View>
         </View>
-      </ScrollView>
+
+        {/* Composer */}
+        <View style={[styles.composer, { borderTopColor: theme.colors.border, backgroundColor: theme.colors.background, padding: theme.spacing[3] }]}>
+          <View style={[styles.inputRow, { flexDirection: flexRow(true), maxWidth: isDesktop ? 900 : undefined, alignSelf: 'center', width: '100%' }]}>
+            <TextInput
+              style={[
+                styles.textInput,
+                type.body,
+                {
+                  flex: 1,
+                  color: theme.colors.text,
+                  backgroundColor: theme.colors.surface,
+                  borderColor: theme.colors.border,
+                  borderRadius: theme.borderRadius['2xl'],
+                  textAlign: textAlign('start'),
+                  writingDirection: isRTL ? 'rtl' : 'ltr',
+                },
+              ]}
+              placeholder={isRTL ? 'اسأل المدرب الذكي…' : 'Ask your AI coach…'}
+              placeholderTextColor={theme.colors.textTertiary}
+              value={input}
+              onChangeText={setInput}
+              multiline
+              maxLength={2000}
+              onSubmitEditing={() => sendMessage(input)}
+            />
+            <TouchableOpacity
+              onPress={() => sendMessage(input)}
+              disabled={!input.trim() || isTyping}
+              activeOpacity={0.85}
+              style={{ opacity: input.trim() && !isTyping ? 1 : 0.45 }}
+            >
+              <LinearGradient
+                colors={['#0066FF', '#0D9488']}
+                style={[styles.sendBtn, { borderRadius: theme.borderRadius.xl }]}
+              >
+                <Ionicons name="send" size={20} color="#FFF" style={isRTL ? { transform: [{ scaleX: -1 }] } : undefined} />
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
+  safe: { flex: 1 },
+  header: {
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  hero: {},
-  heroIcon: {
-    width: 80,
-    height: 80,
+  iconBtn: {
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  capabilityPill: {
+  agentChip: {
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderWidth: 1,
+  },
+  main: { flex: 1 },
+  sidebar: {
+    width: 260,
+    borderRightWidth: StyleSheet.hairlineWidth,
+    padding: 12,
+  },
+  newChatBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+  },
+  convItem: {
+    padding: 12,
+    marginBottom: 8,
+  },
+  composer: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
+  inputRow: {
+    alignItems: 'flex-end',
+    gap: 10,
+  },
+  textInput: {
+    borderWidth: 1,
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 12,
+    minHeight: 48,
+    maxHeight: 120,
   },
-  suggestionsGrid: {
-    flexWrap: 'wrap',
-  },
-  suggestionIcon: {
-    width: 56,
-    height: 56,
+  sendBtn: {
+    width: 48,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  chatInput: {
-    alignItems: 'center',
-    gap: 12,
-    padding: 16,
-  },
-  inputField: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-  },
-  sendButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sectionHeader: {
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  chatItem: {},
-  chatIcon: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  comingSoon: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  comingSoonIcon: {
-    width: 80,
-    height: 80,
+  emptyHero: {},
+  emptyIcon: {
+    width: 72,
+    height: 72,
     alignItems: 'center',
     justifyContent: 'center',
   },

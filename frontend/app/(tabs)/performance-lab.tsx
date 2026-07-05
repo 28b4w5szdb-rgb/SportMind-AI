@@ -62,7 +62,17 @@ export default function PerformanceLabScreen() {
   const { t } = useTranslation();
   const { flexRow, textAlign, isRTL } = useDirection();
   const storeTests = useMockStore((s) => s.tests);
+  const athletes = useMockStore((s) => s.athletes);
   const { width: windowWidth } = useWindowDimensions();
+
+  const labStats = useMemo(
+    () => [
+      { id: 'tests', value: storeTests.length, labelEn: 'Tests', labelAr: 'اختبار', color: '#0066FF' },
+      { id: 'athletes', value: athletes.length, labelEn: 'Athletes', labelAr: 'لاعب', color: '#10B981' },
+      { id: 'categories', value: testCategories.length, labelEn: 'Categories', labelAr: 'فئة', color: '#8B5CF6' },
+    ],
+    [storeTests.length, athletes.length]
+  );
 
   const recentTests = useMemo(() => {
     if (storeTests.length === 0) return recentTestsFallback;
@@ -149,6 +159,61 @@ export default function PerformanceLabScreen() {
           >
             {isRTL ? 'تحليل بيانات الأداء وتتبع التقدم' : 'Analyze performance data and track progress'}
           </Text>
+        </View>
+
+        {/* Lab KPI strip */}
+        <View
+          style={{
+            marginTop: theme.spacing[5],
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
+          <Card variant="elevated" padding="none" style={{ borderRadius: theme.borderRadius['2xl'], overflow: 'hidden' }}>
+            <LinearGradient colors={['#0066FF10', '#0D948810']} style={{ padding: theme.spacing[4] }}>
+              <View style={{ flexDirection: flexRow(true), justifyContent: 'space-around' }}>
+                {labStats.map((stat) => (
+                  <View key={stat.id} style={{ alignItems: 'center', flex: 1 }}>
+                    <Text style={[type.numberSm, { color: stat.color }]}>{stat.value}</Text>
+                    <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 4 }]}>
+                      {isRTL ? stat.labelAr : stat.labelEn}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </LinearGradient>
+          </Card>
+        </View>
+
+        {/* Quick test entry CTA */}
+        <View
+          style={{
+            marginTop: theme.spacing[4],
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
+          <TouchableOpacity activeOpacity={0.9} onPress={() => router.push(APP_ROUTES.performanceLabEntry)}>
+            <Card variant="filled" padding="none" style={{ borderRadius: theme.borderRadius['2xl'], overflow: 'hidden' }}>
+              <LinearGradient colors={['#0066FF', '#0D9488']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ padding: theme.spacing[5] }}>
+                <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[type.h5, { color: '#FFF', textAlign: textAlign('start') }]}>
+                      {isRTL ? 'تسجيل اختبار جديد' : 'Record new test'}
+                    </Text>
+                    <Text style={[type.bodySm, { color: 'rgba(255,255,255,0.85)', marginTop: 4, textAlign: textAlign('start') }]}>
+                      {isRTL ? 'Yo-Yo، Sprint، CMJ والمزيد' : 'Yo-Yo, Sprint, CMJ & more'}
+                    </Text>
+                  </View>
+                  <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' }}>
+                    <Ionicons name="add" size={26} color="#FFF" />
+                  </View>
+                </View>
+              </LinearGradient>
+            </Card>
+          </TouchableOpacity>
         </View>
 
         {/* Quick Tools Grid */}
@@ -263,11 +328,15 @@ export default function PerformanceLabScreen() {
             contentContainerStyle={{ gap: theme.spacing[3], marginTop: theme.spacing[3] }}
           >
             {testCategories.map((category) => (
-              <TouchableOpacity key={category.id} activeOpacity={0.85}>
+              <TouchableOpacity key={category.id} activeOpacity={0.85} onPress={() => router.push(APP_ROUTES.performanceLabEntry)}>
                 <Card
                   variant="outlined"
                   padding="md"
-                  style={{ borderRadius: theme.borderRadius.xl, minWidth: 160 }}
+                  style={{
+                    borderRadius: theme.borderRadius.xl,
+                    minWidth: 160,
+                    borderColor: category.color + '40',
+                  }}
                 >
                   <View
                     style={[

@@ -43,6 +43,18 @@ const quickActions = [
 const statsMeta = [
   { id: 'athletes', icon: 'people' as const, key: 'dashboard.athletesCount', color: '#0066FF', trend: '+12%' },
   { id: 'sessions', icon: 'stats-chart' as const, key: 'dashboard.sessionsCount', color: '#10B981', trend: '+8%' },
+  { id: 'injured', icon: 'medkit' as const, key: 'dashboard.injuredCount', color: '#F97316', trend: '-2' },
+  { id: 'load', icon: 'barbell' as const, key: 'dashboard.trainingLoad', color: '#8B5CF6', trend: '+5%' },
+];
+
+const trendBars = [
+  { labelEn: 'Mon', labelAr: 'إث', value: 65, color: '#0066FF' },
+  { labelEn: 'Tue', labelAr: 'ثل', value: 78, color: '#0066FF' },
+  { labelEn: 'Wed', labelAr: 'أر', value: 55, color: '#10B981' },
+  { labelEn: 'Thu', labelAr: 'خم', value: 82, color: '#0066FF' },
+  { labelEn: 'Fri', labelAr: 'جم', value: 70, color: '#F97316' },
+  { labelEn: 'Sat', labelAr: 'سب', value: 45, color: '#10B981' },
+  { labelEn: 'Sun', labelAr: 'أح', value: 30, color: '#8B5CF6' },
 ];
 
 const recentActivities = [
@@ -67,19 +79,62 @@ export default function DashboardScreen() {
   const athletes = useMockStore((s) => s.athletes);
   const tests = useMockStore((s) => s.tests);
 
+  const injuredCount = useMemo(() => athletes.filter((a) => a.status === 'injured').length, [athletes]);
+  const avgLoad = useMemo(() => Math.round(tests.length * 42 + athletes.length * 18), [tests.length, athletes.length]);
+
   const statsData = useMemo(
     () =>
-      statsMeta.map((stat) => ({
-        ...stat,
-        value: stat.id === 'athletes' ? String(athletes.length) : String(tests.length),
-      })),
-    [athletes.length, tests.length]
+      statsMeta.map((stat) => {
+        let value = '0';
+        if (stat.id === 'athletes') value = String(athletes.length);
+        else if (stat.id === 'sessions') value = String(tests.length);
+        else if (stat.id === 'injured') value = String(injuredCount);
+        else if (stat.id === 'load') value = String(avgLoad);
+        return { ...stat, value };
+      }),
+    [athletes.length, tests.length, injuredCount, avgLoad]
+  );
+
+  const todayItems = useMemo(
+    () => [
+      {
+        id: '1',
+        icon: 'fitness' as const,
+        titleEn: `${tests.length} tests logged`,
+        titleAr: `${tests.length} اختبار مسجل`,
+        subEn: 'Performance Lab',
+        subAr: 'مختبر الأداء',
+        color: '#0066FF',
+        route: '/performance-lab/entry' as const,
+      },
+      {
+        id: '2',
+        icon: 'people' as const,
+        titleEn: `${athletes.filter((a) => a.status === 'active').length} active athletes`,
+        titleAr: `${athletes.filter((a) => a.status === 'active').length} لاعب نشط`,
+        subEn: 'Roster status',
+        subAr: 'حالة التشكيلة',
+        color: '#10B981',
+        route: '/(tabs)/athletes' as const,
+      },
+      {
+        id: '3',
+        icon: 'sparkles' as const,
+        titleEn: 'AI insight ready',
+        titleAr: 'رؤية ذكية جاهزة',
+        subEn: 'Open AI Coach',
+        subAr: 'افتح المدرب الذكي',
+        color: '#8B5CF6',
+        route: '/(tabs)/ai-coach' as const,
+      },
+    ],
+    [athletes, tests.length]
   );
 
   const gridConfig = useMemo(() => {
-    if (isDesktop) return { columns: 4, cardWidth: 260, gap: 20 };
-    if (isTablet) return { columns: 2, cardWidth: 280, gap: 16 };
-    return { columns: 2, cardWidth: (windowWidth - 40) / 2, gap: 12 };
+    if (isDesktop) return { columns: 4, cardWidth: 260, gap: 16 };
+    if (isTablet) return { columns: 2, cardWidth: 280, gap: 14 };
+    return { columns: 2, cardWidth: (windowWidth - 40) / 2, gap: 10 };
   }, [windowWidth, isDesktop, isTablet]);
 
   return (
@@ -183,7 +238,7 @@ export default function DashboardScreen() {
             ]}
           >
             {statsData.map((stat) => (
-              <TouchableOpacity key={stat.id} activeOpacity={0.85} style={{ flex: 1 }}>
+              <TouchableOpacity key={stat.id} activeOpacity={0.85} style={{ flex: 1, minWidth: isDesktop ? 200 : '45%' }}>
                 <Card
                   variant="elevated"
                   padding="none"
@@ -241,6 +296,78 @@ export default function DashboardScreen() {
               </TouchableOpacity>
             ))}
           </View>
+        </View>
+
+        {/* Today Overview */}
+        <View
+          style={[
+            styles.section,
+            {
+              maxWidth: isDesktop ? 1400 : undefined,
+              marginHorizontal: isDesktop ? 'auto' : undefined,
+              width: '100%',
+            },
+          ]}
+        >
+          <Text style={[type.h4, { color: theme.colors.text, marginBottom: theme.spacing[3], textAlign: textAlign('start') }]}>
+            {isRTL ? 'نظرة اليوم' : 'Today'}
+          </Text>
+          {todayItems.map((item) => (
+            <TouchableOpacity key={item.id} activeOpacity={0.85} onPress={() => router.push(item.route as never)}>
+              <Card variant="elevated" padding="md" style={{ borderRadius: theme.borderRadius.xl, marginBottom: theme.spacing[2] }}>
+                <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
+                  <View style={[styles.activityIcon, { backgroundColor: item.color + '15', borderRadius: theme.borderRadius.lg }]}>
+                    <Ionicons name={item.icon} size={20} color={item.color} />
+                  </View>
+                  <View style={{ flex: 1, marginHorizontal: theme.spacing[3] }}>
+                    <Text style={[type.body, { color: theme.colors.text, textAlign: textAlign('start') }]}>
+                      {isRTL ? item.titleAr : item.titleEn}
+                    </Text>
+                    <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 2, textAlign: textAlign('start') }]}>
+                      {isRTL ? item.subAr : item.subEn}
+                    </Text>
+                  </View>
+                  <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={18} color={theme.colors.textTertiary} />
+                </View>
+              </Card>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Performance Trends */}
+        <View
+          style={[
+            styles.section,
+            {
+              maxWidth: isDesktop ? 1400 : undefined,
+              marginHorizontal: isDesktop ? 'auto' : undefined,
+              width: '100%',
+            },
+          ]}
+        >
+          <Text style={[type.h4, { color: theme.colors.text, marginBottom: theme.spacing[3], textAlign: textAlign('start') }]}>
+            {isRTL ? 'اتجاه الأداء' : 'Performance trend'}
+          </Text>
+          <Card variant="elevated" padding="lg" style={{ borderRadius: theme.borderRadius['2xl'] }}>
+            <View style={[styles.trendRow, { flexDirection: flexRow(true), justifyContent: 'space-between', alignItems: 'flex-end', height: 120 }]}>
+              {trendBars.map((bar) => (
+                <View key={bar.labelEn} style={{ alignItems: 'center', flex: 1 }}>
+                  <View
+                    style={{
+                      width: isDesktop ? 28 : 22,
+                      height: bar.value,
+                      backgroundColor: bar.color,
+                      borderRadius: theme.borderRadius.md,
+                      opacity: 0.85,
+                    }}
+                  />
+                  <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 6 }]}>
+                    {isRTL ? bar.labelAr : bar.labelEn}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </Card>
         </View>
 
         {/* Quick Actions */}
@@ -363,24 +490,32 @@ export default function DashboardScreen() {
                     },
                   ]}
                 >
-                  <Ionicons name="bulb" size={32} color={theme.colors.primary} />
+                  <Ionicons name="sparkles" size={32} color={theme.colors.primary} />
                 </View>
-                <View style={{ flex: isRTL ? 0 : 1, marginLeft: theme.spacing[4] }}>
-                  <Text
-                    style={[
-                      type.h5,
-                      { color: theme.colors.text, marginBottom: theme.spacing[2] },
-                    ]}
-                  >
-                    {t('dashboard.noInsightsYet')}
+                <View style={{ flex: 1, marginHorizontal: theme.spacing[4] }}>
+                  <Text style={[type.h5, { color: theme.colors.text, marginBottom: theme.spacing[2], textAlign: textAlign('start') }]}>
+                    {athletes.length > 0
+                      ? isRTL
+                        ? `${athletes[0].first_name}: اتجاه +${athletes[0].trend_percent}%`
+                        : `${athletes[0].first_name}: +${athletes[0].trend_percent}% trend`
+                      : t('dashboard.noInsightsYet')}
                   </Text>
-                  <Text
-                    style={[type.bodySm, { color: theme.colors.textSecondary }]}
-                  >
-                    {isRTL
-                      ? 'أضف لاعبين للحصول على توصيات ذكية مخصصة'
-                      : 'Add athletes to get personalized AI recommendations'}
+                  <Text style={[type.bodySm, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>
+                    {athletes.length > 0
+                      ? isRTL
+                        ? 'المدرب الذكي يوصي بجلسة تعافي نشط غداً بناءً على حمل الأسبوع.'
+                        : 'AI Coach recommends active recovery tomorrow based on weekly load.'
+                      : isRTL
+                        ? 'أضف لاعبين للحصول على توصيات ذكية مخصصة'
+                        : 'Add athletes to get personalized AI recommendations'}
                   </Text>
+                  {athletes.length > 0 && (
+                    <TouchableOpacity onPress={() => router.push('/(tabs)/ai-coach' as never)} style={{ marginTop: theme.spacing[3] }}>
+                      <Text style={[type.label, { color: theme.colors.primary, textAlign: textAlign('start') }]}>
+                        {isRTL ? 'اسأل المدرب الذكي ←' : 'Ask AI Coach →'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
               </View>
             </LinearGradient>
@@ -513,4 +648,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  trendRow: {},
 });

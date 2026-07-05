@@ -41,6 +41,8 @@
     "quickActions": "إجراءات سريعة",
     "athletesCount": "اللاعبون",
     "sessionsCount": "الجلسات",
+    "injuredCount": "مصابون",
+    "trainingLoad": "الحمل (AU)",
     "insights": "رؤى الذكاء الاصطناعي",
     "noInsightsYet": "لا توجد رؤى بعد — أضف لاعبين للبدء"
   },

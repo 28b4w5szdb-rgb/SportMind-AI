@@ -41,6 +41,8 @@
     "quickActions": "Quick Actions",
     "athletesCount": "Athletes",
     "sessionsCount": "Sessions",
+    "injuredCount": "Injured",
+    "trainingLoad": "Load (AU)",
     "insights": "AI Insights",
     "noInsightsYet": "No insights yet — add athletes to get started"
   },
