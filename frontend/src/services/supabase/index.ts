@@ -8,7 +8,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import { Database } from './database.types';
+import { Database, Json } from './database.types';
 
 // Environment variables (pre-populated in .env)
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
@@ -109,7 +109,7 @@ export const updateProfile = async (
     language: string;
     theme: string;
     avatar_url: string;
-    notification_settings: Record<string, unknown>;
+    notification_settings: Json;
     is_onboarded: boolean;
   }>
 ) => {
@@ -407,7 +407,7 @@ export const createTestResult = async (
     date: string;
     value: number;
     unit: string;
-    conditions?: Record<string, unknown>;
+    conditions?: Json;
     notes?: string;
   },
   createdBy: string
@@ -446,7 +446,7 @@ export const createConversation = async (
   organizationId: string,
   agentType: string,
   title?: string,
-  context?: Record<string, unknown>
+  context?: Json
 ) => {
   const { data, error } = await supabase
     .from('ai_conversations')
@@ -486,7 +486,7 @@ export const addMessage = async (
   conversationId: string,
   role: 'user' | 'assistant' | 'system',
   content: string,
-  metadata?: Record<string, unknown>,
+  metadata?: Json,
   tokensUsed?: number
 ) => {
   const { data, error } = await supabase
@@ -538,7 +538,7 @@ export const getUserPreferences = async (userId: string) => {
 export const updateUserPreferences = async (
   userId: string,
   preferences: Partial<{
-    dashboard_layout: Record<string, unknown>;
+    dashboard_layout: Json;
     default_view: string;
     units_system: string;
     date_format: string;

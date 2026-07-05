@@ -8,6 +8,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme } from '@/src/core/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useDirection } from '@/src/providers/DirectionProvider';
 
 interface HeaderProps {
   title: string;
@@ -22,9 +23,15 @@ interface HeaderProps {
 export function Header({ title, subtitle, showBack = false, rightAction }: HeaderProps) {
   const theme = useTheme();
   const router = useRouter();
-  
+  const { flexRow, backIcon } = useDirection();
+
   return (
-    <View style={[styles.container, { height: theme.layout.headerHeight }]}>
+    <View
+      style={[
+        styles.container,
+        { height: theme.layout.headerHeight, flexDirection: flexRow(true) },
+      ]}
+    >
       <View style={styles.left}>
         {showBack && (
           <TouchableOpacity
@@ -32,22 +39,25 @@ export function Header({ title, subtitle, showBack = false, rightAction }: Heade
             style={styles.iconButton}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
+            <Ionicons name={backIcon()} size={24} color={theme.colors.text} />
           </TouchableOpacity>
         )}
       </View>
-      
+
       <View style={styles.center}>
         <Text style={[theme.typography.h3, { color: theme.colors.text }]} numberOfLines={1}>
           {title}
         </Text>
         {subtitle && (
-          <Text style={[theme.typography.caption, { color: theme.colors.textSecondary }]} numberOfLines={1}>
+          <Text
+            style={[theme.typography.caption, { color: theme.colors.textSecondary }]}
+            numberOfLines={1}
+          >
             {subtitle}
           </Text>
         )}
       </View>
-      
+
       <View style={styles.right}>
         {rightAction && (
           <TouchableOpacity
@@ -65,7 +75,6 @@ export function Header({ title, subtitle, showBack = false, rightAction }: Heade
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,

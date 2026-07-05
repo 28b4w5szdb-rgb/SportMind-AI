@@ -4,19 +4,19 @@
  */
 
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Switch } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Text, ScrollView, StyleSheet, Switch } from 'react-native';
 import { Screen } from '@/src/components/layout/Screen';
 import { Header } from '@/src/components/layout/Header';
 import { Card } from '@/src/components/common/Card';
 import { useTheme } from '@/src/core/theme';
+import { useDirection } from '@/src/providers/DirectionProvider';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function SettingsScreen() {
   const theme = useTheme();
-  const router = useRouter();
+  const { flexRow, chevronIcon } = useDirection();
   const [darkMode, setDarkMode] = React.useState(theme.isDark);
-  
+
   const settingsSections = [
     {
       title: 'Preferences',
@@ -43,24 +43,33 @@ export default function SettingsScreen() {
       ],
     },
   ];
-  
+
   return (
     <Screen padding={false}>
       <Header title="Settings" showBack />
-      
+
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: theme.spacing.md }}>
         {settingsSections.map((section, sectionIndex) => (
           <View key={sectionIndex} style={{ marginBottom: theme.spacing.lg }}>
-            <Text style={[theme.typography.label, { color: theme.colors.textSecondary, marginBottom: theme.spacing.sm }]}>
+            <Text
+              style={[
+                theme.typography.label,
+                { color: theme.colors.textSecondary, marginBottom: theme.spacing.sm },
+              ]}
+            >
               {section.title}
             </Text>
             <Card>
               {section.items.map((item, index) => (
                 <View key={item.id}>
-                  <View style={styles.settingRow}>
-                    <View style={styles.settingLeft}>
-                      {item.icon && <Ionicons name={item.icon} size={20} color={theme.colors.textSecondary} />}
-                      <Text style={[theme.typography.body, { color: theme.colors.text }]}>{item.label}</Text>
+                  <View style={[styles.settingRow, { flexDirection: flexRow(true) }]}>
+                    <View style={[styles.settingLeft, { flexDirection: flexRow(true) }]}>
+                      {item.icon && (
+                        <Ionicons name={item.icon} size={20} color={theme.colors.textSecondary} />
+                      )}
+                      <Text style={[theme.typography.body, { color: theme.colors.text }]}>
+                        {item.label}
+                      </Text>
                     </View>
                     {item.type === 'toggle' ? (
                       <Switch
@@ -69,7 +78,11 @@ export default function SettingsScreen() {
                         trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
                       />
                     ) : (
-                      <Ionicons name="chevron-forward" size={20} color={theme.colors.textTertiary} />
+                      <Ionicons
+                        name={chevronIcon()}
+                        size={20}
+                        color={theme.colors.textTertiary}
+                      />
                     )}
                   </View>
                   {index < section.items.length - 1 && (
@@ -80,8 +93,13 @@ export default function SettingsScreen() {
             </Card>
           </View>
         ))}
-        
-        <Text style={[theme.typography.caption, { color: theme.colors.textTertiary, textAlign: 'center', marginTop: theme.spacing.xl }]}>
+
+        <Text
+          style={[
+            theme.typography.caption,
+            { color: theme.colors.textTertiary, textAlign: 'center', marginTop: theme.spacing.xl },
+          ]}
+        >
           SportMind AI v1.0.0
         </Text>
       </ScrollView>
@@ -91,18 +109,16 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   settingRow: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 12,
   },
   settingLeft: {
-    flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
   divider: {
     height: 1,
-    marginLeft: 32,
+    marginStart: 32,
   },
 });

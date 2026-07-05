@@ -18,7 +18,7 @@ export interface Theme {
   timing: typeof timing;
   zIndex: typeof zIndex;
   gradients: typeof gradients;
-  chartColors: typeof chartColors.light;
+  chartColors: (typeof chartColors)['light'] | (typeof chartColors)['dark'];
   isDark: boolean;
 }
 

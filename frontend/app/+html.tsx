@@ -4,7 +4,7 @@ import type { PropsWithChildren } from "react";
 
 export default function Root({ children }: PropsWithChildren) {
   return (
-    <html lang="en" style={{ height: "100%" }}>
+    <html lang="en" dir="ltr" style={{ height: "100%" }}>
       <head>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
@@ -24,6 +24,17 @@ export default function Root({ children }: PropsWithChildren) {
               body > div:first-child { position: fixed !important; top: 0; left: 0; right: 0; bottom: 0; }
               [role="tablist"] [role="tab"] * { overflow: visible !important; }
               [role="heading"], [role="heading"] * { overflow: visible !important; }
+              /* Keep Arabic/Latin text horizontal on web (prevents vertical character stacking). */
+              html, body, #root, #root * {
+                writing-mode: horizontal-tb;
+                text-orientation: mixed;
+              }
+              html[dir="rtl"], html[dir="rtl"] body, html[dir="rtl"] #root {
+                direction: rtl;
+              }
+              html[dir="ltr"], html[dir="ltr"] body, html[dir="ltr"] #root {
+                direction: ltr;
+              }
             `,
           }}
         />

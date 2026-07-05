@@ -28,6 +28,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
 import {
@@ -68,6 +69,10 @@ export interface DirectionContextValue {
    * `textAlign('start')` returns `'left'` in LTR and `'right'` in RTL.
    */
   textAlign: (side: 'start' | 'end' | 'center') => 'left' | 'right' | 'center';
+  /** Ionicons name for back navigation (mirrored in RTL). */
+  backIcon: () => 'arrow-back' | 'arrow-forward';
+  /** Ionicons name for forward/list affordance (mirrored in RTL). */
+  chevronIcon: () => 'chevron-forward' | 'chevron-back';
 }
 
 const DirectionContext = createContext<DirectionContextValue | null>(null);
@@ -138,6 +143,14 @@ export function DirectionProvider({ children, initialLanguage }: DirectionProvid
     await setLanguage(next);
   }, [language, setLanguage]);
 
+  // Sync document direction on web so Arabic text flows horizontally.
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    const isRTL = isRTLLanguage(language);
+    document.documentElement.lang = language;
+    document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+  }, [language]);
+
   const value = useMemo<DirectionContextValue>(() => {
     const isRTL = isRTLLanguage(language);
     return {
@@ -156,6 +169,8 @@ export function DirectionProvider({ children, initialLanguage }: DirectionProvid
         if (side === 'start') return isRTL ? 'right' : 'left';
         return isRTL ? 'left' : 'right';
       },
+      backIcon: () => (isRTL ? 'arrow-forward' : 'arrow-back'),
+      chevronIcon: () => (isRTL ? 'chevron-back' : 'chevron-forward'),
     };
   }, [language, ready, setLanguage, toggleLanguage]);
 

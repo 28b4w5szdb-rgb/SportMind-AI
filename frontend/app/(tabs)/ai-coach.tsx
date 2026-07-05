@@ -162,7 +162,11 @@ export default function AICoachScreen() {
                     },
                   ]}
                 >
-                  <Ionicons name={cap.icon} size={18} color={cap.color} />
+                  <Ionicons
+                    name={cap.icon as keyof typeof Ionicons.glyphMap}
+                    size={18}
+                    color={cap.color}
+                  />
                   <Text style={[type.label, { color: cap.color, marginLeft: theme.spacing[2] }]}>
                     {isRTL ? cap.labelAr : cap.label}
                   </Text>
@@ -415,7 +419,7 @@ export default function AICoachScreen() {
                 title={isRTL ? 'إشعني عند التوفر' : 'Notify Me'}
                 variant="outline"
                 size="medium"
-                icon="bell"
+                icon="notifications-outline"
                 onPress={() => {}}
                 style={{ marginTop: theme.spacing[5] }}
               />

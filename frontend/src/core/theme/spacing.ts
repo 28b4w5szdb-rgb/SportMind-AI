@@ -4,7 +4,7 @@
  */
 
 // Core spacing values following 8pt grid
-export const spacing = {
+const spacingScale = {
   '0': 0,
   '0.5': 2,
   '1': 4,
@@ -32,6 +32,21 @@ export const spacing = {
   '48': 192,
   '56': 224,
   '64': 256,
+} as const;
+
+/** Semantic aliases used by components (map to 8pt grid). */
+const spacingSemantic = {
+  xs: spacingScale['1'],
+  sm: spacingScale['2'],
+  md: spacingScale['4'],
+  lg: spacingScale['6'],
+  xl: spacingScale['8'],
+  '2xl': spacingScale['10'],
+} as const;
+
+export const spacing = {
+  ...spacingScale,
+  ...spacingSemantic,
 } as const;
 
 // Border radius values - soft, modern curves
@@ -112,7 +127,9 @@ export const shadows = {
 // Common layout dimensions
 export const layout = {
   // Screen padding
-  screenPaddingHorizontal: spacing[4],
+  /** @deprecated Prefer screenPaddingHorizontal — kept for legacy call sites. */
+  screenPadding: spacing['4'],
+  screenPaddingHorizontal: spacing['4'],
   screenPaddingTop: spacing[6],
   screenPaddingBottom: spacing[8],
 
@@ -224,6 +241,7 @@ export type Spacing = typeof spacing;
 export type SpacingKey = keyof typeof spacing;
 export type BorderRadius = typeof borderRadius;
 export type BorderRadiusKey = keyof typeof borderRadius;
+export type Shadows = typeof shadows;
 export type ShadowsKey = keyof typeof shadows;
 export type Layout = typeof layout;
 

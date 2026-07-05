@@ -5,16 +5,16 @@
 
 import React from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
 import { Screen } from '@/src/components/layout/Screen';
 import { Header } from '@/src/components/layout/Header';
 import { Card } from '@/src/components/common/Card';
 import { useTheme } from '@/src/core/theme';
+import { useDirection } from '@/src/providers/DirectionProvider';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function CalculatorScreen() {
   const theme = useTheme();
-  const router = useRouter();
+  const { flexRow, chevronIcon } = useDirection();
   
   const calculators = [
     { id: '1', title: 'VO2 Max', icon: 'fitness' as const, description: 'Calculate maximum oxygen uptake' },
@@ -36,7 +36,13 @@ export default function CalculatorScreen() {
         
         {calculators.map((calc) => (
           <TouchableOpacity key={calc.id} activeOpacity={0.7}>
-            <Card style={[styles.calcCard, { marginBottom: theme.spacing.md }]}>
+            <Card
+              style={{
+                ...styles.calcCard,
+                marginBottom: theme.spacing.md,
+                flexDirection: flexRow(true),
+              }}
+            >
               <View
                 style={[
                   styles.calcIcon,
@@ -50,11 +56,11 @@ export default function CalculatorScreen() {
               </View>
               <View style={styles.calcContent}>
                 <Text style={[theme.typography.h4, { color: theme.colors.text }]}>{calc.title}</Text>
-                <Text style={[theme.typography.bodySmall, { color: theme.colors.textSecondary, marginTop: 4 }]}>
+                <Text style={[theme.typography.bodySm, { color: theme.colors.textSecondary, marginTop: 4 }]}>
                   {calc.description}
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color={theme.colors.textTertiary} />
+              <Ionicons name={chevronIcon()} size={20} color={theme.colors.textTertiary} />
             </Card>
           </TouchableOpacity>
         ))}
@@ -65,7 +71,6 @@ export default function CalculatorScreen() {
 
 const styles = StyleSheet.create({
   calcCard: {
-    flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
     gap: 16,

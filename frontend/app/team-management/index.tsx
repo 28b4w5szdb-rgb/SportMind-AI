@@ -4,15 +4,12 @@
  */
 
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import { Screen } from '@/src/components/layout/Screen';
 import { Header } from '@/src/components/layout/Header';
 import { EmptyState } from '@/src/components/common/EmptyState';
-import { useTheme } from '@/src/core/theme';
 
 export default function TeamManagementScreen() {
-  const theme = useTheme();
-  
   return (
     <Screen padding={false}>
       <Header title="Team Management" showBack />

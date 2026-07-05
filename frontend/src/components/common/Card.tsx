@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import { View, StyleSheet, ViewStyle, type ColorValue } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTheme } from '@/src/core/theme';
 
@@ -97,7 +97,11 @@ export function Card({
 
   // Gradient variant wrapper
   if (variant === 'gradient' && (gradientColors || theme.gradients)) {
-    const colors = gradientColors || ['#0066FF', '#0D9488'];
+    const colors = (gradientColors ?? ['#0066FF', '#0D9488']) as unknown as readonly [
+      ColorValue,
+      ColorValue,
+      ...ColorValue[],
+    ];
     return (
       <View style={[containerStyles, style, { overflow: 'hidden', padding: 0 }]}>
         <LinearGradient

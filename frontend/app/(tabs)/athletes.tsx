@@ -59,9 +59,17 @@ export default function AthletesScreen() {
   }, [windowWidth, isDesktop, isTablet]);
 
   const filteredAthletes = useMemo(() => {
-    if (selectedFilter === 'all') return sampleAthletes;
-    return sampleAthletes.filter((a) => a.status === selectedFilter);
-  }, [selectedFilter]);
+    const query = searchQuery.trim().toLowerCase();
+    return sampleAthletes.filter((a) => {
+      const matchesFilter = selectedFilter === 'all' || a.status === selectedFilter;
+      if (!matchesFilter) return false;
+      if (!query) return true;
+      return (
+        a.name.toLowerCase().includes(query) ||
+        a.position.toLowerCase().includes(query)
+      );
+    });
+  }, [selectedFilter, searchQuery]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -236,6 +244,7 @@ export default function AthletesScreen() {
                   styles.searchInput,
                   {
                     textAlign: textAlign('start'),
+                    writingDirection: isRTL ? 'rtl' : 'ltr',
                     color: theme.colors.text,
                   },
                 ]}

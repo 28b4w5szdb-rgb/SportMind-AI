@@ -55,6 +55,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       profiles: {
         Row: {
@@ -102,6 +103,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       organization_members: {
         Row: {
@@ -128,6 +130,7 @@ export interface Database {
           joined_at?: string;
           is_primary?: boolean;
         };
+        Relationships: [];
       };
       athletes: {
         Row: {
@@ -190,6 +193,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       teams: {
         Row: {
@@ -234,6 +238,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       team_athletes: {
         Row: {
@@ -266,6 +271,7 @@ export interface Database {
           jersey_number?: number | null;
           is_captain?: boolean;
         };
+        Relationships: [];
       };
       positions: {
         Row: {
@@ -295,6 +301,7 @@ export interface Database {
           category?: string | null;
           sort_order?: number;
         };
+        Relationships: [];
       };
       training_sessions: {
         Row: {
@@ -354,6 +361,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       session_attendees: {
         Row: {
@@ -389,6 +397,7 @@ export interface Database {
           heart_rate_max?: number | null;
           notes?: string | null;
         };
+        Relationships: [];
       };
       test_types: {
         Row: {
@@ -439,6 +448,7 @@ export interface Database {
           created_by?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       performance_test_results: {
         Row: {
@@ -489,6 +499,7 @@ export interface Database {
           created_by?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       reports: {
         Row: {
@@ -548,6 +559,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       ai_conversations: {
         Row: {
@@ -589,6 +601,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       ai_messages: {
         Row: {
@@ -618,6 +631,7 @@ export interface Database {
           tokens_used?: number | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       ai_analyses: {
         Row: {
@@ -662,6 +676,7 @@ export interface Database {
           created_by?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       saved_calculations: {
         Row: {
@@ -700,6 +715,7 @@ export interface Database {
           notes?: string | null;
           created_at?: string;
         };
+        Relationships: [];
       };
       user_preferences: {
         Row: {
@@ -747,7 +763,14 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
     };
     Enums: {
       user_role: UserRole;

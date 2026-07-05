@@ -157,7 +157,7 @@ export default function PerformanceLabScreen() {
             ]}
           >
             {labTools.map((tool) => {
-              const labels = labLabels[tool.key];
+              const labels = labLabels[tool.key as keyof typeof labLabels];
               return (
                 <TouchableOpacity
                   key={tool.id}

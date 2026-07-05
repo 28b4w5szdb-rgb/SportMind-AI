@@ -11,7 +11,6 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  Dimensions,
   useWindowDimensions,
   Platform,
 } from 'react-native';
@@ -419,7 +418,11 @@ export default function DashboardScreen() {
                       },
                     ]}
                   >
-                    <Ionicons name={activity.icon} size={20} color={activity.color} />
+                    <Ionicons
+                      name={activity.icon as keyof typeof Ionicons.glyphMap}
+                      size={20}
+                      color={activity.color}
+                    />
                   </View>
                   <View style={{ flex: 1, marginHorizontal: theme.spacing[3] }}>
                     <Text style={[type.body, { color: theme.colors.text }]}>

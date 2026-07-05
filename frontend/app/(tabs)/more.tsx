@@ -3,7 +3,7 @@
  * Premium settings hub with responsive design for web/tablet/mobile
  */
 
-import React, { useLayoutEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,

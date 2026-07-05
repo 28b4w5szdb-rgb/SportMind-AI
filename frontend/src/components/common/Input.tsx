@@ -6,6 +6,7 @@
 import React from 'react';
 import { View, TextInput, Text, StyleSheet, TextInputProps, ViewStyle } from 'react-native';
 import { useTheme } from '@/src/core/theme';
+import { useDirection } from '@/src/providers/DirectionProvider';
 import { Ionicons } from '@expo/vector-icons';
 
 interface InputProps extends TextInputProps {
@@ -17,7 +18,8 @@ interface InputProps extends TextInputProps {
 
 export function Input({ label, error, icon, containerStyle, style, ...props }: InputProps) {
   const theme = useTheme();
-  
+  const { flexRow, textAlign, isRTL } = useDirection();
+
   return (
     <View style={[styles.container, containerStyle]}>
       {label && (
@@ -29,6 +31,7 @@ export function Input({ label, error, icon, containerStyle, style, ...props }: I
         style={[
           styles.inputContainer,
           {
+            flexDirection: flexRow(true),
             backgroundColor: theme.colors.surface,
             borderColor: error ? theme.colors.error : theme.colors.border,
             borderRadius: theme.borderRadius.lg,
@@ -40,14 +43,19 @@ export function Input({ label, error, icon, containerStyle, style, ...props }: I
             name={icon}
             size={20}
             color={theme.colors.textTertiary}
-            style={{ marginRight: theme.spacing.sm }}
+            style={{ marginEnd: theme.spacing.sm }}
           />
         )}
         <TextInput
           style={[
             styles.input,
             theme.typography.body,
-            { color: theme.colors.text, flex: 1 },
+            {
+              color: theme.colors.text,
+              flex: 1,
+              textAlign: textAlign('start'),
+              writingDirection: isRTL ? 'rtl' : 'ltr',
+            },
             style,
           ]}
           placeholderTextColor={theme.colors.textTertiary}
@@ -68,7 +76,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   inputContainer: {
-    flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     paddingHorizontal: 16,
