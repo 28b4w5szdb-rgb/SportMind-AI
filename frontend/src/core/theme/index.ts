@@ -4,17 +4,21 @@
  */
 
 import { useColorScheme } from 'react-native';
-import { colors, ColorScheme, Colors } from './colors';
-import { typography, Typography, fontSizes, fontWeights, lineHeights } from './typography';
-import { spacing, borderRadius, shadows, layout, Spacing, BorderRadius, Shadows } from './spacing';
+import { colors, gradients, chartColors, ColorScheme, Colors } from './colors';
+import { typography, Typography, fontSizes, fontWeights, lineHeights, letterSpacing } from './typography';
+import { spacing, borderRadius, shadows, layout, timing, zIndex, Spacing, Shadows } from './spacing';
 
 export interface Theme {
   colors: Colors;
   typography: Typography;
   spacing: Spacing;
-  borderRadius: BorderRadius;
+  borderRadius: typeof borderRadius;
   shadows: Shadows;
   layout: typeof layout;
+  timing: typeof timing;
+  zIndex: typeof zIndex;
+  gradients: typeof gradients;
+  chartColors: typeof chartColors.light;
   isDark: boolean;
 }
 
@@ -24,7 +28,7 @@ export interface Theme {
 export function useTheme(): Theme {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-  
+
   return {
     colors: isDark ? colors.dark : colors.light,
     typography,
@@ -32,12 +36,31 @@ export function useTheme(): Theme {
     borderRadius,
     shadows,
     layout,
+    timing,
+    zIndex,
+    gradients,
+    chartColors: isDark ? chartColors.dark : chartColors.light,
     isDark,
   };
 }
 
 // Export individual theme parts
-export { colors, typography, spacing, borderRadius, shadows, layout, fontSizes, fontWeights, lineHeights };
+export {
+  colors,
+  gradients,
+  chartColors,
+  typography,
+  spacing,
+  borderRadius,
+  shadows,
+  layout,
+  timing,
+  zIndex,
+  fontSizes,
+  fontWeights,
+  lineHeights,
+  letterSpacing,
+};
 
 // Bilingual typography hook (Latin vs Arabic)
 export { useTypography } from './useTypography';
@@ -46,4 +69,4 @@ export { FONT_FAMILIES, resolveFontFamily } from './fonts';
 export type { FontWeightKey } from './fonts';
 
 // Export types
-export type { ColorScheme, Colors, Typography, Spacing, BorderRadius, Shadows };
+export type { ColorScheme, Colors, Typography, Spacing, Shadows };
