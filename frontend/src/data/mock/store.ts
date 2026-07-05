@@ -24,6 +24,9 @@ import {
 
 const STORAGE_KEY = '@sportmind/mock-store-v1';
 
+/** Stable empty list for store getters (avoid accidental new [] references). */
+const EMPTY_STORE_MESSAGES: AiMessage[] = [];
+
 function uid(prefix: string): string {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 }
@@ -218,7 +221,7 @@ export const useMockStore = create<MockStore>()(
 
       getActiveMessages: () => {
         const conv = get().getActiveConversation();
-        return conv?.messages ?? [];
+        return conv?.messages ?? EMPTY_STORE_MESSAGES;
       },
 
       setActiveMessages: (messages) => {
