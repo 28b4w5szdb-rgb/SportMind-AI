@@ -398,7 +398,7 @@ export default function MoreScreen() {
                 >
                   <Ionicons name="fitness" size={isDesktop ? 32 : 28} color="#FFFFFF" />
                 </LinearGradient>
-                <View style={{ flex: 1, marginLeft: theme.spacing[4] }}>
+                <View style={{ flex: 1, marginStart: theme.spacing[4] }}>
                   <Text style={[type.h4, { color: theme.colors.text }]}>
                     SportMind AI
                   </Text>

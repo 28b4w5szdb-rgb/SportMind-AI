@@ -1,6 +1,6 @@
 /**
  * SportMind AI - AI Coach Screen
- * Premium ChatGPT-style AI assistant with mock local responses.
+ * Premium ChatGPT-style AI assistant with persisted mock conversations.
  */
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
@@ -16,6 +16,8 @@ import {
   Platform,
   useWindowDimensions,
   Alert,
+  Modal,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -28,12 +30,12 @@ import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import {
   AI_AGENTS,
-  RECENT_CONVERSATIONS,
   SUGGESTED_PROMPTS,
   generateMockResponse,
   type AiAgentId,
   type AiMessage,
 } from '@/src/data/mock/ai-coach';
+import { useMockStore } from '@/src/data/mock/store';
 import { copyToClipboard, exportTextPlaceholder } from '@/src/utils/clipboard';
 
 function createMessage(role: AiMessage['role'], content: string, agentId?: AiAgentId): AiMessage {
@@ -46,6 +48,16 @@ function createMessage(role: AiMessage['role'], content: string, agentId?: AiAge
   };
 }
 
+function formatConversationDate(iso: string, isRTL: boolean): string {
+  const d = new Date(iso);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return isRTL ? 'اليوم' : 'Today';
+  if (diffDays === 1) return isRTL ? 'أمس' : 'Yesterday';
+  return d.toLocaleDateString(isRTL ? 'ar' : 'en', { month: 'short', day: 'numeric' });
+}
+
 export default function AICoachScreen() {
   const theme = useTheme();
   const type = useTypography();
@@ -54,14 +66,27 @@ export default function AICoachScreen() {
   const { width: windowWidth } = useWindowDimensions();
   const listRef = useRef<FlatList>(null);
 
-  const [selectedAgent, setSelectedAgent] = useState<AiAgentId>('performance');
-  const [messages, setMessages] = useState<AiMessage[]>([]);
+  const selectedAgent = useMockStore((s) => s.selectedAgent);
+  const setSelectedAgent = useMockStore((s) => s.setSelectedAgent);
+  const conversations = useMockStore((s) => s.conversations);
+  const activeConversationId = useMockStore((s) => s.activeConversationId);
+  const appendActiveMessage = useMockStore((s) => s.appendActiveMessage);
+  const setActiveMessages = useMockStore((s) => s.setActiveMessages);
+  const startNewConversation = useMockStore((s) => s.startNewConversation);
+  const setActiveConversation = useMockStore((s) => s.setActiveConversation);
+
+  const messages = useMockStore((s) => {
+    if (!s.activeConversationId) return [];
+    return s.conversations.find((c) => c.id === s.activeConversationId)?.messages ?? [];
+  });
+
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
 
   const isDesktop = windowWidth >= 1024;
   const hasMessages = messages.length > 0 || isTyping;
+  const canSend = input.trim().length > 0 && !isTyping;
 
   const scrollToEnd = useCallback(() => {
     setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
@@ -73,23 +98,23 @@ export default function AICoachScreen() {
       if (!trimmed || isTyping) return;
 
       const userMsg = createMessage('user', trimmed, selectedAgent);
-      setMessages((prev) => [...prev, userMsg]);
+      appendActiveMessage(userMsg);
       setInput('');
       setIsTyping(true);
       scrollToEnd();
 
       setTimeout(() => {
         const reply = generateMockResponse(selectedAgent, trimmed, isRTL);
-        setMessages((prev) => [...prev, createMessage('assistant', reply, selectedAgent)]);
+        appendActiveMessage(createMessage('assistant', reply, selectedAgent));
         setIsTyping(false);
         scrollToEnd();
       }, 1400 + Math.random() * 800);
     },
-    [isTyping, isRTL, scrollToEnd, selectedAgent]
+    [appendActiveMessage, isTyping, isRTL, scrollToEnd, selectedAgent]
   );
 
   const handleNewChat = () => {
-    setMessages([]);
+    startNewConversation();
     setInput('');
     setIsTyping(false);
     setShowSidebar(false);
@@ -105,19 +130,17 @@ export default function AICoachScreen() {
   const handleRegenerate = useCallback(() => {
     const lastUser = [...messages].reverse().find((m) => m.role === 'user');
     if (!lastUser || isTyping) return;
-    setMessages((prev) => {
-      const lastAssistantIdx = prev.map((m) => m.role).lastIndexOf('assistant');
-      if (lastAssistantIdx < 0) return prev;
-      return prev.slice(0, lastAssistantIdx);
-    });
+    const lastAssistantIdx = messages.map((m) => m.role).lastIndexOf('assistant');
+    if (lastAssistantIdx < 0) return;
+    setActiveMessages(messages.slice(0, lastAssistantIdx));
     setIsTyping(true);
     setTimeout(() => {
       const reply = generateMockResponse(selectedAgent, lastUser.content, isRTL);
-      setMessages((prev) => [...prev, createMessage('assistant', reply, selectedAgent)]);
+      appendActiveMessage(createMessage('assistant', reply, selectedAgent));
       setIsTyping(false);
       scrollToEnd();
     }, 1200);
-  }, [messages, isTyping, isRTL, scrollToEnd, selectedAgent]);
+  }, [appendActiveMessage, isRTL, isTyping, messages, scrollToEnd, selectedAgent, setActiveMessages]);
 
   const handleExport = () => {
     const body = messages.map((m) => `${m.role}: ${m.content}`).join('\n\n');
@@ -127,7 +150,9 @@ export default function AICoachScreen() {
   const handleAttachment = () => {
     Alert.alert(
       isRTL ? 'المرفقات' : 'Attachments',
-      isRTL ? 'رفع ملفات PDF/صور/بيانات CSV سيتوفر عند ربط التخزين.' : 'Upload PDF, images, or CSV data files coming when storage is connected.'
+      isRTL
+        ? 'ارفع PDF أو صور أو CSV — سيتوفر عند ربط التخزين.'
+        : 'Upload PDF, images, or CSV — available when storage is connected.'
     );
   };
 
@@ -151,22 +176,24 @@ export default function AICoachScreen() {
   }, [messages]);
 
   const renderEmptyState = () => (
-    <ScrollView
-      contentContainerStyle={{ paddingBottom: theme.spacing[8] }}
-      showsVerticalScrollIndicator={false}
-    >
+    <ScrollView contentContainerStyle={{ paddingBottom: theme.spacing[8] }} showsVerticalScrollIndicator={false}>
       <View style={[styles.emptyHero, { alignItems: 'center', paddingVertical: theme.spacing[8] }]}>
-        <LinearGradient
-          colors={['#0066FF', '#0D9488']}
-          style={[styles.emptyIcon, { borderRadius: theme.borderRadius['3xl'] }]}
-        >
+        <LinearGradient colors={['#0066FF', '#0D9488']} style={[styles.emptyIcon, { borderRadius: theme.borderRadius['3xl'] }]}>
           <Ionicons name="sparkles" size={36} color="#FFF" />
         </LinearGradient>
         <Text style={[type.h3, { color: theme.colors.text, marginTop: theme.spacing[4], textAlign: 'center' }]}>
           {t('aiCoach.title')}
         </Text>
-        <Text style={[type.body, { color: theme.colors.textSecondary, marginTop: theme.spacing[2], textAlign: 'center', maxWidth: 320 }]}>
+        <Text
+          style={[
+            type.body,
+            { color: theme.colors.textSecondary, marginTop: theme.spacing[2], textAlign: 'center', maxWidth: 320 },
+          ]}
+        >
           {t('aiCoach.welcome')}
+        </Text>
+        <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: theme.spacing[4], textAlign: 'center' }]}>
+          {isRTL ? 'اختر وكيلاً أعلاه أو جرّب أحد الأسئلة' : 'Pick an agent above or try a suggested prompt'}
         </Text>
       </View>
 
@@ -186,7 +213,12 @@ export default function AICoachScreen() {
             <Card variant="elevated" padding="md" style={{ borderRadius: theme.borderRadius.xl, ...theme.shadows.sm }}>
               <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
                 <Ionicons name="chatbubble-ellipses-outline" size={20} color={theme.colors.primary} />
-                <Text style={[type.bodySm, { color: theme.colors.text, flex: 1, marginHorizontal: theme.spacing[3], textAlign: textAlign('start') }]}>
+                <Text
+                  style={[
+                    type.bodySm,
+                    { color: theme.colors.text, flex: 1, marginHorizontal: theme.spacing[3], textAlign: textAlign('start') },
+                  ]}
+                >
                   {isRTL ? prompt.textAr : prompt.textEn}
                 </Text>
                 <Ionicons name={isRTL ? 'arrow-back' : 'arrow-forward'} size={16} color={theme.colors.textTertiary} />
@@ -207,7 +239,12 @@ export default function AICoachScreen() {
           keyExtractor={(item) => item.key}
           renderItem={({ item }) =>
             item.type === 'date' ? (
-              <Text style={[type.caption, { color: theme.colors.textTertiary, textAlign: 'center', marginVertical: theme.spacing[3] }]}>
+              <Text
+                style={[
+                  type.caption,
+                  { color: theme.colors.textTertiary, textAlign: 'center', marginVertical: theme.spacing[3] },
+                ]}
+              >
                 {item.label}
               </Text>
             ) : (
@@ -229,13 +266,10 @@ export default function AICoachScreen() {
     </View>
   );
 
-  const sidebar = (
-    <View style={[styles.sidebar, { borderColor: theme.colors.border, backgroundColor: theme.colors.backgroundSecondary }]}>
+  const sidebarContent = (
+    <>
       <TouchableOpacity onPress={handleNewChat} activeOpacity={0.85} style={{ marginBottom: theme.spacing.md }}>
-        <LinearGradient
-          colors={['#0066FF', '#0D9488']}
-          style={[styles.newChatBtn, { borderRadius: theme.borderRadius.lg }]}
-        >
+        <LinearGradient colors={['#0066FF', '#0D9488']} style={[styles.newChatBtn, { borderRadius: theme.borderRadius.lg }]}>
           <Ionicons name="add" size={20} color="#FFF" />
           <Text style={[type.button, { color: '#FFF', marginStart: theme.spacing.sm, fontSize: 14 }]}>
             {isRTL ? 'محادثة جديدة' : 'New chat'}
@@ -245,42 +279,71 @@ export default function AICoachScreen() {
       <Text style={[type.label, { color: theme.colors.textTertiary, marginBottom: theme.spacing[2], textAlign: textAlign('start') }]}>
         {isRTL ? 'الأخيرة' : 'Recent'}
       </Text>
-      {RECENT_CONVERSATIONS.map((conv) => (
-        <TouchableOpacity
-          key={conv.id}
-          activeOpacity={0.85}
-          onPress={() => {
-            setSelectedAgent(conv.agentId);
-            setMessages([
-              createMessage('user', isRTL ? conv.titleAr : conv.title, conv.agentId),
-              createMessage('assistant', generateMockResponse(conv.agentId, conv.title, isRTL), conv.agentId),
-            ]);
-            setShowSidebar(false);
-          }}
-          style={[styles.convItem, { borderRadius: theme.borderRadius.lg, backgroundColor: theme.colors.surface }]}
-        >
-          <Text style={[type.bodySm, { color: theme.colors.text, textAlign: textAlign('start') }]} numberOfLines={1}>
-            {isRTL ? conv.titleAr : conv.title}
-          </Text>
-          <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 2, textAlign: textAlign('start') }]}>
-            {conv.updatedAt} · {conv.messageCount}
-          </Text>
-        </TouchableOpacity>
-      ))}
+      {conversations.length === 0 ? (
+        <Text style={[type.bodySm, { color: theme.colors.textTertiary, textAlign: textAlign('start'), paddingVertical: 12 }]}>
+          {isRTL ? 'لا محادثات بعد — ابدأ محادثة جديدة' : 'No conversations yet — start a new chat'}
+        </Text>
+      ) : (
+        conversations.map((conv) => {
+          const active = conv.id === activeConversationId;
+          return (
+            <TouchableOpacity
+              key={conv.id}
+              activeOpacity={0.85}
+              onPress={() => {
+                setActiveConversation(conv.id);
+                setShowSidebar(false);
+              }}
+              style={[
+                styles.convItem,
+                {
+                  borderRadius: theme.borderRadius.lg,
+                  backgroundColor: active ? theme.colors.primary + '15' : theme.colors.surface,
+                  borderWidth: active ? 1 : 0,
+                  borderColor: active ? theme.colors.primary + '40' : 'transparent',
+                },
+              ]}
+            >
+              <Text style={[type.bodySm, { color: theme.colors.text, textAlign: textAlign('start'), fontWeight: active ? '600' : '400' }]} numberOfLines={2}>
+                {conv.title}
+              </Text>
+              <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 4, textAlign: textAlign('start') }]}>
+                {formatConversationDate(conv.updatedAt, isRTL)} · {conv.messages.length} {isRTL ? 'رسائل' : 'msgs'}
+              </Text>
+            </TouchableOpacity>
+          );
+        })
+      )}
+    </>
+  );
+
+  const sidebar = (
+    <View
+      style={[
+        styles.sidebar,
+        { borderColor: theme.colors.border, backgroundColor: theme.colors.backgroundSecondary },
+        isRTL ? { borderLeftWidth: StyleSheet.hairlineWidth } : { borderRightWidth: StyleSheet.hairlineWidth },
+      ]}
+    >
+      {sidebarContent}
     </View>
   );
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: theme.colors.background }]} edges={['top']}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: theme.colors.background }]} edges={['top', 'bottom']}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 88 : 0}
       >
-        {/* Header */}
-        <View style={[styles.header, { flexDirection: flexRow(true), borderBottomColor: theme.colors.border, paddingHorizontal: theme.spacing[4] }]}>
+        <View
+          style={[
+            styles.header,
+            { flexDirection: flexRow(true), borderBottomColor: theme.colors.border, paddingHorizontal: theme.spacing[4] },
+          ]}
+        >
           {!isDesktop && (
-            <TouchableOpacity onPress={() => setShowSidebar(!showSidebar)} style={styles.iconBtn}>
+            <TouchableOpacity onPress={() => setShowSidebar(true)} style={styles.iconBtn} accessibilityLabel={isRTL ? 'المحادثات' : 'Conversations'}>
               <Ionicons name="menu" size={22} color={theme.colors.text} />
             </TouchableOpacity>
           )}
@@ -290,15 +353,14 @@ export default function AICoachScreen() {
               {isRTL ? 'مساعد علوم رياضية' : 'Sports science assistant'}
             </Text>
           </View>
-          <TouchableOpacity onPress={handleExport} style={styles.iconBtn}>
+          <TouchableOpacity onPress={handleExport} style={styles.iconBtn} accessibilityLabel={isRTL ? 'تصدير' : 'Export'}>
             <Ionicons name="download-outline" size={22} color={theme.colors.text} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleNewChat} style={styles.iconBtn}>
+          <TouchableOpacity onPress={handleNewChat} style={styles.iconBtn} accessibilityLabel={isRTL ? 'محادثة جديدة' : 'New chat'}>
             <Ionicons name="create-outline" size={22} color={theme.colors.text} />
           </TouchableOpacity>
         </View>
 
-        {/* Agent selector */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -329,19 +391,45 @@ export default function AICoachScreen() {
           })}
         </ScrollView>
 
-        {/* Main layout */}
         <View style={[styles.main, { flexDirection: isDesktop ? flexRow(true) : 'column' }]}>
-          {(isDesktop || showSidebar) && sidebar}
-          <View style={{ flex: 1, paddingHorizontal: isDesktop ? theme.spacing[6] : theme.spacing[3] }}>
-            {chatPanel}
-          </View>
+          {isDesktop && sidebar}
+          <View style={{ flex: 1, paddingHorizontal: isDesktop ? theme.spacing[6] : theme.spacing[3] }}>{chatPanel}</View>
         </View>
 
-        {/* Composer */}
-        <View style={[styles.composer, { borderTopColor: theme.colors.border, backgroundColor: theme.colors.background, padding: theme.spacing[3] }]}>
-          <View style={[styles.inputRow, { flexDirection: flexRow(true), maxWidth: isDesktop ? 900 : undefined, alignSelf: 'center', width: '100%' }]}>
-            <TouchableOpacity onPress={handleAttachment} style={styles.attachBtn}>
-              <Ionicons name="attach" size={22} color={theme.colors.textTertiary} />
+        <View
+          style={[
+            styles.composer,
+            {
+              borderTopColor: theme.colors.border,
+              backgroundColor: theme.colors.background,
+              paddingHorizontal: theme.spacing[3],
+              paddingTop: theme.spacing[3],
+              paddingBottom: Platform.OS === 'ios' ? theme.spacing[2] : theme.spacing[3],
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.composerInner,
+              {
+                flexDirection: flexRow(true),
+                maxWidth: isDesktop ? 900 : undefined,
+                alignSelf: 'center',
+                width: '100%',
+                backgroundColor: theme.colors.surface,
+                borderColor: theme.colors.border,
+                borderRadius: theme.borderRadius['2xl'],
+                borderWidth: 1,
+                paddingHorizontal: 6,
+                paddingVertical: 6,
+                ...theme.shadows.sm,
+              },
+            ]}
+          >
+            <TouchableOpacity onPress={handleAttachment} style={styles.attachBtn} accessibilityLabel={isRTL ? 'مرفق' : 'Attach file'}>
+              <View style={[styles.attachCircle, { backgroundColor: theme.colors.backgroundSecondary, borderRadius: theme.borderRadius.lg }]}>
+                <Ionicons name="attach" size={20} color={theme.colors.primary} />
+              </View>
             </TouchableOpacity>
             <TextInput
               style={[
@@ -350,9 +438,6 @@ export default function AICoachScreen() {
                 {
                   flex: 1,
                   color: theme.colors.text,
-                  backgroundColor: theme.colors.surface,
-                  borderColor: theme.colors.border,
-                  borderRadius: theme.borderRadius['2xl'],
                   textAlign: textAlign('start'),
                   writingDirection: isRTL ? 'rtl' : 'ltr',
                 },
@@ -367,20 +452,59 @@ export default function AICoachScreen() {
             />
             <TouchableOpacity
               onPress={() => sendMessage(input)}
-              disabled={!input.trim() || isTyping}
+              disabled={!canSend}
               activeOpacity={0.85}
-              style={{ opacity: input.trim() && !isTyping ? 1 : 0.45 }}
+              accessibilityLabel={isRTL ? 'إرسال' : 'Send'}
             >
               <LinearGradient
-                colors={['#0066FF', '#0D9488']}
+                colors={canSend ? ['#0066FF', '#0D9488'] : [theme.colors.border, theme.colors.border]}
                 style={[styles.sendBtn, { borderRadius: theme.borderRadius.xl }]}
               >
-                <Ionicons name="send" size={20} color="#FFF" style={isRTL ? { transform: [{ scaleX: -1 }] } : undefined} />
+                <Ionicons
+                  name="arrow-up"
+                  size={22}
+                  color={canSend ? '#FFF' : theme.colors.textTertiary}
+                  style={isRTL ? { transform: [{ scaleX: -1 }] } : undefined}
+                />
               </LinearGradient>
             </TouchableOpacity>
           </View>
+          <Text style={[type.caption, { color: theme.colors.textTertiary, textAlign: 'center', marginTop: 8 }]}>
+            {isRTL ? 'محادثاتك محفوظة محلياً على هذا الجهاز' : 'Conversations are saved locally on this device'}
+          </Text>
         </View>
       </KeyboardAvoidingView>
+
+      {!isDesktop && (
+        <Modal visible={showSidebar} transparent animationType="slide" onRequestClose={() => setShowSidebar(false)}>
+          <View style={styles.modalRoot}>
+            <Pressable style={styles.backdrop} onPress={() => setShowSidebar(false)} />
+            <SafeAreaView
+              edges={['top', 'bottom']}
+              style={[
+                styles.sidebarMobile,
+                {
+                  backgroundColor: theme.colors.backgroundSecondary,
+                  borderColor: theme.colors.border,
+                  ...(isRTL ? { right: 0, borderLeftWidth: StyleSheet.hairlineWidth } : { left: 0, borderRightWidth: StyleSheet.hairlineWidth }),
+                },
+              ]}
+            >
+              <View style={[styles.sidebarHeader, { flexDirection: flexRow(true), borderBottomColor: theme.colors.border }]}>
+                <Text style={[type.h5, { color: theme.colors.text, flex: 1, textAlign: textAlign('start') }]}>
+                  {isRTL ? 'المحادثات' : 'Conversations'}
+                </Text>
+                <TouchableOpacity onPress={() => setShowSidebar(false)} style={styles.iconBtn}>
+                  <Ionicons name="close" size={22} color={theme.colors.text} />
+                </TouchableOpacity>
+              </View>
+              <ScrollView contentContainerStyle={{ padding: 12 }} showsVerticalScrollIndicator={false}>
+                {sidebarContent}
+              </ScrollView>
+            </SafeAreaView>
+          </View>
+        </Modal>
+      )}
     </SafeAreaView>
   );
 }
@@ -406,8 +530,7 @@ const styles = StyleSheet.create({
   },
   main: { flex: 1 },
   sidebar: {
-    width: 260,
-    borderRightWidth: StyleSheet.hairlineWidth,
+    width: 280,
     padding: 12,
   },
   newChatBtn: {
@@ -423,26 +546,30 @@ const styles = StyleSheet.create({
   composer: {
     borderTopWidth: StyleSheet.hairlineWidth,
   },
-  inputRow: {
+  composerInner: {
     alignItems: 'flex-end',
-    gap: 10,
   },
   textInput: {
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    minHeight: 48,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    minHeight: 44,
     maxHeight: 120,
   },
   sendBtn: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
   attachBtn: {
-    width: 40,
-    height: 48,
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  attachCircle: {
+    width: 36,
+    height: 36,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -452,5 +579,23 @@ const styles = StyleSheet.create({
     height: 72,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  modalRoot: { flex: 1, flexDirection: 'row' },
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+  },
+  sidebarMobile: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: '82%',
+    maxWidth: 320,
+  },
+  sidebarHeader: {
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
 });

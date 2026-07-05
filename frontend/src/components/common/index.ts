@@ -10,3 +10,6 @@ export { Badge } from './Badge';
 export { LoadingSpinner } from './LoadingSpinner';
 export { EmptyState } from './EmptyState';
 export { LanguageToggle } from './LanguageToggle';
+export { SuccessBanner } from './SuccessBanner';
+export { FormSection } from './FormSection';
+export { SectionHeader } from './SectionHeader';

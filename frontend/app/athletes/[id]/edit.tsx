@@ -1,9 +1,10 @@
 import React from 'react';
-import { Alert, Text } from 'react-native';
+import { Text } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
+import { SuccessBanner } from '@/src/components/common/SuccessBanner';
 import {
   AthleteForm,
   athleteToFormValues,
@@ -13,6 +14,7 @@ import {
 import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import { useTheme, useTypography } from '@/src/core/theme';
+import { useFormAction } from '@/src/hooks/useFormAction';
 
 export default function EditAthleteScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -22,6 +24,7 @@ export default function EditAthleteScreen() {
   const type = useTypography();
   const athlete = useMockStore((s) => s.getAthlete(id ?? ''));
   const updateAthlete = useMockStore((s) => s.updateAthlete);
+  const { loading, success, run } = useFormAction();
 
   if (!athlete) {
     return (
@@ -34,18 +37,20 @@ export default function EditAthleteScreen() {
   }
 
   const handleSubmit = (values: AthleteFormValues) => {
-    updateAthlete(athlete.id, formValuesToAthleteInput(values));
-    Alert.alert(t('features.athletes.saved'), '', [
-      { text: t('common.done'), onPress: () => router.replace(APP_ROUTES.athleteDetail(athlete.id)) },
-    ]);
+    run(() => {
+      updateAthlete(athlete.id, formValuesToAthleteInput(values));
+      setTimeout(() => router.replace(APP_ROUTES.athleteDetail(athlete.id)), 600);
+    });
   };
 
   return (
     <FeatureScrollScreen title={t('features.athletes.editTitle')}>
+      <SuccessBanner message={t('features.athletes.saved')} visible={success} />
       <AthleteForm
         initial={athleteToFormValues(athlete)}
-        submitLabel={t('common.save')}
+        submitLabel={loading ? t('common.saving') : t('common.save')}
         onSubmit={handleSubmit}
+        loading={loading}
       />
     </FeatureScrollScreen>
   );

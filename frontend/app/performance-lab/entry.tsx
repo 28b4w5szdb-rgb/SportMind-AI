@@ -1,20 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
 import { Input } from '@/src/components/common/Input';
+import { Button } from '@/src/components/common/Button';
+import { FormSection } from '@/src/components/common/FormSection';
+import { SuccessBanner } from '@/src/components/common/SuccessBanner';
 import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
+import { useFormAction } from '@/src/hooks/useFormAction';
 
 const TEST_TYPES = [
-  { key: 'yoyo', unit: 'm' },
-  { key: 'sprint30', unit: 's' },
-  { key: 'cmj', unit: 'cm' },
-  { key: 'beep', unit: 'level' },
+  { key: 'yoyo', unit: 'm', labelEn: 'Yo-Yo IR1', labelAr: 'Yo-Yo IR1' },
+  { key: 'sprint30', unit: 's', labelEn: '30m Sprint', labelAr: 'Sprint 30m' },
+  { key: 'cmj', unit: 'cm', labelEn: 'CMJ', labelAr: 'CMJ' },
+  { key: 'beep', unit: 'level', labelEn: 'Beep Test', labelAr: 'Beep Test' },
 ] as const;
 
 export default function PerformanceLabEntryScreen() {
@@ -22,118 +26,135 @@ export default function PerformanceLabEntryScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
-  const { flexRow, textAlign } = useDirection();
+  const { flexRow, textAlign, isRTL } = useDirection();
   const athletes = useMockStore((s) => s.athletes);
   const addTest = useMockStore((s) => s.addTest);
+  const { loading, success, run } = useFormAction();
 
   const [athleteId, setAthleteId] = useState(athletes[0]?.id ?? '');
   const [testKey, setTestKey] = useState<(typeof TEST_TYPES)[number]['key']>('yoyo');
   const [value, setValue] = useState('');
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState('');
+  const [errors, setErrors] = useState<{ athlete?: string; value?: string; date?: string }>({});
 
   const selectedTest = TEST_TYPES.find((tt) => tt.key === testKey)!;
   const athlete = athletes.find((a) => a.id === athleteId);
 
+  const validate = () => {
+    const next: typeof errors = {};
+    if (!athleteId || !athlete) next.athlete = isRTL ? 'اختر لاعباً' : 'Select an athlete';
+    if (!value.trim() || Number.isNaN(Number(value))) next.value = isRTL ? 'أدخل قيمة صالحة' : 'Enter a valid result value';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) next.date = isRTL ? 'استخدم YYYY-MM-DD' : 'Use YYYY-MM-DD format';
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
   const handleSave = () => {
-    if (!athlete || !value.trim()) return;
-    addTest({
-      athlete_id: athlete.id,
-      athlete_name: `${athlete.first_name} ${athlete.last_name}`,
-      test_type: t(`features.lab.testTypes.${testKey}`),
-      test_type_key: testKey,
-      value: Number(value),
-      unit: selectedTest.unit,
-      date,
-      notes: notes.trim() || undefined,
+    if (!validate() || !athlete) return;
+    run(() => {
+      addTest({
+        athlete_id: athlete.id,
+        athlete_name: `${athlete.first_name} ${athlete.last_name}`,
+        test_type: t(`features.lab.testTypes.${testKey}`),
+        test_type_key: testKey,
+        value: Number(value),
+        unit: selectedTest.unit,
+        date,
+        notes: notes.trim() || undefined,
+      });
+      setTimeout(() => router.replace(APP_ROUTES.performanceLabHistory), 700);
     });
-    Alert.alert(t('features.lab.saved'), '', [
-      { text: t('common.done'), onPress: () => router.back() },
-    ]);
   };
 
   return (
     <FeatureScrollScreen title={t('features.lab.entryTitle')}>
-      <Text style={[type.label, { color: theme.colors.textSecondary, marginBottom: 8, textAlign: textAlign('start') }]}>
-        {t('features.lab.selectAthlete')}
-      </Text>
-      <View style={{ flexDirection: flexRow(true), flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
-        {athletes.map((a) => {
-          const active = athleteId === a.id;
-          return (
-            <TouchableOpacity
-              key={a.id}
-              onPress={() => setAthleteId(a.id)}
-              style={{
-                paddingHorizontal: 12,
-                paddingVertical: 8,
-                borderRadius: theme.borderRadius.lg,
-                backgroundColor: active ? theme.colors.primary : theme.colors.surface,
-                borderWidth: 1,
-                borderColor: active ? theme.colors.primary : theme.colors.border,
-              }}
-            >
-              <Text style={[type.bodySm, { color: active ? '#FFF' : theme.colors.text }]}>
-                {a.first_name} {a.last_name}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+      <SuccessBanner message={t('features.lab.saved')} visible={success} />
 
-      <Text style={[type.label, { color: theme.colors.textSecondary, marginBottom: 8, textAlign: textAlign('start') }]}>
-        {t('features.lab.testType')}
-      </Text>
-      <View style={{ flexDirection: flexRow(true), flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
-        {TEST_TYPES.map((tt) => {
-          const active = testKey === tt.key;
-          return (
-            <TouchableOpacity
-              key={tt.key}
-              onPress={() => setTestKey(tt.key)}
-              style={{
-                paddingHorizontal: 12,
-                paddingVertical: 8,
-                borderRadius: theme.borderRadius.lg,
-                backgroundColor: active ? theme.colors.secondary : theme.colors.surface,
-                borderWidth: 1,
-                borderColor: active ? theme.colors.secondary : theme.colors.border,
-              }}
-            >
-              <Text style={[type.bodySm, { color: active ? '#FFF' : theme.colors.text }]}>
-                {t(`features.lab.testTypes.${tt.key}`)}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+      <FormSection title={t('features.lab.selectAthlete')} subtitle={isRTL ? 'من سجّل الاختبار؟' : 'Who is being tested?'}>
+        {athletes.length === 0 ? (
+          <Text style={[type.body, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>
+            {t('athletes.empty.description')}
+          </Text>
+        ) : (
+          <View style={{ flexDirection: flexRow(true), flexWrap: 'wrap', gap: 8 }}>
+            {athletes.map((a) => {
+              const active = athleteId === a.id;
+              return (
+                <Button
+                  key={a.id}
+                  title={`${a.first_name} ${a.last_name}`}
+                  onPress={() => {
+                    setAthleteId(a.id);
+                    setErrors((e) => ({ ...e, athlete: undefined }));
+                  }}
+                  variant={active ? 'primary' : 'outline'}
+                  size="small"
+                />
+              );
+            })}
+          </View>
+        )}
+        {errors.athlete ? <Text style={[type.caption, { color: theme.colors.error, marginTop: 8 }]}>{errors.athlete}</Text> : null}
+      </FormSection>
 
-      <Input label={`${t('features.lab.value')} (${selectedTest.unit})`} value={value} onChangeText={setValue} keyboardType="decimal-pad" />
-      <Input label={t('features.lab.date')} value={date} onChangeText={setDate} containerStyle={{ marginTop: 16 }} />
-      <Input
-        label={t('features.lab.notes')}
-        value={notes}
-        onChangeText={setNotes}
-        multiline
-        containerStyle={{ marginTop: 16 }}
-        style={{ minHeight: 80, textAlignVertical: 'top' }}
-      />
+      <FormSection title={t('features.lab.testType')} subtitle={isRTL ? 'اختر بروتوكول الاختبار' : 'Choose the test protocol'}>
+        <View style={{ flexDirection: flexRow(true), flexWrap: 'wrap', gap: 8 }}>
+          {TEST_TYPES.map((tt) => {
+            const active = testKey === tt.key;
+            return (
+              <Button
+                key={tt.key}
+                title={isRTL ? tt.labelAr : tt.labelEn}
+                onPress={() => setTestKey(tt.key)}
+                variant={active ? 'secondary' : 'outline'}
+                size="small"
+              />
+            );
+          })}
+        </View>
+      </FormSection>
 
-      <TouchableOpacity
+      <FormSection title={isRTL ? 'النتائج' : 'Results'} subtitle={`${selectedTest.unit} · ${date}`}>
+        <Input
+          label={`${t('features.lab.value')} (${selectedTest.unit})`}
+          value={value}
+          onChangeText={(v) => {
+            setValue(v);
+            setErrors((e) => ({ ...e, value: undefined }));
+          }}
+          keyboardType="decimal-pad"
+          error={errors.value}
+        />
+        <Input
+          label={t('features.lab.date')}
+          value={date}
+          onChangeText={(v) => {
+            setDate(v);
+            setErrors((e) => ({ ...e, date: undefined }));
+          }}
+          placeholder="YYYY-MM-DD"
+          containerStyle={{ marginTop: theme.spacing.md }}
+          error={errors.date}
+        />
+        <Input
+          label={t('features.lab.notes')}
+          value={notes}
+          onChangeText={setNotes}
+          multiline
+          containerStyle={{ marginTop: theme.spacing.md }}
+          style={{ minHeight: 80, textAlignVertical: 'top' }}
+        />
+      </FormSection>
+
+      <Button
+        title={loading ? t('common.saving') : t('common.save')}
         onPress={handleSave}
-        disabled={!value.trim()}
-        style={{
-          marginTop: 24,
-          backgroundColor: theme.colors.primary,
-          borderRadius: theme.borderRadius.lg,
-          minHeight: 48,
-          alignItems: 'center',
-          justifyContent: 'center',
-          opacity: value.trim() ? 1 : 0.5,
-        }}
-      >
-        <Text style={[type.button, { color: '#FFF' }]}>{t('common.save')}</Text>
-      </TouchableOpacity>
+        loading={loading}
+        disabled={loading || athletes.length === 0}
+        fullWidth
+        icon="checkmark"
+      />
     </FeatureScrollScreen>
   );
 }

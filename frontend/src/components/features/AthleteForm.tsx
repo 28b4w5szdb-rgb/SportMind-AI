@@ -7,6 +7,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { Input } from '@/src/components/common/Input';
+import { Button } from '@/src/components/common/Button';
 import { useTheme } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import type { AthleteStatus, MockAthlete } from '@/src/data/mock/types';
@@ -170,20 +171,14 @@ export function AthleteForm({ initial, onSubmit, submitLabel, loading }: Athlete
         onChangeText={(v) => set('nationality', v)}
         autoCapitalize="characters"
       />
-      <TouchableOpacity
+      <Button
+        title={submitLabel}
         onPress={handleSubmit}
+        loading={loading}
         disabled={loading}
-        style={[
-          styles.submit,
-          {
-            backgroundColor: theme.colors.primary,
-            borderRadius: theme.borderRadius.lg,
-            opacity: loading ? 0.6 : 1,
-          },
-        ]}
-      >
-        <Text style={[theme.typography.button, { color: '#FFF' }]}>{submitLabel}</Text>
-      </TouchableOpacity>
+        fullWidth
+        style={{ marginTop: theme.spacing.sm }}
+      />
     </View>
   );
 }
@@ -194,11 +189,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderWidth: 1,
-  },
-  submit: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 48,
-    marginTop: 8,
   },
 });

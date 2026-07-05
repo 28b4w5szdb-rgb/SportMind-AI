@@ -59,16 +59,21 @@ export default function SettingsScreen() {
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: theme.spacing.md, paddingBottom: theme.spacing['2xl'] }}>
         {settingsSections.map((section, sectionIndex) => (
-          <View key={sectionIndex} style={{ marginBottom: theme.spacing.lg }}>
+          <View key={sectionIndex} style={{ marginBottom: theme.spacing.xl }}>
             <Text
               style={[
-                theme.typography.label,
-                { color: theme.colors.textSecondary, marginBottom: theme.spacing.sm, textAlign: textAlign('start') },
+                theme.typography.overline,
+                {
+                  color: theme.colors.textTertiary,
+                  letterSpacing: 1.5,
+                  marginBottom: theme.spacing.sm,
+                  textAlign: textAlign('start'),
+                },
               ]}
             >
-              {section.title}
+              {section.title.toUpperCase()}
             </Text>
-            <Card>
+            <Card style={{ borderRadius: theme.borderRadius['2xl'] }}>
               {section.items.map((item, index) => (
                 <View key={item.id}>
                   <View style={[styles.settingRow, { flexDirection: flexRow(true) }]}>
@@ -82,7 +87,7 @@ export default function SettingsScreen() {
                       activeOpacity={item.type === 'toggle' || item.type === 'language' ? 1 : 0.7}
                     >
                       {'icon' in item && item.icon && (
-                        <Ionicons name={item.icon} size={20} color={theme.colors.textSecondary} />
+                        <Ionicons name={item.icon} size={20} color={theme.colors.textSecondary} style={{ marginEnd: 12 }} />
                       )}
                       <Text style={[theme.typography.body, { color: theme.colors.text }]}>{item.label}</Text>
                     </TouchableOpacity>
