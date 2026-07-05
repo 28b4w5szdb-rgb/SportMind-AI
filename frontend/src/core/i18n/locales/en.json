@@ -106,5 +106,83 @@
     "offline": {
       "banner": "You're offline — changes will sync automatically"
     }
+  },
+  "auth": {
+    "restoringSession": "Restoring your session…",
+    "fields": {
+      "email": "Email",
+      "password": "Password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm password",
+      "fullName": "Full name"
+    },
+    "placeholders": {
+      "email": "you@team.com",
+      "password": "Enter your password",
+      "passwordMin": "At least 8 characters",
+      "confirmPassword": "Re-enter your password",
+      "fullName": "Your name"
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Enter a valid email address",
+      "passwordRequired": "Password is required",
+      "passwordMin": "Password must be at least 8 characters",
+      "passwordMismatch": "Passwords do not match",
+      "nameRequired": "Full name is required"
+    },
+    "errors": {
+      "generic": "Something went wrong. Please try again.",
+      "notConfigured": "Supabase is not configured. Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to your environment.",
+      "invalidCredentials": "Invalid email or password.",
+      "emailNotConfirmed": "Please verify your email before signing in.",
+      "userAlreadyExists": "An account with this email already exists.",
+      "weakPassword": "Password is too weak. Use at least 8 characters.",
+      "samePassword": "New password must be different from the old one.",
+      "rateLimited": "Too many attempts. Please wait and try again.",
+      "linkExpired": "This link has expired. Request a new one.",
+      "sessionExpired": "Your session has expired. Please sign in again."
+    },
+    "signIn": {
+      "title": "Sign in",
+      "subtitle": "Access your SportMind AI workspace",
+      "submit": "Sign in",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create account"
+    },
+    "signUp": {
+      "title": "Create account",
+      "subtitle": "Start managing athlete performance",
+      "submit": "Create account",
+      "hasAccount": "Already have an account?",
+      "signInLink": "Sign in"
+    },
+    "forgotPassword": {
+      "title": "Reset password",
+      "subtitle": "We'll email you a link to choose a new password",
+      "submit": "Send reset link",
+      "emailSent": "If an account exists for {{email}}, you will receive a reset link shortly.",
+      "backToSignIn": "Back to sign in"
+    },
+    "resetPassword": {
+      "title": "Choose new password",
+      "subtitle": "Enter a strong password for your account",
+      "submit": "Update password",
+      "success": "Password updated. Redirecting to sign in…",
+      "sessionRequired": "Open the reset link from your email to continue."
+    },
+    "verifyEmail": {
+      "title": "Verify your email",
+      "subtitle": "We sent a confirmation link to {{email}}",
+      "yourEmail": "your email",
+      "resend": "Resend verification email",
+      "resent": "Verification email sent.",
+      "backToSignIn": "Back to sign in"
+    },
+    "signOut": {
+      "confirm": "Sign out",
+      "loading": "Signing out…"
+    }
   }
 }

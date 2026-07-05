@@ -22,6 +22,9 @@ import { useTranslation } from 'react-i18next';
 import { Card } from '@/src/components/common/Card';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
+import { useAuth } from '@/src/providers/AuthProvider';
+import { AUTH_ROUTES } from '@/src/core/constants/routes';
+import { LOGOUT } from '@/constants/testIds/auth';
 
 const mainMenuItems = [
   { id: '1', key: 'more.teamManagement', icon: 'people-circle' as const, color: '#0066FF', route: '/team-management' },
@@ -56,7 +59,23 @@ export default function MoreScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { flexRow, textAlign, isRTL } = useDirection();
+  const { user, profile, signOut, actionLoading } = useAuth();
   const { width: windowWidth } = useWindowDimensions();
+
+  const displayName =
+    profile?.full_name?.trim() ||
+    user?.user_metadata?.full_name ||
+    user?.email?.split('@')[0] ||
+    t('auth.signIn.title');
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      router.replace(AUTH_ROUTES.signIn);
+    } catch {
+      // AuthProvider surfaces errors via context if needed
+    }
+  };
 
   const isWeb = Platform.OS === 'web';
   const isTablet = windowWidth >= 768;
@@ -179,12 +198,12 @@ export default function MoreScreen() {
                 </View>
                 <View style={{ flex: 1, marginHorizontal: theme.spacing[4], marginLeft: isRTL ? 0 : theme.spacing[4], marginRight: isRTL ? theme.spacing[4] : 0 }}>
                   <Text style={[type.h4, { color: theme.colors.text }]}>
-                    {isRTL ? 'مرحبًا بك' : 'Welcome User'}
+                    {displayName}
                   </Text>
                   <Text
                     style={[type.caption, { color: theme.colors.textSecondary, marginTop: 4 }]}
                   >
-                    {isRTL ? 'فريق رياضي' : 'Sports Team'}
+                    {user?.email ?? (isRTL ? 'فريق رياضي' : 'Sports Team')}
                   </Text>
                 </View>
                 <TouchableOpacity activeOpacity={0.7}>
@@ -378,13 +397,20 @@ export default function MoreScreen() {
                     {t('more.version')} 1.0.0
                   </Text>
                 </View>
-                <TouchableOpacity activeOpacity={0.7}>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={handleSignOut}
+                  disabled={actionLoading}
+                  testID={LOGOUT.button}
+                  accessibilityLabel={t('more.signOut')}
+                >
                   <View
                     style={[
                       styles.signOutButton,
                       {
                         backgroundColor: theme.colors.error + '15',
                         borderRadius: theme.borderRadius.lg,
+                        opacity: actionLoading ? 0.5 : 1,
                       },
                     ]}
                   >

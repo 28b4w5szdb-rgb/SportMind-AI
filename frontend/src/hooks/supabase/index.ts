@@ -3,90 +3,29 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
-import type { Session, User } from '@supabase/supabase-js';
 
 import { isSupabaseConfigured } from '@/src/core/config/supabase';
-import * as authService from '@/src/services/supabase/auth.service';
+import { useAuth as useAuthContext } from '@/src/providers/AuthProvider';
 import * as profileService from '@/src/services/supabase/profile.service';
 import * as organizationService from '@/src/services/supabase/organization.service';
 import type { Profile } from '@/src/types/supabase';
 import type { ProfilePatch } from '@/src/services/supabase/profile.service';
 import type { UserOrganizationMembership } from '@/src/types/supabase';
 
-export interface UseSupabaseSessionResult {
-  session: Session | null;
-  user: User | null;
-  loading: boolean;
-  error: Error | null;
-  isConfigured: boolean;
-}
-
-/** Subscribes to Supabase auth session changes. Safe when env is not configured. */
-export function useSupabaseSession(): UseSupabaseSessionResult {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(isSupabaseConfigured);
-  const [error, setError] = useState<Error | null>(null);
-
-  useEffect(() => {
-    if (!isSupabaseConfigured) {
-      setLoading(false);
-      return;
-    }
-
-    let mounted = true;
-
-    authService
-      .getSession()
-      .then((currentSession) => {
-        if (mounted) setSession(currentSession);
-      })
-      .catch((err: Error) => {
-        if (mounted) setError(err);
-      })
-      .finally(() => {
-        if (mounted) setLoading(false);
-      });
-
-    const { data } = authService.onAuthStateChange((_event, nextSession) => {
-      if (mounted) setSession(nextSession);
-    });
-
-    return () => {
-      mounted = false;
-      data.subscription.unsubscribe();
-    };
-  }, []);
-
+/** @deprecated Prefer useAuth from AuthProvider for session-aware auth state. */
+export function useSupabaseSession() {
+  const auth = useAuthContext();
   return {
-    session,
-    user: session?.user ?? null,
-    loading,
-    error,
-    isConfigured: isSupabaseConfigured,
+    session: auth.session,
+    user: auth.user,
+    loading: auth.initializing,
+    error: auth.errorKey ? new Error(auth.errorKey) : null,
+    isConfigured: auth.isConfigured,
   };
 }
 
-export interface UseAuthResult extends UseSupabaseSessionResult {
-  isAuthenticated: boolean;
-  signIn: typeof authService.signIn;
-  signUp: typeof authService.signUp;
-  signOut: typeof authService.signOut;
-  refreshUser: typeof authService.getCurrentUser;
-}
-
-/** Auth session + service actions (no UI). */
-export function useAuth(): UseAuthResult {
-  const sessionState = useSupabaseSession();
-
-  return {
-    ...sessionState,
-    isAuthenticated: Boolean(sessionState.user),
-    signIn: authService.signIn,
-    signUp: authService.signUp,
-    signOut: authService.signOut,
-    refreshUser: authService.getCurrentUser,
-  };
-}
+/** Global auth context — session, profile, and auth actions. */
+export { useAuth } from '@/src/providers/AuthProvider';
 
 export interface UseProfileResult {
   profile: Profile | null;

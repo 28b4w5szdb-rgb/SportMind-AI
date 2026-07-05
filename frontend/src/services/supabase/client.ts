@@ -3,6 +3,7 @@
  */
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { Platform } from 'react-native';
 
 import { supabaseConfig } from '@/src/core/config/supabase';
 import type { Database } from './database.types';
@@ -16,7 +17,7 @@ export const supabase: TypedSupabaseClient = createClient<Database>(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: false,
+      detectSessionInUrl: Platform.OS === 'web',
     },
   }
 );

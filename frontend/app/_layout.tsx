@@ -4,8 +4,10 @@ import { useEffect } from 'react';
 import { LogBox, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { AuthGate } from '@/src/components/auth';
 import { useIconFonts } from '@/src/hooks/use-icon-fonts';
 import { useAppFonts } from '@/src/hooks/use-app-fonts';
+import { AuthProvider } from '@/src/providers/AuthProvider';
 import { DirectionProvider, useDirection } from '@/src/providers/DirectionProvider';
 
 // Disable logbox errors etc so that users can see the app
@@ -44,15 +46,18 @@ function AppShell() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="calculator" />
-      <Stack.Screen name="research" />
-      <Stack.Screen name="reports" />
-      <Stack.Screen name="team-management" />
-      <Stack.Screen name="settings" />
-    </Stack>
+    <AuthGate>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="calculator" />
+        <Stack.Screen name="research" />
+        <Stack.Screen name="reports" />
+        <Stack.Screen name="team-management" />
+        <Stack.Screen name="settings" />
+      </Stack>
+    </AuthGate>
   );
 }
 
@@ -60,7 +65,9 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <DirectionProvider>
-        <AppShell />
+        <AuthProvider>
+          <AppShell />
+        </AuthProvider>
       </DirectionProvider>
     </GestureHandlerRootView>
   );
