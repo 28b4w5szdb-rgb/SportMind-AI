@@ -710,14 +710,26 @@
     "analyticsSubtitle": "Powered by Performance Analytics Engine",
     "bodyMapTitle": "Body & muscle map",
     "bodyMapSubtitle": "Zone heat map from module scores",
-    "bodyMapHint": "Placeholder visualization — no copyrighted anatomy assets.",
+    "bodyMapHint": "Original geometric visualization — no copyrighted anatomy assets.",
+    "bodyMapBalance": "Body balance index",
+    "bodyMapTapHint": "Tap a zone on the figure or list for details",
+    "bodyMapSelected": "Selected zone",
+    "bodyMapLegend": {
+      "excellent": "Excellent (75+)",
+      "good": "Good (55+)",
+      "moderate": "Moderate (40+)",
+      "low": "Needs work (<40)"
+    },
     "body": {
       "head": "Head / CNS",
       "chest": "Chest / upper",
       "core": "Core",
       "arms": "Arms",
+      "shoulders": "Shoulders",
       "hips": "Hips",
-      "legs": "Legs"
+      "glutes": "Glutes / posterior",
+      "legs": "Upper legs",
+      "calves": "Calves"
     },
     "timelineTitle": "Athlete timeline",
     "timelineSubtitle": "Tests, training, recovery, and AI events",

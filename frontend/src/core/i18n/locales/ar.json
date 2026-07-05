@@ -714,14 +714,26 @@
     "analyticsSubtitle": "مدعوم من محرك تحليلات الأداء",
     "bodyMapTitle": "خريطة الجسم والعضلات",
     "bodyMapSubtitle": "خريطة حرارية من درجات الوحدات",
-    "bodyMapHint": "تصور placeholder — بدون أصول تشريحية محمية.",
+    "bodyMapHint": "تصور هندسي أصلي — بدون أصول تشريحية محمية.",
+    "bodyMapBalance": "مؤشر توازن الجسم",
+    "bodyMapTapHint": "اضغط على منطقة في الشكل أو القائمة للتفاصيل",
+    "bodyMapSelected": "المنطقة المحددة",
+    "bodyMapLegend": {
+      "excellent": "ممتاز (75+)",
+      "good": "جيد (55+)",
+      "moderate": "متوسط (40+)",
+      "low": "يحتاج تحسين (<40)"
+    },
     "body": {
       "head": "الرأس / الجهاز العصبي",
       "chest": "الصدر / علوي",
       "core": "الجذع",
       "arms": "الذراعان",
+      "shoulders": "الكتفان",
       "hips": "الورك",
-      "legs": "الساقان"
+      "glutes": "الأرداف / خلفي",
+      "legs": "الفخذان",
+      "calves": "السمانة"
     },
     "timelineTitle": "الخط الزمني للاعب",
     "timelineSubtitle": "اختبارات، تدريب، تعافٍ، وأحداث AI",
