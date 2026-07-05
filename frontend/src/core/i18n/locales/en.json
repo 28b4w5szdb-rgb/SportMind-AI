@@ -78,6 +78,153 @@
     "newTest": "New Test",
     "calculator": "Calculator"
   },
+  "testingCenter": {
+    "title": "Sports Science Testing Center",
+    "subtitle": "Professional protocols, reference norms, and analytics-linked assessments",
+    "categoriesTitle": "Test Categories",
+    "analyticsBadge": "Analytics linked",
+    "testsAvailable": "tests available",
+    "testNotFound": "Test not found",
+    "resultTitle": "Test Result",
+    "recordResult": "Record result",
+    "recordAnother": "Record another",
+    "viewHistory": "View history",
+    "performanceLevel": "Performance level",
+    "decisionSupport": "Decision support",
+    "kpiSummary": "KPI summary",
+    "levels": {
+      "elite": "Elite",
+      "good": "Good",
+      "average": "Average",
+      "below": "Below average"
+    },
+    "validation": {
+      "athlete": "Select an athlete",
+      "value": "Enter a valid result value",
+      "date": "Use YYYY-MM-DD format"
+    },
+    "sections": {
+      "protocol": "Protocol",
+      "protocolHint": "Standardized test procedure",
+      "equipment": "Equipment",
+      "referenceValues": "Reference values",
+      "analyticsImpact": "Analytics impact",
+      "resultEntry": "Result entry",
+      "impactPreview": "Analytics impact preview",
+      "aiRecommendation": "AI recommendation"
+    },
+    "categories": {
+      "speed": { "name": "Speed", "description": "Linear and repeat sprint assessments" },
+      "strength": { "name": "Strength", "description": "Maximal force and resistance tests" },
+      "endurance": { "name": "Endurance", "description": "Aerobic capacity and repeat-effort protocols" },
+      "agility": { "name": "Agility", "description": "Change-of-direction and reactive movement" },
+      "power": { "name": "Power", "description": "Explosive output and jump metrics" },
+      "flexibility": { "name": "Flexibility", "description": "Range of motion and mobility screening" },
+      "balance": { "name": "Balance", "description": "Static and dynamic stability tests" },
+      "bodyComposition": { "name": "Body Composition", "description": "Body fat and anthropometric metrics" },
+      "reactionTime": { "name": "Reaction Time", "description": "Visual and cognitive response speed" },
+      "neuromuscular": { "name": "Neuromuscular", "description": "Stretch-shortening and RSI profiling" },
+      "functionalMovement": { "name": "Functional Movement", "description": "Movement quality and injury screening" },
+      "custom": { "name": "Custom Tests", "description": "Coach-defined protocols and metrics" }
+    },
+    "tests": {
+      "sprint30": {
+        "name": "30m Sprint",
+        "description": "Linear sprint time over 30 meters from a standing start.",
+        "protocol": "Two trials after standardized warm-up. Best time recorded with electronic timing.",
+        "equipment": "Timing gates, cones, flat surface",
+        "aiRec": "Maintain neuromuscular sessions if repeat-sprint trend is positive; monitor load before speed blocks."
+      },
+      "squat1rm": {
+        "name": "1RM Squat",
+        "description": "Estimated or tested one-repetition maximum back squat.",
+        "protocol": "Progressive loading with 3–5 min rest. Technical failure ends attempt.",
+        "equipment": "Barbell, rack, spotters",
+        "aiRec": "Align strength volume with readiness KPI; deload if fatigue exceeds target range."
+      },
+      "cooper": {
+        "name": "Cooper Test",
+        "description": "12-minute run for maximum distance.",
+        "protocol": "Standardized track or treadmill. Distance recorded to nearest meter.",
+        "equipment": "Track/treadmill, stopwatch",
+        "aiRec": "Use result to calibrate endurance microcycles and recovery between high-volume weeks."
+      },
+      "yoyo": {
+        "description": "Intermittent recovery test to exhaustion.",
+        "protocol": "Yo-Yo IR1 audio protocol with 20m shuttle runs.",
+        "equipment": "Cones, audio track",
+        "aiRec": "Track trend across mesocycles; reduce HIIT density if fatigue KPI rises."
+      },
+      "beep": {
+        "description": "Multi-stage shuttle run to estimate VO₂ max.",
+        "protocol": "Standard beep test audio with 20m shuttles.",
+        "equipment": "Cones, audio track",
+        "aiRec": "Compare level against position norms before intensive tactical blocks."
+      },
+      "illinois": {
+        "name": "Illinois Agility Test",
+        "description": "Timed agility course with direction changes.",
+        "protocol": "One practice + two timed trials. Best time recorded.",
+        "equipment": "Cones, stopwatch",
+        "aiRec": "Pair with COD drills if below team average; avoid high COD volume when injury risk elevated."
+      },
+      "cmj": {
+        "description": "Vertical jump from countermovement without arm swing.",
+        "protocol": "Three trials on force plate or jump mat. Best height used.",
+        "equipment": "Jump mat or force plate",
+        "aiRec": "Monitor CMJ trend as neuromuscular freshness marker before match weeks."
+      },
+      "sitReach": {
+        "name": "Sit and Reach",
+        "description": "Hamstring and lower-back flexibility assessment.",
+        "protocol": "Three attempts; best reach distance recorded.",
+        "equipment": "Sit-and-reach box",
+        "aiRec": "Add targeted mobility if below reference and injury risk module is flagged."
+      },
+      "yBalance": {
+        "name": "Y Balance Test",
+        "description": "Composite reach score for dynamic balance.",
+        "protocol": "Three reaches per direction; composite % of leg length calculated.",
+        "equipment": "Y balance kit or tape markers",
+        "aiRec": "Address asymmetry >4% with unilateral stability work before return-to-play progression."
+      },
+      "bodyFat": {
+        "name": "Body Fat %",
+        "description": "Skinfold or bioimpedance body fat estimate.",
+        "protocol": "Standardized hydration and time-of-day. ISAK or device protocol followed.",
+        "equipment": "Caliper or BIA device",
+        "aiRec": "Integrate with nutrition planning; avoid aggressive deficits during heavy load phases."
+      },
+      "visualReaction": {
+        "name": "Visual Reaction Test",
+        "description": "Simple reaction time to visual stimulus.",
+        "protocol": "10 trials after familiarization; median time recorded.",
+        "equipment": "Reaction app or light system",
+        "aiRec": "Low readiness plus slow reaction may indicate CNS fatigue — consider recovery day."
+      },
+      "cmjRsi": {
+        "name": "CMJ RSI",
+        "description": "Reactive strength index from countermovement jump.",
+        "protocol": "Calculate RSI (jump height / contact time) from force plate trials.",
+        "equipment": "Force plate",
+        "aiRec": "RSI drop >10% vs baseline suggests neuromuscular fatigue — reduce plyometric volume."
+      },
+      "fms": {
+        "name": "FMS Screening",
+        "description": "Functional Movement Screen composite score.",
+        "protocol": "Seven movement patterns scored 0–3; composite and asymmetries noted.",
+        "equipment": "FMS kit, floor space",
+        "aiRec": "Scores ≤14 or painful movements trigger corrective exercise block before load progression."
+      },
+      "custom": {
+        "name": "Custom User Test",
+        "description": "Coach-defined metric with custom units and targets.",
+        "protocol": "Document protocol steps before recording for reproducibility.",
+        "equipment": "As defined by coach",
+        "aiRec": "Custom tests contribute to compliance tracking; link results to training objectives."
+      }
+    }
+  },
   "more": {
     "title": "More",
     "settings": "Settings",

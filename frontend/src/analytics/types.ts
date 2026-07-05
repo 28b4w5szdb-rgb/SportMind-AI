@@ -132,5 +132,5 @@ export interface AnalyticsRawSignals {
   trendPercent: number;
   heightCm?: number;
   weightKg?: number;
-  testSignals: Partial<Record<'yoyo' | 'sprint30' | 'cmj' | 'beep', number>>;
+  testSignals: Partial<Record<string, number>>;
 }

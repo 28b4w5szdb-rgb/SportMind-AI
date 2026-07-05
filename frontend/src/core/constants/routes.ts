@@ -34,6 +34,8 @@ export const APP_ROUTES = {
   performanceLabBenchmark: '/performance-lab/benchmark' as Href,
   performanceLabHistory: '/performance-lab/history' as Href,
   performanceLabCategory: (id: string): Href => `/performance-lab/category/${id}` as Href,
+  performanceLabTest: (testKey: string): Href => `/performance-lab/test/${testKey}` as Href,
+  performanceLabResult: (id: string): Href => `/performance-lab/result/${id}` as Href,
   knowledgeCategory: (key: string): Href => `/knowledge/${key}` as Href,
   settings: '/settings' as Href,
   help: '/help' as Href,

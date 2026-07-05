@@ -12,9 +12,8 @@ function ageFromDob(dob?: string): number | undefined {
 export function buildRawSignals(athlete: MockAthlete, tests: MockPerformanceTest[]): AnalyticsRawSignals {
   const testSignals: AnalyticsRawSignals['testSignals'] = {};
   for (const test of tests) {
-    const key = test.test_type_key as keyof AnalyticsRawSignals['testSignals'];
-    if (key && testSignals[key] === undefined) {
-      testSignals[key] = test.value;
+    if (testSignals[test.test_type_key] === undefined) {
+      testSignals[test.test_type_key] = test.value;
     }
   }
   return {

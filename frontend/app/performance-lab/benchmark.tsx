@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
 import { Card } from '@/src/components/common/Card';
 import { BENCHMARK_NORMS, benchmarkRating } from '@/src/data/mock/lab';
+import { getTestDefinition } from '@/src/features/performance-lab';
 import { useMockStore } from '@/src/data/mock/store';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
@@ -29,6 +30,8 @@ export default function LabBenchmarkScreen() {
         const latest = tests.find((t) => t.test_type_key === norm.testKey);
         const rating = latest ? benchmarkRating(latest.value, norm) : null;
         const color = rating ? RATING_COLORS[rating] : theme.colors.textTertiary;
+        const def = getTestDefinition(norm.testKey);
+        const label = def ? t(def.nameKey) : norm.testKey;
 
         return (
           <Card key={norm.testKey} variant="elevated" padding="lg" style={{ borderRadius: theme.borderRadius['2xl'], marginBottom: theme.spacing.md }}>
@@ -38,7 +41,7 @@ export default function LabBenchmarkScreen() {
               </View>
               <View style={{ flex: 1, marginHorizontal: theme.spacing.md }}>
                 <Text style={[type.h5, { color: theme.colors.text, textAlign: textAlign('start') }]}>
-                  {isRTL ? norm.labelAr : norm.labelEn}
+                  {label}
                 </Text>
                 <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 2, textAlign: textAlign('start') }]}>
                   {isRTL ? `نخبة: ${norm.elite} · جيد: ${norm.good} · متوسط: ${norm.avg} ${norm.unit}` : `Elite: ${norm.elite} · Good: ${norm.good} · Avg: ${norm.avg} ${norm.unit}`}

@@ -28,21 +28,20 @@ import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import { useTeamAnalyticsOverview, buildAiSummaryFromAnalytics } from '@/src/analytics';
 import { ProgressRingChart } from '@/src/components/charts';
+import {
+  TESTING_CATEGORIES,
+  TEST_REGISTRY,
+  countTestsInCategory,
+  getFeaturedTestForCategory,
+  CategoryCard,
+  TestResultCard,
+} from '@/src/features/performance-lab';
 
 const labTools = [
   { id: '1', key: 'lab.newTest', icon: 'analytics' as const, color: '#0066FF', desc: 'Conduct new assessments' },
   { id: '2', key: 'lab.calculator', icon: 'calculator' as const, color: '#F97316', desc: 'Compute metrics & zones' },
   { id: '3', key: 'lab.benchmark', icon: 'bar-chart' as const, color: '#10B981', desc: 'Compare against norms' },
   { id: '4', key: 'lab.comparison', icon: 'git-compare' as const, color: '#8B5CF6', desc: 'Track progress over time' },
-];
-
-const testCategories = [
-  { id: 'endurance', icon: 'heart', labelEn: 'Endurance', labelAr: 'القدرة على التحمل', count: 4, color: '#EF4444' },
-  { id: 'speed', icon: 'flash', labelEn: 'Speed', labelAr: 'السرعة', count: 3, color: '#F97316' },
-  { id: 'strength', icon: 'fitness', labelEn: 'Strength', labelAr: 'القوة', count: 2, color: '#0066FF' },
-  { id: 'power', icon: 'rocket', labelEn: 'Power', labelAr: 'الطاقة', count: 3, color: '#10B981' },
-  { id: 'agility', icon: 'move', labelEn: 'Agility', labelAr: 'الرشاقة', count: 1, color: '#8B5CF6' },
-  { id: 'flexibility', icon: 'accessibility', labelEn: 'Flexibility', labelAr: 'المرونة', count: 1, color: '#EC4899' },
 ];
 
 const recentTestsFallback = [
@@ -74,26 +73,18 @@ export default function PerformanceLabScreen() {
     () => [
       { id: 'tests', value: storeTests.length, labelEn: 'Tests', labelAr: 'اختبار', color: '#0066FF' },
       { id: 'athletes', value: athletes.length, labelEn: 'Athletes', labelAr: 'لاعب', color: '#10B981' },
-      { id: 'categories', value: testCategories.length, labelEn: 'Categories', labelAr: 'فئة', color: '#8B5CF6' },
+      { id: 'categories', value: TESTING_CATEGORIES.length, labelEn: 'Categories', labelAr: 'فئة', color: '#8B5CF6' },
+      { id: 'registry', value: TEST_REGISTRY.length, labelEn: 'Protocols', labelAr: 'بروتوكول', color: '#6366F1' },
     ],
-    [storeTests.length, athletes.length]
+    [storeTests.length, athletes.length, TESTING_CATEGORIES.length, TEST_REGISTRY.length]
   );
 
-  const recentTests = useMemo(() => {
-    if (storeTests.length === 0) return recentTestsFallback;
-    return storeTests.slice(0, 5).map((test) => ({
-      id: test.id,
-      title: test.test_type,
-      athlete: test.athlete_name,
-      date: test.date,
-      score: `${test.value} ${test.unit}`,
-      trend: 'up' as const,
-    }));
-  }, [storeTests]);
-
   const handleToolPress = (toolId: string) => {
-    if (toolId === '1') router.push(APP_ROUTES.performanceLabEntry);
-    else if (toolId === '2') router.push(APP_ROUTES.calculator);
+    if (toolId === '1') {
+      const featured = getFeaturedTestForCategory('speed');
+      if (featured) router.push(APP_ROUTES.performanceLabTest(featured.key));
+      else router.push('/(tabs)/performance-lab' as never);
+    } else if (toolId === '2') router.push(APP_ROUTES.calculator);
     else if (toolId === '3') router.push(APP_ROUTES.performanceLabBenchmark);
     else if (toolId === '4') router.push(APP_ROUTES.performanceLabCompare);
   };
@@ -140,7 +131,7 @@ export default function PerformanceLabScreen() {
               },
             ]}
           >
-            {(isRTL ? 'مختبر الأداء' : 'PERFORMANCE CENTER').toUpperCase()}
+            {(isRTL ? 'مركز اختبارات علوم الرياضة' : 'SPORTS SCIENCE TESTING CENTER').toUpperCase()}
           </Text>
           <Text
             style={[
@@ -152,7 +143,7 @@ export default function PerformanceLabScreen() {
               },
             ]}
           >
-            {t('lab.title')}
+            {t('testingCenter.title')}
           </Text>
           <Text
             style={[
@@ -164,7 +155,7 @@ export default function PerformanceLabScreen() {
               },
             ]}
           >
-            {isRTL ? 'تحليل بيانات الأداء وتتبع التقدم' : 'Analyze performance data and track progress'}
+            {t('testingCenter.subtitle')}
           </Text>
         </View>
 
@@ -236,7 +227,10 @@ export default function PerformanceLabScreen() {
             width: '100%',
           }}
         >
-          <TouchableOpacity activeOpacity={0.9} onPress={() => router.push(APP_ROUTES.performanceLabEntry)}>
+          <TouchableOpacity activeOpacity={0.9} onPress={() => {
+            const featured = getFeaturedTestForCategory('speed');
+            if (featured) router.push(APP_ROUTES.performanceLabTest(featured.key));
+          }}>
             <Card variant="filled" padding="none" style={{ borderRadius: theme.borderRadius['2xl'], overflow: 'hidden' }}>
               <LinearGradient colors={['#0066FF', '#0D9488']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ padding: theme.spacing[5] }}>
                 <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
@@ -344,7 +338,7 @@ export default function PerformanceLabScreen() {
           </View>
         </View>
 
-        {/* Test Categories */}
+        {/* Test Categories — full registry-driven list */}
         <View
           style={{
             marginTop: theme.spacing[6],
@@ -353,53 +347,16 @@ export default function PerformanceLabScreen() {
             width: '100%',
           }}
         >
-          <SectionHeader
-            title={isRTL ? 'فئات الاختبار' : 'Test Categories'}
-            actionLabel={isRTL ? 'عرض الكل' : 'View All'}
-            onAction={() => router.push(APP_ROUTES.performanceLabHistory)}
-          />
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: theme.spacing[3], marginTop: theme.spacing[3] }}
-          >
-            {testCategories.map((category) => (
-              <TouchableOpacity key={category.id} activeOpacity={0.85} onPress={() => router.push(APP_ROUTES.performanceLabCategory(category.id))}>
-                <Card
-                  variant="outlined"
-                  padding="md"
-                  style={{
-                    borderRadius: theme.borderRadius.xl,
-                    minWidth: 160,
-                    borderColor: category.color + '40',
-                  }}
-                >
-                  <View
-                    style={[
-                      styles.categoryIcon,
-                      {
-                        backgroundColor: category.color + '15',
-                        borderRadius: theme.borderRadius.lg,
-                      },
-                    ]}
-                  >
-                    <Ionicons name={category.icon as any} size={24} color={category.color} />
-                  </View>
-                  <Text
-                    style={[
-                      type.label,
-                      { color: theme.colors.text, marginTop: theme.spacing[3] },
-                    ]}
-                  >
-                    {isRTL ? category.labelAr : category.labelEn}
-                  </Text>
-                  <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 4 }]}>
-                    {category.count} {isRTL ? 'اختبارات' : 'tests'}
-                  </Text>
-                </Card>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
+          <SectionHeader title={t('testingCenter.categoriesTitle')} />
+          {TESTING_CATEGORIES.map((category, index) => (
+            <CategoryCard
+              key={category.id}
+              category={category}
+              testCount={countTestsInCategory(category.id)}
+              index={index}
+              onPress={() => router.push(APP_ROUTES.performanceLabCategory(category.id))}
+            />
+          ))}
         </View>
 
         {/* Recent Tests */}
@@ -416,52 +373,20 @@ export default function PerformanceLabScreen() {
             actionLabel={isRTL ? 'عرض الكل' : 'View All'}
             onAction={() => router.push(APP_ROUTES.performanceLabHistory)}
           />
-          {recentTests.map((test) => (
-            <TouchableOpacity key={test.id} activeOpacity={0.85} onPress={() => router.push(APP_ROUTES.performanceLabHistory)}>
-              <Card
-                variant="elevated"
-                padding="lg"
-                style={{
-                  borderRadius: theme.borderRadius.xl,
-                  marginBottom: theme.spacing[3],
-                }}
-              >
-                <View style={[styles.testRow, { flexDirection: flexRow(true) }]}>
-                  <View
-                    style={[
-                      styles.testIcon,
-                      {
-                        backgroundColor: (test.trend === 'up' ? theme.colors.success : theme.colors.error) + '15',
-                        borderRadius: theme.borderRadius.lg,
-                      },
-                    ]}
-                  >
-                    <Ionicons
-                      name="analytics"
-                      size={22}
-                      color={test.trend === 'up' ? theme.colors.success : theme.colors.error}
-                    />
-                  </View>
-                  <View style={{ flex: 1, marginHorizontal: theme.spacing[3] }}>
-                    <Text style={[type.body, { color: theme.colors.text }]}>{test.title}</Text>
-                    <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 2 }]}>
-                      {test.athlete} · {test.date}
-                    </Text>
-                  </View>
-                  <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={[type.numberSm, { color: theme.colors.text }]}>
-                      {test.score}
-                    </Text>
-                    <Ionicons
-                      name={test.trend === 'up' ? 'trending-up' : 'trending-down'}
-                      size={16}
-                      color={test.trend === 'up' ? theme.colors.success : theme.colors.error}
-                    />
-                  </View>
-                </View>
-              </Card>
-            </TouchableOpacity>
-          ))}
+          {storeTests.length === 0
+            ? recentTestsFallback.map((test) => (
+                <Card key={test.id} variant="elevated" padding="lg" style={{ borderRadius: theme.borderRadius.xl, marginBottom: theme.spacing[3] }}>
+                  <Text style={[type.body, { color: theme.colors.text }]}>{test.title}</Text>
+                </Card>
+              ))
+            : storeTests.slice(0, 5).map((test) => (
+                <TestResultCard
+                  key={test.id}
+                  test={test}
+                  compact
+                  onPress={() => router.push(APP_ROUTES.performanceLabResult(test.id))}
+                />
+              ))}
         </View>
 
         {/* Stats Overview */}
@@ -489,23 +414,23 @@ export default function PerformanceLabScreen() {
               </Text>
               <View style={[styles.statsRow, { flexDirection: flexRow(true), marginTop: theme.spacing[5] }]}>
                 <View style={styles.statItem}>
-                  <Text style={[type.numberDisplay, { color: '#FFFFFF', fontSize: 36 }]}>{storeTests.length || 14}</Text>
+                  <Text style={[type.numberDisplay, { color: '#FFFFFF', fontSize: 36 }]}>{TEST_REGISTRY.length}</Text>
                   <Text style={[type.caption, { color: 'rgba(255,255,255,0.8)', marginTop: 4 }]}>
                     {isRTL ? 'اختبار متاح' : 'Tests Available'}
                   </Text>
                 </View>
                 <View style={[styles.statDivider, { backgroundColor: 'rgba(255,255,255,0.2)' }]} />
                 <View style={styles.statItem}>
-                  <Text style={[type.numberDisplay, { color: '#FFFFFF', fontSize: 36 }]}>8</Text>
+                  <Text style={[type.numberDisplay, { color: '#FFFFFF', fontSize: 36 }]}>{TESTING_CATEGORIES.length}</Text>
                   <Text style={[type.caption, { color: 'rgba(255,255,255,0.8)', marginTop: 4 }]}>
-                    {isRTL ? 'حاسبة' : 'Calculators'}
+                    {isRTL ? 'فئة' : 'Categories'}
                   </Text>
                 </View>
                 <View style={[styles.statDivider, { backgroundColor: 'rgba(255,255,255,0.2)' }]} />
                 <View style={styles.statItem}>
-                  <Text style={[type.numberDisplay, { color: '#FFFFFF', fontSize: 36 }]}>12</Text>
+                  <Text style={[type.numberDisplay, { color: '#FFFFFF', fontSize: 36 }]}>{storeTests.length}</Text>
                   <Text style={[type.caption, { color: 'rgba(255,255,255,0.8)', marginTop: 4 }]}>
-                    {isRTL ? 'معيار' : 'Benchmarks'}
+                    {isRTL ? 'نتائج مسجلة' : 'Recorded results'}
                   </Text>
                 </View>
               </View>
@@ -562,7 +487,10 @@ export default function PerformanceLabScreen() {
                 variant="primary"
                 size="large"
                 icon="analytics"
-                onPress={() => router.push(APP_ROUTES.performanceLabEntry)}
+                onPress={() => {
+                  const featured = getFeaturedTestForCategory('speed');
+                  if (featured) router.push(APP_ROUTES.performanceLabTest(featured.key));
+                }}
                 style={{ marginTop: theme.spacing[6] }}
                 fullWidth
               />

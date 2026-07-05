@@ -82,6 +82,153 @@
     "newTest": "اختبار جديد",
     "calculator": "الحاسبة"
   },
+  "testingCenter": {
+    "title": "مركز اختبارات علوم الرياضة",
+    "subtitle": "بروتوكولات احترافية ومعايير مرجعية وتحليلات مرتبطة",
+    "categoriesTitle": "فئات الاختبار",
+    "analyticsBadge": "مرتبط بالتحليلات",
+    "testsAvailable": "اختبار متاح",
+    "testNotFound": "الاختبار غير موجود",
+    "resultTitle": "نتيجة الاختبار",
+    "recordResult": "تسجيل النتيجة",
+    "recordAnother": "تسجيل اختبار آخر",
+    "viewHistory": "عرض السجل",
+    "performanceLevel": "مستوى الأداء",
+    "decisionSupport": "دعم القرار",
+    "kpiSummary": "ملخص المؤشرات",
+    "levels": {
+      "elite": "نخبة",
+      "good": "جيد",
+      "average": "متوسط",
+      "below": "أقل من المتوسط"
+    },
+    "validation": {
+      "athlete": "اختر لاعباً",
+      "value": "أدخل قيمة صالحة",
+      "date": "استخدم YYYY-MM-DD"
+    },
+    "sections": {
+      "protocol": "البروتوكول",
+      "protocolHint": "إجراء الاختبار المعياري",
+      "equipment": "المعدات",
+      "referenceValues": "القيم المرجعية",
+      "analyticsImpact": "تأثير التحليلات",
+      "resultEntry": "إدخال النتيجة",
+      "impactPreview": "معاينة تأثير التحليلات",
+      "aiRecommendation": "توصية ذكية"
+    },
+    "categories": {
+      "speed": { "name": "السرعة", "description": "اختبارات السرعة الخطية والمتكررة" },
+      "strength": { "name": "القوة", "description": "اختبارات القوة القصوى والمقاومة" },
+      "endurance": { "name": "القدرة على التحمل", "description": "اختبارات اللياقة الهوائية والجهد المتكرر" },
+      "agility": { "name": "الرشاقة", "description": "تغيير الاتجاه والحركة التفاعلية" },
+      "power": { "name": "الطاقة", "description": "الانفجارية واختبارات القفز" },
+      "flexibility": { "name": "المرونة", "description": "مدى الحركة وفحص الحركة" },
+      "balance": { "name": "التوازن", "description": "اختبارات الثبات الثابت والديناميكي" },
+      "bodyComposition": { "name": "تكوين الجسم", "description": "نسبة الدهون والقياسات" },
+      "reactionTime": { "name": "زمن الاستجابة", "description": "سرعة الاستجابة البصرية والإدراكية" },
+      "neuromuscular": { "name": "العصبي العضلي", "description": "القوة التفاعلية ومؤشر RSI" },
+      "functionalMovement": { "name": "الحركة الوظيفية", "description": "جودة الحركة وفحص الإصابات" },
+      "custom": { "name": "اختبارات مخصصة", "description": "بروتوكولات ومعايير يحددها المدرب" }
+    },
+    "tests": {
+      "sprint30": {
+        "name": "Sprint 30m",
+        "description": "زمن السرعة لمسافة 30 متر من وضع ثابت.",
+        "protocol": "محاولتان بعد إحماء معياري. يُسجل أفضل زمن.",
+        "equipment": "بوابات توقيت، أقماع",
+        "aiRec": "حافظ على جلسات عصبية عضلية إذا كان الاتجاه إيجابياً."
+      },
+      "squat1rm": {
+        "name": "1RM Squat",
+        "description": "أقصى squat ل repetition واحدة.",
+        "protocol": "تحميل تدريجي مع راحة 3–5 دقائق.",
+        "equipment": "بار، حامل، مساعدون",
+        "aiRec": "وائم حجم القوة مع مؤشر الجاهزية."
+      },
+      "cooper": {
+        "name": "Cooper Test",
+        "description": "جري 12 دقيقة لأقصى مسافة.",
+        "protocol": "مسار معياري. تُسجل المسافة بالمتر.",
+        "equipment": "مسار، ساعة",
+        "aiRec": "استخدم النتيجة لمعايرة دورات التحمل."
+      },
+      "yoyo": {
+        "description": "اختبار تعافي متقطع حتى الإ exhaustion.",
+        "protocol": "بروتوكول Yo-Yo IR1 الصوتي.",
+        "equipment": "أقماع، مسار صوتي",
+        "aiRec": "راقب الاتجاه عبر الدورات التدريبية."
+      },
+      "beep": {
+        "description": "اختبار متعدد المراحل لتقدير VO₂ max.",
+        "protocol": "بروتوكول beep معياري 20م.",
+        "equipment": "أقماع، مسار صوتي",
+        "aiRec": "قارن المستوى مع معايير المركز."
+      },
+      "illinois": {
+        "name": "Illinois Agility Test",
+        "description": "مسار رشاقة مع تغييرات اتجاه.",
+        "protocol": "تجربة + محاولتان. يُسجل أفضل زمن.",
+        "equipment": "أقماع، ساعة",
+        "aiRec": "أضف تدريب COD إذا كان أقل من متوسط الفريق."
+      },
+      "cmj": {
+        "description": "قفز عمودي من countermovement.",
+        "protocol": "ثلاث محاولات. يُستخدم أفضل ارتفاع.",
+        "equipment": "جهاز قفز أو force plate",
+        "aiRec": "راقب CMJ كمؤشر للانتعاش العصبي العضلي."
+      },
+      "sitReach": {
+        "name": "Sit and Reach",
+        "description": "فحص مرونة الفخذين والظهر.",
+        "protocol": "ثلاث محاولات. يُسجل أفضل مد.",
+        "equipment": "صندوق sit-and-reach",
+        "aiRec": "أضف movilidad مستهدفة إذا كان أقل من المرجع."
+      },
+      "yBalance": {
+        "name": "Y Balance Test",
+        "description": "نقاط توازن ديناميكي مركبة.",
+        "protocol": "ثلاث مدات لكل اتجاه.",
+        "equipment": "عدة Y balance",
+        "aiRec": "عالج عدم التماثل >4% قبل العودة للعب."
+      },
+      "bodyFat": {
+        "name": "Body Fat %",
+        "description": "تقدير نسبة الدهون.",
+        "protocol": "بروتوكول معياري للترطيب والوقت.",
+        "equipment": "فرجار أو BIA",
+        "aiRec": "ادمج مع التغذية وتجنب déficits أثناء الحمل العالي."
+      },
+      "visualReaction": {
+        "name": "Visual Reaction Test",
+        "description": "زمن استجابة لمحفز بصري.",
+        "protocol": "10 محاولات. يُسجل الوسيط.",
+        "equipment": "تطبيق أو نظام أضواء",
+        "aiRec": "بطء الاستجابة مع انخفاض الجاهزية قد يشير للإرهاق."
+      },
+      "cmjRsi": {
+        "name": "CMJ RSI",
+        "description": "مؤشر القوة التفاعلية من CMJ.",
+        "protocol": "RSI = ارتفاع / زمن contact.",
+        "equipment": "force plate",
+        "aiRec": "انخفاض RSI >10% يشير للإرهاق العصبي العضلي."
+      },
+      "fms": {
+        "name": "FMS Screening",
+        "description": "نتيجة FMS المركبة.",
+        "protocol": "سبعة أنماط حركة. يُسجل المجموع.",
+        "equipment": "عدة FMS",
+        "aiRec": "≤14 أو ألم يتطلب برنامج تصحيحي."
+      },
+      "custom": {
+        "name": "Custom User Test",
+        "description": "مقياس مخصص بوحدات محددة.",
+        "protocol": "وثّق البروتوكول قبل التسجيل.",
+        "equipment": "حسب تعريف المدرب",
+        "aiRec": "يساهم في تتبع الالتزام بالتدريب."
+      }
+    }
+  },
   "more": {
     "title": "المزيد",
     "settings": "الإعدادات",

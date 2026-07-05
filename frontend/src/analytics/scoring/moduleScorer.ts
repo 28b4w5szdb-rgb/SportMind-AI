@@ -14,32 +14,64 @@ function normTest(value: number | undefined, good: number, elite: number, invert
 
 type ModuleScorer = (signals: AnalyticsRawSignals) => { score: number; trendDelta: number; recommendationKey?: string };
 
+function signal(s: AnalyticsRawSignals, ...keys: string[]): number | undefined {
+  for (const key of keys) {
+    const v = s.testSignals[key];
+    if (v !== undefined) return v;
+  }
+  return undefined;
+}
+
 const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
   physical_fitness: (s) => ({
-    score: clamp(62 + s.testsCount * 1.2 + s.trendPercent * 0.8 + (s.status === 'active' ? 8 : 0)),
+    score: clamp(
+      62 +
+        s.testsCount * 1.2 +
+        s.trendPercent * 0.8 +
+        (s.status === 'active' ? 8 : 0) +
+        (signal(s, 'body_fat') !== undefined ? normTest(signal(s, 'body_fat'), 16, 8, true) * 0.1 : 0)
+    ),
     trendDelta: s.trendPercent * 0.4,
   }),
   strength: (s) => ({
-    score: normTest(s.testSignals.cmj, 38, 48) + (s.weightKg ? clamp((s.weightKg / 90) * 10) : 0),
+    score: clamp(
+      Math.max(normTest(signal(s, 'squat_1rm'), 120, 180), normTest(signal(s, 'cmj') ?? signal(s, 'cmj_rsi'), 38, 55)) +
+        (s.weightKg ? clamp((s.weightKg / 90) * 10) : 0)
+    ),
     trendDelta: s.trendPercent * 0.3,
-    recommendationKey: s.testSignals.cmj !== undefined && s.testSignals.cmj < 38 ? 'analytics.rec.strength' : undefined,
+    recommendationKey:
+      (signal(s, 'squat_1rm') !== undefined && signal(s, 'squat_1rm')! < 120) ||
+      (signal(s, 'cmj') !== undefined && signal(s, 'cmj')! < 38)
+        ? 'analytics.rec.strength'
+        : undefined,
   }),
   speed: (s) => ({
-    score: normTest(s.testSignals.sprint30, 4.2, 3.8, true),
+    score: clamp(
+      Math.max(normTest(signal(s, 'sprint30'), 4.2, 3.8, true), normTest(signal(s, 'visual_reaction'), 260, 180, true))
+    ),
     trendDelta: s.trendPercent * 0.35,
   }),
   endurance: (s) => ({
     score: clamp(
-      (normTest(s.testSignals.yoyo, 1600, 2200) + normTest(s.testSignals.beep, 10, 14)) / 2
+      (normTest(signal(s, 'cooper'), 2000, 2800) +
+        normTest(signal(s, 'yoyo'), 1600, 2200) +
+        normTest(signal(s, 'beep'), 10, 14)) /
+        (signal(s, 'cooper') && signal(s, 'yoyo') ? 3 : signal(s, 'cooper') || signal(s, 'yoyo') ? 2 : 1)
     ),
     trendDelta: s.trendPercent * 0.25,
   }),
   agility: (s) => ({
-    score: clamp(normTest(s.testSignals.cmj, 35, 45) * 0.6 + normTest(s.testSignals.sprint30, 4.3, 3.9, true) * 0.4),
+    score: clamp(
+      normTest(signal(s, 'illinois'), 17.8, 15.2, true) * 0.5 +
+        normTest(signal(s, 'cmj'), 35, 45) * 0.25 +
+        normTest(signal(s, 'sprint30'), 4.3, 3.9, true) * 0.25
+    ),
     trendDelta: s.trendPercent * 0.2,
   }),
   flexibility: (s) => {
-    const base = 58 + (s.heightCm ? clamp((s.heightCm - 170) * 0.5 + 55) - 55 : 0);
+    const sitReach = signal(s, 'sit_reach');
+    const fms = signal(s, 'fms');
+    const base = sitReach !== undefined ? normTest(sitReach, 15, 35) : fms !== undefined ? normTest(fms, 12, 18) : 58 + (s.heightCm ? clamp((s.heightCm - 170) * 0.5 + 55) - 55 : 0);
     return {
       score: clamp(base - (s.status === 'injured' ? 15 : 0)),
       trendDelta: s.trendPercent * 0.15,
@@ -56,7 +88,10 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
     trendDelta: s.trendPercent * 0.2,
   }),
   fatigue: (s) => {
-    const fatigueScore = clamp(75 - s.testsCount * 0.6 + (s.status === 'rest' ? 12 : 0) - Math.max(0, s.trendPercent) * 0.4);
+    const rsi = signal(s, 'cmj_rsi');
+    const fatigueScore = clamp(
+      75 - s.testsCount * 0.6 + (s.status === 'rest' ? 12 : 0) - Math.max(0, s.trendPercent) * 0.4 - (rsi !== undefined && rsi < 1.2 ? 8 : 0)
+    );
     return {
       score: fatigueScore,
       trendDelta: -s.trendPercent * 0.25,
@@ -68,6 +103,10 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
     if (s.status === 'injured') risk = 28;
     else if (s.status === 'rest') risk = 58;
     if (s.trendPercent < -5) risk -= 12;
+    const balance = signal(s, 'y_balance');
+    if (balance !== undefined && balance < 90) risk -= 10;
+    const fms = signal(s, 'fms');
+    if (fms !== undefined && fms < 12) risk -= 12;
     return {
       score: clamp(risk),
       trendDelta: s.trendPercent * 0.5,
@@ -78,12 +117,13 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
     score: clamp(
       (s.status === 'active' ? 78 : s.status === 'rest' ? 65 : 40) +
         s.trendPercent * 0.6 +
-        Math.min(10, s.testsCount / 3)
+        Math.min(10, s.testsCount / 3) +
+        (signal(s, 'visual_reaction') !== undefined ? normTest(signal(s, 'visual_reaction'), 260, 180, true) * 0.08 : 0)
     ),
     trendDelta: s.trendPercent * 0.45,
   }),
   training_compliance: (s) => ({
-    score: clamp(50 + Math.min(45, s.testsCount * 1.8)),
+    score: clamp(50 + Math.min(45, s.testsCount * 1.8) + (signal(s, 'custom_test') !== undefined ? 5 : 0)),
     trendDelta: s.trendPercent * 0.1,
   }),
 };

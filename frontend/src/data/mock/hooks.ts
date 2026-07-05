@@ -46,6 +46,10 @@ export function useTeamById(id: string | undefined): MockTeam | undefined {
   return useMockStore((s) => (id ? s.teams.find((t) => t.id === id) : undefined));
 }
 
+export function useTestById(id: string | undefined): MockPerformanceTest | undefined {
+  return useMockStore((s) => (id ? s.tests.find((t) => t.id === id) : undefined));
+}
+
 export function useTeamRoster(team: MockTeam | undefined): MockAthlete[] {
   const athletes = useMockStore((s) => s.athletes);
   return useMemo(() => {
