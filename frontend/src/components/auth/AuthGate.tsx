@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 import { LoadingSpinner } from '@/src/components/common/LoadingSpinner';
 import { AUTH_ROUTES, APP_ROUTES } from '@/src/core/constants/routes';
+import { DEV_BYPASS_AUTH } from '@/src/core/config/dev';
 import { useAuth } from '@/src/providers/AuthProvider';
 
 export interface AuthGateProps {
@@ -21,7 +22,7 @@ export function AuthGate({ children }: AuthGateProps) {
   const { t } = useTranslation();
 
   useEffect(() => {
-    if (initializing) return;
+    if (DEV_BYPASS_AUTH || initializing) return;
 
     const segmentRoot = segments[0] as string | undefined;
     const inAuthGroup = segmentRoot === '(auth)';

@@ -14,7 +14,9 @@ import type { Session, User } from '@supabase/supabase-js';
 import { useRouter } from 'expo-router';
 
 import { isSupabaseConfigured } from '@/src/core/config/supabase';
+import { DEV_BYPASS_AUTH } from '@/src/core/config/dev';
 import { AUTH_ROUTES } from '@/src/core/constants/routes';
+import { createMockDevSession, MOCK_DEV_PROFILE } from '@/src/data/mock/auth';
 import * as authService from '@/src/services/supabase/auth.service';
 import * as profileService from '@/src/services/supabase/profile.service';
 import type { Profile } from '@/src/types/supabase';
@@ -33,6 +35,8 @@ export interface AuthContextValue {
   isConfigured: boolean;
   /** i18n key under auth.errors.* */
   errorKey: string | null;
+  /** True when DEV_BYPASS_AUTH mock mode is active. */
+  isDevBypass: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ needsVerification: boolean }>;
   signOut: () => Promise<void>;
@@ -59,9 +63,15 @@ export interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const router = useRouter();
-  const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [initializing, setInitializing] = useState(isSupabaseConfigured);
+  const [session, setSession] = useState<Session | null>(
+    DEV_BYPASS_AUTH ? createMockDevSession() : null
+  );
+  const [profile, setProfile] = useState<Profile | null>(
+    DEV_BYPASS_AUTH ? MOCK_DEV_PROFILE : null
+  );
+  const [initializing, setInitializing] = useState(
+    DEV_BYPASS_AUTH ? false : isSupabaseConfigured
+  );
   const [actionLoading, setActionLoading] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
 
@@ -79,6 +89,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [user?.id]);
 
   useEffect(() => {
+    if (DEV_BYPASS_AUTH) {
+      return;
+    }
+
     if (!isSupabaseConfigured) {
       setInitializing(false);
       return;
@@ -170,6 +184,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signOut = useCallback(async () => {
     await runAction(async () => {
+      if (DEV_BYPASS_AUTH) {
+        setSession(null);
+        setProfile(null);
+        return;
+      }
       await authService.signOut();
       setProfile(null);
     });
@@ -220,6 +239,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isAuthenticated,
       isEmailVerified,
       isConfigured: isSupabaseConfigured,
+      isDevBypass: DEV_BYPASS_AUTH,
       errorKey,
       signIn,
       signUp,
