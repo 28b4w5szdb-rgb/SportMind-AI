@@ -1,16 +1,17 @@
 /**
  * SportMind AI - Performance Lab Screen
- * Premium performance analysis interface with tools and metrics
+ * Premium performance analysis interface with responsive design for web/tablet/mobile
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Dimensions,
+  useWindowDimensions,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,31 +23,51 @@ import { Button } from '@/src/components/common/Button';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_GAP = 12;
-const CARD_WIDTH = (SCREEN_WIDTH - 32 - CARD_GAP) / 2;
-
 const labTools = [
-  { id: '1', key: 'lab.newTest', icon: 'analytics' as const, color: '#0066FF', gradient: ['#0066FF', '#0D9488'] },
-  { id: '2', key: 'lab.calculator', icon: 'calculator' as const, color: '#F97316', gradient: ['#F97316', '#EA580C'] },
-  { id: '3', key: 'lab.benchmark', icon: 'bar-chart' as const, color: '#10B981', gradient: ['#10B981', '#059669'] },
-  { id: '4', key: 'lab.comparison', icon: 'git-compare' as const, color: '#8B5CF6', gradient: ['#8B5CF6', '#7C3AED'] },
+  { id: '1', key: 'lab.newTest', icon: 'analytics' as const, color: '#0066FF', desc: 'Conduct new assessments' },
+  { id: '2', key: 'lab.calculator', icon: 'calculator' as const, color: '#F97316', desc: 'Compute metrics & zones' },
+  { id: '3', key: 'lab.benchmark', icon: 'bar-chart' as const, color: '#10B981', desc: 'Compare against norms' },
+  { id: '4', key: 'lab.comparison', icon: 'git-compare' as const, color: '#8B5CF6', desc: 'Track progress over time' },
 ];
 
 const testCategories = [
-  { id: 'endurance', icon: 'heart', labelEn: 'Endurance', labelAr: 'القدرة على التحمل', count: 4 },
-  { id: 'speed', icon: 'flash', labelEn: 'Speed', labelAr: 'السرعة', count: 3 },
-  { id: 'strength', icon: 'fitness', labelEn: 'Strength', labelAr: 'القوة', count: 2 },
-  { id: 'power', icon: 'rocket', labelEn: 'Power', labelAr: 'الطاقة', count: 3 },
-  { id: 'agility', icon: 'move', labelEn: 'Agility', labelAr: 'الرشاقة', count: 1 },
-  { id: 'flexibility', icon: 'accessibility', labelEn: 'Flexibility', labelAr: 'المرونة', count: 1 },
+  { id: 'endurance', icon: 'heart', labelEn: 'Endurance', labelAr: 'القدرة على التحمل', count: 4, color: '#EF4444' },
+  { id: 'speed', icon: 'flash', labelEn: 'Speed', labelAr: 'السرعة', count: 3, color: '#F97316' },
+  { id: 'strength', icon: 'fitness', labelEn: 'Strength', labelAr: 'القوة', count: 2, color: '#0066FF' },
+  { id: 'power', icon: 'rocket', labelEn: 'Power', labelAr: 'الطاقة', count: 3, color: '#10B981' },
+  { id: 'agility', icon: 'move', labelEn: 'Agility', labelAr: 'الرشاقة', count: 1, color: '#8B5CF6' },
+  { id: 'flexibility', icon: 'accessibility', labelEn: 'Flexibility', labelAr: 'المرونة', count: 1, color: '#EC4899' },
 ];
+
+const recentTests = [
+  { id: '1', title: 'VO2 Max Test', athlete: 'Ahmed Hassan', date: '2h ago', score: '52.4 ml/kg/min', trend: 'up' },
+  { id: '2', title: '10m Sprint', athlete: 'Mohammed Ali', date: 'Yesterday', score: '1.82s', trend: 'up' },
+  { id: '3', title: 'Vertical Jump', athlete: 'Omar Farouk', date: '3 days ago', score: '45cm', trend: 'down' },
+];
+
+const labLabels = {
+  'lab.newTest': { en: 'New Test', ar: 'اختبار جديد' },
+  'lab.calculator': { en: 'Calculator', ar: 'الحاسبة' },
+  'lab.benchmark': { en: 'Benchmark', ar: 'المقارنة' },
+  'lab.comparison': { en: 'Compare', ar: 'المقارنة' },
+};
 
 export default function PerformanceLabScreen() {
   const theme = useTheme();
   const type = useTypography();
   const { t } = useTranslation();
   const { flexRow, textAlign, isRTL } = useDirection();
+  const { width: windowWidth } = useWindowDimensions();
+
+  const isWeb = Platform.OS === 'web';
+  const isTablet = windowWidth >= 768;
+  const isDesktop = windowWidth >= 1024;
+
+  const gridConfig = useMemo(() => {
+    if (isDesktop) return { columns: 4, cardWidth: 260, gap: 20 };
+    if (isTablet) return { columns: 2, cardWidth: 280, gap: 16 };
+    return { columns: 2, cardWidth: (windowWidth - 48) / 2, gap: 12 };
+  }, [windowWidth, isDesktop, isTablet]);
 
   return (
     <SafeAreaView
@@ -55,11 +76,21 @@ export default function PerformanceLabScreen() {
     >
       <ScrollView
         style={{ flex: 1, backgroundColor: theme.colors.background }}
-        contentContainerStyle={{ paddingBottom: theme.spacing[20] }}
+        contentContainerStyle={{
+          paddingBottom: theme.spacing[20],
+          paddingHorizontal: isWeb && isDesktop ? theme.spacing[12] : theme.spacing[4],
+        }}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View style={{ paddingHorizontal: theme.spacing[4], paddingTop: theme.spacing[5] }}>
+        <View
+          style={{
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+            paddingTop: isDesktop ? theme.spacing[8] : theme.spacing[5],
+          }}
+        >
           <Text
             style={[
               type.overline,
@@ -94,14 +125,19 @@ export default function PerformanceLabScreen() {
               },
             ]}
           >
-            {isRTL
-              ? 'تحليل بيانات الأداء وتتبع التقدم'
-              : 'Analyze performance data and track progress'}
+            {isRTL ? 'تحليل بيانات الأداء وتتبع التقدم' : 'Analyze performance data and track progress'}
           </Text>
         </View>
 
         {/* Quick Tools Grid */}
-        <View style={{ paddingHorizontal: theme.spacing[4], marginTop: theme.spacing[6] }}>
+        <View
+          style={{
+            marginTop: theme.spacing[6],
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
           <Text
             style={[
               type.h4,
@@ -114,67 +150,86 @@ export default function PerformanceLabScreen() {
           >
             {isRTL ? 'أدوات سريعة' : 'Quick Tools'}
           </Text>
-          <View style={[styles.toolsGrid, { flexDirection: flexRow(true) }]}>
-            {labTools.map((tool) => (
-              <TouchableOpacity key={tool.id} activeOpacity={0.85}>
-                <Card
-                  variant="elevated"
-                  padding="md"
-                  style={styles.toolCard}
+          <View
+            style={[
+              styles.toolsGrid,
+              { flexDirection: flexRow(true), gap: gridConfig.gap },
+            ]}
+          >
+            {labTools.map((tool) => {
+              const labels = labLabels[tool.key];
+              return (
+                <TouchableOpacity
+                  key={tool.id}
+                  activeOpacity={0.85}
+                  style={{ flex: 1, maxWidth: gridConfig.cardWidth }}
                 >
-                  <LinearGradient
-                    colors={tool.gradient as [string, string]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={[
-                      styles.toolGradient,
-                      { borderRadius: theme.borderRadius.xl },
-                    ]}
+                  <Card
+                    variant="elevated"
+                    padding="lg"
+                    style={{
+                      borderRadius: theme.borderRadius['2xl'],
+                      alignItems: 'center',
+                      minHeight: isDesktop ? 180 : 140,
+                    }}
                   >
-                    <Ionicons name={tool.icon} size={24} color="#FFFFFF" />
-                  </LinearGradient>
-                  <Text
-                    style={[
-                      type.label,
-                      {
-                        color: theme.colors.text,
-                        marginTop: theme.spacing[3],
-                        textAlign: 'center',
-                      },
-                    ]}
-                  >
-                    {tool.id === '1'
-                      ? isRTL ? 'اختبار جديد' : 'New Test'
-                      : tool.id === '2'
-                      ? isRTL ? 'الحاسبة' : 'Calculator'
-                      : tool.id === '3'
-                      ? isRTL ? 'المقارنة' : 'Benchmark'
-                      : isRTL ? 'المقارنة' : 'Compare'}
-                  </Text>
-                </Card>
-              </TouchableOpacity>
-            ))}
+                    <LinearGradient
+                      colors={[tool.color, tool.color + 'CC']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={[
+                        styles.toolIcon,
+                        { borderRadius: theme.borderRadius.xl },
+                      ]}
+                    >
+                      <Ionicons name={tool.icon} size={28} color="#FFFFFF" />
+                    </LinearGradient>
+                    <Text
+                      style={[
+                        type.h5,
+                        {
+                          color: theme.colors.text,
+                          marginTop: theme.spacing[4],
+                          textAlign: 'center',
+                        },
+                      ]}
+                    >
+                      {isRTL ? labels.ar : labels.en}
+                    </Text>
+                    <Text
+                      style={[
+                        type.caption,
+                        {
+                          color: theme.colors.textTertiary,
+                          marginTop: theme.spacing[1],
+                          textAlign: 'center',
+                        },
+                      ]}
+                    >
+                      {tool.desc}
+                    </Text>
+                  </Card>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
         {/* Test Categories */}
-        <View style={{ paddingHorizontal: theme.spacing[4], marginTop: theme.spacing[6] }}>
-          <View
-            style={[
-              styles.sectionHeader,
-              { flexDirection: flexRow(true) },
-            ]}
-          >
+        <View
+          style={{
+            marginTop: theme.spacing[6],
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
+          <View style={[styles.sectionHeader, { flexDirection: flexRow(true) }]}>
             <Text style={[type.h4, { color: theme.colors.text }]}>
               {isRTL ? 'فئات الاختبار' : 'Test Categories'}
             </Text>
             <TouchableOpacity activeOpacity={0.7}>
-              <Text
-                style={[
-                  type.label,
-                  { color: theme.colors.primary },
-                ]}
-              >
+              <Text style={[type.label, { color: theme.colors.primary }]}>
                 {isRTL ? 'عرض الكل' : 'View All'}
               </Text>
             </TouchableOpacity>
@@ -182,192 +237,213 @@ export default function PerformanceLabScreen() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoriesScroll}
+            contentContainerStyle={{ gap: theme.spacing[3], marginTop: theme.spacing[3] }}
           >
-            {testCategories.map((category, index) => (
+            {testCategories.map((category) => (
               <TouchableOpacity key={category.id} activeOpacity={0.85}>
                 <Card
                   variant="outlined"
                   padding="md"
-                  style={[
-                    styles.categoryCard,
-                    {
-                      marginRight: index < testCategories.length - 1 ? theme.spacing[3] : 0,
-                      borderRadius: theme.borderRadius.xl,
-                    },
-                  ]}
+                  style={{ borderRadius: theme.borderRadius.xl, minWidth: 160 }}
                 >
-                  <View style={styles.categoryContent}>
-                    <View
-                      style={[
-                        styles.categoryIcon,
-                        {
-                          backgroundColor: theme.colors.primary + '15',
-                          borderRadius: theme.borderRadius.lg,
-                        },
-                      ]}
-                    >
-                      <Ionicons name={category.icon as any} size={22} color={theme.colors.primary} />
-                    </View>
-                    <View style={{ marginTop: theme.spacing[2] }}>
-                      <Text
-                        style={[
-                          type.label,
-                          { color: theme.colors.text },
-                        ]}
-                      >
-                        {isRTL ? category.labelAr : category.labelEn}
-                      </Text>
-                      <Text
-                        style={[
-                          type.caption,
-                          { color: theme.colors.textTertiary, marginTop: 2 },
-                        ]}
-                      >
-                        {category.count} {isRTL ? 'اختبارات' : 'tests'}
-                      </Text>
-                    </View>
+                  <View
+                    style={[
+                      styles.categoryIcon,
+                      {
+                        backgroundColor: category.color + '15',
+                        borderRadius: theme.borderRadius.lg,
+                      },
+                    ]}
+                  >
+                    <Ionicons name={category.icon as any} size={24} color={category.color} />
                   </View>
+                  <Text
+                    style={[
+                      type.label,
+                      { color: theme.colors.text, marginTop: theme.spacing[3] },
+                    ]}
+                  >
+                    {isRTL ? category.labelAr : category.labelEn}
+                  </Text>
+                  <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 4 }]}>
+                    {category.count} {isRTL ? 'اختبارات' : 'tests'}
+                  </Text>
                 </Card>
               </TouchableOpacity>
             ))}
           </ScrollView>
         </View>
 
-        {/* Recent Tests Placeholder */}
-        <View style={{ paddingHorizontal: theme.spacing[4], marginTop: theme.spacing[6] }}>
-          <Text
-            style={[
-              type.h4,
-              {
-                color: theme.colors.text,
-                marginBottom: theme.spacing[3],
-                textAlign: textAlign('start'),
-              },
-            ]}
+        {/* Recent Tests */}
+        <View
+          style={{
+            marginTop: theme.spacing[6],
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
+          <View style={[styles.sectionHeader, { flexDirection: flexRow(true) }]}>
+            <Text style={[type.h4, { color: theme.colors.text }]}>
+              {isRTL ? 'الاختبارات الأخيرة' : 'Recent Tests'}
+            </Text>
+            <TouchableOpacity activeOpacity={0.7}>
+              <Text style={[type.label, { color: theme.colors.primary }]}>
+                {isRTL ? 'عرض الكل' : 'View All'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {recentTests.map((test) => (
+            <TouchableOpacity key={test.id} activeOpacity={0.85}>
+              <Card
+                variant="elevated"
+                padding="lg"
+                style={{
+                  borderRadius: theme.borderRadius.xl,
+                  marginBottom: theme.spacing[3],
+                }}
+              >
+                <View style={[styles.testRow, { flexDirection: flexRow(true) }]}>
+                  <View
+                    style={[
+                      styles.testIcon,
+                      {
+                        backgroundColor: (test.trend === 'up' ? theme.colors.success : theme.colors.error) + '15',
+                        borderRadius: theme.borderRadius.lg,
+                      },
+                    ]}
+                  >
+                    <Ionicons
+                      name="analytics"
+                      size={22}
+                      color={test.trend === 'up' ? theme.colors.success : theme.colors.error}
+                    />
+                  </View>
+                  <View style={{ flex: 1, marginHorizontal: theme.spacing[3] }}>
+                    <Text style={[type.body, { color: theme.colors.text }]}>{test.title}</Text>
+                    <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 2 }]}>
+                      {test.athlete} · {test.date}
+                    </Text>
+                  </View>
+                  <View style={{ alignItems: 'flex-end' }}>
+                    <Text style={[type.numberSm, { color: theme.colors.text }]}>
+                      {test.score}
+                    </Text>
+                    <Ionicons
+                      name={test.trend === 'up' ? 'trending-up' : 'trending-down'}
+                      size={16}
+                      color={test.trend === 'up' ? theme.colors.success : theme.colors.error}
+                    />
+                  </View>
+                </View>
+              </Card>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Stats Overview */}
+        <View
+          style={{
+            marginTop: theme.spacing[6],
+            maxWidth: isDesktop ? 800 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
+          <Card
+            variant="elevated"
+            padding="none"
+            style={{ borderRadius: theme.borderRadius['2xl'], overflow: 'hidden' }}
           >
-            {isRTL ? 'الاختبارات الأخيرة' : 'Recent Tests'}
-          </Text>
+            <LinearGradient
+              colors={['#0066FF', '#0D9488']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{ padding: theme.spacing[6] }}
+            >
+              <Text style={[type.h4, { color: '#FFFFFF', textAlign: 'center' }]}>
+                {isRTL ? 'إحصائيات الأداء' : 'Performance Stats'}
+              </Text>
+              <View style={[styles.statsRow, { flexDirection: flexRow(true), marginTop: theme.spacing[5] }]}>
+                <View style={styles.statItem}>
+                  <Text style={[type.numberDisplay, { color: '#FFFFFF', fontSize: 36 }]}>14</Text>
+                  <Text style={[type.caption, { color: 'rgba(255,255,255,0.8)', marginTop: 4 }]}>
+                    {isRTL ? 'اختبار متاح' : 'Tests Available'}
+                  </Text>
+                </View>
+                <View style={[styles.statDivider, { backgroundColor: 'rgba(255,255,255,0.2)' }]} />
+                <View style={styles.statItem}>
+                  <Text style={[type.numberDisplay, { color: '#FFFFFF', fontSize: 36 }]}>8</Text>
+                  <Text style={[type.caption, { color: 'rgba(255,255,255,0.8)', marginTop: 4 }]}>
+                    {isRTL ? 'حاسبة' : 'Calculators'}
+                  </Text>
+                </View>
+                <View style={[styles.statDivider, { backgroundColor: 'rgba(255,255,255,0.2)' }]} />
+                <View style={styles.statItem}>
+                  <Text style={[type.numberDisplay, { color: '#FFFFFF', fontSize: 36 }]}>12</Text>
+                  <Text style={[type.caption, { color: 'rgba(255,255,255,0.8)', marginTop: 4 }]}>
+                    {isRTL ? 'معيار' : 'Benchmarks'}
+                  </Text>
+                </View>
+              </View>
+            </LinearGradient>
+          </Card>
+        </View>
+
+        {/* Empty State - No Data */}
+        <View
+          style={{
+            marginTop: theme.spacing[8],
+            maxWidth: isDesktop ? 800 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
           <Card
             variant="filled"
             padding="xl"
             style={{ borderRadius: theme.borderRadius['2xl'] }}
           >
-            <View style={styles.recentContent}>
+            <View style={styles.emptyContent}>
               <View
                 style={[
-                  styles.recentIcon,
+                  styles.emptyIcon,
                   {
-                    backgroundColor: theme.colors.success + '15',
-                    borderRadius: theme.borderRadius['2xl'],
+                    backgroundColor: theme.colors.accent + '15',
+                    borderRadius: theme.borderRadius['3xl'],
                   },
                 ]}
               >
-                <Ionicons name="analytics-outline" size={36} color={theme.colors.success} />
+                <Ionicons name="pulse" size={40} color={theme.colors.accent} />
               </View>
               <Text
                 style={[
-                  type.h5,
-                  {
-                    color: theme.colors.text,
-                    marginTop: theme.spacing[4],
-                    textAlign: 'center',
-                  },
+                  type.h4,
+                  { color: theme.colors.text, marginTop: theme.spacing[5], textAlign: 'center' },
                 ]}
               >
-                {isRTL ? 'لا توجد اختبارات' : 'No Tests Yet'}
+                {isRTL ? 'ابدأ الآن' : 'Get Started'}
               </Text>
               <Text
                 style={[
                   type.body,
-                  {
-                    color: theme.colors.textSecondary,
-                    textAlign: 'center',
-                    marginTop: theme.spacing[2],
-                  },
+                  { color: theme.colors.textSecondary, textAlign: 'center', marginTop: theme.spacing[2] },
                 ]}
               >
                 {isRTL
-                  ? 'ابدأ بإضافة اختبارات لتتبع تقدم الرياضيين'
-                  : 'Start adding tests to track athlete progress'}
+                  ? 'قم بإجراء أول اختبار أداء لتتبع تقدم الرياضيين'
+                  : 'Conduct your first performance test to start tracking athlete progress'}
               </Text>
+              <Button
+                title={isRTL ? 'إجراء اختبار جديد' : 'New Performance Test'}
+                variant="primary"
+                size="large"
+                icon="analytics"
+                onPress={() => {}}
+                style={{ marginTop: theme.spacing[6] }}
+                fullWidth
+              />
             </View>
-          </Card>
-        </View>
-
-        {/* Stats Overview */}
-        <View style={{ paddingHorizontal: theme.spacing[4], marginTop: theme.spacing[6] }}>
-          <Card variant="elevated" padding="lg" style={{ borderRadius: theme.borderRadius['2xl'] }}>
-            <LinearGradient
-              colors={['#0066FF10', '#0D948810']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{ margin: -16, padding: 16, borderRadius: 20 }}
-            >
-              <View
-                style={[
-                  styles.statsRow,
-                  { flexDirection: flexRow(true) },
-                ]}
-              >
-                <View style={styles.statsItem}>
-                  <Text
-                    style={[
-                      type.numberLarge,
-                      { color: theme.colors.text },
-                    ]}
-                  >
-                    0
-                  </Text>
-                  <Text
-                    style={[
-                      type.caption,
-                      { color: theme.colors.textSecondary, marginTop: 4 },
-                    ]}
-                  >
-                    {isRTL ? 'إجمالي الاختبارات' : 'Total Tests'}
-                  </Text>
-                </View>
-                <View style={[styles.statsDivider, { backgroundColor: theme.colors.border }]} />
-                <View style={styles.statsItem}>
-                  <Text
-                    style={[
-                      type.numberLarge,
-                      { color: theme.colors.success },
-                    ]}
-                  >
-                    0
-                  </Text>
-                  <Text
-                    style={[
-                      type.caption,
-                      { color: theme.colors.textSecondary, marginTop: 4 },
-                    ]}
-                  >
-                    {isRTL ? 'معدل التحسن' : 'Improvement'}
-                  </Text>
-                </View>
-                <View style={[styles.statsDivider, { backgroundColor: theme.colors.border }]} />
-                <View style={styles.statsItem}>
-                  <Text
-                    style={[
-                      type.numberLarge,
-                      { color: theme.colors.accent },
-                    ]}
-                  >
-                    0
-                  </Text>
-                  <Text
-                    style={[
-                      type.caption,
-                      { color: theme.colors.textSecondary, marginTop: 4 },
-                    ]}
-                  >
-                    {isRTL ? 'أرقام قياسية' : 'Records'}
-                  </Text>
-                </View>
-              </View>
-            </LinearGradient>
           </Card>
         </View>
       </ScrollView>
@@ -381,16 +457,10 @@ const styles = StyleSheet.create({
   },
   toolsGrid: {
     flexWrap: 'wrap',
-    gap: CARD_GAP,
   },
-  toolCard: {
-    width: CARD_WIDTH,
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  toolGradient: {
-    width: 56,
-    height: 56,
+  toolIcon: {
+    width: 64,
+    height: 64,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -399,28 +469,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
-  categoriesScroll: {
-    paddingVertical: 4,
-  },
-  categoryCard: {
-    minWidth: 140,
-  },
-  categoryContent: {
-    alignItems: 'flex-start',
-  },
   categoryIcon: {
-    width: 44,
-    height: 44,
+    width: 48,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  recentContent: {
+  testRow: {
     alignItems: 'center',
-    paddingVertical: 16,
   },
-  recentIcon: {
-    width: 80,
-    height: 80,
+  testIcon: {
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -428,12 +488,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-around',
   },
-  statsItem: {
+  statItem: {
     alignItems: 'center',
     flex: 1,
   },
-  statsDivider: {
+  statDivider: {
     width: 1,
     height: 48,
+  },
+  emptyContent: {
+    alignItems: 'center',
+    paddingVertical: 16,
+  },
+  emptyIcon: {
+    width: 88,
+    height: 88,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

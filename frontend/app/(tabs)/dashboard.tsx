@@ -1,10 +1,10 @@
 /**
  * SportMind AI - Dashboard Screen
  * Premium bilingual (AR/EN) dashboard with RTL-aware layout,
- * modern card designs, and sports-focused data visualization.
+ * responsive design for web/tablet/mobile, and modern card designs.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  useWindowDimensions,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,10 +26,6 @@ import { LanguageToggle } from '@/src/components/common/LanguageToggle';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CARD_GAP = 12;
-const CARD_WIDTH = (SCREEN_WIDTH - 32 - CARD_GAP) / 2;
-
 function getGreetingKey(): string {
   const h = new Date().getHours();
   if (h < 12) return 'dashboard.greetingMorning';
@@ -36,15 +34,21 @@ function getGreetingKey(): string {
 }
 
 const quickActions = [
-  { id: '1', key: 'actions.aiCoach', icon: 'sparkles' as const, color: '#0066FF', gradient: ['#0066FF', '#0D9488'], route: '/(tabs)/ai-coach' },
-  { id: '2', key: 'actions.calculator', icon: 'calculator' as const, color: '#F97316', gradient: ['#F97316', '#EA580C'], route: '/calculator' },
-  { id: '3', key: 'actions.reports', icon: 'document-text' as const, color: '#10B981', gradient: ['#10B981', '#059669'], route: '/reports' },
-  { id: '4', key: 'actions.research', icon: 'book' as const, color: '#8B5CF6', gradient: ['#8B5CF6', '#7C3AED'], route: '/research' },
+  { id: '1', key: 'actions.aiCoach', icon: 'sparkles' as const, color: '#0066FF', route: '/(tabs)/ai-coach' },
+  { id: '2', key: 'actions.calculator', icon: 'calculator' as const, color: '#F97316', route: '/calculator' },
+  { id: '3', key: 'actions.reports', icon: 'document-text' as const, color: '#10B981', route: '/reports' },
+  { id: '4', key: 'actions.research', icon: 'book' as const, color: '#8B5CF6', route: '/research' },
 ] as const;
 
-const statsCards = [
-  { id: 'athletes', icon: 'people' as const, value: '0', key: 'dashboard.athletesCount', color: '#0066FF' },
-  { id: 'sessions', icon: 'stats-chart' as const, value: '0', key: 'dashboard.sessionsCount', color: '#10B981' },
+const statsData = [
+  { id: 'athletes', icon: 'people' as const, value: '0', key: 'dashboard.athletesCount', color: '#0066FF', trend: '+12%' },
+  { id: 'sessions', icon: 'stats-chart' as const, value: '0', key: 'dashboard.sessionsCount', color: '#10B981', trend: '+8%' },
+];
+
+const recentActivities = [
+  { id: '1', icon: 'fitness', title: 'Training Session', subtitle: '2 hours ago', color: '#F97316' },
+  { id: '2', icon: 'analytics', title: 'New Test Results', subtitle: 'Yesterday', color: '#0066FF' },
+  { id: '3', icon: 'people', title: 'Athlete Added', subtitle: '2 days ago', color: '#10B981' },
 ];
 
 export default function DashboardScreen() {
@@ -53,6 +57,19 @@ export default function DashboardScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const { flexRow, textAlign, isRTL } = useDirection();
+  const { width: windowWidth } = useWindowDimensions();
+
+  // Responsive breakpoints
+  const isWeb = Platform.OS === 'web';
+  const isTablet = windowWidth >= 768;
+  const isDesktop = windowWidth >= 1024;
+
+  // Calculate grid columns
+  const gridConfig = useMemo(() => {
+    if (isDesktop) return { columns: 4, cardWidth: 260, gap: 20 };
+    if (isTablet) return { columns: 2, cardWidth: 280, gap: 16 };
+    return { columns: 2, cardWidth: (windowWidth - 40) / 2, gap: 12 };
+  }, [windowWidth, isDesktop, isTablet]);
 
   return (
     <SafeAreaView
@@ -61,7 +78,10 @@ export default function DashboardScreen() {
     >
       <ScrollView
         style={{ flex: 1, backgroundColor: theme.colors.background }}
-        contentContainerStyle={{ paddingBottom: theme.spacing[20] }}
+        contentContainerStyle={{
+          paddingBottom: theme.spacing[20],
+          paddingHorizontal: isWeb && isDesktop ? theme.spacing[12] : theme.spacing[4],
+        }}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
@@ -70,9 +90,11 @@ export default function DashboardScreen() {
             styles.headerRow,
             {
               flexDirection: flexRow(true),
-              paddingHorizontal: theme.spacing[4],
-              paddingTop: theme.spacing[5],
+              paddingTop: isDesktop ? theme.spacing[8] : theme.spacing[5],
               paddingBottom: theme.spacing[4],
+              maxWidth: isDesktop ? 1400 : undefined,
+              marginHorizontal: isDesktop ? 'auto' : undefined,
+              width: '100%',
             },
           ]}
         >
@@ -101,12 +123,33 @@ export default function DashboardScreen() {
             >
               {t('dashboard.title')}
             </Text>
+            <Text
+              style={[
+                type.body,
+                {
+                  color: theme.colors.textSecondary,
+                  textAlign: textAlign('start'),
+                  marginTop: theme.spacing[2],
+                },
+              ]}
+            >
+              {t('dashboard.welcome')}
+            </Text>
           </View>
           <LanguageToggle />
         </View>
 
-        {/* Stats Overview with Gradient Cards */}
-        <View style={{ paddingHorizontal: theme.spacing[4], marginBottom: theme.spacing[6] }}>
+        {/* Stats Overview */}
+        <View
+          style={[
+            styles.section,
+            {
+              maxWidth: isDesktop ? 1400 : undefined,
+              marginHorizontal: isDesktop ? 'auto' : undefined,
+              width: '100%',
+            },
+          ]}
+        >
           <Text
             style={[
               type.h4,
@@ -119,31 +162,57 @@ export default function DashboardScreen() {
           >
             {t('dashboard.overview')}
           </Text>
-          <View style={[styles.statsGrid, { flexDirection: flexRow(true) }]}>
-            {statsCards.map((stat) => (
-              <TouchableOpacity key={stat.id} activeOpacity={0.85}>
-                <View style={[styles.statCard, { overflow: 'hidden' }]}>
+          <View
+            style={[
+              styles.statsGrid,
+              {
+                flexDirection: flexRow(true),
+                gap: gridConfig.gap,
+              },
+            ]}
+          >
+            {statsData.map((stat) => (
+              <TouchableOpacity key={stat.id} activeOpacity={0.85} style={{ flex: 1 }}>
+                <Card
+                  variant="elevated"
+                  padding="none"
+                  style={{ borderRadius: theme.borderRadius['2xl'] }}
+                >
                   <LinearGradient
-                    colors={[stat.color + '20', stat.color + '05']}
+                    colors={[stat.color + '15', stat.color + '05']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
-                    style={{ flex: 1, padding: theme.spacing[5] }}
+                    style={{
+                      padding: theme.spacing[5],
+                      minHeight: isDesktop ? 160 : 130,
+                    }}
                   >
-                    <View
-                      style={[
-                        styles.statIcon,
-                        {
-                          backgroundColor: stat.color + '20',
-                          borderRadius: theme.borderRadius.lg,
-                        },
-                      ]}
-                    >
-                      <Ionicons name={stat.icon} size={22} color={stat.color} />
+                    <View style={[styles.statsHeader, { flexDirection: flexRow(true) }]}>
+                      <View
+                        style={[
+                          styles.statIcon,
+                          {
+                            backgroundColor: stat.color + '20',
+                            borderRadius: theme.borderRadius.lg,
+                          },
+                        ]}
+                      >
+                        <Ionicons name={stat.icon} size={22} color={stat.color} />
+                      </View>
+                      <View style={[styles.statTrend, { backgroundColor: stat.color + '15', borderRadius: theme.borderRadius.full }]}>
+                        <Text style={[type.captionMd, { color: stat.color, fontWeight: '600' }]}>
+                          {stat.trend}
+                        </Text>
+                      </View>
                     </View>
                     <Text
                       style={[
                         type.numberDisplay,
-                        { color: theme.colors.text, marginTop: theme.spacing[3], fontSize: 36 },
+                        {
+                          color: theme.colors.text,
+                          marginTop: theme.spacing[3],
+                          fontSize: isDesktop ? 48 : 40,
+                        },
                       ]}
                     >
                       {stat.value}
@@ -157,14 +226,23 @@ export default function DashboardScreen() {
                       {t(stat.key)}
                     </Text>
                   </LinearGradient>
-                </View>
+                </Card>
               </TouchableOpacity>
             ))}
           </View>
         </View>
 
-        {/* Quick Actions - Premium Cards */}
-        <View style={{ paddingHorizontal: theme.spacing[4], marginBottom: theme.spacing[6] }}>
+        {/* Quick Actions */}
+        <View
+          style={[
+            styles.section,
+            {
+              maxWidth: isDesktop ? 1400 : undefined,
+              marginHorizontal: isDesktop ? 'auto' : undefined,
+              width: '100%',
+            },
+          ]}
+        >
           <Text
             style={[
               type.h4,
@@ -177,19 +255,32 @@ export default function DashboardScreen() {
           >
             {t('dashboard.quickActions')}
           </Text>
-          <View style={[styles.actionsGrid, { flexDirection: flexRow(true) }]}>
+          <View
+            style={[
+              styles.actionsGrid,
+              {
+                flexDirection: flexRow(true),
+                gap: gridConfig.gap,
+              },
+            ]}
+          >
             {quickActions.map((action) => (
               <TouchableOpacity
                 key={action.id}
                 onPress={() => router.push(action.route as never)}
-                activeOpacity={0.8}
-                accessibilityRole="button"
-                accessibilityLabel={t(action.key)}
-                style={styles.actionTouch}
+                activeOpacity={0.85}
+                style={{ flex: 1, maxWidth: isDesktop ? 320 : undefined }}
               >
-                <Card variant="elevated" padding="md" style={styles.actionCard}>
+                <Card
+                  variant="elevated"
+                  padding="lg"
+                  style={{
+                    borderRadius: theme.borderRadius['2xl'],
+                    alignItems: 'center',
+                  }}
+                >
                   <LinearGradient
-                    colors={action.gradient as [string, string]}
+                    colors={[action.color, action.color + 'CC']}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={[
@@ -197,7 +288,7 @@ export default function DashboardScreen() {
                       { borderRadius: theme.borderRadius.xl },
                     ]}
                   >
-                    <Ionicons name={action.icon} size={26} color="#FFFFFF" />
+                    <Ionicons name={action.icon} size={28} color="#FFFFFF" />
                   </LinearGradient>
                   <Text
                     style={[
@@ -217,8 +308,17 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* AI Insights - Empty State */}
-        <View style={{ paddingHorizontal: theme.spacing[4], marginBottom: theme.spacing[6] }}>
+        {/* AI Insights */}
+        <View
+          style={[
+            styles.section,
+            {
+              maxWidth: isDesktop ? 1400 : undefined,
+              marginHorizontal: isDesktop ? 'auto' : undefined,
+              width: '100%',
+            },
+          ]}
+        >
           <Text
             style={[
               type.h4,
@@ -231,45 +331,62 @@ export default function DashboardScreen() {
           >
             {t('dashboard.insights')}
           </Text>
-          <Card variant="filled" padding="lg" style={styles.insightCard}>
-            <View style={styles.insightContent}>
-              <View
-                style={[
-                  styles.insightIcon,
-                  {
-                    backgroundColor: theme.colors.primary + '15',
-                    borderRadius: theme.borderRadius['2xl'],
-                  },
-                ]}
-              >
-                <Ionicons name="bulb-outline" size={28} color={theme.colors.primary} />
-              </View>
-              <View style={{ flex: 1, marginLeft: theme.spacing[4] }}>
-                <Text
+          <Card
+            variant="filled"
+            padding="none"
+            style={{ borderRadius: theme.borderRadius['2xl'] }}
+          >
+            <LinearGradient
+              colors={['#0066FF08', '#0D948808']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{ padding: theme.spacing[6] }}
+            >
+              <View style={[styles.insightContent, { flexDirection: flexRow(true) }]}>
+                <View
                   style={[
-                    type.h5,
-                    { color: theme.colors.text, marginBottom: theme.spacing[1] },
+                    styles.insightIcon,
+                    {
+                      backgroundColor: theme.colors.primary + '15',
+                      borderRadius: theme.borderRadius['3xl'],
+                    },
                   ]}
                 >
-                  {t('dashboard.noInsightsYet')}
-                </Text>
-                <Text
-                  style={[
-                    type.bodySm,
-                    { color: theme.colors.textSecondary },
-                  ]}
-                >
-                  {isRTL
-                    ? 'أضف لاعبين للحصول على توصيات ذكية'
-                    : 'Add athletes to get personalized recommendations'}
-                </Text>
+                  <Ionicons name="bulb" size={32} color={theme.colors.primary} />
+                </View>
+                <View style={{ flex: isRTL ? 0 : 1, marginLeft: theme.spacing[4] }}>
+                  <Text
+                    style={[
+                      type.h5,
+                      { color: theme.colors.text, marginBottom: theme.spacing[2] },
+                    ]}
+                  >
+                    {t('dashboard.noInsightsYet')}
+                  </Text>
+                  <Text
+                    style={[type.bodySm, { color: theme.colors.textSecondary }]}
+                  >
+                    {isRTL
+                      ? 'أضف لاعبين للحصول على توصيات ذكية مخصصة'
+                      : 'Add athletes to get personalized AI recommendations'}
+                  </Text>
+                </View>
               </View>
-            </View>
+            </LinearGradient>
           </Card>
         </View>
 
-        {/* Recent Activity Placeholder */}
-        <View style={{ paddingHorizontal: theme.spacing[4] }}>
+        {/* Recent Activity */}
+        <View
+          style={[
+            styles.section,
+            {
+              maxWidth: isDesktop ? 1400 : undefined,
+              marginHorizontal: isDesktop ? 'auto' : undefined,
+              width: '100%',
+            },
+          ]}
+        >
           <Text
             style={[
               type.h4,
@@ -282,33 +399,45 @@ export default function DashboardScreen() {
           >
             {isRTL ? 'النشاط الأخير' : 'Recent Activity'}
           </Text>
-          <Card variant="outlined" padding="lg" style={styles.activityCard}>
-            <View
-              style={[
-                styles.activityContent,
-                { flexDirection: flexRow(true) },
-              ]}
-            >
-              <View
-                style={[
-                  styles.activityDot,
-                  { backgroundColor: theme.colors.borderLight },
-                ]}
-              />
-              <View style={{ flex: 1 }}>
-                <Text
-                  style={[
-                    type.body,
-                    { color: theme.colors.textSecondary, textAlign: textAlign('start') },
-                  ]}
-                >
-                  {isRTL
-                    ? 'لا يوجد نشاط حديث لعرضه'
-                    : 'No recent activity to display'}
-                </Text>
-              </View>
-            </View>
-          </Card>
+          {recentActivities.map((activity, index) => (
+            <TouchableOpacity key={activity.id} activeOpacity={0.85}>
+              <Card
+                variant="outlined"
+                padding="md"
+                style={{
+                  borderRadius: theme.borderRadius.xl,
+                  marginBottom: theme.spacing[3],
+                }}
+              >
+                <View style={[styles.activityItem, { flexDirection: flexRow(true) }]}>
+                  <View
+                    style={[
+                      styles.activityIcon,
+                      {
+                        backgroundColor: activity.color + '15',
+                        borderRadius: theme.borderRadius.lg,
+                      },
+                    ]}
+                  >
+                    <Ionicons name={activity.icon} size={20} color={activity.color} />
+                  </View>
+                  <View style={{ flex: 1, marginHorizontal: theme.spacing[3] }}>
+                    <Text style={[type.body, { color: theme.colors.text }]}>
+                      {activity.title}
+                    </Text>
+                    <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 2 }]}>
+                      {activity.subtitle}
+                    </Text>
+                  </View>
+                  <Ionicons
+                    name={isRTL ? 'chevron-back' : 'chevron-forward'}
+                    size={18}
+                    color={theme.colors.textTertiary}
+                  />
+                </View>
+              </Card>
+            </TouchableOpacity>
+          ))}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -322,14 +451,15 @@ const styles = StyleSheet.create({
   headerRow: {
     alignItems: 'flex-start',
   },
-  statsGrid: {
-    gap: CARD_GAP,
+  section: {
+    marginTop: 24,
   },
-  statCard: {
-    flex: 1,
-    minHeight: 140,
-    borderRadius: 20,
-    backgroundColor: 'transparent',
+  statsGrid: {
+    flexWrap: 'wrap',
+  },
+  statsHeader: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   statIcon: {
     width: 44,
@@ -337,45 +467,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  statTrend: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
   actionsGrid: {
     flexWrap: 'wrap',
-    gap: CARD_GAP,
-  },
-  actionTouch: {
-    width: CARD_WIDTH,
-  },
-  actionCard: {
-    width: CARD_WIDTH,
-    alignItems: 'center',
-    paddingVertical: 20,
   },
   actionGradient: {
-    width: 56,
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  insightCard: {
-    backgroundColor: 'transparent',
-  },
-  insightContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  insightIcon: {
     width: 64,
     height: 64,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  activityCard: {},
-  activityContent: {
+  insightContent: {
     alignItems: 'center',
-    gap: 12,
   },
-  activityDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+  insightIcon: {
+    width: 72,
+    height: 72,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activityItem: {
+    alignItems: 'center',
+  },
+  activityIcon: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

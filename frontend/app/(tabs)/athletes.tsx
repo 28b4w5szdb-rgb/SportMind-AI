@@ -1,9 +1,9 @@
 /**
  * SportMind AI - Athletes Screen
- * Premium athlete management interface with search, filters, and empty state
+ * Premium athlete management interface with responsive design for web/tablet/mobile
  */
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,9 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Dimensions,
+  FlatList,
+  useWindowDimensions,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,8 +25,6 @@ import { Button } from '@/src/components/common/Button';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
 const filterChips = [
   { id: 'all', labelEn: 'All', labelAr: 'الكل' },
   { id: 'active', labelEn: 'Active', labelAr: 'نشط' },
@@ -32,13 +32,128 @@ const filterChips = [
   { id: 'rest', labelEn: 'Rest', labelAr: 'راحة' },
 ];
 
+const sampleAthletes = [
+  { id: '1', name: 'Ahmed Hassan', position: 'Forward', status: 'active', avatar: null },
+  { id: '2', name: 'Mohammed Ali', position: 'Midfielder', status: 'active', avatar: null },
+  { id: '3', name: 'Omar Farouk', position: 'Defender', status: 'injured', avatar: null },
+  { id: '4', name: 'Yusuf Ibrahim', position: 'Goalkeeper', status: 'rest', avatar: null },
+];
+
 export default function AthletesScreen() {
   const theme = useTheme();
   const type = useTypography();
   const { t } = useTranslation();
   const { flexRow, textAlign, isRTL } = useDirection();
+  const { width: windowWidth } = useWindowDimensions();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
+
+  const isWeb = Platform.OS === 'web';
+  const isTablet = windowWidth >= 768;
+  const isDesktop = windowWidth >= 1024;
+
+  const gridConfig = useMemo(() => {
+    if (isDesktop) return { columns: 3, cardWidth: 380 };
+    if (isTablet) return { columns: 2, cardWidth: 300 };
+    return { columns: 1, cardWidth: windowWidth - 32 };
+  }, [windowWidth, isDesktop, isTablet]);
+
+  const filteredAthletes = useMemo(() => {
+    if (selectedFilter === 'all') return sampleAthletes;
+    return sampleAthletes.filter((a) => a.status === selectedFilter);
+  }, [selectedFilter]);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return theme.colors.success;
+      case 'injured':
+        return theme.colors.warning;
+      case 'rest':
+        return theme.colors.info;
+      default:
+        return theme.colors.textTertiary;
+    }
+  };
+
+  const renderAthlete = ({ item }: { item: typeof sampleAthletes[0] }) => {
+    const statusColor = getStatusColor(item.status);
+    return (
+      <TouchableOpacity activeOpacity={0.85} style={{ flex: 1, maxWidth: gridConfig.cardWidth }}>
+        <Card
+          variant="elevated"
+          padding="lg"
+          style={{
+            borderRadius: theme.borderRadius['2xl'],
+            marginBottom: theme.spacing[3],
+          }}
+        >
+          <View style={[styles.athleteRow, { flexDirection: flexRow(true) }]}>
+            <LinearGradient
+              colors={['#0066FF', '#0D9488']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[
+                styles.athleteAvatar,
+                { borderRadius: theme.borderRadius.xl },
+              ]}
+            >
+              <Ionicons name="person" size={24} color="#FFFFFF" />
+            </LinearGradient>
+            <View style={{ flex: 1, marginHorizontal: theme.spacing[3] }}>
+              <Text style={[type.h5, { color: theme.colors.text }]}>{item.name}</Text>
+              <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 2 }]}>
+                {item.position}
+              </Text>
+            </View>
+            <View
+              style={[
+                styles.statusBadge,
+                {
+                  backgroundColor: statusColor + '15',
+                  borderRadius: theme.borderRadius.full,
+                },
+              ]}
+            >
+              <View
+                style={[
+                  styles.statusDot,
+                  { backgroundColor: statusColor, borderRadius: 4 },
+                ]}
+              />
+              <Text style={[type.caption, { color: statusColor, marginLeft: 6 }]}>
+                {isRTL
+                  ? filterChips.find((f) => f.id === item.status)?.labelAr
+                  : filterChips.find((f) => f.id === item.status)?.labelEn}
+              </Text>
+            </View>
+          </View>
+          <View style={[styles.athleteStats, { flexDirection: flexRow(true), marginTop: theme.spacing[4] }]}>
+            <View style={styles.statItem}>
+              <Text style={[type.numberSm, { color: theme.colors.text }]}>24</Text>
+              <Text style={[type.caption, { color: theme.colors.textTertiary }]}>
+                {isRTL ? 'الاختبارات' : 'Tests'}
+              </Text>
+            </View>
+            <View style={[styles.statItem, { borderLeftWidth: 1, borderLeftColor: theme.colors.border }]} />
+            <View style={styles.statItem}>
+              <Text style={[type.numberSm, { color: theme.colors.text }]}>8</Text>
+              <Text style={[type.caption, { color: theme.colors.textTertiary }]}>
+                {isRTL ? 'الجلسات' : 'Sessions'}
+              </Text>
+            </View>
+            <View style={[styles.statItem, { borderLeftWidth: 1, borderLeftColor: theme.colors.border }]} />
+            <View style={styles.statItem}>
+              <Text style={[type.numberSm, { color: theme.colors.success }]}>+12%</Text>
+              <Text style={[type.caption, { color: theme.colors.textTertiary }]}>
+                {isRTL ? 'التحسن' : 'Progress'}
+              </Text>
+            </View>
+          </View>
+        </Card>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView
@@ -47,13 +162,16 @@ export default function AthletesScreen() {
     >
       <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
         {/* Header */}
-        <View style={{ paddingHorizontal: theme.spacing[4], paddingTop: theme.spacing[5] }}>
-          <View
-            style={[
-              styles.headerRow,
-              { flexDirection: flexRow(true) },
-            ]}
-          >
+        <View
+          style={{
+            paddingHorizontal: isWeb && isDesktop ? theme.spacing[12] : theme.spacing[4],
+            paddingTop: isDesktop ? theme.spacing[8] : theme.spacing[5],
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
+          <View style={[styles.headerRow, { flexDirection: flexRow(true) }]}>
             <View style={{ flex: 1 }}>
               <Text
                 style={[
@@ -65,7 +183,7 @@ export default function AthletesScreen() {
                   },
                 ]}
               >
-                {(isRTL ? 'الرياضيون' : 'TEAM MANAGEMENT').toUpperCase()}
+                {(isRTL ? 'إدارة الرياضيين' : 'TEAM MANAGEMENT').toUpperCase()}
               </Text>
               <Text
                 style={[
@@ -80,7 +198,7 @@ export default function AthletesScreen() {
                 {t('athletes.title')}
               </Text>
             </View>
-            <TouchableOpacity activeOpacity={0.8}>
+            <TouchableOpacity activeOpacity={0.85}>
               <LinearGradient
                 colors={['#0066FF', '#0D9488']}
                 start={{ x: 0, y: 0 }}
@@ -97,18 +215,21 @@ export default function AthletesScreen() {
         </View>
 
         {/* Search Bar */}
-        <View style={{ paddingHorizontal: theme.spacing[4], marginTop: theme.spacing[4] }}>
+        <View
+          style={{
+            paddingHorizontal: isWeb && isDesktop ? theme.spacing[12] : theme.spacing[4],
+            marginTop: theme.spacing[4],
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
           <Card
             variant="outlined"
             padding="none"
             style={{ borderRadius: theme.borderRadius.xl }}
           >
-            <View
-              style={[
-                styles.searchContainer,
-                { flexDirection: flexRow(true) },
-              ]}
-            >
+            <View style={[styles.searchContainer, { flexDirection: flexRow(true) }]}>
               <Ionicons name="search" size={20} color={theme.colors.textTertiary} />
               <TextInput
                 style={[
@@ -133,17 +254,25 @@ export default function AthletesScreen() {
         </View>
 
         {/* Filter Chips */}
-        <View style={{ paddingHorizontal: theme.spacing[4], marginTop: theme.spacing[3] }}>
+        <View
+          style={{
+            paddingHorizontal: isWeb && isDesktop ? theme.spacing[12] : theme.spacing[4],
+            marginTop: theme.spacing[3],
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.filtersContainer}
+            contentContainerStyle={{ gap: theme.spacing[2] }}
           >
             {filterChips.map((chip) => (
               <TouchableOpacity
                 key={chip.id}
                 onPress={() => setSelectedFilter(chip.id)}
-                activeOpacity={0.8}
+                activeOpacity={0.85}
               >
                 <View
                   style={[
@@ -181,129 +310,129 @@ export default function AthletesScreen() {
         {/* Stats Summary */}
         <View
           style={{
-            paddingHorizontal: theme.spacing[4],
+            paddingHorizontal: isWeb && isDesktop ? theme.spacing[12] : theme.spacing[4],
             marginTop: theme.spacing[5],
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
           }}
         >
-          <View
-            style={[
-              styles.statsSummary,
-              { flexDirection: flexRow(true) },
-            ]}
-          >
-            <View style={styles.statItem}>
-              <Text
-                style={[
-                  type.numberMedium,
-                  { color: theme.colors.text },
-                ]}
-              >
-                0
-              </Text>
-              <Text
-                style={[
-                  type.caption,
-                  { color: theme.colors.textSecondary, marginTop: 2 },
-                ]}
-              >
-                {isRTL ? 'النشطون' : 'Active'}
-              </Text>
-            </View>
-            <View style={[styles.statDivider, { backgroundColor: theme.colors.border }]} />
-            <View style={styles.statItem}>
-              <Text
-                style={[
-                  type.numberMedium,
-                  { color: theme.colors.warning },
-                ]}
-              >
-                0
-              </Text>
-              <Text
-                style={[
-                  type.caption,
-                  { color: theme.colors.textSecondary, marginTop: 2 },
-                ]}
-              >
-                {isRTL ? 'المصابون' : 'Injured'}
-              </Text>
-            </View>
-            <View style={[styles.statDivider, { backgroundColor: theme.colors.border }]} />
-            <View style={styles.statItem}>
-              <Text
-                style={[
-                  type.numberMedium,
-                  { color: theme.colors.info },
-                ]}
-              >
-                0
-              </Text>
-              <Text
-                style={[
-                  type.caption,
-                  { color: theme.colors.textSecondary, marginTop: 2 },
-                ]}
-              >
-                {isRTL ? 'في راحة' : 'Resting'}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Empty State */}
-        <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: theme.spacing[4] }}>
           <Card
             variant="filled"
-            padding="xl"
+            padding="none"
             style={{ borderRadius: theme.borderRadius['2xl'] }}
           >
-            <View style={styles.emptyContent}>
-              <View
-                style={[
-                  styles.emptyIcon,
-                  {
-                    backgroundColor: theme.colors.primary + '15',
-                    borderRadius: theme.borderRadius['3xl'],
-                  },
-                ]}
-              >
-                <Ionicons name="people-outline" size={48} color={theme.colors.primary} />
+            <LinearGradient
+              colors={['#0066FF08', '#0D948808']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{ padding: theme.spacing[4] }}
+            >
+              <View style={[styles.statsSummary, { flexDirection: flexRow(true) }]}>
+                <View style={styles.summaryItem}>
+                  <Text style={[type.numberMedium, { color: theme.colors.text }]}>
+                    {sampleAthletes.length}
+                  </Text>
+                  <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 2 }]}>
+                    {isRTL ? 'نشط' : 'Active'}
+                  </Text>
+                </View>
+                <View style={[styles.summaryDivider, { backgroundColor: theme.colors.border }]} />
+                <View style={styles.summaryItem}>
+                  <Text style={[type.numberMedium, { color: theme.colors.warning }]}>1</Text>
+                  <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 2 }]}>
+                    {isRTL ? 'مصاب' : 'Injured'}
+                  </Text>
+                </View>
+                <View style={[styles.summaryDivider, { backgroundColor: theme.colors.border }]} />
+                <View style={styles.summaryItem}>
+                  <Text style={[type.numberMedium, { color: theme.colors.info }]}>1</Text>
+                  <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 2 }]}>
+                    {isRTL ? 'راحة' : 'Rest'}
+                  </Text>
+                </View>
               </View>
-              <Text
-                style={[
-                  type.h4,
-                  {
-                    color: theme.colors.text,
-                    marginTop: theme.spacing[5],
-                    textAlign: 'center',
-                  },
-                ]}
-              >
-                {t('athletes.empty.title')}
-              </Text>
-              <Text
-                style={[
-                  type.body,
-                  {
-                    color: theme.colors.textSecondary,
-                    textAlign: 'center',
-                    marginTop: theme.spacing[2],
-                  },
-                ]}
-              >
-                {t('athletes.empty.description')}
-              </Text>
-              <Button
-                title={isRTL ? 'إضافة رياضي' : 'Add Athlete'}
-                variant="primary"
-                size="large"
-                icon="person-add"
-                onPress={() => console.log('Add athlete')}
-                style={{ marginTop: theme.spacing[6] }}
-                fullWidth
-              />
-            </View>
+            </LinearGradient>
           </Card>
+        </View>
+
+        {/* Athletes List */}
+        <View
+          style={{
+            flex: 1,
+            paddingHorizontal: isWeb && isDesktop ? theme.spacing[12] : theme.spacing[4],
+            marginTop: theme.spacing[4],
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
+          {filteredAthletes.length > 0 ? (
+            <FlatList
+              data={filteredAthletes}
+              renderItem={renderAthlete}
+              keyExtractor={(item) => item.id}
+              numColumns={gridConfig.columns}
+              contentContainerStyle={{ paddingBottom: theme.spacing[8] }}
+              showsVerticalScrollIndicator={false}
+              columnWrapperStyle={gridConfig.columns > 1 ? { gap: theme.spacing[3] } : undefined}
+            />
+          ) : (
+            <View style={{ flex: 1, justifyContent: 'center', paddingVertical: theme.spacing[12] }}>
+              <Card
+                variant="filled"
+                padding="xl"
+                style={{ borderRadius: theme.borderRadius['2xl'] }}
+              >
+                <View style={styles.emptyContent}>
+                  <View
+                    style={[
+                      styles.emptyIcon,
+                      {
+                        backgroundColor: theme.colors.primary + '15',
+                        borderRadius: theme.borderRadius['3xl'],
+                      },
+                    ]}
+                  >
+                    <Ionicons name="people-outline" size={48} color={theme.colors.primary} />
+                  </View>
+                  <Text
+                    style={[
+                      type.h4,
+                      {
+                        color: theme.colors.text,
+                        marginTop: theme.spacing[5],
+                        textAlign: 'center',
+                      },
+                    ]}
+                  >
+                    {t('athletes.empty.title')}
+                  </Text>
+                  <Text
+                    style={[
+                      type.body,
+                      {
+                        color: theme.colors.textSecondary,
+                        textAlign: 'center',
+                        marginTop: theme.spacing[2],
+                      },
+                    ]}
+                  >
+                    {t('athletes.empty.description')}
+                  </Text>
+                  <Button
+                    title={isRTL ? 'إضافة رياضي' : 'Add Athlete'}
+                    variant="primary"
+                    size="large"
+                    icon="person-add"
+                    onPress={() => console.log('Add athlete')}
+                    style={{ marginTop: theme.spacing[6] }}
+                    fullWidth
+                  />
+                </View>
+              </Card>
+            </View>
+          )}
         </View>
       </View>
     </SafeAreaView>
@@ -335,10 +464,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingVertical: 4,
   },
-  filtersContainer: {
-    gap: 10,
-    paddingVertical: 4,
-  },
   filterChip: {
     paddingHorizontal: 18,
     paddingVertical: 10,
@@ -346,17 +471,44 @@ const styles = StyleSheet.create({
   statsSummary: {
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    backgroundColor: 'transparent',
+  },
+  summaryItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  summaryDivider: {
+    width: 1,
+    height: 40,
+    marginHorizontal: 8,
+  },
+  athleteRow: {
+    alignItems: 'center',
+  },
+  athleteAvatar: {
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+  },
+  athleteStats: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+    paddingTop: 12,
+    marginTop: 12,
   },
   statItem: {
     alignItems: 'center',
     flex: 1,
-  },
-  statDivider: {
-    width: 1,
-    height: 40,
     marginHorizontal: 8,
   },
   emptyContent: {

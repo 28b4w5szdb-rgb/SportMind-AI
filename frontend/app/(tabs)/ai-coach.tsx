@@ -1,16 +1,17 @@
 /**
  * SportMind AI - AI Coach Screen
- * Premium AI assistant interface with chat-ready design
+ * Premium AI assistant interface with responsive design for web/tablet/mobile
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Dimensions,
+  useWindowDimensions,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,20 +23,24 @@ import { Button } from '@/src/components/common/Button';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
 const agentSuggestions = [
-  { id: '1', icon: 'fitness', titleKey: 'aiCoach.suggestion1Title', shortKey: 'aiCoach.suggestion1Short' },
-  { id: '2', icon: 'heart', titleKey: 'aiCoach.suggestion2Title', shortKey: 'aiCoach.suggestion2Short' },
-  { id: '3', icon: 'bar-chart', titleKey: 'aiCoach.suggestion3Title', shortKey: 'aiCoach.suggestion3Short' },
-  { id: '4', icon: 'accessibility', titleKey: 'aiCoach.suggestion4Title', shortKey: 'aiCoach.suggestion4Short' },
+  { id: '1', icon: 'fitness', title: 'Performance Analysis', titleAr: 'تحليل الأداء', desc: 'Get detailed insights' },
+  { id: '2', icon: 'heart', title: 'Recovery Plan', titleAr: 'خطة التعافي', desc: 'Optimal rest periods' },
+  { id: '3', icon: 'bar-chart', title: 'Compare Stats', titleAr: 'مقارنة الإحصائيات', desc: 'Benchmark athletes' },
+  { id: '4', icon: 'accessibility', title: 'Workout Program', titleAr: 'برنامج تمرين', desc: 'Custom routines' },
 ];
 
-const aiFeatures = [
-  { id: 'analysis', icon: 'analytics', color: '#0066FF' },
-  { id: 'plan', icon: 'calendar', color: '#F97316' },
-  { id: 'insight', icon: 'bulb', color: '#10B981' },
-  { id: 'recommend', icon: 'star', color: '#8B5CF6' },
+const aiCapabilities = [
+  { id: 'analysis', icon: 'analytics', label: 'Analyze', labelAr: 'تحليل', color: '#0066FF' },
+  { id: 'plan', icon: 'calendar', label: 'Plan', labelAr: 'تخطيط', color: '#F97316' },
+  { id: 'insight', icon: 'bulb', label: 'Insight', labelAr: 'رؤى', color: '#10B981' },
+  { id: 'recommend', icon: 'star', label: 'Recommend', labelAr: 'نصائح', color: '#8B5CF6' },
+];
+
+const recentChats = [
+  { id: '1', title: 'Sprint training optimization', time: '2h ago', messages: 12 },
+  { id: '2', title: 'Recovery strategies discussion', time: 'Yesterday', messages: 8 },
+  { id: '3', title: 'Performance benchmarks review', time: '3 days ago', messages: 15 },
 ];
 
 export default function AICoachScreen() {
@@ -43,6 +48,17 @@ export default function AICoachScreen() {
   const type = useTypography();
   const { t } = useTranslation();
   const { flexRow, textAlign, isRTL } = useDirection();
+  const { width: windowWidth } = useWindowDimensions();
+
+  const isWeb = Platform.OS === 'web';
+  const isTablet = windowWidth >= 768;
+  const isDesktop = windowWidth >= 1024;
+
+  const gridConfig = useMemo(() => {
+    if (isDesktop) return { cardWidth: 280, gap: 24 };
+    if (isTablet) return { cardWidth: 260, gap: 16 };
+    return { cardWidth: (windowWidth - 48) / 2, gap: 12 };
+  }, [windowWidth, isDesktop, isTablet]);
 
   return (
     <SafeAreaView
@@ -51,17 +67,22 @@ export default function AICoachScreen() {
     >
       <ScrollView
         style={{ flex: 1, backgroundColor: theme.colors.background }}
-        contentContainerStyle={{ paddingBottom: theme.spacing[16] }}
+        contentContainerStyle={{
+          paddingBottom: theme.spacing[20],
+          paddingHorizontal: isWeb && isDesktop ? theme.spacing[12] : theme.spacing[4],
+        }}
         showsVerticalScrollIndicator={false}
       >
         {/* Hero Header */}
-        <View style={{ paddingHorizontal: theme.spacing[4], paddingTop: theme.spacing[5] }}>
-          <View
-            style={[
-              styles.hero,
-              { flexDirection: flexRow(true) },
-            ]}
-          >
+        <View
+          style={{
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+            paddingTop: isDesktop ? theme.spacing[8] : theme.spacing[5],
+          }}
+        >
+          <View style={[styles.hero, { flexDirection: flexRow(true), alignItems: 'center' }]}>
             <View style={{ flex: 1 }}>
               <Text
                 style={[
@@ -106,66 +127,60 @@ export default function AICoachScreen() {
               end={{ x: 1, y: 1 }}
               style={[
                 styles.heroIcon,
-                { borderRadius: theme.borderRadius['2xl'] },
+                { borderRadius: theme.borderRadius['3xl'] },
               ]}
             >
-              <Ionicons name="sparkles" size={32} color="#FFFFFF" />
+              <Ionicons name="sparkles" size={isDesktop ? 40 : 32} color="#FFFFFF" />
             </LinearGradient>
           </View>
         </View>
 
-        {/* Feature Pills */}
+        {/* Capability Pills */}
         <View
           style={{
-            paddingHorizontal: theme.spacing[4],
-            paddingVertical: theme.spacing[4],
+            marginTop: theme.spacing[5],
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
           }}
         >
-          <View
-            style={[
-              styles.featuresRow,
-              { flexDirection: flexRow(true) },
-            ]}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: theme.spacing[2] }}
           >
-            {aiFeatures.map((feature) => (
-              <View
-                key={feature.id}
-                style={[
-                  styles.featurePill,
-                  {
-                    backgroundColor: feature.color + '15',
-                    borderRadius: theme.borderRadius.full,
-                  },
-                ]}
-              >
-                <Ionicons name={feature.icon} size={16} color={feature.color} />
-                <Text
+            {aiCapabilities.map((cap) => (
+              <TouchableOpacity key={cap.id} activeOpacity={0.85}>
+                <View
                   style={[
-                    type.caption,
+                    styles.capabilityPill,
                     {
-                      color: feature.color,
-                      marginLeft: theme.spacing[1],
-                      fontWeight: '600',
+                      backgroundColor: cap.color + '15',
+                      borderRadius: theme.borderRadius.full,
+                      borderColor: cap.color + '30',
+                      borderWidth: 1,
                     },
                   ]}
                 >
-                  {isRTL
-                    ? feature.id === 'analysis'
-                      ? 'تحليل'
-                      : feature.id === 'plan'
-                      ? 'تخطيط'
-                      : feature.id === 'insight'
-                      ? 'رؤى'
-                      : 'نصائح'
-                    : feature.id.charAt(0).toUpperCase() + feature.id.slice(1)}
-                </Text>
-              </View>
+                  <Ionicons name={cap.icon} size={18} color={cap.color} />
+                  <Text style={[type.label, { color: cap.color, marginLeft: theme.spacing[2] }]}>
+                    {isRTL ? cap.labelAr : cap.label}
+                  </Text>
+                </View>
+              </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
         </View>
 
-        {/* Suggestions Grid */}
-        <View style={{ paddingHorizontal: theme.spacing[4], marginBottom: theme.spacing[6] }}>
+        {/* Suggested Questions Grid */}
+        <View
+          style={{
+            marginTop: theme.spacing[6],
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
           <Text
             style={[
               type.h4,
@@ -178,68 +193,49 @@ export default function AICoachScreen() {
           >
             {isRTL ? 'أسئلة مقترحة' : 'Suggested Questions'}
           </Text>
-          <View style={[styles.suggestionsGrid, { flexDirection: flexRow(true) }]}>
+          <View
+            style={[
+              styles.suggestionsGrid,
+              { flexDirection: flexRow(true), gap: gridConfig.gap },
+            ]}
+          >
             {agentSuggestions.map((suggestion) => (
-              <TouchableOpacity key={suggestion.id} activeOpacity={0.8}>
+              <TouchableOpacity key={suggestion.id} activeOpacity={0.85} style={{ flex: 1, maxWidth: gridConfig.cardWidth }}>
                 <Card
                   variant="elevated"
-                  padding="md"
-                  style={styles.suggestionCard}
+                  padding="lg"
+                  style={{ borderRadius: theme.borderRadius['2xl'] }}
                 >
                   <View
                     style={[
                       styles.suggestionIcon,
                       {
                         backgroundColor: theme.colors.primary + '15',
-                        borderRadius: theme.borderRadius.lg,
+                        borderRadius: theme.borderRadius.xl,
                       },
                     ]}
                   >
-                    <Ionicons
-                      name={suggestion.icon as any}
-                      size={24}
-                      color={theme.colors.primary}
-                    />
+                    <Ionicons name={suggestion.icon as any} size={28} color={theme.colors.primary} />
                   </View>
                   <Text
                     style={[
-                      type.label,
+                      type.h5,
                       {
                         color: theme.colors.text,
-                        marginTop: theme.spacing[3],
+                        marginTop: theme.spacing[4],
                         textAlign: textAlign('start'),
                       },
                     ]}
                   >
-                    {isRTL
-                      ? suggestion.id === '1'
-                        ? 'تحليل الأداء'
-                        : suggestion.id === '2'
-                        ? 'خطة التعافي'
-                        : suggestion.id === '3'
-                        ? 'مقارنة الإحصائيات'
-                        : 'برنامج تمرين'
-                      : suggestion.id === '1'
-                      ? 'Performance Analysis'
-                      : suggestion.id === '2'
-                      ? 'Recovery Plan'
-                      : suggestion.id === '3'
-                      ? 'Compare Stats'
-                      : 'Workout Program'}
+                    {isRTL ? suggestion.titleAr : suggestion.title}
                   </Text>
                   <Text
                     style={[
                       type.caption,
-                      {
-                        color: theme.colors.textTertiary,
-                        marginTop: theme.spacing[1],
-                        textAlign: textAlign('start'),
-                      },
+                      { color: theme.colors.textTertiary, marginTop: theme.spacing[1] },
                     ]}
                   >
-                    {isRTL
-                      ? 'احصل على تحليل مفصل'
-                      : 'Get detailed insights'}
+                    {suggestion.desc}
                   </Text>
                 </Card>
               </TouchableOpacity>
@@ -247,99 +243,183 @@ export default function AICoachScreen() {
           </View>
         </View>
 
-        {/* Chat Input Placeholder */}
-        <View style={{ paddingHorizontal: theme.spacing[4], marginBottom: theme.spacing[6] }}>
-          <Card
-            variant="outlined"
-            padding="lg"
-            style={{ borderRadius: theme.borderRadius['2xl'] }}
-          >
+        {/* Chat Input */}
+        <View
+          style={{
+            marginTop: theme.spacing[6],
+            maxWidth: isDesktop ? 800 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
+          <Card variant="elevated" padding="none" style={{ borderRadius: theme.borderRadius['2xl'] }}>
             <View
               style={[
-                styles.chatInputPlaceholder,
+                styles.chatInput,
                 { flexDirection: flexRow(true) },
               ]}
             >
               <View
                 style={[
-                  styles.inputBox,
+                  styles.inputField,
                   {
                     backgroundColor: theme.colors.backgroundSecondary,
                     borderRadius: theme.borderRadius.xl,
                     flex: 1,
+                    minWidth: 200,
                   },
                 ]}
               >
-                <Text style={[type.body, { color: theme.colors.textTertiary }]}>
-                  {isRTL ? 'اكتب سؤالك هنا...' : 'Type your question here...'}
+                <Ionicons name="chatbubble-outline" size={20} color={theme.colors.textTertiary} />
+                <Text
+                  style={[
+                    type.body,
+                    {
+                      color: theme.colors.textTertiary,
+                      marginLeft: theme.spacing[3],
+                    },
+                  ]}
+                >
+                  {isRTL ? 'اسأل أي شيء...' : 'Ask anything...'}
                 </Text>
               </View>
-              <TouchableOpacity activeOpacity={0.8}>
+              <TouchableOpacity activeOpacity={0.85}>
                 <LinearGradient
                   colors={['#0066FF', '#0D9488']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={[
                     styles.sendButton,
-                    { borderRadius: theme.borderRadius.lg },
+                    {
+                      borderRadius: theme.borderRadius.xl,
+                      width: isDesktop ? 56 : 48,
+                      height: isDesktop ? 56 : 48,
+                    },
                   ]}
                 >
-                  <Ionicons name="send" size={20} color="#FFFFFF" />
+                  <Ionicons name={isRTL ? 'send' : 'send'} size={22} color="#FFFFFF" />
                 </LinearGradient>
               </TouchableOpacity>
             </View>
           </Card>
         </View>
 
-        {/* Coming Soon Card */}
-        <View style={{ paddingHorizontal: theme.spacing[4] }}>
-          <Card variant="filled" padding="lg" style={{ borderRadius: theme.borderRadius['2xl'] }}>
-            <View style={styles.comingSoonContent}>
-              <View
-                style={[
-                  styles.comingSoonIcon,
-                  {
-                    backgroundColor: theme.colors.accent + '20',
-                    borderRadius: theme.borderRadius['3xl'],
-                  },
-                ]}
+        {/* Recent Chats */}
+        <View
+          style={{
+            marginTop: theme.spacing[6],
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
+          <View
+            style={[
+              styles.sectionHeader,
+              { flexDirection: flexRow(true) },
+            ]}
+          >
+            <Text style={[type.h4, { color: theme.colors.text }]}>
+              {isRTL ? 'المحادثات الأخيرة' : 'Recent Chats'}
+            </Text>
+            <TouchableOpacity activeOpacity={0.7}>
+              <Text style={[type.label, { color: theme.colors.primary }]}>
+                {isRTL ? 'عرض الكل' : 'View All'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {recentChats.map((chat) => (
+            <TouchableOpacity key={chat.id} activeOpacity={0.85}>
+              <Card
+                variant="outlined"
+                padding="md"
+                style={{
+                  borderRadius: theme.borderRadius.xl,
+                  marginBottom: theme.spacing[3],
+                }}
               >
-                <Ionicons name="rocket" size={32} color={theme.colors.accent} />
+                <View style={[styles.chatItem, { flexDirection: flexRow(true), alignItems: 'center' }]}>
+                  <View
+                    style={[
+                      styles.chatIcon,
+                      {
+                        backgroundColor: theme.colors.primary + '10',
+                        borderRadius: theme.borderRadius.lg,
+                      },
+                    ]}
+                  >
+                    <Ionicons name="chatbox" size={20} color={theme.colors.primary} />
+                  </View>
+                  <View style={{ flex: 1, marginHorizontal: theme.spacing[3] }}>
+                    <Text style={[type.body, { color: theme.colors.text }]}>{chat.title}</Text>
+                    <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 2 }]}>
+                      {chat.time} · {chat.messages} {isRTL ? 'رسائل' : 'messages'}
+                    </Text>
+                  </View>
+                  <Ionicons
+                    name={isRTL ? 'chevron-back' : 'chevron-forward'}
+                    size={18}
+                    color={theme.colors.textTertiary}
+                  />
+                </View>
+              </Card>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Coming Soon Banner */}
+        <View
+          style={{
+            marginTop: theme.spacing[8],
+            maxWidth: isDesktop ? 800 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
+          <Card variant="filled" padding="none" style={{ borderRadius: theme.borderRadius['2xl'], overflow: 'hidden' }}>
+            <LinearGradient
+              colors={['#F9731615', '#EA580C10']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{ padding: theme.spacing[6] }}
+            >
+              <View style={styles.comingSoon}>
+                <View
+                  style={[
+                    styles.comingSoonIcon,
+                    {
+                      backgroundColor: theme.colors.accent + '20',
+                      borderRadius: theme.borderRadius['3xl'],
+                    },
+                  ]}
+                >
+                  <Ionicons name="rocket" size={36} color={theme.colors.accent} />
+                </View>
+                <View style={{ flex: 1, marginLeft: theme.spacing[4] }}>
+                  <Text style={[type.h4, { color: theme.colors.text }]}>
+                    {isRTL ? 'قريبًا' : 'Coming Soon'}
+                  </Text>
+                  <Text
+                    style={[
+                      type.bodySm,
+                      { color: theme.colors.textSecondary, marginTop: theme.spacing[2] },
+                    ]}
+                  >
+                    {isRTL
+                      ? 'المدرب الذكي المستند إلى الذكاء الاصطناعي سيكون متاحًا قريبًا'
+                      : 'AI-powered coaching assistant will be available soon'}
+                  </Text>
+                </View>
               </View>
-              <Text
-                style={[
-                  type.h4,
-                  {
-                    color: theme.colors.text,
-                    marginTop: theme.spacing[4],
-                    textAlign: 'center',
-                  },
-                ]}
-              >
-                {isRTL ? 'قريبًا' : 'Coming Soon'}
-              </Text>
-              <Text
-                style={[
-                  type.body,
-                  {
-                    color: theme.colors.textSecondary,
-                    textAlign: 'center',
-                    marginTop: theme.spacing[2],
-                  },
-                ]}
-              >
-                {isRTL
-                  ? 'المدرب الذكي المستند إلى الذكاء الاصطناعى سيكون متاحًا قريبًا'
-                  : 'AI-powered coaching assistant will be available soon'}
-              </Text>
               <Button
                 title={isRTL ? 'إشعني عند التوفر' : 'Notify Me'}
                 variant="outline"
                 size="medium"
+                icon="bell"
                 onPress={() => {}}
                 style={{ marginTop: theme.spacing[5] }}
               />
-            </View>
+            </LinearGradient>
           </Card>
         </View>
       </ScrollView>
@@ -351,54 +431,57 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
   },
-  hero: {
-    alignItems: 'center',
-  },
+  hero: {},
   heroIcon: {
-    width: 72,
-    height: 72,
+    width: 80,
+    height: 80,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  featuresRow: {
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  featurePill: {
+  capabilityPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
   },
   suggestionsGrid: {
     flexWrap: 'wrap',
-    gap: 12,
-  },
-  suggestionCard: {
-    width: (SCREEN_WIDTH - 32 - 12) / 2,
   },
   suggestionIcon: {
-    width: 48,
-    height: 48,
+    width: 56,
+    height: 56,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  chatInputPlaceholder: {
+  chatInput: {
     alignItems: 'center',
     gap: 12,
+    padding: 16,
   },
-  inputBox: {
+  inputField: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 14,
-    minHeight: 52,
   },
   sendButton: {
-    width: 52,
-    height: 52,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  comingSoonContent: {
+  sectionHeader: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  chatItem: {},
+  chatIcon: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  comingSoon: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
   comingSoonIcon: {
