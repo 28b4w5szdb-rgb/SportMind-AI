@@ -34,6 +34,7 @@ export type QuickActionId =
   | 'daily_checkin'
   | 'add_injury'
   | 'injury_prevention'
+  | 'training_builder'
   | 'edit_athlete'
   | 'create_report'
   | 'compare'

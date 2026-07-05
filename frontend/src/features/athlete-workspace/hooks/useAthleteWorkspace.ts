@@ -14,6 +14,7 @@ export function useAthleteWorkspace(
 ) {
   const reports = useMockStore((s) => s.reports);
   const injuryRecords = useMockStore((s) => s.injuryRecords);
+  const trainingPlans = useMockStore((s) => s.trainingPlans);
   const latestCheckIn = useLatestCheckInForAthlete(athlete?.id);
 
   return useMemo(() => {
@@ -34,7 +35,8 @@ export function useAthleteWorkspace(
       reports,
       analytics.recommendations,
       latestCheckIn,
-      injuryRecords.filter((i) => i.athlete_id === athlete.id)
+      injuryRecords.filter((i) => i.athlete_id === athlete.id),
+      trainingPlans.filter((p) => p.athlete_id === athlete.id)
     );
     const sortedTests = [...tests]
       .filter((t) => t.athlete_id === athlete.id)
@@ -48,5 +50,5 @@ export function useAthleteWorkspace(
       latestRecommendation: analytics.recommendations[0],
       latestCheckIn,
     };
-  }, [athlete, tests, reports, analytics, latestCheckIn, injuryRecords]);
+  }, [athlete, tests, reports, analytics, latestCheckIn, injuryRecords, trainingPlans]);
 }

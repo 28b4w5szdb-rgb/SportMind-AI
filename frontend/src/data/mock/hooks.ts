@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 
 import type { AiMessage } from './ai-coach';
 import { useMockStore } from './store';
-import type { MockAthlete, MockPerformanceTest, MockReport, MockResearchProject, MockTeam, DailyCheckIn, InjuryRecord } from './types';
+import type { MockAthlete, MockPerformanceTest, MockReport, MockResearchProject, MockTeam, DailyCheckIn, InjuryRecord, TrainingPlan } from './types';
 import { getLatestCheckIn } from '@/src/features/daily-checkin/validation';
 
 const EMPTY_MESSAGES: AiMessage[] = [];
@@ -14,6 +14,7 @@ const EMPTY_TESTS: MockPerformanceTest[] = [];
 const EMPTY_ATHLETES: MockAthlete[] = [];
 const EMPTY_CHECKINS: DailyCheckIn[] = [];
 const EMPTY_INJURIES: InjuryRecord[] = [];
+const EMPTY_PLANS: TrainingPlan[] = [];
 
 export function useAthleteById(id: string | undefined): MockAthlete | undefined {
   return useMockStore((s) => (id ? s.athletes.find((a) => a.id === id) : undefined));
@@ -98,4 +99,18 @@ export function useTestsForTeam(team: MockTeam | undefined): MockPerformanceTest
     const filtered = tests.filter((t) => ids.has(t.athlete_id));
     return filtered.length > 0 ? filtered : EMPTY_TESTS;
   }, [tests, team]);
+}
+
+export function useTrainingPlansForAthlete(athleteId: string | undefined): TrainingPlan[] {
+  const trainingPlans = useMockStore((s) => s.trainingPlans);
+  return useMemo(() => {
+    if (!athleteId) return EMPTY_PLANS;
+    const filtered = trainingPlans.filter((p) => p.athlete_id === athleteId);
+    return filtered.length > 0 ? filtered : EMPTY_PLANS;
+  }, [trainingPlans, athleteId]);
+}
+
+export function useActiveTrainingPlanForAthlete(athleteId: string | undefined): TrainingPlan | undefined {
+  const plans = useTrainingPlansForAthlete(athleteId);
+  return useMemo(() => plans.find((p) => p.is_active) ?? plans[0], [plans]);
 }

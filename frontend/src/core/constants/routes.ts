@@ -47,6 +47,8 @@ export const APP_ROUTES = {
     (athleteId ? `/sports-medicine?athleteId=${encodeURIComponent(athleteId)}` : '/sports-medicine') as Href,
   addInjury: (athleteId?: string): Href =>
     (athleteId ? `/sports-medicine/injury/new?athleteId=${encodeURIComponent(athleteId)}` : '/sports-medicine/injury/new') as Href,
+  trainingBuilder: (athleteId?: string): Href =>
+    (athleteId ? `/training-builder?athleteId=${encodeURIComponent(athleteId)}` : '/training-builder') as Href,
   knowledgeCategory: (key: string): Href => `/knowledge/${key}` as Href,
   settings: '/settings' as Href,
   help: '/help' as Href,

@@ -6,6 +6,9 @@ import { buildRawSignals } from '@/src/analytics/input/buildSignals';
 import { buildAnalyticsReportSections } from '@/src/analytics/summary/teamOverview';
 import { buildSportsMedicineSnapshot } from '@/src/features/sports-medicine/utils/sportsMedicineHelpers';
 import { RTP_PHASES } from '@/src/features/sports-medicine/registry/rtpPhases';
+import { buildTrainingBuilderSnapshot } from '@/src/features/training-builder/utils/trainingHelpers';
+import { templateLabelKey } from '@/src/features/training-builder/utils/templateLabelKey';
+import type { TrainingPlan } from '@/src/features/training-builder/types';
 
 export function buildPerformanceTestsSummary(tests: MockPerformanceTest[], isRTL: boolean): string {
   if (tests.length === 0) {
@@ -72,13 +75,45 @@ export function buildInjuryReportSections(
   return { injury_summary: injurySummary, rtp_status: rtpStatus, prevention_recommendations: preventionRecommendations };
 }
 
+export function buildTrainingReportSections(
+  athlete: MockAthlete,
+  tests: MockPerformanceTest[],
+  injuries: InjuryRecord[],
+  checkIn: DailyCheckIn | undefined,
+  trainingPlans: TrainingPlan[],
+  t: TFunction,
+  isRTL: boolean
+): Pick<MockReportSections, 'training_summary'> {
+  const analytics = computeAthleteAnalytics({
+    athlete,
+    tests: tests.filter((tst) => tst.athlete_id === athlete.id),
+    checkIn,
+    injuries: injuries.filter((i) => i.athlete_id === athlete.id),
+  });
+  const snapshot = buildTrainingBuilderSnapshot(athlete, analytics, trainingPlans, injuries);
+  const { plan, load, todaySession, progressPercent } = snapshot;
+
+  if (!plan) {
+    return {
+      training_summary: isRTL ? 'لا يوجد برنامج تدريبي نشط.' : 'No active training program.',
+    };
+  }
+
+  const todayLabel = todaySession ? t(templateLabelKey(todaySession.templateId)) : t('trainingBuilder.restDay');
+  const trainingSummary = isRTL
+    ? `الخطة الأسبوعية: ${load.weeklyLoad} AU. ACWR: ${load.acwr.toFixed(2)} (${t(`trainingBuilder.acwrZone.${load.acwrZone}`)}). تقدم: ${progressPercent}%. اليوم: ${todayLabel}.`
+    : `Weekly plan load: ${load.weeklyLoad} AU. ACWR: ${load.acwr.toFixed(2)} (${t(`trainingBuilder.acwrZone.${load.acwrZone}`)}). Progress: ${progressPercent}%. Today: ${todayLabel}.`;
+
+  return { training_summary: trainingSummary };
+}
+
 export function buildDefaultReportSections(
   athlete: MockAthlete | undefined,
   tests: MockPerformanceTest[],
   summary: string,
   isRTL: boolean,
   t?: TFunction,
-  context?: { injuries?: InjuryRecord[]; checkIn?: DailyCheckIn }
+  context?: { injuries?: InjuryRecord[]; checkIn?: DailyCheckIn; trainingPlans?: TrainingPlan[] }
 ): MockReportSections {
   const base: MockReportSections = {
     athlete_summary: summary.trim() || buildAthleteSummary(athlete, isRTL),
@@ -104,6 +139,15 @@ export function buildDefaultReportSections(
     t,
     isRTL
   );
+  const trainingSections = buildTrainingReportSections(
+    athlete,
+    tests,
+    context?.injuries ?? [],
+    context?.checkIn,
+    context?.trainingPlans ?? [],
+    t,
+    isRTL
+  );
 
   return {
     ...base,
@@ -116,6 +160,7 @@ export function buildDefaultReportSections(
     ai_insights: `${enriched.kpi_summary}\n\n${base.ai_insights}`,
     athlete_summary: `${base.athlete_summary}\n\n${enriched.overall_score}`,
     ...injurySections,
+    ...trainingSections,
   };
 }
 

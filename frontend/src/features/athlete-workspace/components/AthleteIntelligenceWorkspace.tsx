@@ -6,6 +6,7 @@ import type { MockAthlete, MockPerformanceTest } from '@/src/data/mock/types';
 import { useLatestCheckInForAthlete } from '@/src/data/mock/hooks';
 import { useMockStore } from '@/src/data/mock/store';
 import { useSportsMedicineSnapshot, attentionRegions, regionsWithHistory } from '@/src/features/sports-medicine';
+import { useTrainingBuilderSnapshot, WorkspaceTrainingSection } from '@/src/features/training-builder';
 import { useAthleteWorkspace } from '../hooks/useAthleteWorkspace';
 import { AthleteHeroCard } from './AthleteHeroCard';
 import { WorkspaceQuickActions } from './WorkspaceQuickActions';
@@ -32,6 +33,7 @@ export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: Athl
   const latestCheckIn = useLatestCheckInForAthlete(athlete.id);
   const injuryRecords = useMockStore((s) => s.injuryRecords);
   const sportsMedicine = useSportsMedicineSnapshot(athlete, tests, latestCheckIn);
+  const trainingSnapshot = useTrainingBuilderSnapshot(athlete, tests);
 
   const injuryRegions = useMemo(() => regionsWithHistory(injuryRecords, athlete.id), [injuryRecords, athlete.id]);
   const attention = useMemo(
@@ -52,6 +54,7 @@ export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: Athl
       <WorkspaceCheckInStrip athleteId={athlete.id} checkIn={workspace.latestCheckIn} />
       <WorkspaceRecoverySection athleteId={athlete.id} checkIn={workspace.latestCheckIn} />
       {sportsMedicine ? <WorkspaceSportsMedicineSection athleteId={athlete.id} snapshot={sportsMedicine} /> : null}
+      {trainingSnapshot ? <WorkspaceTrainingSection athleteId={athlete.id} snapshot={trainingSnapshot} /> : null}
       <BodyMuscleMapPlaceholder
         modules={analytics.overall.modules}
         regionRisks={sportsMedicine?.profile.regional}

@@ -1,5 +1,5 @@
 import type { RecommendationItem } from '@/src/analytics/types';
-import type { MockAthlete, MockPerformanceTest, MockReport, DailyCheckIn, InjuryRecord } from '@/src/data/mock/types';
+import type { MockAthlete, MockPerformanceTest, MockReport, DailyCheckIn, InjuryRecord, TrainingPlan } from '@/src/data/mock/types';
 import type { AthleteTimelineEvent } from '../types';
 
 const MOCK_EXTRAS: Record<
@@ -7,14 +7,6 @@ const MOCK_EXTRAS: Record<
   Omit<AthleteTimelineEvent, 'id' | 'athleteId'>[]
 > = {
   '1': [
-    {
-      type: 'training',
-      titleEn: 'High-intensity interval session',
-      titleAr: 'جلسة interval عالية الشدة',
-      subtitleEn: '90 min · RPE 8',
-      subtitleAr: '90 د · RPE 8',
-      date: '2026-07-03',
-    },
     {
       type: 'recovery',
       titleEn: 'Cold water immersion protocol',
@@ -33,14 +25,6 @@ const MOCK_EXTRAS: Record<
     },
   ],
   '2': [
-    {
-      type: 'training',
-      titleEn: 'Technical + aerobic conditioning',
-      titleAr: 'تقني + تهيئة هوائية',
-      subtitleEn: '75 min · moderate load',
-      subtitleAr: '75 د · حمل متوسط',
-      date: '2026-07-01',
-    },
     {
       type: 'recovery',
       titleEn: 'Sleep hygiene check-in',
@@ -142,7 +126,8 @@ export function buildAthleteTimeline(
   reports: MockReport[],
   recommendations: RecommendationItem[],
   latestCheckIn?: DailyCheckIn,
-  injuries: InjuryRecord[] = []
+  injuries: InjuryRecord[] = [],
+  trainingPlans: TrainingPlan[] = []
 ): AthleteTimelineEvent[] {
   const athleteTests = tests.filter((t) => t.athlete_id === athlete.id).map(testToEvent);
   const athleteReports = reports
@@ -184,7 +169,25 @@ export function buildAthleteTimeline(
       date: inj.injury_date,
     }));
 
-  return [...injuryEvents, ...checkInEvents, ...athleteTests, ...athleteReports, ...extras, ...aiEvents].sort(
+  const trainingEvents: AthleteTimelineEvent[] = trainingPlans
+    .filter((p) => p.athlete_id === athlete.id)
+    .flatMap((p) =>
+      p.sessions
+        .filter((s) => s.status === 'completed' || s.status === 'planned')
+        .slice(0, 6)
+        .map((s) => ({
+          id: `training_${s.id}`,
+          athleteId: athlete.id,
+          type: 'training' as const,
+          titleEn: s.titleKey,
+          titleAr: s.titleKey,
+          subtitleEn: `${s.duration_min} min · RPE ${s.target_rpe} · ${s.session_load} AU · ${s.status}`,
+          subtitleAr: `${s.duration_min} د · RPE ${s.target_rpe} · ${s.session_load} AU · ${s.status}`,
+          date: s.date,
+        }))
+    );
+
+  return [...injuryEvents, ...trainingEvents, ...checkInEvents, ...athleteTests, ...athleteReports, ...extras, ...aiEvents].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 }

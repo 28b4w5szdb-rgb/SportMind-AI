@@ -7,7 +7,9 @@ import type {
   MockResearchProject,
   MockTeam,
   InjuryRecord,
+  TrainingPlan,
 } from './types';
+import { generateWeeklyProgram } from '@/src/features/training-builder/engine/trainingBuilderEngine';
 
 export const SEED_ATHLETES: MockAthlete[] = [
   {
@@ -178,3 +180,29 @@ export const SEED_REPORTS: MockReport[] = [];
 export const SEED_RESEARCH: MockResearchProject[] = [];
 
 export const SEED_CALCULATIONS: MockCalculationRecord[] = [];
+
+const seedPlanAthlete1 = generateWeeklyProgram(
+  {
+    athleteId: '1',
+    position: 'Forward',
+    testsCount: 24,
+    dateOfBirth: '2001-03-15',
+    analyticsOverall: 72,
+    readinessScore: 78,
+    recoveryScore: 75,
+    fatigueScore: 68,
+    injuryRiskScore: 62,
+    trainingLoadScore: 70,
+    decisionLevel: 'ready_to_train',
+    weaknessModuleIds: ['speed', 'power'],
+    hasActiveInjury: false,
+    inRtp: false,
+    trainingAgeYears: 5,
+  },
+  '2026-06-30'
+);
+seedPlanAthlete1.sessions[0].status = 'completed';
+seedPlanAthlete1.sessions[1].status = 'completed';
+seedPlanAthlete1.sessions[2].status = 'completed';
+
+export const SEED_TRAINING_PLANS: TrainingPlan[] = [seedPlanAthlete1];

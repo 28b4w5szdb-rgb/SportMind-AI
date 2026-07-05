@@ -13,6 +13,8 @@ import type {
   DailyCheckInInput,
   InjuryRecord,
   InjuryRecordInput,
+  TrainingPlan,
+  TrainingPlanInput,
   MockPerformanceTest,
   MockReport,
   MockResearchProject,
@@ -30,6 +32,7 @@ import {
   SEED_RESEARCH,
   SEED_TEAMS,
   SEED_TESTS,
+  SEED_TRAINING_PLANS,
 } from './seed';
 
 const STORAGE_KEY = '@sportmind/mock-store-v1';
@@ -68,6 +71,7 @@ export interface MockStore {
   customTestDefinitions: TestDefinition[];
   dailyCheckIns: DailyCheckIn[];
   injuryRecords: InjuryRecord[];
+  trainingPlans: TrainingPlan[];
 
   addAthlete: (input: Omit<MockAthlete, 'id' | 'created_at' | 'tests_count' | 'trend_percent'>) => MockAthlete;
   updateAthlete: (id: string, patch: Partial<MockAthlete>) => void;
@@ -97,6 +101,8 @@ export interface MockStore {
   addDailyCheckIn: (input: DailyCheckInInput) => DailyCheckIn;
   addInjuryRecord: (input: InjuryRecordInput) => InjuryRecord;
   updateInjuryRecord: (id: string, patch: Partial<InjuryRecord>) => void;
+  addTrainingPlan: (input: TrainingPlanInput | TrainingPlan) => TrainingPlan;
+  updateTrainingPlan: (id: string, patch: Partial<TrainingPlan>) => void;
 }
 
 function ensureActiveConversation(get: () => MockStore, set: (partial: Partial<MockStore>) => void): string {
@@ -140,6 +146,7 @@ export const useMockStore = create<MockStore>()(
       customTestDefinitions: [],
       dailyCheckIns: SEED_CHECKINS,
       injuryRecords: SEED_INJURIES,
+      trainingPlans: SEED_TRAINING_PLANS,
 
       addAthlete: (input) => {
         const athlete: MockAthlete = {
@@ -387,6 +394,29 @@ export const useMockStore = create<MockStore>()(
           injuryRecords: s.injuryRecords.map((r) => (r.id === id ? { ...r, ...patch } : r)),
         }));
       },
+
+      addTrainingPlan: (input) => {
+        const plan: TrainingPlan = {
+          ...input,
+          id: 'id' in input && input.id ? input.id : uid('plan'),
+          created_at: 'created_at' in input && input.created_at ? input.created_at : new Date().toISOString(),
+        };
+        set((s) => ({
+          trainingPlans: [
+            plan,
+            ...s.trainingPlans.map((p) =>
+              p.athlete_id === plan.athlete_id && plan.is_active ? { ...p, is_active: false } : p
+            ),
+          ],
+        }));
+        return plan;
+      },
+
+      updateTrainingPlan: (id, patch) => {
+        set((s) => ({
+          trainingPlans: s.trainingPlans.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+        }));
+      },
     }),
     {
       name: STORAGE_KEY,
@@ -405,6 +435,7 @@ export const useMockStore = create<MockStore>()(
         customTestDefinitions: state.customTestDefinitions,
         dailyCheckIns: state.dailyCheckIns,
         injuryRecords: state.injuryRecords,
+        trainingPlans: state.trainingPlans,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

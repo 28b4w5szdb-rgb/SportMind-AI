@@ -76,6 +76,10 @@ export default function ReportDetailScreen() {
     { key: 'ai_insights', title: t('features.reports.sectionAiInsights'), body: sections.ai_insights, icon: 'sparkles' as const },
     { key: 'recommendations', title: t('features.reports.sectionRecommendations'), body: sections.recommendations, icon: 'bulb' as const },
     { key: 'decision_support', title: t('features.reports.sectionDecisionSupport'), body: sections.decision_support, icon: 'checkmark-circle' as const },
+    { key: 'injury_summary', title: t('features.reports.sectionInjurySummary'), body: sections.injury_summary, icon: 'medkit' as const },
+    { key: 'rtp_status', title: t('features.reports.sectionRtpStatus'), body: sections.rtp_status, icon: 'walk' as const },
+    { key: 'prevention_recommendations', title: t('features.reports.sectionPrevention'), body: sections.prevention_recommendations, icon: 'shield-checkmark' as const },
+    { key: 'training_summary', title: t('features.reports.sectionTrainingSummary'), body: sections.training_summary, icon: 'barbell' as const },
   ].filter((block) => block.body);
 
   return (

@@ -24,6 +24,7 @@ const ACTIONS: Array<{
   { id: 'daily_checkin', icon: 'heart-circle', labelKey: 'athleteWorkspace.actions.dailyCheckIn', color: '#10B981' },
   { id: 'add_injury', icon: 'medkit', labelKey: 'athleteWorkspace.actions.addInjury', color: '#EF4444' },
   { id: 'injury_prevention', icon: 'shield-checkmark', labelKey: 'athleteWorkspace.actions.injuryPrevention', color: '#8B5CF6' },
+  { id: 'training_builder', icon: 'barbell', labelKey: 'athleteWorkspace.actions.trainingBuilder', color: '#0066FF' },
   { id: 'edit_athlete', icon: 'create-outline', labelKey: 'athleteWorkspace.actions.editAthlete', color: '#0D9488' },
   { id: 'create_report', icon: 'document-text', labelKey: 'athleteWorkspace.actions.createReport', color: '#8B5CF6' },
   { id: 'compare', icon: 'git-compare', labelKey: 'athleteWorkspace.actions.compare', color: '#F97316' },
@@ -51,6 +52,9 @@ export function WorkspaceQuickActions({ athlete }: WorkspaceQuickActionsProps) {
         break;
       case 'injury_prevention':
         router.push(APP_ROUTES.sportsMedicine(athlete.id));
+        break;
+      case 'training_builder':
+        router.push(APP_ROUTES.trainingBuilder(athlete.id));
         break;
       case 'edit_athlete':
         router.push(APP_ROUTES.athleteEdit(athlete.id));
