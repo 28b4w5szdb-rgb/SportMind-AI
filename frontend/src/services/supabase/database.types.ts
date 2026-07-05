@@ -130,7 +130,15 @@ export interface Database {
           joined_at?: string;
           is_primary?: boolean;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'organization_members_organization_id_fkey',
+            columns: ['organization_id'],
+            isOneToOne: false,
+            referencedRelation: 'organizations',
+            referencedColumns: ['id'],
+          },
+        ];
       };
       athletes: {
         Row: {

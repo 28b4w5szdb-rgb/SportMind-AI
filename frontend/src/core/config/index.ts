@@ -2,21 +2,13 @@
  * SportMind AI - App Configuration
  */
 
-import Constants from 'expo-constants';
+import { supabaseConfig, isSupabaseConfigured, SUPABASE_ENV_KEYS } from './supabase';
 
-// Environment variables
 const ENV = {
-  BACKEND_URL: process.env.EXPO_PUBLIC_BACKEND_URL || '',
-  // Firebase config will be added here
-  FIREBASE_API_KEY: process.env.EXPO_PUBLIC_FIREBASE_API_KEY || '',
-  FIREBASE_AUTH_DOMAIN: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
-  FIREBASE_PROJECT_ID: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID || '',
-  FIREBASE_STORAGE_BUCKET: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
-  FIREBASE_MESSAGING_SENDER_ID: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
-  FIREBASE_APP_ID: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || '',
-  
-  // OpenAI API (for future AI integration)
-  OPENAI_API_KEY: process.env.EXPO_PUBLIC_OPENAI_API_KEY || '',
+  BACKEND_URL: process.env.EXPO_PUBLIC_BACKEND_URL?.trim() ?? '',
+  SUPABASE_URL: supabaseConfig.configuredUrl,
+  SUPABASE_ANON_KEY: supabaseConfig.configuredAnonKey,
+  OPENAI_API_KEY: process.env.EXPO_PUBLIC_OPENAI_API_KEY?.trim() ?? '',
 };
 
 export const config = {
@@ -25,13 +17,10 @@ export const config = {
     baseUrl: ENV.BACKEND_URL,
     timeout: 30000,
   },
-  firebase: {
-    apiKey: ENV.FIREBASE_API_KEY,
-    authDomain: ENV.FIREBASE_AUTH_DOMAIN,
-    projectId: ENV.FIREBASE_PROJECT_ID,
-    storageBucket: ENV.FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: ENV.FIREBASE_MESSAGING_SENDER_ID,
-    appId: ENV.FIREBASE_APP_ID,
+  supabase: {
+    ...supabaseConfig,
+    envKeys: SUPABASE_ENV_KEYS,
+    isConfigured: isSupabaseConfigured,
   },
   ai: {
     openai: {
@@ -39,5 +28,7 @@ export const config = {
     },
   },
 };
+
+export { isSupabaseConfigured, supabaseConfig, SUPABASE_ENV_KEYS } from './supabase';
 
 export default config;
