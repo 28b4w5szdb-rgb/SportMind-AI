@@ -10,6 +10,8 @@ import { Card } from '@/src/components/common/Card';
 import { Button } from '@/src/components/common/Button';
 import { Badge } from '@/src/components/common/Badge';
 import { ReadinessScore } from '@/src/components/features/ReadinessScore';
+import { AthleteAnalyticsSection } from '@/src/components/analytics';
+import { useAthleteAnalytics } from '@/src/analytics';
 import { useAthleteById, useTestsForAthlete } from '@/src/data/mock/hooks';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import { useTheme, useTypography } from '@/src/core/theme';
@@ -25,6 +27,7 @@ export default function AthleteDetailScreen() {
   const { flexRow, textAlign, isRTL } = useDirection();
   const athlete = useAthleteById(id);
   const tests = useTestsForAthlete(id);
+  const analytics = useAthleteAnalytics(athlete, tests);
 
   if (!athlete) {
     return (
@@ -79,6 +82,8 @@ export default function AthleteDetailScreen() {
           </View>
         </Card>
       </View>
+
+      {analytics ? <AthleteAnalyticsSection analytics={analytics} /> : null}
 
       {tests.length > 0 && (
         <Card variant="outlined" padding="lg" style={{ marginBottom: theme.spacing.lg, borderRadius: theme.borderRadius.xl }}>

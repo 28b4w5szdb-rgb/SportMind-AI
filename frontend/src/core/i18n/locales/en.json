@@ -403,5 +403,93 @@
       "privacyPolicy": "Privacy Policy",
       "account": "Account"
     }
+  },
+  "analytics": {
+    "sectionTitle": "Performance analytics",
+    "overallScore": "Overall Athlete Score",
+    "status": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "moderate": "Moderate",
+      "low": "Low",
+      "critical": "Critical"
+    },
+    "kpiTitle": "Key metrics",
+    "kpiSubtitle": "Today's readiness, load, and risk indicators",
+    "radarTitle": "Performance profile",
+    "radarSubtitle": "Multi-dimensional athlete radar",
+    "breakdownTitle": "Performance breakdown",
+    "strengths": "Strengths",
+    "weaknesses": "Areas to improve",
+    "recommendations": "Recommendations",
+    "recommendationsHint": "Rule-based guidance — replaceable by AI Coach",
+    "trendChange": "period change",
+    "benchmarkTitle": "Benchmarks",
+    "benchmarkSubtitle": "Comparison architecture (mock references)",
+    "benchmark": {
+      "previous": "Previous result",
+      "team": "Team average",
+      "ageGroup": "Age group",
+      "position": "Position peers"
+    },
+    "trends": {
+      "daily": "Daily trend",
+      "weekly": "Weekly trend",
+      "monthly": "Monthly trend",
+      "season": "Season trend"
+    },
+    "kpi": {
+      "readiness": "Readiness",
+      "recovery": "Recovery",
+      "fatigue": "Fatigue",
+      "trainingLoad": "Training load",
+      "performance": "Performance",
+      "injuryRisk": "Injury risk"
+    },
+    "modules": {
+      "physicalFitness": "Physical fitness",
+      "strength": "Strength",
+      "speed": "Speed",
+      "endurance": "Endurance",
+      "agility": "Agility",
+      "flexibility": "Flexibility",
+      "recovery": "Recovery",
+      "trainingLoad": "Training load",
+      "fatigue": "Fatigue",
+      "injuryRisk": "Injury risk",
+      "readiness": "Readiness",
+      "trainingCompliance": "Training compliance"
+    },
+    "decision": {
+      "confidence": "Confidence",
+      "readyTitle": "Ready to Train",
+      "readyBody": "Metrics support a full training session with standard load.",
+      "reducedTitle": "Train with Reduced Load",
+      "reducedBody": "Elevated load with moderate fatigue — reduce volume 20–30%.",
+      "recoveryTitle": "Recovery Day",
+      "recoveryBody": "Prioritize sleep, hydration, and low-intensity recovery protocols.",
+      "medicalTitle": "Medical Evaluation Recommended",
+      "medicalBody": "Injury risk elevated — consult sports medicine before high-intensity work."
+    },
+    "rec": {
+      "flexibilityTitle": "Flexibility focus",
+      "flexibility": "Schedule dedicated flexibility and mobility sessions 3× per week.",
+      "fatigueTitle": "High fatigue",
+      "fatigue": "Reduce training load and prioritize recovery over the next 48 hours.",
+      "recoveryTitle": "Recovery protocol",
+      "recovery": "Add structured recovery: sleep hygiene, nutrition, and active recovery.",
+      "injuryTitle": "Injury prevention",
+      "injury": "Implement preventive exercises and monitor pain markers daily.",
+      "strengthTitle": "Strength development",
+      "strength": "Add progressive resistance training targeting lower-body power.",
+      "complianceTitle": "Compliance gap",
+      "compliance": "Increase testing frequency to improve monitoring compliance.",
+      "actionMobility": "View mobility protocols",
+      "actionReduceLoad": "Adjust weekly plan",
+      "actionRecoveryProtocol": "Open recovery checklist",
+      "actionPreventive": "View preventive drills",
+      "actionStrength": "Plan strength block",
+      "actionCompliance": "Schedule assessments"
+    }
   }
 }

@@ -407,5 +407,93 @@
       "privacyPolicy": "سياسة الخصوصية",
       "account": "الحساب"
     }
+  },
+  "analytics": {
+    "sectionTitle": "تحليلات الأداء",
+    "overallScore": "النتيجة الإجمالية للاعب",
+    "status": {
+      "excellent": "ممتاز",
+      "good": "جيد",
+      "moderate": "متوسط",
+      "low": "منخفض",
+      "critical": "حرج"
+    },
+    "kpiTitle": "المؤشرات الرئيسية",
+    "kpiSubtitle": "الجاهزية والحمل والمخاطر اليوم",
+    "radarTitle": "ملف الأداء",
+    "radarSubtitle": "رادار متعدد الأبعاد",
+    "breakdownTitle": "تفصيل الأداء",
+    "strengths": "نقاط القوة",
+    "weaknesses": "مجالات التحسين",
+    "recommendations": "التوصيات",
+    "recommendationsHint": "إرشادات قائمة على القواعد — قابلة للاستبدال بالمدرب الذكي",
+    "trendChange": "تغير الفترة",
+    "benchmarkTitle": "المعايير",
+    "benchmarkSubtitle": "بنية المقارنة (مراجع mock)",
+    "benchmark": {
+      "previous": "النتيجة السابقة",
+      "team": "متوسط الفريق",
+      "ageGroup": "الفئة العمرية",
+      "position": "نظير المركز"
+    },
+    "trends": {
+      "daily": "الاتجاه اليومي",
+      "weekly": "الاتجاه الأسبوعي",
+      "monthly": "الاتجاه الشهري",
+      "season": "اتجاه الموسم"
+    },
+    "kpi": {
+      "readiness": "الجاهزية",
+      "recovery": "التعافي",
+      "fatigue": "الإرهاق",
+      "trainingLoad": "حمل التدريب",
+      "performance": "الأداء",
+      "injuryRisk": "خطر الإصابة"
+    },
+    "modules": {
+      "physicalFitness": "اللياقة البدنية",
+      "strength": "القوة",
+      "speed": "السرعة",
+      "endurance": "التحمل",
+      "agility": "الرشاقة",
+      "flexibility": "المرونة",
+      "recovery": "التعافي",
+      "trainingLoad": "حمل التدريب",
+      "fatigue": "الإرهاق",
+      "injuryRisk": "خطر الإصابة",
+      "readiness": "الجاهزية",
+      "trainingCompliance": "الالتزام التدريبي"
+    },
+    "decision": {
+      "confidence": "الثقة",
+      "readyTitle": "جاهز للتدريب",
+      "readyBody": "المؤشرات تدعم جلسة تدريب كاملة بحمل قياسي.",
+      "reducedTitle": "تدريب بحمل مخفّض",
+      "reducedBody": "حمل مرتفع مع إرهاق متوسط — خفّض الحجم 20–30%.",
+      "recoveryTitle": "يوم تعافي",
+      "recoveryBody": "أولِ النوم والترطيب وبروتوكولات التعافي منخفضة الشدة.",
+      "medicalTitle": "يُنصح بتقييم طبي",
+      "medicalBody": "خطر الإصابة مرتفع — استشر الطب الرياضي قبل العمل عالي الشدة."
+    },
+    "rec": {
+      "flexibilityTitle": "تركيز على المرونة",
+      "flexibility": "جدولة جلسات مرونة وحركية 3× أسبوعياً.",
+      "fatigueTitle": "إرهاق مرتفع",
+      "fatigue": "خفّض حمل التدريب وأولِ التعافي خلال 48 ساعة.",
+      "recoveryTitle": "بروتوكول التعافي",
+      "recovery": "أضف تعافياً منظماً: نوم، تغذية، وتعافٍ نشط.",
+      "injuryTitle": "الوقاية من الإصابة",
+      "injury": "طبّق تمارين وقائية وراقب مؤشرات الألم يومياً.",
+      "strengthTitle": "تطوير القوة",
+      "strength": "أضف تدريب مقاومة تدريجي يستهدف قوة الجزء السفلي.",
+      "complianceTitle": "فجوة الالتزام",
+      "compliance": "زِد وتيرة الاختبارات لتحسين المتابعة.",
+      "actionMobility": "عرض بروتوكولات الحركة",
+      "actionReduceLoad": "تعديل الخطة الأسبوعية",
+      "actionRecoveryProtocol": "فتح قائمة التعافي",
+      "actionPreventive": "عرض تمارين وقائية",
+      "actionStrength": "تخطيط block القوة",
+      "actionCompliance": "جدولة التقييمات"
+    }
   }
 }
