@@ -112,12 +112,17 @@ const MOCK_RESPONSES: Record<AiAgentId, { en: string; ar: string }> = {
 
 export function generateMockResponse(
   agentId: AiAgentId,
-  _userMessage: string,
+  userMessage: string,
   isRTL: boolean
 ): string {
   const base = MOCK_RESPONSES[agentId];
   const prefix = isRTL ? base.ar : base.en;
-  return prefix;
+  const snippet = userMessage.length > 40 ? userMessage.slice(0, 40) + '…' : userMessage;
+  const followUp = isRTL
+    ? `\n\n📊 ملخص: بناءً على «${snippet}»، أوصي بمراجعة حمل الأسبوع الماضي وتعديل شدة الجلسة القادمة بنسبة 5–10%.`
+    : `\n\n📊 Summary: Based on "${snippet}", review last week's load and adjust next session intensity by 5–10%.`;
+  const confidence = isRTL ? '\n\n✓ مستوى الثقة: 87%' : '\n\n✓ Confidence: 87%';
+  return prefix + followUp + confidence;
 }
 
 export function getAgentById(id: AiAgentId): AiAgent | undefined {

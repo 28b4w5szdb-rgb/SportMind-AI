@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Alert, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,7 +22,8 @@ export default function TeamManagementScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
-  const { flexRow, textAlign } = useDirection();
+  const { flexRow, textAlign, isRTL } = useDirection();
+  const athletes = useMockStore((s) => s.athletes);
   const teams = useMockStore((s) => s.teams);
 
   return (
@@ -55,6 +56,18 @@ export default function TeamManagementScreen() {
             style={{ marginBottom: theme.spacing.lg }}
           />
           {teams.map((team) => (
+            <TouchableOpacity
+              key={team.id}
+              activeOpacity={0.85}
+              onPress={() => {
+                const names = team.athlete_ids
+                  .map((id) => athletes.find((a) => a.id === id))
+                  .filter(Boolean)
+                  .map((a) => `${a!.first_name} ${a!.last_name}`)
+                  .join(', ');
+                Alert.alert(team.name, names || (isRTL ? 'لا يوجد لاعبون' : 'No athletes assigned'));
+              }}
+            >
             <Card key={team.id} variant="elevated" padding="lg" style={{ marginBottom: theme.spacing.md, borderRadius: theme.borderRadius['2xl'] }}>
               <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
                 <View
@@ -81,6 +94,7 @@ export default function TeamManagementScreen() {
                 </View>
               </View>
             </Card>
+            </TouchableOpacity>
           ))}
         </>
       )}

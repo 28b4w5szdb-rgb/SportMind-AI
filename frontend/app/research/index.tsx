@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Alert, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,7 +22,7 @@ export default function ResearchScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
-  const { flexRow, textAlign } = useDirection();
+  const { flexRow, textAlign, isRTL } = useDirection();
   const research = useMockStore((s) => s.research);
 
   return (
@@ -55,6 +55,11 @@ export default function ResearchScreen() {
             style={{ marginBottom: theme.spacing.lg }}
           />
           {research.map((project) => (
+            <TouchableOpacity
+              key={project.id}
+              activeOpacity={0.85}
+              onPress={() => Alert.alert(project.title, project.hypothesis, [{ text: t('common.done') }])}
+            >
             <Card key={project.id} variant="elevated" padding="lg" style={{ marginBottom: theme.spacing.md, borderRadius: theme.borderRadius['2xl'] }}>
               <View style={{ flexDirection: flexRow(true), alignItems: 'flex-start' }}>
                 <Ionicons name="flask" size={24} color={theme.colors.secondary} />
@@ -75,6 +80,7 @@ export default function ResearchScreen() {
                 </View>
               </View>
             </Card>
+            </TouchableOpacity>
           ))}
         </>
       )}

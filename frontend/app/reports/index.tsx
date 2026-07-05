@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,7 +22,7 @@ export default function ReportsScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
-  const { flexRow, textAlign, chevronIcon } = useDirection();
+  const { flexRow, textAlign, chevronIcon, isRTL } = useDirection();
   const reports = useMockStore((s) => s.reports);
 
   return (
@@ -55,7 +55,17 @@ export default function ReportsScreen() {
             style={{ marginBottom: theme.spacing.lg }}
           />
           {reports.map((report) => (
-            <Card
+            <TouchableOpacity
+              key={report.id}
+              activeOpacity={0.85}
+              onPress={() =>
+                Alert.alert(report.title, report.summary, [
+                  { text: isRTL ? 'إغلاق' : 'Close' },
+                  { text: isRTL ? 'تصدير' : 'Export', onPress: () => Alert.alert(isRTL ? 'تصدير' : 'Export', isRTL ? 'PDF/CSV قريباً' : 'PDF/CSV export coming soon') },
+                ])
+              }
+            >
+              <Card
               key={report.id}
               variant="elevated"
               padding="md"
@@ -88,6 +98,7 @@ export default function ReportsScreen() {
                 </Text>
               ) : null}
             </Card>
+            </TouchableOpacity>
           ))}
         </>
       )}

@@ -21,6 +21,7 @@ import { useRouter } from 'expo-router';
 
 import { Card } from '@/src/components/common/Card';
 import { Button } from '@/src/components/common/Button';
+import { SectionHeader } from '@/src/components/common/SectionHeader';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import { useMockStore } from '@/src/data/mock/store';
@@ -89,6 +90,8 @@ export default function PerformanceLabScreen() {
   const handleToolPress = (toolId: string) => {
     if (toolId === '1') router.push(APP_ROUTES.performanceLabEntry);
     else if (toolId === '2') router.push(APP_ROUTES.calculator);
+    else if (toolId === '3') router.push(APP_ROUTES.performanceLabBenchmark);
+    else if (toolId === '4') router.push(APP_ROUTES.performanceLabCompare);
   };
 
   const isWeb = Platform.OS === 'web';
@@ -312,23 +315,18 @@ export default function PerformanceLabScreen() {
             width: '100%',
           }}
         >
-          <View style={[styles.sectionHeader, { flexDirection: flexRow(true) }]}>
-            <Text style={[type.h4, { color: theme.colors.text }]}>
-              {isRTL ? 'فئات الاختبار' : 'Test Categories'}
-            </Text>
-            <TouchableOpacity activeOpacity={0.7}>
-              <Text style={[type.label, { color: theme.colors.primary }]}>
-                {isRTL ? 'عرض الكل' : 'View All'}
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <SectionHeader
+            title={isRTL ? 'فئات الاختبار' : 'Test Categories'}
+            actionLabel={isRTL ? 'عرض الكل' : 'View All'}
+            onAction={() => router.push(APP_ROUTES.performanceLabHistory)}
+          />
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ gap: theme.spacing[3], marginTop: theme.spacing[3] }}
           >
             {testCategories.map((category) => (
-              <TouchableOpacity key={category.id} activeOpacity={0.85} onPress={() => router.push(APP_ROUTES.performanceLabEntry)}>
+              <TouchableOpacity key={category.id} activeOpacity={0.85} onPress={() => router.push(APP_ROUTES.performanceLabCategory(category.id))}>
                 <Card
                   variant="outlined"
                   padding="md"
@@ -375,18 +373,13 @@ export default function PerformanceLabScreen() {
             width: '100%',
           }}
         >
-          <View style={[styles.sectionHeader, { flexDirection: flexRow(true) }]}>
-            <Text style={[type.h4, { color: theme.colors.text }]}>
-              {isRTL ? 'الاختبارات الأخيرة' : 'Recent Tests'}
-            </Text>
-            <TouchableOpacity activeOpacity={0.7}>
-              <Text style={[type.label, { color: theme.colors.primary }]}>
-                {isRTL ? 'عرض الكل' : 'View All'}
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <SectionHeader
+            title={isRTL ? 'الاختبارات الأخيرة' : 'Recent Tests'}
+            actionLabel={isRTL ? 'عرض الكل' : 'View All'}
+            onAction={() => router.push(APP_ROUTES.performanceLabHistory)}
+          />
           {recentTests.map((test) => (
-            <TouchableOpacity key={test.id} activeOpacity={0.85}>
+            <TouchableOpacity key={test.id} activeOpacity={0.85} onPress={() => router.push(APP_ROUTES.performanceLabHistory)}>
               <Card
                 variant="elevated"
                 padding="lg"
@@ -458,7 +451,7 @@ export default function PerformanceLabScreen() {
               </Text>
               <View style={[styles.statsRow, { flexDirection: flexRow(true), marginTop: theme.spacing[5] }]}>
                 <View style={styles.statItem}>
-                  <Text style={[type.numberDisplay, { color: '#FFFFFF', fontSize: 36 }]}>14</Text>
+                  <Text style={[type.numberDisplay, { color: '#FFFFFF', fontSize: 36 }]}>{storeTests.length || 14}</Text>
                   <Text style={[type.caption, { color: 'rgba(255,255,255,0.8)', marginTop: 4 }]}>
                     {isRTL ? 'اختبار متاح' : 'Tests Available'}
                   </Text>
@@ -482,7 +475,7 @@ export default function PerformanceLabScreen() {
           </Card>
         </View>
 
-        {/* Empty State - No Data */}
+        {storeTests.length === 0 && (
         <View
           style={{
             marginTop: theme.spacing[8],
@@ -538,6 +531,7 @@ export default function PerformanceLabScreen() {
             </View>
           </Card>
         </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

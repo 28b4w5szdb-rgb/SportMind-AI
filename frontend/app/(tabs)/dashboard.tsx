@@ -22,9 +22,12 @@ import { useTranslation } from 'react-i18next';
 
 import { Card } from '@/src/components/common/Card';
 import { LanguageToggle } from '@/src/components/common/LanguageToggle';
+import { ReadinessScore } from '@/src/components/features/ReadinessScore';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import { useMockStore } from '@/src/data/mock/store';
+import { APP_ROUTES } from '@/src/core/constants/routes';
+import { computeReadinessScore, readinessLabel } from '@/src/utils/athleteMetrics';
 
 function getGreetingKey(): string {
   const h = new Date().getHours();
@@ -298,6 +301,51 @@ export default function DashboardScreen() {
           </View>
         </View>
 
+        {/* Athlete readiness summary */}
+        {athletes.length > 0 && (
+          <View style={[styles.section, { maxWidth: isDesktop ? 1400 : undefined, marginHorizontal: isDesktop ? 'auto' : undefined, width: '100%' }]}>
+            <Text style={[type.h4, { color: theme.colors.text, marginBottom: theme.spacing[3], textAlign: textAlign('start') }]}>
+              {isRTL ? 'جاهزية اللاعبين' : 'Athlete readiness'}
+            </Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: theme.spacing[3] }}>
+              {athletes.slice(0, 6).map((a) => {
+                const score = computeReadinessScore(a);
+                return (
+                  <TouchableOpacity key={a.id} activeOpacity={0.85} onPress={() => router.push(APP_ROUTES.athleteDetail(a.id))}>
+                    <Card variant="elevated" padding="md" style={{ borderRadius: theme.borderRadius['2xl'], minWidth: 120, alignItems: 'center', ...theme.shadows.md }}>
+                      <ReadinessScore score={score} label={readinessLabel(score, isRTL)} size="md" />
+                      <Text style={[type.caption, { color: theme.colors.text, marginTop: theme.spacing[2], textAlign: 'center' }]} numberOfLines={1}>
+                        {a.first_name}
+                      </Text>
+                    </Card>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          </View>
+        )}
+
+        {/* Weekly insight */}
+        <View style={[styles.section, { maxWidth: isDesktop ? 1400 : undefined, marginHorizontal: isDesktop ? 'auto' : undefined, width: '100%' }]}>
+          <Card variant="gradient" padding="lg" gradientColors={['#0066FF', '#0D9488']} style={{ borderRadius: theme.borderRadius['2xl'] }}>
+            <Text style={[type.overline, { color: 'rgba(255,255,255,0.8)', letterSpacing: 2 }]}>
+              {(isRTL ? 'رؤية الأسبوع' : 'WEEKLY INSIGHT').toUpperCase()}
+            </Text>
+            <Text style={[type.h4, { color: '#FFF', marginTop: theme.spacing[2], textAlign: textAlign('start') }]}>
+              {isRTL ? `حمل الفريق: ${avgLoad} AU` : `Squad load: ${avgLoad} AU`}
+            </Text>
+            <Text style={[type.bodySm, { color: 'rgba(255,255,255,0.85)', marginTop: theme.spacing[2], textAlign: textAlign('start') }]}>
+              {injuredCount > 0
+                ? isRTL
+                  ? `${injuredCount} لاعب مصاب — خفّف شدة الجلسات 15%.`
+                  : `${injuredCount} injured — reduce session intensity 15%.`
+                : isRTL
+                  ? 'الفريق في حالة جيدة — حافظ على الحمل الحالي.'
+                  : 'Squad in good shape — maintain current load.'}
+            </Text>
+          </Card>
+        </View>
+
         {/* Today Overview */}
         <View
           style={[
@@ -545,8 +593,8 @@ export default function DashboardScreen() {
           >
             {isRTL ? 'النشاط الأخير' : 'Recent Activity'}
           </Text>
-          {recentActivities.map((activity, index) => (
-            <TouchableOpacity key={activity.id} activeOpacity={0.85}>
+          {recentActivities.map((activity) => (
+            <TouchableOpacity key={activity.id} activeOpacity={0.85} onPress={() => router.push('/(tabs)/performance-lab' as never)}>
               <Card
                 variant="outlined"
                 padding="md"

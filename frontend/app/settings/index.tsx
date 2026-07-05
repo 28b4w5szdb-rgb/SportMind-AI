@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, Switch, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Switch, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Screen } from '@/src/components/layout/Screen';
@@ -19,8 +19,12 @@ export default function SettingsScreen() {
   const theme = useTheme();
   const router = useRouter();
   const { t } = useTranslation();
-  const { flexRow, chevronIcon, textAlign } = useDirection();
+  const { flexRow, chevronIcon, textAlign, isRTL } = useDirection();
   const [darkModePreview, setDarkModePreview] = React.useState(theme.isDark);
+
+  const showComingSoon = (label: string) => {
+    Alert.alert(label, isRTL ? 'سيتوفر هذا القسم في تحديث قادم.' : 'This section will be available in an upcoming update.');
+  };
 
   const settingsSections = [
     {
@@ -68,12 +72,20 @@ export default function SettingsScreen() {
               {section.items.map((item, index) => (
                 <View key={item.id}>
                   <View style={[styles.settingRow, { flexDirection: flexRow(true) }]}>
-                    <View style={[styles.settingLeft, { flexDirection: flexRow(true) }]}>
+                    <TouchableOpacity
+                      style={[styles.settingLeft, { flexDirection: flexRow(true), flex: 1 }]}
+                      disabled={item.type === 'toggle' || item.type === 'language'}
+                      onPress={() => {
+                        if (item.type === 'route' && 'route' in item) router.push(item.route);
+                        else if (item.type === 'link') showComingSoon(item.label);
+                      }}
+                      activeOpacity={item.type === 'toggle' || item.type === 'language' ? 1 : 0.7}
+                    >
                       {'icon' in item && item.icon && (
                         <Ionicons name={item.icon} size={20} color={theme.colors.textSecondary} />
                       )}
                       <Text style={[theme.typography.body, { color: theme.colors.text }]}>{item.label}</Text>
-                    </View>
+                    </TouchableOpacity>
                     {item.type === 'toggle' ? (
                       <Switch
                         value={item.value}
@@ -83,11 +95,13 @@ export default function SettingsScreen() {
                     ) : item.type === 'language' ? (
                       <LanguageToggle variant="compact" />
                     ) : item.type === 'route' ? (
-                      <TouchableOpacity onPress={() => router.push(item.route)}>
+                      <TouchableOpacity onPress={() => 'route' in item && router.push(item.route)}>
                         <Ionicons name={chevronIcon()} size={20} color={theme.colors.textTertiary} />
                       </TouchableOpacity>
                     ) : (
-                      <Ionicons name={chevronIcon()} size={20} color={theme.colors.textTertiary} />
+                      <TouchableOpacity onPress={() => showComingSoon(item.label)}>
+                        <Ionicons name={chevronIcon()} size={20} color={theme.colors.textTertiary} />
+                      </TouchableOpacity>
                     )}
                   </View>
                   {item.type === 'toggle' && 'note' in item && item.note && (

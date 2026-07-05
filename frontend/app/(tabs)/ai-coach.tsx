@@ -3,7 +3,7 @@
  * Premium ChatGPT-style AI assistant with mock local responses.
  */
 
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   useWindowDimensions,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -33,6 +34,7 @@ import {
   type AiAgentId,
   type AiMessage,
 } from '@/src/data/mock/ai-coach';
+import { copyToClipboard, exportTextPlaceholder } from '@/src/utils/clipboard';
 
 function createMessage(role: AiMessage['role'], content: string, agentId?: AiAgentId): AiMessage {
   return {
@@ -93,6 +95,61 @@ export default function AICoachScreen() {
     setShowSidebar(false);
   };
 
+  const handleCopy = useCallback(
+    (text: string) => {
+      copyToClipboard(text, isRTL ? 'تم النسخ' : 'Copied');
+    },
+    [isRTL]
+  );
+
+  const handleRegenerate = useCallback(() => {
+    const lastUser = [...messages].reverse().find((m) => m.role === 'user');
+    if (!lastUser || isTyping) return;
+    setMessages((prev) => {
+      const lastAssistantIdx = prev.map((m) => m.role).lastIndexOf('assistant');
+      if (lastAssistantIdx < 0) return prev;
+      return prev.slice(0, lastAssistantIdx);
+    });
+    setIsTyping(true);
+    setTimeout(() => {
+      const reply = generateMockResponse(selectedAgent, lastUser.content, isRTL);
+      setMessages((prev) => [...prev, createMessage('assistant', reply, selectedAgent)]);
+      setIsTyping(false);
+      scrollToEnd();
+    }, 1200);
+  }, [messages, isTyping, isRTL, scrollToEnd, selectedAgent]);
+
+  const handleExport = () => {
+    const body = messages.map((m) => `${m.role}: ${m.content}`).join('\n\n');
+    exportTextPlaceholder(isRTL ? 'تصدير المحادثة' : 'Export conversation', body || '—', isRTL);
+  };
+
+  const handleAttachment = () => {
+    Alert.alert(
+      isRTL ? 'المرفقات' : 'Attachments',
+      isRTL ? 'رفع ملفات PDF/صور/بيانات CSV سيتوفر عند ربط التخزين.' : 'Upload PDF, images, or CSV data files coming when storage is connected.'
+    );
+  };
+
+  const groupedItems = useMemo(() => {
+    const items: Array<{ type: 'date'; label: string; key: string } | { type: 'msg'; message: AiMessage; key: string }> = [];
+    let lastDate = '';
+    messages.forEach((msg) => {
+      const d = new Date(msg.timestamp).toLocaleDateString();
+      if (d !== lastDate) {
+        items.push({ type: 'date', label: d, key: `d-${d}` });
+        lastDate = d;
+      }
+      items.push({ type: 'msg', message: msg, key: msg.id });
+    });
+    return items;
+  }, [messages]);
+
+  const lastAssistantId = useMemo(() => {
+    const m = [...messages].reverse().find((x) => x.role === 'assistant');
+    return m?.id;
+  }, [messages]);
+
   const renderEmptyState = () => (
     <ScrollView
       contentContainerStyle={{ paddingBottom: theme.spacing[8] }}
@@ -126,7 +183,7 @@ export default function AICoachScreen() {
               sendMessage(isRTL ? prompt.textAr : prompt.textEn);
             }}
           >
-            <Card variant="outlined" padding="md" style={{ borderRadius: theme.borderRadius.xl }}>
+            <Card variant="elevated" padding="md" style={{ borderRadius: theme.borderRadius.xl, ...theme.shadows.sm }}>
               <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
                 <Ionicons name="chatbubble-ellipses-outline" size={20} color={theme.colors.primary} />
                 <Text style={[type.bodySm, { color: theme.colors.text, flex: 1, marginHorizontal: theme.spacing[3], textAlign: textAlign('start') }]}>
@@ -146,9 +203,22 @@ export default function AICoachScreen() {
       {hasMessages ? (
         <FlatList
           ref={listRef}
-          data={messages}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <ChatMessage message={item} />}
+          data={groupedItems}
+          keyExtractor={(item) => item.key}
+          renderItem={({ item }) =>
+            item.type === 'date' ? (
+              <Text style={[type.caption, { color: theme.colors.textTertiary, textAlign: 'center', marginVertical: theme.spacing[3] }]}>
+                {item.label}
+              </Text>
+            ) : (
+              <ChatMessage
+                message={item.message}
+                onCopy={item.message.role === 'assistant' ? handleCopy : undefined}
+                onRegenerate={item.message.role === 'assistant' ? handleRegenerate : undefined}
+                isLastAssistant={item.message.id === lastAssistantId}
+              />
+            )
+          }
           ListFooterComponent={isTyping ? <TypingIndicator /> : null}
           contentContainerStyle={{ paddingVertical: theme.spacing[4], paddingHorizontal: theme.spacing[1] }}
           onContentSizeChange={scrollToEnd}
@@ -220,6 +290,9 @@ export default function AICoachScreen() {
               {isRTL ? 'مساعد علوم رياضية' : 'Sports science assistant'}
             </Text>
           </View>
+          <TouchableOpacity onPress={handleExport} style={styles.iconBtn}>
+            <Ionicons name="download-outline" size={22} color={theme.colors.text} />
+          </TouchableOpacity>
           <TouchableOpacity onPress={handleNewChat} style={styles.iconBtn}>
             <Ionicons name="create-outline" size={22} color={theme.colors.text} />
           </TouchableOpacity>
@@ -267,6 +340,9 @@ export default function AICoachScreen() {
         {/* Composer */}
         <View style={[styles.composer, { borderTopColor: theme.colors.border, backgroundColor: theme.colors.background, padding: theme.spacing[3] }]}>
           <View style={[styles.inputRow, { flexDirection: flexRow(true), maxWidth: isDesktop ? 900 : undefined, alignSelf: 'center', width: '100%' }]}>
+            <TouchableOpacity onPress={handleAttachment} style={styles.attachBtn}>
+              <Ionicons name="attach" size={22} color={theme.colors.textTertiary} />
+            </TouchableOpacity>
             <TextInput
               style={[
                 styles.textInput,
@@ -360,6 +436,12 @@ const styles = StyleSheet.create({
   },
   sendBtn: {
     width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  attachBtn: {
+    width: 40,
     height: 48,
     alignItems: 'center',
     justifyContent: 'center',

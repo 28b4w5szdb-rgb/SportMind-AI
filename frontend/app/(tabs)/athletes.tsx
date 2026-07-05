@@ -23,11 +23,13 @@ import { useRouter } from 'expo-router';
 
 import { Card } from '@/src/components/common/Card';
 import { Button } from '@/src/components/common/Button';
+import { ReadinessScore } from '@/src/components/features/ReadinessScore';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import type { MockAthlete } from '@/src/data/mock/types';
+import { computeReadinessScore, readinessLabel } from '@/src/utils/athleteMetrics';
 
 const filterChips = [
   { id: 'all', labelEn: 'All', labelAr: 'الكل' },
@@ -107,6 +109,7 @@ export default function AthletesScreen() {
     const initials = `${item.first_name[0] ?? ''}${item.last_name[0] ?? ''}`.toUpperCase();
     const risk = getRiskLevel(item);
     const riskColor = getRiskColor(risk);
+    const readiness = computeReadinessScore(item);
     return (
       <TouchableOpacity
         activeOpacity={0.85}
@@ -173,8 +176,9 @@ export default function AthletesScreen() {
               </View>
             </View>
           </View>
-          <View style={[styles.athleteStats, { flexDirection: flexRow(true), marginTop: theme.spacing[4] }]}>
-            <View style={styles.statItem}>
+          <View style={[styles.athleteStats, { flexDirection: flexRow(true), marginTop: theme.spacing[4], alignItems: 'center' }]}>
+            <ReadinessScore score={readiness} label={readinessLabel(readiness, isRTL)} size="sm" />
+            <View style={[styles.statItem, { flex: 1, marginStart: theme.spacing[3] }]}>
               <Text style={[type.numberSm, { color: theme.colors.text }]}>{item.tests_count}</Text>
               <Text style={[type.caption, { color: theme.colors.textTertiary }]}>
                 {isRTL ? 'الاختبارات' : 'Tests'}

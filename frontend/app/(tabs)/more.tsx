@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   useWindowDimensions,
   Platform,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -206,7 +207,15 @@ export default function MoreScreen() {
                     {user?.email ?? (isRTL ? 'فريق رياضي' : 'Sports Team')}
                   </Text>
                 </View>
-                <TouchableOpacity activeOpacity={0.7}>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() =>
+                    Alert.alert(
+                      isRTL ? 'الإشعارات' : 'Notifications',
+                      isRTL ? 'لا توجد إشعارات جديدة.' : 'No new notifications.'
+                    )
+                  }
+                >
                   <Ionicons name="notifications-outline" size={24} color={theme.colors.textTertiary} />
                 </TouchableOpacity>
               </View>

@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Linking } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, Linking, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -19,6 +19,7 @@ export default function HelpScreen() {
   const theme = useTheme();
   const type = useTypography();
   const { flexRow, textAlign, isRTL } = useDirection();
+  const [expanded, setExpanded] = useState<number | null>(0);
 
   return (
     <FeatureScrollScreen title={t('features.help.title')}>
@@ -30,15 +31,32 @@ export default function HelpScreen() {
         {t('features.help.faq')}
       </Text>
       {FAQ.map((item, i) => (
-        <Card key={i} variant="outlined" padding="md" style={{ marginBottom: theme.spacing.sm, borderRadius: theme.borderRadius.xl }}>
-          <Text style={[type.h5, { color: theme.colors.text, textAlign: textAlign('start') }]}>
-            {isRTL ? item.qAr : item.q}
-          </Text>
-          <Text style={[type.bodySm, { color: theme.colors.textSecondary, marginTop: 6, textAlign: textAlign('start') }]}>
-            {isRTL ? item.aAr : item.a}
-          </Text>
-        </Card>
+        <TouchableOpacity key={i} activeOpacity={0.85} onPress={() => setExpanded(expanded === i ? null : i)}>
+          <Card variant="outlined" padding="md" style={{ marginBottom: theme.spacing.sm, borderRadius: theme.borderRadius.xl }}>
+            <Text style={[type.h5, { color: theme.colors.text, textAlign: textAlign('start') }]}>
+              {isRTL ? item.qAr : item.q}
+            </Text>
+            {expanded === i && (
+              <Text style={[type.bodySm, { color: theme.colors.textSecondary, marginTop: 6, textAlign: textAlign('start') }]}>
+                {isRTL ? item.aAr : item.a}
+              </Text>
+            )}
+          </Card>
+        </TouchableOpacity>
       ))}
+
+      <TouchableOpacity
+        onPress={() => Alert.alert(isRTL ? 'التوثيق' : 'Documentation', isRTL ? 'التوثيق الكامل سيتوفر على docs.sportmind.ai' : 'Full documentation coming at docs.sportmind.ai')}
+        activeOpacity={0.85}
+      >
+        <Card variant="elevated" padding="md" style={{ marginTop: theme.spacing.md, borderRadius: theme.borderRadius.xl }}>
+          <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
+            <Ionicons name="book-outline" size={22} color={theme.colors.primary} />
+            <Text style={[type.body, { color: theme.colors.text, flex: 1, marginHorizontal: theme.spacing.md }]}>{t('features.help.docs')}</Text>
+            <Ionicons name="open-outline" size={18} color={theme.colors.primary} />
+          </View>
+        </Card>
+      </TouchableOpacity>
 
       <Card variant="elevated" padding="lg" style={{ marginTop: theme.spacing.lg, borderRadius: theme.borderRadius['2xl'] }}>
         <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
