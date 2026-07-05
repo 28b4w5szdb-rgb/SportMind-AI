@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { View, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -8,11 +8,14 @@ import { Input } from '@/src/components/common/Input';
 import { Button } from '@/src/components/common/Button';
 import { FormSection } from '@/src/components/common/FormSection';
 import { SuccessBanner } from '@/src/components/common/SuccessBanner';
+import { Card } from '@/src/components/common/Card';
 import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import { useFormAction } from '@/src/hooks/useFormAction';
+import { computeAthleteAnalytics, getAffectedModules, ANALYTICS_MODULES } from '@/src/analytics';
+import type { MockPerformanceTest } from '@/src/data/mock/types';
 
 const TEST_TYPES = [
   { key: 'yoyo', unit: 'm', labelEn: 'Yo-Yo IR1', labelAr: 'Yo-Yo IR1' },
@@ -28,6 +31,7 @@ export default function PerformanceLabEntryScreen() {
   const type = useTypography();
   const { flexRow, textAlign, isRTL } = useDirection();
   const athletes = useMockStore((s) => s.athletes);
+  const tests = useMockStore((s) => s.tests);
   const addTest = useMockStore((s) => s.addTest);
   const { loading, success, run } = useFormAction();
 
@@ -37,9 +41,37 @@ export default function PerformanceLabEntryScreen() {
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState('');
   const [errors, setErrors] = useState<{ athlete?: string; value?: string; date?: string }>({});
+  const [impactPreview, setImpactPreview] = useState<{ before: number; after: number; recKey?: string } | null>(null);
 
   const selectedTest = TEST_TYPES.find((tt) => tt.key === testKey)!;
   const athlete = athletes.find((a) => a.id === athleteId);
+
+  const athleteTests = useMemo(() => {
+    if (!athleteId) return [];
+    return tests.filter((tst) => tst.athlete_id === athleteId);
+  }, [tests, athleteId]);
+
+  const currentAnalytics = useMemo(() => {
+    if (!athlete) return null;
+    return computeAthleteAnalytics({ athlete, tests: athleteTests });
+  }, [athlete, athleteTests]);
+
+  const affectedModules = useMemo(() => getAffectedModules(testKey), [testKey]);
+
+  const projectedAnalytics = useMemo(() => {
+    if (!athlete || !value.trim() || Number.isNaN(Number(value))) return null;
+    const simulated: MockPerformanceTest = {
+      id: 'preview',
+      athlete_id: athlete.id,
+      athlete_name: `${athlete.first_name} ${athlete.last_name}`,
+      test_type: t(`features.lab.testTypes.${testKey}`),
+      test_type_key: testKey,
+      value: Number(value),
+      unit: selectedTest.unit,
+      date,
+    };
+    return computeAthleteAnalytics({ athlete, tests: [...athleteTests, simulated] });
+  }, [athlete, athleteTests, value, testKey, date, selectedTest.unit, t]);
 
   const validate = () => {
     const next: typeof errors = {};
@@ -51,7 +83,7 @@ export default function PerformanceLabEntryScreen() {
   };
 
   const handleSave = () => {
-    if (!validate() || !athlete) return;
+    if (!validate() || !athlete || !currentAnalytics) return;
     run(() => {
       addTest({
         athlete_id: athlete.id,
@@ -63,13 +95,37 @@ export default function PerformanceLabEntryScreen() {
         date,
         notes: notes.trim() || undefined,
       });
-      setTimeout(() => router.replace(APP_ROUTES.performanceLabHistory), 700);
+      const afterScore = projectedAnalytics?.overall.score ?? currentAnalytics.overall.score;
+      setImpactPreview({
+        before: currentAnalytics.overall.score,
+        after: afterScore,
+        recKey: projectedAnalytics?.recommendations[0]?.bodyKey ?? currentAnalytics.recommendations[0]?.bodyKey,
+      });
+      setTimeout(() => router.replace(APP_ROUTES.performanceLabHistory), 2200);
     });
   };
 
   return (
     <FeatureScrollScreen title={t('features.lab.entryTitle')}>
       <SuccessBanner message={t('features.lab.saved')} visible={success} />
+
+      {impactPreview && success && (
+        <Card variant="elevated" padding="lg" style={{ borderRadius: theme.borderRadius['2xl'], marginBottom: theme.spacing.lg, borderColor: theme.colors.success, borderWidth: 1 }}>
+          <Text style={[type.label, { color: theme.colors.success, textAlign: textAlign('start') }]}>
+            {isRTL ? 'معاينة تأثير التحليلات' : 'Analytics impact preview'}
+          </Text>
+          <Text style={[type.body, { color: theme.colors.text, marginTop: theme.spacing[2], textAlign: textAlign('start') }]}>
+            {isRTL
+              ? `النتيجة الإجمالية: ${impactPreview.before} → ${impactPreview.after}/1000`
+              : `Overall score: ${impactPreview.before} → ${impactPreview.after}/1000`}
+          </Text>
+          {impactPreview.recKey ? (
+            <Text style={[type.bodySm, { color: theme.colors.textSecondary, marginTop: theme.spacing[2], textAlign: textAlign('start') }]}>
+              {t(impactPreview.recKey)}
+            </Text>
+          ) : null}
+        </Card>
+      )}
 
       <FormSection title={t('features.lab.selectAthlete')} subtitle={isRTL ? 'من سجّل الاختبار؟' : 'Who is being tested?'}>
         {athletes.length === 0 ? (
@@ -113,7 +169,33 @@ export default function PerformanceLabEntryScreen() {
             );
           })}
         </View>
+        <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: theme.spacing[3], textAlign: textAlign('start') }]}>
+          {isRTL ? 'الوحدات المتأثرة: ' : 'Affected modules: '}
+          {affectedModules
+            .map((id) => {
+              const mod = ANALYTICS_MODULES.find((m) => m.id === id);
+              return mod ? t(mod.labelKey) : id;
+            })
+            .join(' · ')}
+        </Text>
       </FormSection>
+
+      {projectedAnalytics && currentAnalytics && value.trim() && (
+        <FormSection title={isRTL ? 'معاينة التأثير' : 'Impact preview'} subtitle={isRTL ? 'تقدير قبل الحفظ' : 'Estimated before save'}>
+          <Card variant="filled" padding="md" style={{ borderRadius: theme.borderRadius.xl }}>
+            <Text style={[type.bodySm, { color: theme.colors.text, textAlign: textAlign('start') }]}>
+              {isRTL
+                ? `النتيجة: ${currentAnalytics.overall.score} → ${projectedAnalytics.overall.score}/1000`
+                : `Score: ${currentAnalytics.overall.score} → ${projectedAnalytics.overall.score}/1000`}
+            </Text>
+            {projectedAnalytics.recommendations[0] ? (
+              <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 8, textAlign: textAlign('start') }]}>
+                {t(projectedAnalytics.recommendations[0].bodyKey)}
+              </Text>
+            ) : null}
+          </Card>
+        </FormSection>
+      )}
 
       <FormSection title={isRTL ? 'النتائج' : 'Results'} subtitle={`${selectedTest.unit} · ${date}`}>
         <Input

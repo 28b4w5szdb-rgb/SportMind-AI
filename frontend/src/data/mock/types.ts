@@ -53,6 +53,11 @@ export interface MockReportSections {
   performance_tests: string;
   ai_insights: string;
   recommendations: string;
+  overall_score?: string;
+  kpi_summary?: string;
+  strengths?: string;
+  weaknesses?: string;
+  decision_support?: string;
 }
 
 export interface MockReport {

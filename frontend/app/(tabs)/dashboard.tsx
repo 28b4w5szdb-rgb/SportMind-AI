@@ -28,6 +28,8 @@ import { useDirection } from '@/src/providers/DirectionProvider';
 import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import { computeReadinessScore, readinessLabel } from '@/src/utils/athleteMetrics';
+import { useTeamAnalyticsOverview, buildAiSummaryFromAnalytics } from '@/src/analytics';
+import { ProgressRingChart } from '@/src/components/charts';
 
 function getGreetingKey(): string {
   const h = new Date().getHours();
@@ -44,21 +46,14 @@ const quickActions = [
 ] as const;
 
 const statsMeta = [
-  { id: 'athletes', icon: 'people' as const, key: 'dashboard.athletesCount', color: '#0066FF', trend: '+12%' },
-  { id: 'sessions', icon: 'stats-chart' as const, key: 'dashboard.sessionsCount', color: '#10B981', trend: '+8%' },
-  { id: 'injured', icon: 'medkit' as const, key: 'dashboard.injuredCount', color: '#F97316', trend: '-2' },
-  { id: 'load', icon: 'barbell' as const, key: 'dashboard.trainingLoad', color: '#8B5CF6', trend: '+5%' },
+  { id: 'overall', icon: 'trophy' as const, key: 'analytics.overallScore', color: '#0066FF' },
+  { id: 'readiness', icon: 'flash' as const, key: 'analytics.kpi.readiness', color: '#10B981' },
+  { id: 'fatigue', icon: 'battery-dead' as const, key: 'analytics.kpi.fatigue', color: '#F97316' },
+  { id: 'recovery', icon: 'heart' as const, key: 'analytics.kpi.recovery', color: '#0D9488' },
+  { id: 'load', icon: 'barbell' as const, key: 'analytics.kpi.trainingLoad', color: '#8B5CF6' },
+  { id: 'injury', icon: 'medkit' as const, key: 'analytics.kpi.injuryRisk', color: '#EF4444' },
 ];
 
-const trendBars = [
-  { labelEn: 'Mon', labelAr: 'إث', value: 65, color: '#0066FF' },
-  { labelEn: 'Tue', labelAr: 'ثل', value: 78, color: '#0066FF' },
-  { labelEn: 'Wed', labelAr: 'أر', value: 55, color: '#10B981' },
-  { labelEn: 'Thu', labelAr: 'خم', value: 82, color: '#0066FF' },
-  { labelEn: 'Fri', labelAr: 'جم', value: 70, color: '#F97316' },
-  { labelEn: 'Sat', labelAr: 'سب', value: 45, color: '#10B981' },
-  { labelEn: 'Sun', labelAr: 'أح', value: 30, color: '#8B5CF6' },
-];
 
 const recentActivities = [
   { id: '1', icon: 'fitness', title: 'Training Session', subtitle: '2 hours ago', color: '#F97316' },
@@ -81,22 +76,70 @@ export default function DashboardScreen() {
 
   const athletes = useMockStore((s) => s.athletes);
   const tests = useMockStore((s) => s.tests);
+  const teamAnalytics = useTeamAnalyticsOverview();
 
   const injuredCount = useMemo(() => athletes.filter((a) => a.status === 'injured').length, [athletes]);
-  const avgLoad = useMemo(() => Math.round(tests.length * 42 + athletes.length * 18), [tests.length, athletes.length]);
 
   const statsData = useMemo(
     () =>
       statsMeta.map((stat) => {
         let value = '0';
-        if (stat.id === 'athletes') value = String(athletes.length);
-        else if (stat.id === 'sessions') value = String(tests.length);
-        else if (stat.id === 'injured') value = String(injuredCount);
-        else if (stat.id === 'load') value = String(avgLoad);
-        return { ...stat, value };
+        let trend = '—';
+        if (stat.id === 'overall') {
+          value = String(teamAnalytics.avgOverallScore);
+          trend = teamAnalytics.avgOverallScore >= 600 ? '+↑' : '→';
+        } else if (stat.id === 'readiness') {
+          value = `${teamAnalytics.avgReadiness}%`;
+          trend = teamAnalytics.avgReadiness >= 70 ? '+↑' : '↓';
+        } else if (stat.id === 'fatigue') {
+          value = `${teamAnalytics.avgFatigue}%`;
+          trend = teamAnalytics.avgFatigue <= 40 ? '↓' : '↑';
+        } else if (stat.id === 'recovery') {
+          value = `${teamAnalytics.avgRecovery}%`;
+          trend = '+';
+        } else if (stat.id === 'load') {
+          value = `${teamAnalytics.avgTrainingLoad}%`;
+          trend = '→';
+        } else if (stat.id === 'injury') {
+          value = `${teamAnalytics.avgInjuryRisk}%`;
+          trend = teamAnalytics.avgInjuryRisk <= 30 ? '↓' : '↑';
+        }
+        return { ...stat, value, trend };
       }),
-    [athletes.length, tests.length, injuredCount, avgLoad]
+    [teamAnalytics]
   );
+
+  const aiSummary = useMemo(() => buildAiSummaryFromAnalytics(teamAnalytics, isRTL), [teamAnalytics, isRTL]);
+
+  const trendBars = useMemo(() => {
+    const weekly = teamAnalytics.snapshots[0]?.analytics.trends.find((tr) => tr.period === 'weekly');
+    if (!weekly || weekly.points.length === 0) {
+      return [
+        { labelEn: 'Mon', labelAr: 'إث', value: 65, color: '#0066FF' },
+        { labelEn: 'Tue', labelAr: 'ثل', value: 78, color: '#0066FF' },
+        { labelEn: 'Wed', labelAr: 'أر', value: 55, color: '#10B981' },
+        { labelEn: 'Thu', labelAr: 'خم', value: 82, color: '#0066FF' },
+        { labelEn: 'Fri', labelAr: 'جم', value: 70, color: '#F97316' },
+        { labelEn: 'Sat', labelAr: 'سب', value: 45, color: '#10B981' },
+        { labelEn: 'Sun', labelAr: 'أح', value: 30, color: '#8B5CF6' },
+      ];
+    }
+    const labels = [
+      { en: 'Mon', ar: 'إث' },
+      { en: 'Tue', ar: 'ثل' },
+      { en: 'Wed', ar: 'أر' },
+      { en: 'Thu', ar: 'خم' },
+      { en: 'Fri', ar: 'جم' },
+      { en: 'Sat', ar: 'سب' },
+      { en: 'Sun', ar: 'أح' },
+    ];
+    return weekly.points.slice(0, 7).map((p, i) => ({
+      labelEn: labels[i]?.en ?? `D${i + 1}`,
+      labelAr: labels[i]?.ar ?? `${i + 1}`,
+      value: Math.max(20, Math.min(100, p.value)),
+      color: i % 2 === 0 ? '#0066FF' : '#10B981',
+    }));
+  }, [teamAnalytics.snapshots]);
 
   const todayItems = useMemo(
     () => [
@@ -301,21 +344,54 @@ export default function DashboardScreen() {
           </View>
         </View>
 
+        {/* Overall score summary */}
+        {teamAnalytics.athleteCount > 0 && (
+          <View style={[styles.section, { maxWidth: isDesktop ? 1400 : undefined, marginHorizontal: isDesktop ? 'auto' : undefined, width: '100%' }]}>
+            <Card variant="elevated" padding="lg" style={{ borderRadius: theme.borderRadius['2xl'] }}>
+              <View style={{ flexDirection: flexRow(true), alignItems: 'center', gap: theme.spacing[4] }}>
+                <ProgressRingChart
+                  value={teamAnalytics.avgOverallScore}
+                  max={1000}
+                  size={isDesktop ? 120 : 100}
+                  color={theme.colors.primary}
+                >
+                  <Text style={[type.h5, { color: theme.colors.text }]}>{teamAnalytics.avgOverallScore}</Text>
+                </ProgressRingChart>
+                <View style={{ flex: 1 }}>
+                  <Text style={[type.overline, { color: theme.colors.textTertiary, letterSpacing: 1.5, textAlign: textAlign('start') }]}>
+                    {t('analytics.overallScore').toUpperCase()}
+                  </Text>
+                  <Text style={[type.h4, { color: theme.colors.text, marginTop: theme.spacing[1], textAlign: textAlign('start') }]}>
+                    {isRTL ? `متوسط الفريق: ${teamAnalytics.avgOverallScore}/1000` : `Squad average: ${teamAnalytics.avgOverallScore}/1000`}
+                  </Text>
+                  <Text style={[type.bodySm, { color: theme.colors.textSecondary, marginTop: theme.spacing[2], textAlign: textAlign('start') }]}>
+                    {t(teamAnalytics.decisionTitleKey)}
+                  </Text>
+                </View>
+              </View>
+            </Card>
+          </View>
+        )}
+
         {/* Athlete readiness summary */}
-        {athletes.length > 0 && (
+        {teamAnalytics.snapshots.length > 0 && (
           <View style={[styles.section, { maxWidth: isDesktop ? 1400 : undefined, marginHorizontal: isDesktop ? 'auto' : undefined, width: '100%' }]}>
             <Text style={[type.h4, { color: theme.colors.text, marginBottom: theme.spacing[3], textAlign: textAlign('start') }]}>
               {isRTL ? 'جاهزية اللاعبين' : 'Athlete readiness'}
             </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: theme.spacing[3] }}>
-              {athletes.slice(0, 6).map((a) => {
-                const score = computeReadinessScore(a);
+              {teamAnalytics.snapshots.slice(0, 6).map(({ athlete: a, analytics }) => {
+                const readiness = analytics.kpis.find((k) => k.id === 'readiness');
+                const score = readiness?.value ?? computeReadinessScore(a);
                 return (
                   <TouchableOpacity key={a.id} activeOpacity={0.85} onPress={() => router.push(APP_ROUTES.athleteDetail(a.id))}>
                     <Card variant="elevated" padding="md" style={{ borderRadius: theme.borderRadius['2xl'], minWidth: 120, alignItems: 'center', ...theme.shadows.md }}>
                       <ReadinessScore score={score} label={readinessLabel(score, isRTL)} size="md" />
                       <Text style={[type.caption, { color: theme.colors.text, marginTop: theme.spacing[2], textAlign: 'center' }]} numberOfLines={1}>
                         {a.first_name}
+                      </Text>
+                      <Text style={[type.caption, { color: theme.colors.textTertiary, textAlign: 'center' }]}>
+                        {analytics.overall.score}/1000
                       </Text>
                     </Card>
                   </TouchableOpacity>
@@ -325,23 +401,80 @@ export default function DashboardScreen() {
           </View>
         )}
 
+        {/* Strengths & weaknesses */}
+        {teamAnalytics.athleteCount > 0 && (
+          <View style={[styles.section, { maxWidth: isDesktop ? 1400 : undefined, marginHorizontal: isDesktop ? 'auto' : undefined, width: '100%' }]}>
+            <View style={{ flexDirection: flexRow(true), gap: theme.spacing[3] }}>
+              <Card variant="elevated" padding="md" style={{ flex: 1, borderRadius: theme.borderRadius.xl }}>
+                <Text style={[type.label, { color: theme.colors.success, marginBottom: theme.spacing[2], textAlign: textAlign('start') }]}>
+                  {t('analytics.strengths')}
+                </Text>
+                {teamAnalytics.aggregatedStrengths.slice(0, 3).map((m) => (
+                  <Text key={m.id} style={[type.bodySm, { color: theme.colors.text, marginBottom: 4, textAlign: textAlign('start') }]}>
+                    • {t(m.labelKey)} ({m.score})
+                  </Text>
+                ))}
+              </Card>
+              <Card variant="elevated" padding="md" style={{ flex: 1, borderRadius: theme.borderRadius.xl }}>
+                <Text style={[type.label, { color: theme.colors.warning, marginBottom: theme.spacing[2], textAlign: textAlign('start') }]}>
+                  {t('analytics.weaknesses')}
+                </Text>
+                {teamAnalytics.aggregatedWeaknesses.slice(0, 3).map((m) => (
+                  <Text key={m.id} style={[type.bodySm, { color: theme.colors.text, marginBottom: 4, textAlign: textAlign('start') }]}>
+                    • {t(m.labelKey)} ({m.score})
+                  </Text>
+                ))}
+              </Card>
+            </View>
+          </View>
+        )}
+
+        {/* Team overview */}
+        {teamAnalytics.snapshots.length > 0 && (
+          <View style={[styles.section, { maxWidth: isDesktop ? 1400 : undefined, marginHorizontal: isDesktop ? 'auto' : undefined, width: '100%' }]}>
+            <Text style={[type.h4, { color: theme.colors.text, marginBottom: theme.spacing[3], textAlign: textAlign('start') }]}>
+              {isRTL ? 'نظرة الفريق' : 'Team overview'}
+            </Text>
+            {teamAnalytics.snapshots.map(({ athlete: a, analytics }) => (
+              <TouchableOpacity key={a.id} activeOpacity={0.85} onPress={() => router.push(APP_ROUTES.athleteDetail(a.id))}>
+                <Card variant="outlined" padding="md" style={{ borderRadius: theme.borderRadius.xl, marginBottom: theme.spacing[2] }}>
+                  <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[type.body, { color: theme.colors.text, textAlign: textAlign('start') }]}>
+                        {a.first_name} {a.last_name}
+                      </Text>
+                      <Text style={[type.caption, { color: theme.colors.textTertiary, textAlign: textAlign('start') }]}>
+                        {a.position} · {analytics.overall.score}/1000
+                      </Text>
+                    </View>
+                    <Text style={[type.label, { color: theme.colors.primary }]}>
+                      {analytics.kpis.find((k) => k.id === 'readiness')?.displayValue ?? '—'}
+                    </Text>
+                    <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={18} color={theme.colors.textTertiary} style={{ marginStart: 8 }} />
+                  </View>
+                </Card>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
         {/* Weekly insight */}
         <View style={[styles.section, { maxWidth: isDesktop ? 1400 : undefined, marginHorizontal: isDesktop ? 'auto' : undefined, width: '100%' }]}>
           <Card variant="gradient" padding="lg" gradientColors={['#0066FF', '#0D9488']} style={{ borderRadius: theme.borderRadius['2xl'] }}>
             <Text style={[type.overline, { color: 'rgba(255,255,255,0.8)', letterSpacing: 2 }]}>
-              {(isRTL ? 'رؤية الأسبوع' : 'WEEKLY INSIGHT').toUpperCase()}
+              {(isRTL ? 'رؤية التحليلات' : 'ANALYTICS INSIGHT').toUpperCase()}
             </Text>
             <Text style={[type.h4, { color: '#FFF', marginTop: theme.spacing[2], textAlign: textAlign('start') }]}>
-              {isRTL ? `حمل الفريق: ${avgLoad} AU` : `Squad load: ${avgLoad} AU`}
+              {teamAnalytics.athleteCount > 0
+                ? isRTL
+                  ? `متوسط الجاهزية: ${teamAnalytics.avgReadiness}%`
+                  : `Avg readiness: ${teamAnalytics.avgReadiness}%`
+                : isRTL
+                  ? 'أضف لاعبين للتحليلات'
+                  : 'Add athletes for analytics'}
             </Text>
             <Text style={[type.bodySm, { color: 'rgba(255,255,255,0.85)', marginTop: theme.spacing[2], textAlign: textAlign('start') }]}>
-              {injuredCount > 0
-                ? isRTL
-                  ? `${injuredCount} لاعب مصاب — خفّف شدة الجلسات 15%.`
-                  : `${injuredCount} injured — reduce session intensity 15%.`
-                : isRTL
-                  ? 'الفريق في حالة جيدة — حافظ على الحمل الحالي.'
-                  : 'Squad in good shape — maintain current load.'}
+              {aiSummary}
             </Text>
           </Card>
         </View>
@@ -542,22 +675,25 @@ export default function DashboardScreen() {
                 </View>
                 <View style={{ flex: 1, marginHorizontal: theme.spacing[4] }}>
                   <Text style={[type.h5, { color: theme.colors.text, marginBottom: theme.spacing[2], textAlign: textAlign('start') }]}>
-                    {athletes.length > 0
+                    {teamAnalytics.athleteCount > 0
                       ? isRTL
-                        ? `${athletes[0].first_name}: اتجاه +${athletes[0].trend_percent}%`
-                        : `${athletes[0].first_name}: +${athletes[0].trend_percent}% trend`
+                        ? 'ملخص التحليلات الذكية'
+                        : 'Analytics AI summary'
                       : t('dashboard.noInsightsYet')}
                   </Text>
                   <Text style={[type.bodySm, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>
-                    {athletes.length > 0
-                      ? isRTL
-                        ? 'المدرب الذكي يوصي بجلسة تعافي نشط غداً بناءً على حمل الأسبوع.'
-                        : 'AI Coach recommends active recovery tomorrow based on weekly load.'
+                    {teamAnalytics.athleteCount > 0
+                      ? aiSummary
                       : isRTL
                         ? 'أضف لاعبين للحصول على توصيات ذكية مخصصة'
                         : 'Add athletes to get personalized AI recommendations'}
                   </Text>
-                  {athletes.length > 0 && (
+                  {teamAnalytics.primaryRecommendation && teamAnalytics.athleteCount > 0 && (
+                    <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: theme.spacing[2], textAlign: textAlign('start') }]}>
+                      {t(teamAnalytics.primaryRecommendation)}
+                    </Text>
+                  )}
+                  {teamAnalytics.athleteCount > 0 && (
                     <TouchableOpacity onPress={() => router.push('/(tabs)/ai-coach' as never)} style={{ marginTop: theme.spacing[3] }}>
                       <Text style={[type.label, { color: theme.colors.primary, textAlign: textAlign('start') }]}>
                         {isRTL ? 'اسأل المدرب الذكي ←' : 'Ask AI Coach →'}

@@ -67,11 +67,16 @@ export default function ReportDetailScreen() {
   };
 
   const sectionBlocks = [
+    { key: 'overall_score', title: t('features.reports.sectionOverallScore'), body: sections.overall_score, icon: 'trophy' as const },
+    { key: 'kpi_summary', title: t('features.reports.sectionKpiSummary'), body: sections.kpi_summary, icon: 'stats-chart' as const },
     { key: 'athlete_summary', title: t('features.reports.sectionAthleteSummary'), body: sections.athlete_summary, icon: 'person' as const },
     { key: 'performance_tests', title: t('features.reports.sectionPerformanceTests'), body: sections.performance_tests, icon: 'analytics' as const },
+    { key: 'strengths', title: t('features.reports.sectionStrengths'), body: sections.strengths, icon: 'arrow-up' as const },
+    { key: 'weaknesses', title: t('features.reports.sectionWeaknesses'), body: sections.weaknesses, icon: 'arrow-down' as const },
     { key: 'ai_insights', title: t('features.reports.sectionAiInsights'), body: sections.ai_insights, icon: 'sparkles' as const },
     { key: 'recommendations', title: t('features.reports.sectionRecommendations'), body: sections.recommendations, icon: 'bulb' as const },
-  ];
+    { key: 'decision_support', title: t('features.reports.sectionDecisionSupport'), body: sections.decision_support, icon: 'checkmark-circle' as const },
+  ].filter((block) => block.body);
 
   return (
     <FeatureScrollScreen title={t('features.reports.detailTitle')}>

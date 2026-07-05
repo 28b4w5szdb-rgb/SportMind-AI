@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { FormSection } from '@/src/components/common/FormSection';
-import { RadarChart, LineTrendChart, BarComparisonChart } from '@/src/components/charts';
+import { RadarChart, LineTrendChart, BarComparisonChart, DonutChart } from '@/src/components/charts';
 import { AnalyticsKpiCard } from './AnalyticsKpiCard';
 import { OverallScoreHero } from './OverallScoreHero';
 import { ModuleListPanel } from './ModuleListPanel';
@@ -27,6 +27,28 @@ export function AthleteAnalyticsSection({ analytics }: AthleteAnalyticsSectionPr
   const monthly = analytics.trends.find((tr) => tr.period === 'monthly');
   const radarAxes = analytics.radarAxes.map((a) => ({ label: t(a.labelKey), value: a.value, max: a.max }));
 
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = { excellent: 0, good: 0, moderate: 0, low: 0, critical: 0 };
+    analytics.overall.modules.forEach((m) => {
+      counts[m.status] = (counts[m.status] ?? 0) + 1;
+    });
+    return counts;
+  }, [analytics.overall.modules]);
+
+  const donutSegments = useMemo(
+    () =>
+      [
+        { key: 'excellent', color: '#10B981', label: t('analytics.status.excellent') },
+        { key: 'good', color: '#0066FF', label: t('analytics.status.good') },
+        { key: 'moderate', color: '#F97316', label: t('analytics.status.moderate') },
+        { key: 'low', color: '#EF4444', label: t('analytics.status.low') },
+        { key: 'critical', color: '#991B1B', label: t('analytics.status.critical') },
+      ]
+        .map((s) => ({ value: statusCounts[s.key] ?? 0, color: s.color, label: s.label }))
+        .filter((s) => s.value > 0),
+    [statusCounts, t]
+  );
+
   return (
     <View style={{ marginBottom: theme.spacing.lg }}>
       <Text style={[type.overline, { color: theme.colors.textTertiary, letterSpacing: 1.5, marginBottom: theme.spacing.md, textAlign: textAlign('start') }]}>
@@ -49,6 +71,9 @@ export function AthleteAnalyticsSection({ analytics }: AthleteAnalyticsSectionPr
       </FormSection>
 
       <FormSection title={t('analytics.breakdownTitle')}>
+        {donutSegments.length > 0 && (
+          <DonutChart segments={donutSegments} size={130} centerLabel={String(analytics.overall.modules.length)} />
+        )}
         {analytics.overall.modules.slice(0, 6).map((mod) => (
           <View key={mod.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
             <View style={{ flex: 1, height: 8, backgroundColor: theme.colors.border, borderRadius: 4, overflow: 'hidden' }}>

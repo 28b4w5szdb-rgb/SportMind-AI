@@ -38,6 +38,11 @@ export default function ReportBuilderScreen() {
   const [performanceTests, setPerformanceTests] = useState('');
   const [aiInsights, setAiInsights] = useState('');
   const [recommendations, setRecommendations] = useState('');
+  const [overallScore, setOverallScore] = useState('');
+  const [kpiSummary, setKpiSummary] = useState('');
+  const [strengths, setStrengths] = useState('');
+  const [weaknesses, setWeaknesses] = useState('');
+  const [decisionSupport, setDecisionSupport] = useState('');
   const [titleError, setTitleError] = useState<string | undefined>();
 
   const selectedAthlete = useAthleteById(athleteId);
@@ -46,12 +51,20 @@ export default function ReportBuilderScreen() {
     return tests.filter((tst) => tst.athlete_id === athleteId);
   }, [tests, athleteId]);
 
-  const autoFillSections = () => {
-    const sections = buildDefaultReportSections(selectedAthlete, athleteTests, summary, isRTL);
+  const applySections = (sections: ReturnType<typeof buildDefaultReportSections>) => {
     setAthleteSummary(sections.athlete_summary);
     setPerformanceTests(sections.performance_tests);
     setAiInsights(sections.ai_insights);
     setRecommendations(sections.recommendations);
+    setOverallScore(sections.overall_score ?? '');
+    setKpiSummary(sections.kpi_summary ?? '');
+    setStrengths(sections.strengths ?? '');
+    setWeaknesses(sections.weaknesses ?? '');
+    setDecisionSupport(sections.decision_support ?? '');
+  };
+
+  const autoFillSections = () => {
+    applySections(buildDefaultReportSections(selectedAthlete, athleteTests, summary, isRTL, t));
   };
 
   const handleSave = () => {
@@ -60,7 +73,7 @@ export default function ReportBuilderScreen() {
       return;
     }
     run(() => {
-      const sections = buildDefaultReportSections(selectedAthlete, athleteTests, summary, isRTL);
+      const sections = buildDefaultReportSections(selectedAthlete, athleteTests, summary, isRTL, t);
       const report = addReport({
         title: title.trim(),
         type: reportType,
@@ -71,6 +84,11 @@ export default function ReportBuilderScreen() {
           performance_tests: performanceTests.trim() || sections.performance_tests,
           ai_insights: aiInsights.trim() || sections.ai_insights,
           recommendations: recommendations.trim() || sections.recommendations,
+          overall_score: overallScore.trim() || sections.overall_score,
+          kpi_summary: kpiSummary.trim() || sections.kpi_summary,
+          strengths: strengths.trim() || sections.strengths,
+          weaknesses: weaknesses.trim() || sections.weaknesses,
+          decision_support: decisionSupport.trim() || sections.decision_support,
         },
       });
       setTimeout(() => router.replace(APP_ROUTES.reportDetail(report.id)), 600);
@@ -133,10 +151,15 @@ export default function ReportBuilderScreen() {
 
       <FormSection title={t('features.reports.sectionsTitle')} subtitle={t('features.reports.sectionsSubtitle')}>
         <Button title={t('features.reports.autoFill')} onPress={autoFillSections} variant="outline" size="small" style={{ marginBottom: theme.spacing.md }} />
-        <Input label={t('features.reports.sectionAthleteSummary')} value={athleteSummary} onChangeText={setAthleteSummary} multiline style={{ minHeight: 72, textAlignVertical: 'top' }} />
+        <Input label={t('features.reports.sectionOverallScore')} value={overallScore} onChangeText={setOverallScore} multiline style={{ minHeight: 56, textAlignVertical: 'top' }} />
+        <Input label={t('features.reports.sectionKpiSummary')} value={kpiSummary} onChangeText={setKpiSummary} multiline containerStyle={{ marginTop: 12 }} style={{ minHeight: 88, textAlignVertical: 'top' }} />
+        <Input label={t('features.reports.sectionAthleteSummary')} value={athleteSummary} onChangeText={setAthleteSummary} multiline containerStyle={{ marginTop: 12 }} style={{ minHeight: 72, textAlignVertical: 'top' }} />
         <Input label={t('features.reports.sectionPerformanceTests')} value={performanceTests} onChangeText={setPerformanceTests} multiline containerStyle={{ marginTop: 12 }} style={{ minHeight: 88, textAlignVertical: 'top' }} />
+        <Input label={t('features.reports.sectionStrengths')} value={strengths} onChangeText={setStrengths} multiline containerStyle={{ marginTop: 12 }} style={{ minHeight: 72, textAlignVertical: 'top' }} />
+        <Input label={t('features.reports.sectionWeaknesses')} value={weaknesses} onChangeText={setWeaknesses} multiline containerStyle={{ marginTop: 12 }} style={{ minHeight: 72, textAlignVertical: 'top' }} />
         <Input label={t('features.reports.sectionAiInsights')} value={aiInsights} onChangeText={setAiInsights} multiline containerStyle={{ marginTop: 12 }} style={{ minHeight: 88, textAlignVertical: 'top' }} />
         <Input label={t('features.reports.sectionRecommendations')} value={recommendations} onChangeText={setRecommendations} multiline containerStyle={{ marginTop: 12 }} style={{ minHeight: 88, textAlignVertical: 'top' }} />
+        <Input label={t('features.reports.sectionDecisionSupport')} value={decisionSupport} onChangeText={setDecisionSupport} multiline containerStyle={{ marginTop: 12 }} style={{ minHeight: 72, textAlignVertical: 'top' }} />
       </FormSection>
 
       <Button

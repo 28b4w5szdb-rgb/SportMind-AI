@@ -37,6 +37,7 @@ import {
 } from '@/src/data/mock/ai-coach';
 import { useActiveConversationMessages } from '@/src/data/mock/hooks';
 import { useMockStore } from '@/src/data/mock/store';
+import { computeAthleteAnalytics } from '@/src/analytics';
 import { copyToClipboard, exportTextPlaceholder } from '@/src/utils/clipboard';
 
 function createMessage(role: AiMessage['role'], content: string, agentId?: AiAgentId): AiMessage {
@@ -77,6 +78,18 @@ export default function AICoachScreen() {
   const setActiveConversation = useMockStore((s) => s.setActiveConversation);
 
   const messages = useActiveConversationMessages();
+  const athletes = useMockStore((s) => s.athletes);
+  const tests = useMockStore((s) => s.tests);
+
+  const analyticsContext = useMemo(() => {
+    const athlete = athletes[0];
+    if (!athlete) return undefined;
+    const athleteTests = tests.filter((tst) => tst.athlete_id === athlete.id);
+    return {
+      primary: computeAthleteAnalytics({ athlete, tests: athleteTests }),
+      athleteName: `${athlete.first_name} ${athlete.last_name}`,
+    };
+  }, [athletes, tests]);
 
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -102,13 +115,13 @@ export default function AICoachScreen() {
       scrollToEnd();
 
       setTimeout(() => {
-        const reply = generateMockResponse(selectedAgent, trimmed, isRTL);
+        const reply = generateMockResponse(selectedAgent, trimmed, isRTL, analyticsContext);
         appendActiveMessage(createMessage('assistant', reply, selectedAgent));
         setIsTyping(false);
         scrollToEnd();
       }, 1400 + Math.random() * 800);
     },
-    [appendActiveMessage, isTyping, isRTL, scrollToEnd, selectedAgent]
+    [analyticsContext, appendActiveMessage, isTyping, isRTL, scrollToEnd, selectedAgent]
   );
 
   const handleNewChat = () => {
@@ -133,12 +146,12 @@ export default function AICoachScreen() {
     setActiveMessages(messages.slice(0, lastAssistantIdx));
     setIsTyping(true);
     setTimeout(() => {
-      const reply = generateMockResponse(selectedAgent, lastUser.content, isRTL);
+      const reply = generateMockResponse(selectedAgent, lastUser.content, isRTL, analyticsContext);
       appendActiveMessage(createMessage('assistant', reply, selectedAgent));
       setIsTyping(false);
       scrollToEnd();
     }, 1200);
-  }, [appendActiveMessage, isRTL, isTyping, messages, scrollToEnd, selectedAgent, setActiveMessages]);
+  }, [analyticsContext, appendActiveMessage, isRTL, isTyping, messages, scrollToEnd, selectedAgent, setActiveMessages]);
 
   const handleExport = () => {
     const body = messages.map((m) => `${m.role}: ${m.content}`).join('\n\n');

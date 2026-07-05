@@ -1,4 +1,8 @@
+import type { TFunction } from 'i18next';
+
 import type { MockAthlete, MockPerformanceTest, MockReportSections } from '@/src/data/mock/types';
+import { computeAthleteAnalytics } from '@/src/analytics';
+import { buildAnalyticsReportSections } from '@/src/analytics/summary/teamOverview';
 
 export function buildPerformanceTestsSummary(tests: MockPerformanceTest[], isRTL: boolean): string {
   if (tests.length === 0) {
@@ -35,13 +39,31 @@ export function buildDefaultReportSections(
   athlete: MockAthlete | undefined,
   tests: MockPerformanceTest[],
   summary: string,
-  isRTL: boolean
+  isRTL: boolean,
+  t?: TFunction
 ): MockReportSections {
-  return {
+  const base: MockReportSections = {
     athlete_summary: summary.trim() || buildAthleteSummary(athlete, isRTL),
     performance_tests: buildPerformanceTestsSummary(tests, isRTL),
     ai_insights: buildMockAiInsights(isRTL),
     recommendations: buildMockRecommendations(isRTL),
+  };
+
+  if (!athlete || !t) return base;
+
+  const analytics = computeAthleteAnalytics({ athlete, tests });
+  const enriched = buildAnalyticsReportSections(analytics, t);
+
+  return {
+    ...base,
+    overall_score: enriched.overall_score,
+    kpi_summary: enriched.kpi_summary,
+    strengths: enriched.strengths,
+    weaknesses: enriched.weaknesses,
+    recommendations: enriched.recommendations,
+    decision_support: enriched.decision_support,
+    ai_insights: `${enriched.kpi_summary}\n\n${base.ai_insights}`,
+    athlete_summary: `${base.athlete_summary}\n\n${enriched.overall_score}`,
   };
 }
 

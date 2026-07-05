@@ -26,6 +26,8 @@ import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
+import { useTeamAnalyticsOverview, buildAiSummaryFromAnalytics } from '@/src/analytics';
+import { ProgressRingChart } from '@/src/components/charts';
 
 const labTools = [
   { id: '1', key: 'lab.newTest', icon: 'analytics' as const, color: '#0066FF', desc: 'Conduct new assessments' },
@@ -64,6 +66,8 @@ export default function PerformanceLabScreen() {
   const { flexRow, textAlign, isRTL } = useDirection();
   const storeTests = useMockStore((s) => s.tests);
   const athletes = useMockStore((s) => s.athletes);
+  const teamAnalytics = useTeamAnalyticsOverview();
+  const analyticsSummary = useMemo(() => buildAiSummaryFromAnalytics(teamAnalytics, isRTL), [teamAnalytics, isRTL]);
   const { width: windowWidth } = useWindowDimensions();
 
   const labStats = useMemo(
@@ -163,6 +167,40 @@ export default function PerformanceLabScreen() {
             {isRTL ? 'تحليل بيانات الأداء وتتبع التقدم' : 'Analyze performance data and track progress'}
           </Text>
         </View>
+
+        {/* Analytics summary */}
+        {teamAnalytics.athleteCount > 0 && (
+          <View
+            style={{
+              marginTop: theme.spacing[5],
+              maxWidth: isDesktop ? 1400 : undefined,
+              marginHorizontal: isDesktop ? 'auto' : undefined,
+              width: '100%',
+            }}
+          >
+            <SectionHeader title={isRTL ? 'ملخص التحليلات' : 'Analytics summary'} />
+            <Text style={[type.caption, { color: theme.colors.textTertiary, marginBottom: theme.spacing[2], textAlign: textAlign('start') }]}>
+              {isRTL ? 'محرك الأداء — بيانات محلية' : 'Performance engine — local mock data'}
+            </Text>
+            <Card variant="elevated" padding="lg" style={{ borderRadius: theme.borderRadius['2xl'], marginTop: theme.spacing[3] }}>
+              <View style={{ flexDirection: flexRow(true), alignItems: 'center', gap: theme.spacing[4] }}>
+                <ProgressRingChart value={teamAnalytics.avgOverallScore} max={1000} size={90} color="#0066FF">
+                  <Text style={[type.label, { color: theme.colors.text }]}>{teamAnalytics.avgOverallScore}</Text>
+                </ProgressRingChart>
+                <View style={{ flex: 1 }}>
+                  <Text style={[type.bodySm, { color: theme.colors.text, textAlign: textAlign('start') }]}>
+                    {analyticsSummary}
+                  </Text>
+                  <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 8, textAlign: textAlign('start') }]}>
+                    {isRTL
+                      ? `جاهزية ${teamAnalytics.avgReadiness}% · إرهاق ${teamAnalytics.avgFatigue}% · خطر ${teamAnalytics.avgInjuryRisk}%`
+                      : `Readiness ${teamAnalytics.avgReadiness}% · Fatigue ${teamAnalytics.avgFatigue}% · Risk ${teamAnalytics.avgInjuryRisk}%`}
+                  </Text>
+                </View>
+              </View>
+            </Card>
+          </View>
+        )}
 
         {/* Lab KPI strip */}
         <View
