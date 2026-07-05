@@ -9,16 +9,20 @@ import type { TestDefinition } from '@/src/features/performance-lab/types';
 import type {
   MockAthlete,
   MockCalculationRecord,
+  DailyCheckIn,
+  DailyCheckInInput,
   MockPerformanceTest,
   MockReport,
   MockResearchProject,
   MockTeam,
   CalculatorType,
 } from './types';
+import { todayDateKey } from '@/src/features/daily-checkin/validation';
 import { computeCalculator } from './calculators';
 import {
   SEED_ATHLETES,
   SEED_CALCULATIONS,
+  SEED_CHECKINS,
   SEED_REPORTS,
   SEED_RESEARCH,
   SEED_TEAMS,
@@ -59,6 +63,7 @@ export interface MockStore {
   favoriteTestKeys: string[];
   recentTestKeys: string[];
   customTestDefinitions: TestDefinition[];
+  dailyCheckIns: DailyCheckIn[];
 
   addAthlete: (input: Omit<MockAthlete, 'id' | 'created_at' | 'tests_count' | 'trend_percent'>) => MockAthlete;
   updateAthlete: (id: string, patch: Partial<MockAthlete>) => void;
@@ -85,6 +90,7 @@ export interface MockStore {
   toggleFavoriteTest: (key: string) => void;
   pushRecentTest: (key: string) => void;
   addCustomTestDefinition: (input: CustomTestInput) => TestDefinition;
+  addDailyCheckIn: (input: DailyCheckInInput) => DailyCheckIn;
 }
 
 function ensureActiveConversation(get: () => MockStore, set: (partial: Partial<MockStore>) => void): string {
@@ -126,6 +132,7 @@ export const useMockStore = create<MockStore>()(
       favoriteTestKeys: [],
       recentTestKeys: [],
       customTestDefinitions: [],
+      dailyCheckIns: SEED_CHECKINS,
 
       addAthlete: (input) => {
         const athlete: MockAthlete = {
@@ -337,6 +344,26 @@ export const useMockStore = create<MockStore>()(
         set((s) => ({ customTestDefinitions: [def, ...s.customTestDefinitions] }));
         return def;
       },
+
+      addDailyCheckIn: (input) => {
+        const date = input.date ?? todayDateKey();
+        const existingIdx = get().dailyCheckIns.findIndex(
+          (c) => c.athlete_id === input.athlete_id && c.date === date
+        );
+        const record: DailyCheckIn = {
+          ...input,
+          id: existingIdx >= 0 ? get().dailyCheckIns[existingIdx].id : uid('checkin'),
+          date,
+          created_at: new Date().toISOString(),
+        };
+        set((s) => ({
+          dailyCheckIns:
+            existingIdx >= 0
+              ? s.dailyCheckIns.map((c, i) => (i === existingIdx ? record : c))
+              : [record, ...s.dailyCheckIns],
+        }));
+        return record;
+      },
     }),
     {
       name: STORAGE_KEY,
@@ -353,6 +380,7 @@ export const useMockStore = create<MockStore>()(
         favoriteTestKeys: state.favoriteTestKeys,
         recentTestKeys: state.recentTestKeys,
         customTestDefinitions: state.customTestDefinitions,
+        dailyCheckIns: state.dailyCheckIns,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

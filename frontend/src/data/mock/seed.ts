@@ -1,6 +1,7 @@
 import type {
   MockAthlete,
   MockCalculationRecord,
+  DailyCheckIn,
   MockPerformanceTest,
   MockReport,
   MockResearchProject,
@@ -96,6 +97,43 @@ export const SEED_TESTS: MockPerformanceTest[] = [
     value: 4.12,
     unit: 's',
     date: '2026-06-27',
+  },
+];
+
+export const SEED_CHECKINS: DailyCheckIn[] = [
+  {
+    id: 'ci1',
+    athlete_id: '1',
+    date: '2026-07-05',
+    created_at: '2026-07-05T07:30:00Z',
+    sleep_duration_hours: 7.5,
+    sleep_quality: 8,
+    fatigue: 3,
+    muscle_soreness: 4,
+    mood: 8,
+    stress: 3,
+    pain_level: 1,
+    hydration_liters: 2.5,
+    morning_heart_rate: 58,
+    rpe: 4,
+    notes: 'Felt fresh after light recovery day.',
+  },
+  {
+    id: 'ci2',
+    athlete_id: '3',
+    date: '2026-07-05',
+    created_at: '2026-07-05T08:00:00Z',
+    sleep_duration_hours: 6,
+    sleep_quality: 5,
+    fatigue: 6,
+    muscle_soreness: 7,
+    mood: 5,
+    stress: 5,
+    pain_level: 4,
+    hydration_liters: 1.8,
+    morning_heart_rate: 64,
+    rpe: 3,
+    notes: 'Hamstring tightness during warm-up.',
   },
 ];
 

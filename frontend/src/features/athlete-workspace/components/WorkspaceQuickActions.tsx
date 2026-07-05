@@ -21,6 +21,7 @@ const ACTIONS: Array<{
   color: string;
 }> = [
   { id: 'add_test', icon: 'analytics', labelKey: 'athleteWorkspace.actions.addTest', color: '#0066FF' },
+  { id: 'daily_checkin', icon: 'heart-circle', labelKey: 'athleteWorkspace.actions.dailyCheckIn', color: '#10B981' },
   { id: 'edit_athlete', icon: 'create-outline', labelKey: 'athleteWorkspace.actions.editAthlete', color: '#0D9488' },
   { id: 'create_report', icon: 'document-text', labelKey: 'athleteWorkspace.actions.createReport', color: '#8B5CF6' },
   { id: 'compare', icon: 'git-compare', labelKey: 'athleteWorkspace.actions.compare', color: '#F97316' },
@@ -39,6 +40,9 @@ export function WorkspaceQuickActions({ athlete }: WorkspaceQuickActionsProps) {
     switch (id) {
       case 'add_test':
         router.push(APP_ROUTES.performanceLabLibrary);
+        break;
+      case 'daily_checkin':
+        router.push(APP_ROUTES.dailyCheckIn(athlete.id));
         break;
       case 'edit_athlete':
         router.push(APP_ROUTES.athleteEdit(athlete.id));

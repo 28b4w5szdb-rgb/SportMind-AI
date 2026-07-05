@@ -78,23 +78,31 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
       recommendationKey: base < 55 ? 'analytics.rec.flexibility' : undefined,
     };
   },
-  recovery: (s) => ({
-    score: clamp(s.status === 'rest' ? 78 : s.status === 'injured' ? 42 : 68 + s.trendPercent * 0.5),
-    trendDelta: s.trendPercent * 0.4,
-    recommendationKey: s.status === 'injured' ? 'analytics.rec.recovery' : undefined,
-  }),
+  recovery: (s) => {
+    const base = clamp(s.status === 'rest' ? 78 : s.status === 'injured' ? 42 : 68 + s.trendPercent * 0.5);
+    const checkInScore = s.checkIn?.recoveryScore;
+    const score = checkInScore !== undefined ? clamp(base * 0.45 + checkInScore * 0.55) : base;
+    return {
+      score,
+      trendDelta: s.trendPercent * 0.4 + (checkInScore !== undefined ? (checkInScore - 50) * 0.08 : 0),
+      recommendationKey: score < 55 ? 'analytics.rec.recovery' : undefined,
+    };
+  },
   training_load: (s) => ({
     score: clamp(70 + s.testsCount * 0.8 - Math.abs(s.trendPercent) * 0.3),
     trendDelta: s.trendPercent * 0.2,
   }),
   fatigue: (s) => {
     const rsi = signal(s, 'cmj_rsi');
-    const fatigueScore = clamp(
+    let fatigueScore = clamp(
       75 - s.testsCount * 0.6 + (s.status === 'rest' ? 12 : 0) - Math.max(0, s.trendPercent) * 0.4 - (rsi !== undefined && rsi < 1.2 ? 8 : 0)
     );
+    if (s.checkIn) {
+      fatigueScore = clamp(fatigueScore - (s.checkIn.fatigue - 5) * 5 - (s.checkIn.rpe - 5) * 2);
+    }
     return {
       score: fatigueScore,
-      trendDelta: -s.trendPercent * 0.25,
+      trendDelta: -s.trendPercent * 0.25 + (s.checkIn ? -(s.checkIn.fatigue - 5) * 0.4 : 0),
       recommendationKey: fatigueScore < 50 ? 'analytics.rec.fatigue' : undefined,
     };
   },
@@ -107,21 +115,39 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
     if (balance !== undefined && balance < 90) risk -= 10;
     const fms = signal(s, 'fms');
     if (fms !== undefined && fms < 12) risk -= 12;
+    if (s.checkIn) {
+      risk -= s.checkIn.painLevel * 3.5;
+      risk -= Math.max(0, s.checkIn.muscleSoreness - 5) * 2.5;
+      risk -= Math.max(0, s.checkIn.stress - 6) * 1.5;
+      if (s.checkIn.recoveryScore < 45) risk -= 8;
+    }
     return {
       score: clamp(risk),
       trendDelta: s.trendPercent * 0.5,
       recommendationKey: risk < 50 ? 'analytics.rec.injury' : undefined,
     };
   },
-  readiness: (s) => ({
-    score: clamp(
+  readiness: (s) => {
+    let score = clamp(
       (s.status === 'active' ? 78 : s.status === 'rest' ? 65 : 40) +
         s.trendPercent * 0.6 +
         Math.min(10, s.testsCount / 3) +
         (signal(s, 'visual_reaction') !== undefined ? normTest(signal(s, 'visual_reaction'), 260, 180, true) * 0.08 : 0)
-    ),
-    trendDelta: s.trendPercent * 0.45,
-  }),
+    );
+    if (s.checkIn) {
+      score = clamp(
+        score * 0.5 +
+          s.checkIn.recoveryScore * 0.35 +
+          (s.checkIn.mood - 5) * 3 +
+          (s.checkIn.sleepQuality - 5) * 2 -
+          (s.checkIn.fatigue - 5) * 2.5
+      );
+    }
+    return {
+      score,
+      trendDelta: s.trendPercent * 0.45 + (s.checkIn ? (s.checkIn.recoveryScore - 50) * 0.06 : 0),
+    };
+  },
   training_compliance: (s) => ({
     score: clamp(50 + Math.min(45, s.testsCount * 1.8) + (signal(s, 'custom_test') !== undefined ? 5 : 0)),
     trendDelta: s.trendPercent * 0.1,

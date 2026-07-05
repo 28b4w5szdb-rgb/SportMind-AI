@@ -133,4 +133,17 @@ export interface AnalyticsRawSignals {
   heightCm?: number;
   weightKg?: number;
   testSignals: Partial<Record<string, number>>;
+  checkIn?: {
+    recoveryScore: number;
+    sleepQuality: number;
+    sleepDurationHours: number;
+    fatigue: number;
+    muscleSoreness: number;
+    mood: number;
+    stress: number;
+    painLevel: number;
+    hydrationLiters: number;
+    morningHeartRate: number;
+    rpe: number;
+  };
 }

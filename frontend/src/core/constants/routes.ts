@@ -39,6 +39,10 @@ export const APP_ROUTES = {
   performanceLabResult: (id: string): Href => `/performance-lab/result/${id}` as Href,
   performanceLabLibrary: '/performance-lab/library' as Href,
   performanceLabCustomNew: '/performance-lab/custom/new' as Href,
+  dailyCheckIn: (athleteId?: string): Href =>
+    (athleteId ? `/check-in?athleteId=${encodeURIComponent(athleteId)}` : '/check-in') as Href,
+  recoveryCenter: (athleteId?: string): Href =>
+    (athleteId ? `/recovery?athleteId=${encodeURIComponent(athleteId)}` : '/recovery') as Href,
   knowledgeCategory: (key: string): Href => `/knowledge/${key}` as Href,
   settings: '/settings' as Href,
   help: '/help' as Href,

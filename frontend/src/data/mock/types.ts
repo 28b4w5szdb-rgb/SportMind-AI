@@ -103,6 +103,27 @@ export interface MockCalculationRecord {
   created_at: string;
 }
 
+/** Daily wellness check-in — local mock, aligned for future Supabase wiring. */
+export interface DailyCheckIn {
+  id: string;
+  athlete_id: string;
+  date: string;
+  created_at: string;
+  sleep_duration_hours: number;
+  sleep_quality: number;
+  fatigue: number;
+  muscle_soreness: number;
+  mood: number;
+  stress: number;
+  pain_level: number;
+  hydration_liters: number;
+  morning_heart_rate: number;
+  rpe: number;
+  notes?: string;
+}
+
+export type DailyCheckInInput = Omit<DailyCheckIn, 'id' | 'created_at' | 'date'> & { date?: string };
+
 export interface CalculatorDefinition {
   id: CalculatorType;
   icon: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap;

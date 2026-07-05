@@ -781,12 +781,89 @@
     },
     "actions": {
       "addTest": "إضافة اختبار",
+      "dailyCheckIn": "تسجيل يومي",
       "editAthlete": "تعديل اللاعب",
       "createReport": "إنشاء تقرير",
       "compare": "مقارنة",
       "askAi": "اسأل AI Coach",
       "export": "تصدير الملف",
       "exportHint": "تصدير الملف متاح في إصدار لاحق."
+    },
+    "checkInTitle": "العافية اليومية",
+    "checkInSubtitle": "أحدث بيانات التسجيل الصباحي",
+    "checkInCta": "تسجيل",
+    "latestCheckIn": "آخر تسجيل",
+    "noCheckIn": "لا يوجد تسجيل — ابدأ سجل العافية لليوم."
+  },
+  "dailyCheckIn": {
+    "title": "التسجيل اليومي",
+    "subtitle": "سجّل النوم والعافية ومؤشرات الجاهزية",
+    "selectAthlete": "اختر اللاعب",
+    "submit": "حفظ التسجيل",
+    "success": "تم حفظ التسجيل — تم تحديث ملف التعافي",
+    "sections": {
+      "sleep": "النوم",
+      "sleepHint": "المدة والجودة الذاتية لليلة الماضية",
+      "wellness": "العافية والإجهاد العضلي",
+      "wellnessHint": "مؤشرات ذاتية على مقياس 1–10",
+      "physiology": "العلامات الفسيولوجية",
+      "physiologyHint": "الترطيب، HR الصباحي، وRPE الجلسة",
+      "notes": "ملاحظات"
+    },
+    "fields": {
+      "sleepDuration": "مدة النوم",
+      "sleepQuality": "جودة النوم",
+      "fatigue": "الإرهاق",
+      "soreness": "إجهاد عضلي (DOMS)",
+      "mood": "المزاج",
+      "stress": "التوتر",
+      "pain": "مستوى الألم",
+      "hydration": "الترطيب",
+      "heartRate": "نبض الصباح",
+      "rpe": "RPE (حمل الجلسة)",
+      "rpeHint": "معدل الجهد المدرك من التدريب الأخير",
+      "notes": "ملاحظات المدرب / اللاعب",
+      "notesPlaceholder": "ملاحظات اختيارية…"
+    },
+    "units": {
+      "hours": "س"
+    },
+    "validation": {
+      "athleteRequired": "اختر لاعباً",
+      "sleepDuration": "مدة النوم بين 0 و14 ساعة",
+      "scale": "القيمة بين 1 و10",
+      "pain": "الألم بين 0 و10",
+      "hydration": "الترطيب بين 0 و6 لتر",
+      "heartRate": "النبض بين 35 و120 bpm",
+      "notesLength": "الملاحظات 500 حرف كحد أقصى"
+    }
+  },
+  "recovery": {
+    "title": "مركز التعافي",
+    "subtitle": "ذكاء التعافي اليومي من التسجيلات",
+    "centerSubtitle": "راقب درجة التعافي والإرشادات",
+    "openCenter": "فتح المركز",
+    "dailyScore": "تعافٍ يومي",
+    "scoreLabel": "درجة التعافي",
+    "readinessImpact": "تأثير الجاهزية: {{value}} نقطة",
+    "sleep": "النوم",
+    "fatigue": "الإرهاق",
+    "soreness": "الإجهاد",
+    "hydration": "الترطيب",
+    "recommendationsTitle": "توصيات التعافي",
+    "allGood": "مؤشرات التعافي مستقرة — حافظ على الخطة الحالية.",
+    "empty": "أكمل تسجيلاً يومياً لتوليد رؤى التعافي.",
+    "recommendations": {
+      "reduceLoadTitle": "خفّض حمل التدريب",
+      "reduceLoad": "الإرهاق وRPE مرتفعان. خفّف الحجم أو الشدة 24–48 ساعة.",
+      "recoverySessionTitle": "جدولة جلسة تعافٍ",
+      "recoverySession": "أضف تعافياً نشطاً: مشي مائي، دراجة خفيفة، أو تنفس.",
+      "hydrationTitle": "تذكير الترطيب",
+      "hydration": "السوائل دون الهدف. استهدف 2–3 لتراً يومياً.",
+      "sleepTitle": "تحسين النوم",
+      "sleep": "أولِ 7–9 س نوم مع وقت نوم ثابت وتقليل الشاشات.",
+      "mobilityTitle": "حركية وتمدد",
+      "mobility": "أضف حركية مستهدفة للمناطق المجهدة مع ROM آمن."
     }
   }
 }

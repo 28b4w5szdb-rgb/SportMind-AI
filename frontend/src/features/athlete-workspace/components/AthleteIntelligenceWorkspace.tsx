@@ -9,6 +9,8 @@ import { WorkspaceQuickActions } from './WorkspaceQuickActions';
 import { WorkspaceKpiGrid } from './WorkspaceKpiGrid';
 import { WorkspaceLatestStrip } from './WorkspaceLatestStrip';
 import { BodyMuscleMapPlaceholder } from './BodyMuscleMapPlaceholder';
+import { WorkspaceCheckInStrip } from './WorkspaceCheckInStrip';
+import { WorkspaceRecoverySection } from './WorkspaceRecoverySection';
 import { WorkspaceAnalyticsPanel } from './WorkspaceAnalyticsPanel';
 import { AthleteTimelineSection } from './AthleteTimelineSection';
 import { WorkspaceGoalsSection } from './WorkspaceGoalsSection';
@@ -34,6 +36,8 @@ export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: Athl
         latestRecommendation={workspace.latestRecommendation}
         daysSinceInjury={workspace.daysSinceInjury}
       />
+      <WorkspaceCheckInStrip athleteId={athlete.id} checkIn={workspace.latestCheckIn} />
+      <WorkspaceRecoverySection athleteId={athlete.id} checkIn={workspace.latestCheckIn} />
       <BodyMuscleMapPlaceholder modules={analytics.overall.modules} />
       <WorkspaceAnalyticsPanel analytics={analytics} />
       <AthleteTimelineSection events={workspace.timeline} />

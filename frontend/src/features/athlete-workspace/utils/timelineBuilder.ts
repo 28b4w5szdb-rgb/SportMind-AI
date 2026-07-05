@@ -1,5 +1,5 @@
 import type { RecommendationItem } from '@/src/analytics/types';
-import type { MockAthlete, MockPerformanceTest, MockReport } from '@/src/data/mock/types';
+import type { MockAthlete, MockPerformanceTest, MockReport, DailyCheckIn } from '@/src/data/mock/types';
 import type { AthleteTimelineEvent } from '../types';
 
 const MOCK_EXTRAS: Record<
@@ -140,7 +140,8 @@ export function buildAthleteTimeline(
   athlete: MockAthlete,
   tests: MockPerformanceTest[],
   reports: MockReport[],
-  recommendations: RecommendationItem[]
+  recommendations: RecommendationItem[],
+  latestCheckIn?: DailyCheckIn
 ): AthleteTimelineEvent[] {
   const athleteTests = tests.filter((t) => t.athlete_id === athlete.id).map(testToEvent);
   const athleteReports = reports
@@ -153,8 +154,22 @@ export function buildAthleteTimeline(
     athleteId: athlete.id,
   }));
   const aiEvents = recommendations.slice(0, 2).map((r, i) => recommendationToEvent(r, athlete.id, i));
+  const checkInEvents: AthleteTimelineEvent[] = latestCheckIn
+    ? [
+        {
+          id: `checkin_${latestCheckIn.id}`,
+          athleteId: athlete.id,
+          type: 'recovery',
+          titleEn: 'Daily wellness check-in',
+          titleAr: 'تسجيل يومي للعافية',
+          subtitleEn: `Recovery score context · fatigue ${latestCheckIn.fatigue}/10`,
+          subtitleAr: `سياق التعافي · إرهاق ${latestCheckIn.fatigue}/10`,
+          date: latestCheckIn.date,
+        },
+      ]
+    : [];
 
-  return [...athleteTests, ...athleteReports, ...extras, ...aiEvents].sort(
+  return [...checkInEvents, ...athleteTests, ...athleteReports, ...extras, ...aiEvents].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 }

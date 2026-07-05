@@ -1,4 +1,4 @@
-import type { MockAthlete, MockPerformanceTest } from '@/src/data/mock/types';
+import type { MockAthlete, MockPerformanceTest, DailyCheckIn } from '@/src/data/mock/types';
 import type { AnalyticsEngineContext, AthleteAnalyticsSnapshot } from '../types';
 import { buildRawSignals, ageFromDob } from '../input/buildSignals';
 import { scoreAllModules, computeOverallScore } from '../scoring/moduleScorer';
@@ -12,11 +12,12 @@ import { ANALYTICS_MODULES } from '../registry/modules';
 export interface PerformanceAnalyticsInput {
   athlete: MockAthlete;
   tests: MockPerformanceTest[];
+  checkIn?: DailyCheckIn;
   context?: Partial<AnalyticsEngineContext>;
 }
 
 export function computeAthleteAnalytics(input: PerformanceAnalyticsInput): AthleteAnalyticsSnapshot {
-  const signals = buildRawSignals(input.athlete, input.tests);
+  const signals = buildRawSignals(input.athlete, input.tests, input.checkIn);
   const modules = scoreAllModules(signals);
   const context: AnalyticsEngineContext = {
     athleteId: input.athlete.id,

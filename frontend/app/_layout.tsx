@@ -57,6 +57,8 @@ function AppShell() {
         <Stack.Screen name="team-management" />
         <Stack.Screen name="settings" />
         <Stack.Screen name="athletes" />
+        <Stack.Screen name="check-in" />
+        <Stack.Screen name="recovery" />
         <Stack.Screen name="performance-lab" />
         <Stack.Screen name="help" />
         <Stack.Screen name="knowledge" />

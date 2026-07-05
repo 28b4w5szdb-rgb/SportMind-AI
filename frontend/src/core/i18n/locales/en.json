@@ -777,12 +777,89 @@
     },
     "actions": {
       "addTest": "Add test",
+      "dailyCheckIn": "Daily check-in",
       "editAthlete": "Edit athlete",
       "createReport": "Create report",
       "compare": "Compare",
       "askAi": "Ask AI Coach",
       "export": "Export profile",
       "exportHint": "Profile export will be available in a future release."
+    },
+    "checkInTitle": "Daily wellness",
+    "checkInSubtitle": "Latest morning check-in data",
+    "checkInCta": "Log check-in",
+    "latestCheckIn": "Latest check-in",
+    "noCheckIn": "No check-in logged yet — start today's wellness log."
+  },
+  "dailyCheckIn": {
+    "title": "Daily Check-in",
+    "subtitle": "Log sleep, wellness, and readiness markers",
+    "selectAthlete": "Select athlete",
+    "submit": "Save check-in",
+    "success": "Check-in saved — recovery profile updated",
+    "sections": {
+      "sleep": "Sleep",
+      "sleepHint": "Duration and subjective quality from last night",
+      "wellness": "Wellness & soreness",
+      "wellnessHint": "Subjective markers on a 1–10 scale",
+      "physiology": "Physiology",
+      "physiologyHint": "Hydration, resting HR, and session RPE",
+      "notes": "Notes"
+    },
+    "fields": {
+      "sleepDuration": "Sleep duration",
+      "sleepQuality": "Sleep quality",
+      "fatigue": "Fatigue",
+      "soreness": "Muscle soreness (DOMS)",
+      "mood": "Mood",
+      "stress": "Stress",
+      "pain": "Pain level",
+      "hydration": "Hydration",
+      "heartRate": "Morning heart rate",
+      "rpe": "RPE (session load)",
+      "rpeHint": "Rate of perceived exertion from recent training",
+      "notes": "Coach / athlete notes",
+      "notesPlaceholder": "Optional observations…"
+    },
+    "units": {
+      "hours": "h"
+    },
+    "validation": {
+      "athleteRequired": "Select an athlete",
+      "sleepDuration": "Sleep duration must be between 0 and 14 hours",
+      "scale": "Value must be between 1 and 10",
+      "pain": "Pain level must be between 0 and 10",
+      "hydration": "Hydration must be between 0 and 6 liters",
+      "heartRate": "Heart rate must be between 35 and 120 bpm",
+      "notesLength": "Notes must be 500 characters or fewer"
+    }
+  },
+  "recovery": {
+    "title": "Recovery Center",
+    "subtitle": "Daily recovery intelligence from check-ins",
+    "centerSubtitle": "Monitor recovery score and actionable guidance",
+    "openCenter": "Open center",
+    "dailyScore": "Daily recovery",
+    "scoreLabel": "Recovery score",
+    "readinessImpact": "Readiness impact: {{value}} pts",
+    "sleep": "Sleep",
+    "fatigue": "Fatigue",
+    "soreness": "Soreness",
+    "hydration": "Hydration",
+    "recommendationsTitle": "Recovery recommendations",
+    "allGood": "Recovery markers look stable — maintain current plan.",
+    "empty": "Complete a daily check-in to generate recovery insights.",
+    "recommendations": {
+      "reduceLoadTitle": "Reduce training load",
+      "reduceLoad": "Fatigue and RPE are elevated. Lower volume or intensity for 24–48 hours.",
+      "recoverySessionTitle": "Schedule recovery session",
+      "recoverySession": "Add active recovery: pool walk, light bike, or breathing work.",
+      "hydrationTitle": "Hydration reminder",
+      "hydration": "Fluid intake is below target. Aim for 2–3 L across the day.",
+      "sleepTitle": "Improve sleep",
+      "sleep": "Prioritize 7–9 h sleep with consistent bedtime and reduced screen time.",
+      "mobilityTitle": "Mobility & stretching",
+      "mobility": "Add targeted mobility for sore regions and pain-aware ROM work."
     }
   }
 }

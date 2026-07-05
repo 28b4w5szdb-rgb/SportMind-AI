@@ -6,11 +6,13 @@ import { useMemo } from 'react';
 
 import type { AiMessage } from './ai-coach';
 import { useMockStore } from './store';
-import type { MockAthlete, MockPerformanceTest, MockReport, MockResearchProject, MockTeam } from './types';
+import type { MockAthlete, MockPerformanceTest, MockReport, MockResearchProject, MockTeam, DailyCheckIn } from './types';
+import { getLatestCheckIn } from '@/src/features/daily-checkin/validation';
 
 const EMPTY_MESSAGES: AiMessage[] = [];
 const EMPTY_TESTS: MockPerformanceTest[] = [];
 const EMPTY_ATHLETES: MockAthlete[] = [];
+const EMPTY_CHECKINS: DailyCheckIn[] = [];
 
 export function useAthleteById(id: string | undefined): MockAthlete | undefined {
   return useMockStore((s) => (id ? s.athletes.find((a) => a.id === id) : undefined));
@@ -32,6 +34,23 @@ export function useActiveConversationMessages(): AiMessage[] {
     if (!activeConversationId) return EMPTY_MESSAGES;
     return conversations.find((c) => c.id === activeConversationId)?.messages ?? EMPTY_MESSAGES;
   }, [activeConversationId, conversations]);
+}
+
+export function useLatestCheckInForAthlete(athleteId: string | undefined): DailyCheckIn | undefined {
+  const dailyCheckIns = useMockStore((s) => s.dailyCheckIns);
+  return useMemo(() => {
+    if (!athleteId) return undefined;
+    return getLatestCheckIn(dailyCheckIns, athleteId);
+  }, [dailyCheckIns, athleteId]);
+}
+
+export function useCheckInsForAthlete(athleteId: string | undefined): DailyCheckIn[] {
+  const dailyCheckIns = useMockStore((s) => s.dailyCheckIns);
+  return useMemo(() => {
+    if (!athleteId) return EMPTY_CHECKINS;
+    const filtered = dailyCheckIns.filter((c) => c.athlete_id === athleteId);
+    return filtered.length > 0 ? filtered : EMPTY_CHECKINS;
+  }, [dailyCheckIns, athleteId]);
 }
 
 export function useReportById(id: string | undefined): MockReport | undefined {
