@@ -6,6 +6,12 @@ import { computeTeamOverview, type TeamAnalyticsOverview } from '../summary/team
 export function useTeamAnalyticsOverview(): TeamAnalyticsOverview {
   const athletes = useMockStore((s) => s.athletes);
   const tests = useMockStore((s) => s.tests);
+  const dailyCheckIns = useMockStore((s) => s.dailyCheckIns);
+  const injuryRecords = useMockStore((s) => s.injuryRecords);
+  const trainingPlans = useMockStore((s) => s.trainingPlans);
 
-  return useMemo(() => computeTeamOverview(athletes, tests), [athletes, tests]);
+  return useMemo(
+    () => computeTeamOverview(athletes, tests, dailyCheckIns, injuryRecords, trainingPlans),
+    [athletes, tests, dailyCheckIns, injuryRecords, trainingPlans]
+  );
 }

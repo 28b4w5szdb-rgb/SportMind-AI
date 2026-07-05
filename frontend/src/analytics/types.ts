@@ -146,4 +146,19 @@ export interface AnalyticsRawSignals {
     morningHeartRate: number;
     rpe: number;
   };
+  training?: {
+    compliancePercent: number;
+    plannedSessions: number;
+    completedSessions: number;
+    skippedSessions: number;
+    modifiedSessions: number;
+    weeklyPlannedLoad: number;
+    weeklyActualLoad: number;
+    acuteLoad: number;
+    chronicLoad: number;
+    acwr: number;
+    avgSessionRpe?: number;
+    avgPostFatigue?: number;
+    avgPostPain?: number;
+  };
 }

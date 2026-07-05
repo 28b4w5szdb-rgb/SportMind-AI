@@ -202,7 +202,33 @@ const seedPlanAthlete1 = generateWeeklyProgram(
   '2026-06-30'
 );
 seedPlanAthlete1.sessions[0].status = 'completed';
+seedPlanAthlete1.sessions[0].execution = {
+  actual_duration_min: 58,
+  actual_rpe: 7,
+  actual_session_load: 406,
+  post_session_fatigue: 5,
+  post_session_pain: 1,
+  notes: 'Good quality session.',
+  logged_at: '2026-06-30T18:00:00Z',
+};
 seedPlanAthlete1.sessions[1].status = 'completed';
-seedPlanAthlete1.sessions[2].status = 'completed';
+seedPlanAthlete1.sessions[1].execution = {
+  actual_duration_min: 48,
+  actual_rpe: 8,
+  actual_session_load: 384,
+  post_session_fatigue: 6,
+  post_session_pain: 2,
+  logged_at: '2026-07-01T17:30:00Z',
+};
+seedPlanAthlete1.sessions[2].status = 'modified';
+seedPlanAthlete1.sessions[2].execution = {
+  actual_duration_min: 40,
+  actual_rpe: 6,
+  actual_session_load: 240,
+  post_session_fatigue: 4,
+  post_session_pain: 1,
+  notes: 'Reduced volume due to tightness.',
+  logged_at: '2026-07-02T16:00:00Z',
+};
 
 export const SEED_TRAINING_PLANS: TrainingPlan[] = [seedPlanAthlete1];

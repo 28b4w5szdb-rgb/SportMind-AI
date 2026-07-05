@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
 import type { MockAthlete } from '@/src/data/mock/types';
+import { useActiveTrainingPlanForAthlete } from '@/src/data/mock/hooks';
+import { findTodaySession, todayDateKey } from '@/src/features/training-builder';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
@@ -25,6 +27,7 @@ const ACTIONS: Array<{
   { id: 'add_injury', icon: 'medkit', labelKey: 'athleteWorkspace.actions.addInjury', color: '#EF4444' },
   { id: 'injury_prevention', icon: 'shield-checkmark', labelKey: 'athleteWorkspace.actions.injuryPrevention', color: '#8B5CF6' },
   { id: 'training_builder', icon: 'barbell', labelKey: 'athleteWorkspace.actions.trainingBuilder', color: '#0066FF' },
+  { id: 'log_session', icon: 'checkmark-done', labelKey: 'athleteWorkspace.actions.logSession', color: '#0D9488' },
   { id: 'edit_athlete', icon: 'create-outline', labelKey: 'athleteWorkspace.actions.editAthlete', color: '#0D9488' },
   { id: 'create_report', icon: 'document-text', labelKey: 'athleteWorkspace.actions.createReport', color: '#8B5CF6' },
   { id: 'compare', icon: 'git-compare', labelKey: 'athleteWorkspace.actions.compare', color: '#F97316' },
@@ -38,6 +41,8 @@ export function WorkspaceQuickActions({ athlete }: WorkspaceQuickActionsProps) {
   const theme = useTheme();
   const type = useTypography();
   const { flexRow, isRTL } = useDirection();
+  const activePlan = useActiveTrainingPlanForAthlete(athlete.id);
+  const todaySession = useMemo(() => findTodaySession(activePlan, todayDateKey()), [activePlan]);
 
   const handlePress = (id: QuickActionId) => {
     switch (id) {
@@ -55,6 +60,13 @@ export function WorkspaceQuickActions({ athlete }: WorkspaceQuickActionsProps) {
         break;
       case 'training_builder':
         router.push(APP_ROUTES.trainingBuilder(athlete.id));
+        break;
+      case 'log_session':
+        if (todaySession) {
+          router.push(APP_ROUTES.logTrainingSession(todaySession.id, athlete.id));
+        } else {
+          router.push(APP_ROUTES.trainingBuilder(athlete.id));
+        }
         break;
       case 'edit_athlete':
         router.push(APP_ROUTES.athleteEdit(athlete.id));

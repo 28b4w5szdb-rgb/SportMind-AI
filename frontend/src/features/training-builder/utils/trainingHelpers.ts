@@ -5,6 +5,7 @@ import type { TrainingPlan } from '../types';
 import type { TrainingBuilderSnapshot } from '../types';
 import {
   buildTrainingRecommendations,
+  computeCompliance,
   computeLoadSnapshot,
   computePlanProgress,
   deriveGoalKey,
@@ -59,6 +60,7 @@ export function buildTrainingBuilderSnapshot(
   const activePlan = athletePlans.find((p) => p.is_active) ?? athletePlans[0];
   const engineInput = buildTrainingEngineInput(athlete, analytics, injuries);
   const load = computeLoadSnapshot(activePlan, athletePlans, referenceDate);
+  const compliance = computeCompliance(activePlan, referenceDate);
   const recommendations = buildTrainingRecommendations(load, engineInput);
 
   const todaySession = findTodaySession(activePlan, referenceDate);
@@ -69,6 +71,7 @@ export function buildTrainingBuilderSnapshot(
       weekday: s.weekday,
       templateId: s.templateId,
       load: s.session_load,
+      actualLoad: s.execution?.actual_session_load ?? (s.status === 'skipped' ? 0 : s.session_load),
       status: s.status,
     })) ?? [];
 
@@ -77,6 +80,7 @@ export function buildTrainingBuilderSnapshot(
     todaySession,
     nextSession,
     load,
+    compliance,
     progressPercent: activePlan ? computePlanProgress(activePlan) : 0,
     recommendations,
     weeklyOverview,

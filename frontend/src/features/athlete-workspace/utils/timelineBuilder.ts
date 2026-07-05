@@ -1,5 +1,6 @@
 import type { RecommendationItem } from '@/src/analytics/types';
 import type { MockAthlete, MockPerformanceTest, MockReport, DailyCheckIn, InjuryRecord, TrainingPlan } from '@/src/data/mock/types';
+import { sessionTimelineCopy } from '@/src/features/training-builder';
 import type { AthleteTimelineEvent } from '../types';
 
 const MOCK_EXTRAS: Record<
@@ -173,18 +174,21 @@ export function buildAthleteTimeline(
     .filter((p) => p.athlete_id === athlete.id)
     .flatMap((p) =>
       p.sessions
-        .filter((s) => s.status === 'completed' || s.status === 'planned')
-        .slice(0, 6)
-        .map((s) => ({
-          id: `training_${s.id}`,
-          athleteId: athlete.id,
-          type: 'training' as const,
-          titleEn: s.titleKey,
-          titleAr: s.titleKey,
-          subtitleEn: `${s.duration_min} min · RPE ${s.target_rpe} · ${s.session_load} AU · ${s.status}`,
-          subtitleAr: `${s.duration_min} د · RPE ${s.target_rpe} · ${s.session_load} AU · ${s.status}`,
-          date: s.date,
-        }))
+        .filter((s) => s.status !== 'planned' || s.date <= new Date().toISOString().slice(0, 10))
+        .slice(0, 8)
+        .map((s) => {
+          const copy = sessionTimelineCopy(s);
+          return {
+            id: `training_${s.id}`,
+            athleteId: athlete.id,
+            type: 'training' as const,
+            titleEn: copy.titleEn,
+            titleAr: copy.titleAr,
+            subtitleEn: copy.subtitleEn,
+            subtitleAr: copy.subtitleAr,
+            date: s.execution?.logged_at?.slice(0, 10) ?? s.date,
+          };
+        })
     );
 
   return [...injuryEvents, ...trainingEvents, ...checkInEvents, ...athleteTests, ...athleteReports, ...extras, ...aiEvents].sort(

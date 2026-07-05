@@ -1,5 +1,6 @@
 import type {
   AcwrZone,
+  TrainingComplianceSnapshot,
   TrainingDailySession,
   TrainingEngineInput,
   TrainingLoadSnapshot,
@@ -178,11 +179,53 @@ export function generateWeeklyProgram(input: TrainingEngineInput, weekStart?: st
 }
 
 export function computeSessionLoad(session: TrainingDailySession): number {
+  if (session.status === 'skipped') return 0;
+  if (session.execution) return session.execution.actual_session_load;
+  return session.duration_min * session.target_rpe;
+}
+
+export function computePlannedSessionLoad(session: TrainingDailySession): number {
   return session.duration_min * session.target_rpe;
 }
 
 export function computeWeeklyLoad(sessions: TrainingDailySession[]): number {
   return sessions.reduce((sum, s) => sum + computeSessionLoad(s), 0);
+}
+
+export function computeWeeklyPlannedLoad(sessions: TrainingDailySession[]): number {
+  return sessions.reduce((sum, s) => sum + computePlannedSessionLoad(s), 0);
+}
+
+export function computeWeeklyActualLoad(sessions: TrainingDailySession[]): number {
+  return sessions.reduce((sum, s) => {
+    if (s.status === 'skipped') return sum;
+    if (s.execution) return sum + s.execution.actual_session_load;
+    if (s.status === 'completed' || s.status === 'modified') {
+      return sum + s.duration_min * s.target_rpe;
+    }
+    return sum;
+  }, 0);
+}
+
+export function computeCompliance(plan: TrainingPlan | undefined, referenceDate: string): TrainingComplianceSnapshot {
+  if (!plan || plan.sessions.length === 0) {
+    return { planned: 0, completed: 0, skipped: 0, modified: 0, missed: 0, compliancePercent: 0 };
+  }
+
+  const ref = parseDateKey(referenceDate).getTime();
+  const sessions = plan.sessions;
+  const planned = sessions.length;
+  const completed = sessions.filter((s) => s.status === 'completed').length;
+  const skipped = sessions.filter((s) => s.status === 'skipped').length;
+  const modified = sessions.filter((s) => s.status === 'modified').length;
+  const missed = sessions.filter(
+    (s) => s.status === 'planned' && parseDateKey(s.date).getTime() < ref
+  ).length;
+
+  const due = completed + skipped + modified + missed;
+  const compliancePercent = due > 0 ? Math.round(((completed + modified * 0.9) / due) * 100) : 0;
+
+  return { planned, completed, skipped, modified, missed, compliancePercent: clamp(compliancePercent) };
 }
 
 export function computeAcuteChronicLoad(
@@ -223,12 +266,25 @@ export function computeLoadSnapshot(
 ): TrainingLoadSnapshot {
   const todaySession = plan?.sessions.find((s) => s.date === referenceDate);
   const sessionLoad = todaySession ? computeSessionLoad(todaySession) : 0;
+  const sessionPlannedLoad = todaySession ? computePlannedSessionLoad(todaySession) : 0;
   const weeklyLoad = plan ? computeWeeklyLoad(plan.sessions) : 0;
+  const weeklyPlannedLoad = plan ? computeWeeklyPlannedLoad(plan.sessions) : 0;
+  const weeklyActualLoad = plan ? computeWeeklyActualLoad(plan.sessions) : 0;
 
   const historicalSessions = allPlans.flatMap((p) => p.sessions);
   const { acuteLoad, chronicLoad, acwr, acwrZone } = computeAcuteChronicLoad(historicalSessions, referenceDate);
 
-  return { sessionLoad, weeklyLoad, acuteLoad, chronicLoad, acwr, acwrZone };
+  return {
+    sessionLoad,
+    sessionPlannedLoad,
+    weeklyLoad,
+    weeklyPlannedLoad,
+    weeklyActualLoad,
+    acuteLoad,
+    chronicLoad,
+    acwr,
+    acwrZone,
+  };
 }
 
 export function buildTrainingRecommendations(
@@ -287,8 +343,8 @@ export function buildTrainingRecommendations(
 
 export function computePlanProgress(plan: TrainingPlan): number {
   if (plan.sessions.length === 0) return 0;
-  const completed = plan.sessions.filter((s) => s.status === 'completed').length;
-  return Math.round((completed / plan.sessions.length) * 100);
+  const done = plan.sessions.filter((s) => s.status === 'completed' || s.status === 'modified').length;
+  return Math.round((done / plan.sessions.length) * 100);
 }
 
 export function findTodaySession(plan: TrainingPlan | undefined, dateKey: string): TrainingDailySession | undefined {
@@ -301,6 +357,14 @@ export function findNextSession(plan: TrainingPlan | undefined, dateKey: string)
     .filter((s) => s.date >= dateKey && s.status === 'planned')
     .sort((a, b) => a.date.localeCompare(b.date));
   return upcoming[0];
+}
+
+export function findSessionInPlans(plans: TrainingPlan[], sessionId: string): { plan: TrainingPlan; session: TrainingDailySession } | undefined {
+  for (const plan of plans) {
+    const session = plan.sessions.find((s) => s.id === sessionId);
+    if (session) return { plan, session };
+  }
+  return undefined;
 }
 
 export function todayDateKey(): string {

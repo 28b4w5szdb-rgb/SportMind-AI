@@ -83,28 +83,35 @@ export function buildTrainingReportSections(
   trainingPlans: TrainingPlan[],
   t: TFunction,
   isRTL: boolean
-): Pick<MockReportSections, 'training_summary'> {
+): Pick<MockReportSections, 'training_summary' | 'training_compliance_summary'> {
+  const athletePlans = trainingPlans.filter((p) => p.athlete_id === athlete.id);
   const analytics = computeAthleteAnalytics({
     athlete,
     tests: tests.filter((tst) => tst.athlete_id === athlete.id),
     checkIn,
     injuries: injuries.filter((i) => i.athlete_id === athlete.id),
+    trainingPlans: athletePlans,
   });
   const snapshot = buildTrainingBuilderSnapshot(athlete, analytics, trainingPlans, injuries);
-  const { plan, load, todaySession, progressPercent } = snapshot;
+  const { plan, load, todaySession, compliance } = snapshot;
 
   if (!plan) {
     return {
       training_summary: isRTL ? 'لا يوجد برنامج تدريبي نشط.' : 'No active training program.',
+      training_compliance_summary: isRTL ? 'لا بيانات امتثال.' : 'No compliance data.',
     };
   }
 
   const todayLabel = todaySession ? t(templateLabelKey(todaySession.templateId)) : t('trainingBuilder.restDay');
   const trainingSummary = isRTL
-    ? `الخطة الأسبوعية: ${load.weeklyLoad} AU. ACWR: ${load.acwr.toFixed(2)} (${t(`trainingBuilder.acwrZone.${load.acwrZone}`)}). تقدم: ${progressPercent}%. اليوم: ${todayLabel}.`
-    : `Weekly plan load: ${load.weeklyLoad} AU. ACWR: ${load.acwr.toFixed(2)} (${t(`trainingBuilder.acwrZone.${load.acwrZone}`)}). Progress: ${progressPercent}%. Today: ${todayLabel}.`;
+    ? `حمل فعلي: ${load.weeklyActualLoad} AU · مخطط: ${load.weeklyPlannedLoad} AU. ACWR: ${load.acwr.toFixed(2)}. اليوم: ${todayLabel}.`
+    : `Actual load: ${load.weeklyActualLoad} AU · Planned: ${load.weeklyPlannedLoad} AU. ACWR: ${load.acwr.toFixed(2)}. Today: ${todayLabel}.`;
 
-  return { training_summary: trainingSummary };
+  const complianceSummary = isRTL
+    ? `الامتثال: ${compliance.compliancePercent}%. مكتمل: ${compliance.completed}. تخطي: ${compliance.skipped}. معدّل: ${compliance.modified}. فائت: ${compliance.missed}.`
+    : `Compliance: ${compliance.compliancePercent}%. Completed: ${compliance.completed}. Skipped: ${compliance.skipped}. Modified: ${compliance.modified}. Missed: ${compliance.missed}.`;
+
+  return { training_summary: trainingSummary, training_compliance_summary: complianceSummary };
 }
 
 export function buildDefaultReportSections(
@@ -129,6 +136,7 @@ export function buildDefaultReportSections(
     tests,
     checkIn: context?.checkIn,
     injuries: context?.injuries?.filter((i) => i.athlete_id === athlete.id),
+    trainingPlans: context?.trainingPlans?.filter((p) => p.athlete_id === athlete.id),
   });
   const enriched = buildAnalyticsReportSections(analytics, t);
   const injurySections = buildInjuryReportSections(

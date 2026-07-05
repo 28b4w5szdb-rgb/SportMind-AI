@@ -34,6 +34,13 @@ const mainMenuItems = [
   { id: '4', key: 'more.settings', icon: 'settings' as const, color: '#64748B', route: '/settings' },
 ];
 
+const wellnessItems = [
+  { id: 'training', key: 'more.trainingBuilder', icon: 'barbell' as const, color: '#0066FF', route: '/training-builder' },
+  { id: 'checkin', key: 'more.dailyCheckIn', icon: 'heart-circle' as const, color: '#10B981', route: '/check-in' },
+  { id: 'recovery', key: 'more.recoveryCenter', icon: 'pulse' as const, color: '#0D9488', route: '/recovery' },
+  { id: 'medicine', key: 'more.sportsMedicine', icon: 'medkit' as const, color: '#EF4444', route: '/sports-medicine' },
+];
+
 const supportItems = [
   { id: 'help', key: 'more.helpSupport', icon: 'help-circle' as const, color: '#F97316', route: '/help' },
   { id: 'knowledge', key: 'more.knowledgeCenter', icon: 'library' as const, color: '#0EA5E9', route: '/knowledge' },
@@ -46,6 +53,10 @@ const menuItemLabels: Record<string, { en: string; ar: string }> = {
   'more.settings': { en: 'Settings', ar: 'الإعدادات' },
   'more.helpSupport': { en: 'Help & Support', ar: 'المساعدة والدعم' },
   'more.knowledgeCenter': { en: 'Knowledge Center', ar: 'مركز المعرفة' },
+  'more.trainingBuilder': { en: 'Training Builder', ar: 'منشئ التدريب' },
+  'more.dailyCheckIn': { en: 'Daily Check-in', ar: 'التسجيل اليومي' },
+  'more.recoveryCenter': { en: 'Recovery Center', ar: 'مركز التعافي' },
+  'more.sportsMedicine': { en: 'Sports Medicine', ar: 'الطب الرياضي' },
 };
 
 const appFeatures = [
@@ -295,6 +306,47 @@ export default function MoreScreen() {
               );
             })}
           </View>
+        </View>
+
+        {/* Wellness & Training */}
+        <View
+          style={{
+            marginTop: theme.spacing[5],
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
+          <Text
+            style={[
+              type.label,
+              {
+                color: theme.colors.textTertiary,
+                marginBottom: theme.spacing[3],
+                textAlign: textAlign('start'),
+              },
+            ]}
+          >
+            {isRTL ? 'العافية والتدريب' : 'WELLNESS & TRAINING'}
+          </Text>
+          {wellnessItems.map((item) => {
+            const labels = menuItemLabels[item.key];
+            return (
+              <TouchableOpacity key={item.id} onPress={() => router.push(item.route as never)} activeOpacity={0.85}>
+                <Card variant="outlined" padding="md" style={{ borderRadius: theme.borderRadius.xl, marginBottom: theme.spacing[2] }}>
+                  <View style={[styles.menuContent, { flexDirection: flexRow(true), alignItems: 'center' }]}>
+                    <View style={[styles.menuIconOutline, { backgroundColor: item.color + '15', borderRadius: theme.borderRadius.xl }]}>
+                      <Ionicons name={item.icon} size={24} color={item.color} />
+                    </View>
+                    <Text style={[type.body, { color: theme.colors.text, flex: 1, marginHorizontal: theme.spacing[4] }]}>
+                      {isRTL ? labels.ar : labels.en}
+                    </Text>
+                    <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color={theme.colors.textTertiary} />
+                  </View>
+                </Card>
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         {/* Support Section */}

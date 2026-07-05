@@ -488,6 +488,7 @@
       "sectionRtpStatus": "حالة العودة للعب",
       "sectionPrevention": "توصيات الوقاية",
       "sectionTrainingSummary": "ملخص التدريب",
+      "sectionTrainingCompliance": "امتثال التدريب",
       "exportSection": "تصدير",
       "exportTitle": "تصدير {{format}}",
       "markReady": "تحديد كجاهز",
@@ -794,7 +795,8 @@
       "askAi": "اسأل AI Coach",
       "export": "تصدير الملف",
       "exportHint": "تصدير الملف متاح في إصدار لاحق.",
-      "trainingBuilder": "منشئ التدريب"
+      "trainingBuilder": "منشئ التدريب",
+      "logSession": "تسجيل جلسة"
     },
     "checkInTitle": "العافية اليومية",
     "checkInSubtitle": "أحدث بيانات التسجيل الصباحي",
@@ -1093,6 +1095,32 @@
       "mobilitySession": "حركية مستهدفة للمناطق عالية الخطورة.",
       "injuryPreventionTitle": "جلسة وقاية",
       "injuryPrevention": "Prehab لـ hamstring أو كاحل أو أربية."
+    },
+    "complianceTitle": "الامتثال الأسبوعي",
+    "dashboardTitle": "تدريب اليوم",
+    "completedShort": "مكتمل",
+    "actualVsPlanned": "الحمل الفعلي مقابل المخطط",
+    "weeklyActualLoad": "الأسبوعي الفعلي (AU)",
+    "weeklyPlannedLoad": "الأسبوعي المخطط (AU)",
+    "execution": {
+      "title": "تسجيل جلسة تدريب",
+      "success": "تم تسجيل الجلسة — تم تحديث التحليلات",
+      "outcome": "نتيجة الجلسة",
+      "status": {
+        "completed": "مكتمل",
+        "skipped": "تخطي",
+        "modified": "معدّل",
+        "planned": "مخطط"
+      },
+      "duration": "المدة الفعلية (د)",
+      "rpe": "RPE الجلسة (1–10)",
+      "plannedLoad": "الحمل المخطط: {{load}} AU",
+      "actualLoad": "الحمل الفعلي: {{load}} AU",
+      "postFatigue": "الإرهاق بعد الجلسة",
+      "postPain": "الألم بعد الجلسة",
+      "notes": "ملاحظات الجلسة",
+      "save": "حفظ سجل الجلسة",
+      "logToday": "تسجيل جلسة اليوم"
     }
   }
 }

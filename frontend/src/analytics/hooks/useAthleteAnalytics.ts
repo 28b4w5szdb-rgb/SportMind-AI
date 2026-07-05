@@ -13,16 +13,19 @@ export function useAthleteAnalytics(
 ): AthleteAnalyticsSnapshot | null {
   const latestCheckIn = useLatestCheckInForAthlete(athlete?.id);
   const injuryRecords = useMockStore((s) => s.injuryRecords);
+  const trainingPlans = useMockStore((s) => s.trainingPlans);
 
   return useMemo(() => {
     if (!athlete) return null;
     const injuries = injuryRecords.filter((i) => i.athlete_id === athlete.id);
+    const plans = trainingPlans.filter((p) => p.athlete_id === athlete.id);
     return computeAthleteAnalytics({
       athlete,
       tests,
       checkIn: latestCheckIn,
       injuries,
+      trainingPlans: plans,
       context: { teamAvgOverall, athleteId: athlete.id },
     });
-  }, [athlete, tests, teamAvgOverall, latestCheckIn, injuryRecords]);
+  }, [athlete, tests, teamAvgOverall, latestCheckIn, injuryRecords, trainingPlans]);
 }

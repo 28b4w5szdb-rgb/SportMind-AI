@@ -29,6 +29,7 @@ import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import { computeReadinessScore, readinessLabel } from '@/src/utils/athleteMetrics';
 import { useTeamAnalyticsOverview, buildAiSummaryFromAnalytics } from '@/src/analytics';
+import { computeCompliance, findTodaySession, todayDateKey } from '@/src/features/training-builder';
 import { ProgressRingChart } from '@/src/components/charts';
 
 function getGreetingKey(): string {
@@ -76,9 +77,35 @@ export default function DashboardScreen() {
 
   const athletes = useMockStore((s) => s.athletes);
   const tests = useMockStore((s) => s.tests);
+  const trainingPlans = useMockStore((s) => s.trainingPlans);
   const teamAnalytics = useTeamAnalyticsOverview();
 
   const injuredCount = useMemo(() => athletes.filter((a) => a.status === 'injured').length, [athletes]);
+
+  const trainingDashboard = useMemo(() => {
+    const today = todayDateKey();
+    let sessionsToday = 0;
+    let loggedToday = 0;
+    let complianceTotal = 0;
+    let complianceCount = 0;
+    for (const athlete of athletes) {
+      const plan = trainingPlans.find((p) => p.athlete_id === athlete.id && p.is_active) ?? trainingPlans.find((p) => p.athlete_id === athlete.id);
+      if (!plan) continue;
+      const compliance = computeCompliance(plan, today);
+      complianceTotal += compliance.compliancePercent;
+      complianceCount += 1;
+      const session = findTodaySession(plan, today);
+      if (session) {
+        sessionsToday += 1;
+        if (session.status !== 'planned') loggedToday += 1;
+      }
+    }
+    return {
+      sessionsToday,
+      loggedToday,
+      avgCompliance: complianceCount > 0 ? Math.round(complianceTotal / complianceCount) : 0,
+    };
+  }, [athletes, trainingPlans]);
 
   const statsData = useMemo(
     () =>
@@ -343,6 +370,35 @@ export default function DashboardScreen() {
             ))}
           </View>
         </View>
+
+        {/* Training today */}
+        {trainingDashboard.sessionsToday > 0 && (
+          <View style={[styles.section, { maxWidth: isDesktop ? 1400 : undefined, marginHorizontal: isDesktop ? 'auto' : undefined, width: '100%' }]}>
+            <TouchableOpacity activeOpacity={0.85} onPress={() => router.push(APP_ROUTES.trainingBuilder() as never)}>
+              <Card variant="elevated" padding="lg" style={{ borderRadius: theme.borderRadius['2xl'] }}>
+                <View style={{ flexDirection: flexRow(true), alignItems: 'center', gap: theme.spacing.md }}>
+                  <View style={[styles.statIcon, { backgroundColor: '#0066FF20', borderRadius: theme.borderRadius.lg }]}>
+                    <Ionicons name="barbell" size={22} color="#0066FF" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[type.label, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>
+                      {t('trainingBuilder.dashboardTitle')}
+                    </Text>
+                    <Text style={[type.h4, { color: theme.colors.text, marginTop: 4, textAlign: textAlign('start') }]}>
+                      {isRTL
+                        ? `${trainingDashboard.loggedToday}/${trainingDashboard.sessionsToday} جلسات مسجلة اليوم`
+                        : `${trainingDashboard.loggedToday}/${trainingDashboard.sessionsToday} sessions logged today`}
+                    </Text>
+                    <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 4, textAlign: textAlign('start') }]}>
+                      {t('trainingBuilder.complianceTitle')}: {trainingDashboard.avgCompliance}%
+                    </Text>
+                  </View>
+                  <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color={theme.colors.textTertiary} />
+                </View>
+              </Card>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Overall score summary */}
         {teamAnalytics.athleteCount > 0 && (

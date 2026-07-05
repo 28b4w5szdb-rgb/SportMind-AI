@@ -95,10 +95,21 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
       recommendationKey: score < 55 ? 'analytics.rec.recovery' : undefined,
     };
   },
-  training_load: (s) => ({
-    score: clamp(70 + s.testsCount * 0.8 - Math.abs(s.trendPercent) * 0.3),
-    trendDelta: s.trendPercent * 0.2,
-  }),
+  training_load: (s) => {
+    const tr = s.training;
+    if (tr && tr.weeklyActualLoad > 0) {
+      const loadRatio = tr.chronicLoad > 0 ? tr.acuteLoad / tr.chronicLoad : 1;
+      let score = clamp(72 - Math.abs(loadRatio - 1) * 22 + tr.weeklyActualLoad * 0.02);
+      if (tr.acwr > 1.5) score -= 15;
+      else if (tr.acwr > 1.3) score -= 8;
+      else if (tr.acwr < 0.8) score -= 5;
+      return { score, trendDelta: (tr.weeklyActualLoad - tr.weeklyPlannedLoad) * 0.01 };
+    }
+    return {
+      score: clamp(70 + s.testsCount * 0.8 - Math.abs(s.trendPercent) * 0.3),
+      trendDelta: s.trendPercent * 0.2,
+    };
+  },
   fatigue: (s) => {
     const rsi = signal(s, 'cmj_rsi');
     let fatigueScore = clamp(
@@ -106,6 +117,12 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
     );
     if (s.checkIn) {
       fatigueScore = clamp(fatigueScore - (s.checkIn.fatigue - 5) * 5 - (s.checkIn.rpe - 5) * 2);
+    }
+    if (s.training?.avgPostFatigue !== undefined) {
+      fatigueScore = clamp(fatigueScore - (s.training.avgPostFatigue - 5) * 4);
+    }
+    if (s.training?.avgSessionRpe !== undefined && s.training.avgSessionRpe >= 8) {
+      fatigueScore = clamp(fatigueScore - (s.training.avgSessionRpe - 7) * 5);
     }
     return {
       score: fatigueScore,
@@ -127,6 +144,12 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
       risk -= Math.max(0, s.checkIn.muscleSoreness - 5) * 2.5;
       risk -= Math.max(0, s.checkIn.stress - 6) * 1.5;
       if (s.checkIn.recoveryScore < 45) risk -= 8;
+    }
+    if (s.training?.avgPostPain !== undefined) {
+      risk -= s.training.avgPostPain * 3;
+    }
+    if (s.training?.acwr !== undefined && s.training.acwr > 1.4) {
+      risk -= (s.training.acwr - 1.3) * 12;
     }
     return {
       score: clamp(risk),
@@ -155,10 +178,20 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
       trendDelta: s.trendPercent * 0.45 + (s.checkIn ? (s.checkIn.recoveryScore - 50) * 0.06 : 0),
     };
   },
-  training_compliance: (s) => ({
-    score: clamp(50 + Math.min(45, s.testsCount * 1.8) + (signal(s, 'custom_test') !== undefined ? 5 : 0)),
-    trendDelta: s.trendPercent * 0.1,
-  }),
+  training_compliance: (s) => {
+    if (s.training && s.training.plannedSessions > 0) {
+      const score = clamp(s.training.compliancePercent);
+      return {
+        score,
+        trendDelta: (s.training.completedSessions - s.training.skippedSessions) * 0.5,
+        recommendationKey: score < 60 ? 'analytics.rec.compliance' : undefined,
+      };
+    }
+    return {
+      score: clamp(50 + Math.min(45, s.testsCount * 1.8) + (signal(s, 'custom_test') !== undefined ? 5 : 0)),
+      trendDelta: s.trendPercent * 0.1,
+    };
+  },
 };
 
 export function scoreAllModules(signals: AnalyticsRawSignals, injuryProfile?: InjuryPreventionProfile): AnalyticsModuleResult[] {

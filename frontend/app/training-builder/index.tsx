@@ -50,7 +50,7 @@ export default function TrainingBuilderScreen() {
         <AthleteSelectorChips athletes={athletes} selectedId={selectedAthleteId} onSelect={setSelectedAthleteId} />
       </View>
       {snapshot ? (
-        <TrainingBuilderPanel snapshot={snapshot} onGenerate={handleGenerate} generating={loading} />
+        <TrainingBuilderPanel snapshot={snapshot} athleteId={selectedAthleteId} onGenerate={handleGenerate} generating={loading} />
       ) : null}
     </FeatureScrollScreen>
   );

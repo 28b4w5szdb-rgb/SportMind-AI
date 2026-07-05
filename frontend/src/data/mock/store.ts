@@ -15,6 +15,7 @@ import type {
   InjuryRecordInput,
   TrainingPlan,
   TrainingPlanInput,
+  TrainingSessionLogInput,
   MockPerformanceTest,
   MockReport,
   MockResearchProject,
@@ -103,6 +104,7 @@ export interface MockStore {
   updateInjuryRecord: (id: string, patch: Partial<InjuryRecord>) => void;
   addTrainingPlan: (input: TrainingPlanInput | TrainingPlan) => TrainingPlan;
   updateTrainingPlan: (id: string, patch: Partial<TrainingPlan>) => void;
+  logTrainingSession: (planId: string, sessionId: string, input: TrainingSessionLogInput) => void;
 }
 
 function ensureActiveConversation(get: () => MockStore, set: (partial: Partial<MockStore>) => void): string {
@@ -415,6 +417,35 @@ export const useMockStore = create<MockStore>()(
       updateTrainingPlan: (id, patch) => {
         set((s) => ({
           trainingPlans: s.trainingPlans.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+        }));
+      },
+
+      logTrainingSession: (planId, sessionId, input) => {
+        set((s) => ({
+          trainingPlans: s.trainingPlans.map((plan) => {
+            if (plan.id !== planId) return plan;
+            return {
+              ...plan,
+              sessions: plan.sessions.map((session) => {
+                if (session.id !== sessionId) return session;
+                const actual_session_load =
+                  input.status === 'skipped' ? 0 : input.actual_duration_min * input.actual_rpe;
+                return {
+                  ...session,
+                  status: input.status,
+                  execution: {
+                    actual_duration_min: input.actual_duration_min,
+                    actual_rpe: input.actual_rpe,
+                    actual_session_load,
+                    post_session_fatigue: input.post_session_fatigue,
+                    post_session_pain: input.post_session_pain,
+                    notes: input.notes,
+                    logged_at: new Date().toISOString(),
+                  },
+                };
+              }),
+            };
+          }),
         }));
       },
     }),

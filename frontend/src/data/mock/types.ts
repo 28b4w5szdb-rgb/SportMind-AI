@@ -62,6 +62,7 @@ export interface MockReportSections {
   rtp_status?: string;
   prevention_recommendations?: string;
   training_summary?: string;
+  training_compliance_summary?: string;
 }
 
 export interface MockReport {
@@ -138,7 +139,7 @@ export type {
   InjuryRecordInput,
 } from '@/src/features/sports-medicine/types';
 
-export type { TrainingPlan, TrainingDailySession, TrainingPlanInput } from '@/src/features/training-builder/types';
+export type { TrainingPlan, TrainingDailySession, TrainingPlanInput, TrainingSessionLogInput, TrainingSessionExecution, TrainingComplianceSnapshot } from '@/src/features/training-builder/types';
 
 export interface CalculatorDefinition {
   id: CalculatorType;

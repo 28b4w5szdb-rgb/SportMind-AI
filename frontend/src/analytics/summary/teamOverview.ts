@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next';
 
-import type { MockAthlete, MockPerformanceTest } from '@/src/data/mock/types';
+import type { MockAthlete, MockPerformanceTest, DailyCheckIn, InjuryRecord, TrainingPlan } from '@/src/data/mock/types';
 import { computeAthleteAnalytics } from '../engine/performanceAnalyticsEngine';
 import type { AnalyticsModuleResult, AthleteAnalyticsSnapshot } from '../types';
 
@@ -26,15 +26,26 @@ function avg(nums: number[]): number {
 
 export function computeTeamOverview(
   athletes: MockAthlete[],
-  tests: MockPerformanceTest[]
+  tests: MockPerformanceTest[],
+  dailyCheckIns: DailyCheckIn[] = [],
+  injuries: InjuryRecord[] = [],
+  trainingPlans: TrainingPlan[] = []
 ): TeamAnalyticsOverview {
-  const snapshots = athletes.map((athlete) => ({
-    athlete,
-    analytics: computeAthleteAnalytics({
+  const snapshots = athletes.map((athlete) => {
+    const checkIn = dailyCheckIns
+      .filter((c) => c.athlete_id === athlete.id)
+      .sort((a, b) => b.date.localeCompare(a.date))[0];
+    return {
       athlete,
-      tests: tests.filter((t) => t.athlete_id === athlete.id),
-    }),
-  }));
+      analytics: computeAthleteAnalytics({
+        athlete,
+        tests: tests.filter((t) => t.athlete_id === athlete.id),
+        checkIn,
+        injuries: injuries.filter((i) => i.athlete_id === athlete.id),
+        trainingPlans: trainingPlans.filter((p) => p.athlete_id === athlete.id),
+      }),
+    };
+  });
 
   if (snapshots.length === 0) {
     return {

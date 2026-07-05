@@ -22,11 +22,13 @@ export function useTrainingBuilderSnapshot(
     const checkIn = dailyCheckIns
       .filter((c) => c.athlete_id === athlete.id)
       .sort((a, b) => b.date.localeCompare(a.date))[0];
+    const athletePlans = trainingPlans.filter((p) => p.athlete_id === athlete.id);
     const analytics = computeAthleteAnalytics({
       athlete,
       tests: athleteTests,
       checkIn,
       injuries: injuryRecords.filter((i) => i.athlete_id === athlete.id),
+      trainingPlans: athletePlans,
     });
 
     return buildTrainingBuilderSnapshot(athlete, analytics, trainingPlans, injuryRecords, referenceDate);
@@ -51,6 +53,7 @@ export function useGenerateTrainingPlan(athlete: MockAthlete | undefined, tests:
         tests: athleteTests,
         checkIn,
         injuries: injuryRecords.filter((i) => i.athlete_id === athlete.id),
+        trainingPlans: trainingPlans.filter((p) => p.athlete_id === athlete.id),
       });
       const plan = createProgramForAthlete(athlete, analytics, injuryRecords);
       return addTrainingPlan(plan);

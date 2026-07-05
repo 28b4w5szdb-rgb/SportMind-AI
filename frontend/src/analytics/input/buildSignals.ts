@@ -1,6 +1,7 @@
-import type { MockAthlete, MockPerformanceTest, DailyCheckIn } from '@/src/data/mock/types';
+import type { MockAthlete, MockPerformanceTest, DailyCheckIn, TrainingPlan } from '@/src/data/mock/types';
 import { resolveSignalKey } from '@/src/features/performance-lab/registry/signalAliases';
 import { computeRecoveryScoreFromCheckIn } from '@/src/features/recovery/recoveryEngine';
+import { buildTrainingSignals } from '@/src/features/training-builder/utils/trainingSignals';
 import type { AnalyticsRawSignals } from '../types';
 
 function ageFromDob(dob?: string): number | undefined {
@@ -14,7 +15,8 @@ function ageFromDob(dob?: string): number | undefined {
 export function buildRawSignals(
   athlete: MockAthlete,
   tests: MockPerformanceTest[],
-  checkIn?: DailyCheckIn
+  checkIn?: DailyCheckIn,
+  trainingPlans?: TrainingPlan[]
 ): AnalyticsRawSignals {
   const testSignals: AnalyticsRawSignals['testSignals'] = {};
   for (const test of tests) {
@@ -50,6 +52,10 @@ export function buildRawSignals(
       morningHeartRate: checkIn.morning_heart_rate,
       rpe: checkIn.rpe,
     };
+  }
+
+  if (trainingPlans && trainingPlans.length > 0) {
+    signals.training = buildTrainingSignals(trainingPlans, athlete.id);
   }
 
   return signals;

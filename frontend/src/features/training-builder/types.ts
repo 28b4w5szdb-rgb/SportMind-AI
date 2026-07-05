@@ -24,7 +24,35 @@ export type WeekdayId =
   | 'saturday'
   | 'sunday';
 
-export type SessionStatus = 'planned' | 'completed' | 'skipped';
+export type SessionStatus = 'planned' | 'completed' | 'skipped' | 'modified';
+
+export interface TrainingSessionExecution {
+  actual_duration_min: number;
+  actual_rpe: number;
+  actual_session_load: number;
+  post_session_fatigue: number;
+  post_session_pain: number;
+  notes?: string;
+  logged_at: string;
+}
+
+export type TrainingSessionLogInput = {
+  status: Exclude<SessionStatus, 'planned'>;
+  actual_duration_min: number;
+  actual_rpe: number;
+  post_session_fatigue: number;
+  post_session_pain: number;
+  notes?: string;
+};
+
+export interface TrainingComplianceSnapshot {
+  planned: number;
+  completed: number;
+  skipped: number;
+  modified: number;
+  missed: number;
+  compliancePercent: number;
+}
 
 export interface TemplateExercise {
   nameKey: string;
@@ -64,6 +92,7 @@ export interface TrainingDailySession {
   duration_min: number;
   target_rpe: number;
   session_load: number;
+  execution?: TrainingSessionExecution;
   warmUp: DailySessionSection;
   mainSection: DailySessionSection;
   accessoryWork: DailySessionSection;
@@ -89,7 +118,10 @@ export type AcwrZone = 'low' | 'optimal' | 'high' | 'danger';
 
 export interface TrainingLoadSnapshot {
   sessionLoad: number;
+  sessionPlannedLoad: number;
   weeklyLoad: number;
+  weeklyPlannedLoad: number;
+  weeklyActualLoad: number;
   acuteLoad: number;
   chronicLoad: number;
   acwr: number;
@@ -115,9 +147,10 @@ export interface TrainingBuilderSnapshot {
   todaySession?: TrainingDailySession;
   nextSession?: TrainingDailySession;
   load: TrainingLoadSnapshot;
+  compliance: TrainingComplianceSnapshot;
   progressPercent: number;
   recommendations: TrainingRecommendation[];
-  weeklyOverview: Array<{ weekday: WeekdayId; templateId: TrainingTemplateId; load: number; status: SessionStatus }>;
+  weeklyOverview: Array<{ weekday: WeekdayId; templateId: TrainingTemplateId; load: number; actualLoad: number; status: SessionStatus }>;
 }
 
 export interface TrainingEngineInput {

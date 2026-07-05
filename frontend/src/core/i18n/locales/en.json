@@ -484,6 +484,7 @@
       "sectionRtpStatus": "Return to play status",
       "sectionPrevention": "Prevention recommendations",
       "sectionTrainingSummary": "Training summary",
+      "sectionTrainingCompliance": "Training compliance",
       "exportSection": "Export",
       "exportTitle": "Export as {{format}}",
       "markReady": "Mark as ready",
@@ -790,7 +791,8 @@
       "askAi": "Ask AI Coach",
       "export": "Export profile",
       "exportHint": "Profile export will be available in a future release.",
-      "trainingBuilder": "Training builder"
+      "trainingBuilder": "Training builder",
+      "logSession": "Log session"
     },
     "checkInTitle": "Daily wellness",
     "checkInSubtitle": "Latest morning check-in data",
@@ -1089,6 +1091,32 @@
       "mobilitySession": "Include targeted mobility for high-risk or stiff regions.",
       "injuryPreventionTitle": "Injury prevention session",
       "injuryPrevention": "Add prehab work for hamstring, ankle, or groin stability."
+    },
+    "complianceTitle": "Weekly compliance",
+    "dashboardTitle": "Training today",
+    "completedShort": "completed",
+    "actualVsPlanned": "Actual vs planned load",
+    "weeklyActualLoad": "Weekly actual (AU)",
+    "weeklyPlannedLoad": "Weekly planned (AU)",
+    "execution": {
+      "title": "Log training session",
+      "success": "Session logged — analytics updated",
+      "outcome": "Session outcome",
+      "status": {
+        "completed": "Completed",
+        "skipped": "Skipped",
+        "modified": "Modified",
+        "planned": "Planned"
+      },
+      "duration": "Actual duration (min)",
+      "rpe": "Session RPE (1–10)",
+      "plannedLoad": "Planned load: {{load}} AU",
+      "actualLoad": "Actual load: {{load}} AU",
+      "postFatigue": "Fatigue after session",
+      "postPain": "Pain after session",
+      "notes": "Session notes",
+      "save": "Save session log",
+      "logToday": "Log today's session"
     }
   }
 }

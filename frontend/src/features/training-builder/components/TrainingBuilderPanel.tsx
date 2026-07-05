@@ -1,12 +1,15 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
 import { Card } from '@/src/components/common/Card';
 import { FormSection } from '@/src/components/common/FormSection';
 import { Button } from '@/src/components/common/Button';
+import { APP_ROUTES } from '@/src/core/constants/routes';
 import type { TrainingBuilderSnapshot } from '../types';
+import { sessionDisplayTitle } from '../utils/sessionDisplay';
 import { templateLabelKey } from '../utils/templateLabelKey';
 import { WEEKDAY_ORDER } from '../registry/trainingTemplates';
 import { useTheme, useTypography } from '@/src/core/theme';
@@ -14,6 +17,7 @@ import { useDirection } from '@/src/providers/DirectionProvider';
 
 interface TrainingBuilderPanelProps {
   snapshot: TrainingBuilderSnapshot;
+  athleteId?: string;
   onGenerate?: () => void;
   generating?: boolean;
 }
@@ -31,12 +35,14 @@ function priorityColor(p: string): string {
   return '#64748B';
 }
 
-export function TrainingBuilderPanel({ snapshot, onGenerate, generating }: TrainingBuilderPanelProps) {
-  const { t } = useTranslation();
+export function TrainingBuilderPanel({ snapshot, athleteId, onGenerate, generating }: TrainingBuilderPanelProps) {
+  const router = useRouter();
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
   const { flexRow, textAlign } = useDirection();
-  const { plan, todaySession, load, progressPercent, recommendations, weeklyOverview } = snapshot;
+  const { plan, todaySession, load, compliance, progressPercent, recommendations, weeklyOverview } = snapshot;
+  const locale = i18n.language.startsWith('ar') ? 'ar' : 'en';
 
   return (
     <View>
@@ -61,8 +67,12 @@ export function TrainingBuilderPanel({ snapshot, onGenerate, generating }: Train
                 <Text style={[type.caption, { color: theme.colors.textSecondary }]}>{t('trainingBuilder.sessionLoad')}</Text>
               </View>
               <View style={{ minWidth: 90 }}>
-                <Text style={[type.h4, { color: theme.colors.text }]}>{load.weeklyLoad}</Text>
-                <Text style={[type.caption, { color: theme.colors.textSecondary }]}>{t('trainingBuilder.weeklyLoad')}</Text>
+                <Text style={[type.h4, { color: theme.colors.text }]}>{load.weeklyActualLoad}</Text>
+                <Text style={[type.caption, { color: theme.colors.textSecondary }]}>{t('trainingBuilder.weeklyActualLoad')}</Text>
+              </View>
+              <View style={{ minWidth: 90 }}>
+                <Text style={[type.h4, { color: theme.colors.textTertiary }]}>{load.weeklyPlannedLoad}</Text>
+                <Text style={[type.caption, { color: theme.colors.textSecondary }]}>{t('trainingBuilder.weeklyPlannedLoad')}</Text>
               </View>
               <View style={{ minWidth: 90 }}>
                 <Text style={[type.h4, { color: theme.colors.text }]}>{load.acuteLoad}</Text>
@@ -78,7 +88,7 @@ export function TrainingBuilderPanel({ snapshot, onGenerate, generating }: Train
               </View>
             </View>
             <Text style={[type.caption, { color: acwrColor(load.acwrZone), marginTop: theme.spacing.sm, textAlign: textAlign('start') }]}>
-              {t(`trainingBuilder.acwrZone.${load.acwrZone}`)}
+              {t(`trainingBuilder.acwrZone.${load.acwrZone}`)} · {t('trainingBuilder.complianceTitle')}: {compliance.compliancePercent}%
             </Text>
           </Card>
 
@@ -86,11 +96,21 @@ export function TrainingBuilderPanel({ snapshot, onGenerate, generating }: Train
             <FormSection title={t('trainingBuilder.todaySession')} subtitle={todaySession.date}>
               <Card variant="filled" padding="md" style={{ borderRadius: theme.borderRadius.xl, marginBottom: theme.spacing.sm }}>
                 <Text style={[type.body, { color: theme.colors.text, fontWeight: '700', textAlign: textAlign('start') }]}>
-                  {t(todaySession.titleKey)}
+                  {sessionDisplayTitle(todaySession, locale)}
                 </Text>
                 <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 4, textAlign: textAlign('start') }]}>
-                  {todaySession.duration_min} min · RPE {todaySession.target_rpe} · {todaySession.session_load} AU
+                  {t(`trainingBuilder.execution.status.${todaySession.status}`)} · {load.sessionLoad}/{load.sessionPlannedLoad} AU
                 </Text>
+                {athleteId && (todaySession.status === 'planned' || todaySession.execution) ? (
+                  <TouchableOpacity
+                    onPress={() => router.push(APP_ROUTES.logTrainingSession(todaySession.id, athleteId))}
+                    style={{ marginTop: theme.spacing.sm }}
+                  >
+                    <Text style={[type.bodySm, { color: theme.colors.primary, fontWeight: '600' }]}>
+                      {t('trainingBuilder.execution.logToday')}
+                    </Text>
+                  </TouchableOpacity>
+                ) : null}
                 {[todaySession.warmUp, todaySession.mainSection, todaySession.accessoryWork, todaySession.conditioning, todaySession.recovery].map(
                   (section) => (
                     <View key={section.titleKey} style={{ marginTop: theme.spacing.sm }}>
