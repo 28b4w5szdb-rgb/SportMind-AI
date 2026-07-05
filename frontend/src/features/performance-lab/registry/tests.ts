@@ -1,223 +1,62 @@
 import type { TestDefinition } from '../types';
+import { SPEED_TESTS } from './catalog/speed.catalog';
+import { STRENGTH_TESTS } from './catalog/strength.catalog';
+import { ENDURANCE_TESTS } from './catalog/endurance.catalog';
+import { AGILITY_TESTS } from './catalog/agility.catalog';
+import { POWER_TESTS } from './catalog/power.catalog';
+import { FLEXIBILITY_TESTS } from './catalog/flexibility.catalog';
+import { BALANCE_TESTS } from './catalog/balance.catalog';
+import { BODY_COMPOSITION_TESTS } from './catalog/bodyComposition.catalog';
+import { REACTION_TIME_TESTS } from './catalog/reactionTime.catalog';
+import { NEUROMUSCULAR_TESTS } from './catalog/neuromuscular.catalog';
+import { FUNCTIONAL_MOVEMENT_TESTS } from './catalog/functionalMovement.catalog';
+import { CUSTOM_TESTS } from './catalog/custom.catalog';
 
-/** Central test registry — UI reads from here; add tests without changing screens. */
+/** Built-in Sports Science Test Library — add catalog files only to scale. */
 export const TEST_REGISTRY: TestDefinition[] = [
-  {
-    key: 'sprint30',
-    categoryId: 'speed',
-    icon: 'flash',
-    nameKey: 'testingCenter.tests.sprint30.name',
-    descriptionKey: 'testingCenter.tests.sprint30.description',
-    protocolKey: 'testingCenter.tests.sprint30.protocol',
-    equipmentKey: 'testingCenter.tests.sprint30.equipment',
-    unit: 's',
-    referenceValues: { elite: 3.95, good: 4.2, average: 4.5, lowerIsBetter: true },
-    affectedModules: ['speed', 'agility', 'physical_fitness'],
-    aiRecommendationKey: 'testingCenter.tests.sprint30.aiRec',
-    featured: true,
-  },
-  {
-    key: 'squat_1rm',
-    categoryId: 'strength',
-    icon: 'barbell',
-    nameKey: 'testingCenter.tests.squat1rm.name',
-    descriptionKey: 'testingCenter.tests.squat1rm.description',
-    protocolKey: 'testingCenter.tests.squat1rm.protocol',
-    equipmentKey: 'testingCenter.tests.squat1rm.equipment',
-    unit: 'kg',
-    referenceValues: { elite: 180, good: 150, average: 120 },
-    affectedModules: ['strength', 'physical_fitness', 'training_load'],
-    aiRecommendationKey: 'testingCenter.tests.squat1rm.aiRec',
-    featured: true,
-  },
-  {
-    key: 'cooper',
-    categoryId: 'endurance',
-    icon: 'heart',
-    nameKey: 'testingCenter.tests.cooper.name',
-    descriptionKey: 'testingCenter.tests.cooper.description',
-    protocolKey: 'testingCenter.tests.cooper.protocol',
-    equipmentKey: 'testingCenter.tests.cooper.equipment',
-    unit: 'm',
-    referenceValues: { elite: 2800, good: 2400, average: 2000 },
-    affectedModules: ['endurance', 'physical_fitness', 'fatigue'],
-    aiRecommendationKey: 'testingCenter.tests.cooper.aiRec',
-    featured: true,
-  },
-  {
-    key: 'yoyo',
-    categoryId: 'endurance',
-    icon: 'heart',
-    nameKey: 'features.lab.testTypes.yoyo',
-    descriptionKey: 'testingCenter.tests.yoyo.description',
-    protocolKey: 'testingCenter.tests.yoyo.protocol',
-    equipmentKey: 'testingCenter.tests.yoyo.equipment',
-    unit: 'm',
-    referenceValues: { elite: 1800, good: 1500, average: 1200 },
-    affectedModules: ['endurance', 'physical_fitness', 'training_load'],
-    aiRecommendationKey: 'testingCenter.tests.yoyo.aiRec',
-    featured: false,
-  },
-  {
-    key: 'beep',
-    categoryId: 'endurance',
-    icon: 'heart',
-    nameKey: 'features.lab.testTypes.beep',
-    descriptionKey: 'testingCenter.tests.beep.description',
-    protocolKey: 'testingCenter.tests.beep.protocol',
-    equipmentKey: 'testingCenter.tests.beep.equipment',
-    unit: 'level',
-    referenceValues: { elite: 14, good: 11, average: 9 },
-    affectedModules: ['endurance', 'physical_fitness', 'fatigue'],
-    aiRecommendationKey: 'testingCenter.tests.beep.aiRec',
-    featured: false,
-  },
-  {
-    key: 'illinois',
-    categoryId: 'agility',
-    icon: 'shuffle',
-    nameKey: 'testingCenter.tests.illinois.name',
-    descriptionKey: 'testingCenter.tests.illinois.description',
-    protocolKey: 'testingCenter.tests.illinois.protocol',
-    equipmentKey: 'testingCenter.tests.illinois.equipment',
-    unit: 's',
-    referenceValues: { elite: 15.2, good: 16.5, average: 17.8, lowerIsBetter: true },
-    affectedModules: ['agility', 'speed', 'physical_fitness'],
-    aiRecommendationKey: 'testingCenter.tests.illinois.aiRec',
-    featured: true,
-  },
-  {
-    key: 'cmj',
-    categoryId: 'power',
-    icon: 'rocket',
-    nameKey: 'features.lab.testTypes.cmj',
-    descriptionKey: 'testingCenter.tests.cmj.description',
-    protocolKey: 'testingCenter.tests.cmj.protocol',
-    equipmentKey: 'testingCenter.tests.cmj.equipment',
-    unit: 'cm',
-    referenceValues: { elite: 55, good: 45, average: 38 },
-    affectedModules: ['strength', 'agility', 'physical_fitness'],
-    aiRecommendationKey: 'testingCenter.tests.cmj.aiRec',
-    featured: true,
-  },
-  {
-    key: 'sit_reach',
-    categoryId: 'flexibility',
-    icon: 'body',
-    nameKey: 'testingCenter.tests.sitReach.name',
-    descriptionKey: 'testingCenter.tests.sitReach.description',
-    protocolKey: 'testingCenter.tests.sitReach.protocol',
-    equipmentKey: 'testingCenter.tests.sitReach.equipment',
-    unit: 'cm',
-    referenceValues: { elite: 35, good: 25, average: 15 },
-    affectedModules: ['flexibility', 'injury_risk', 'recovery'],
-    aiRecommendationKey: 'testingCenter.tests.sitReach.aiRec',
-    featured: true,
-  },
-  {
-    key: 'y_balance',
-    categoryId: 'balance',
-    icon: 'git-commit',
-    nameKey: 'testingCenter.tests.yBalance.name',
-    descriptionKey: 'testingCenter.tests.yBalance.description',
-    protocolKey: 'testingCenter.tests.yBalance.protocol',
-    equipmentKey: 'testingCenter.tests.yBalance.equipment',
-    unit: '%',
-    referenceValues: { elite: 98, good: 94, average: 90 },
-    affectedModules: ['agility', 'injury_risk', 'flexibility'],
-    aiRecommendationKey: 'testingCenter.tests.yBalance.aiRec',
-    featured: true,
-  },
-  {
-    key: 'body_fat',
-    categoryId: 'body_composition',
-    icon: 'scale',
-    nameKey: 'testingCenter.tests.bodyFat.name',
-    descriptionKey: 'testingCenter.tests.bodyFat.description',
-    protocolKey: 'testingCenter.tests.bodyFat.protocol',
-    equipmentKey: 'testingCenter.tests.bodyFat.equipment',
-    unit: '%',
-    referenceValues: { elite: 8, good: 12, average: 16, lowerIsBetter: true },
-    affectedModules: ['physical_fitness', 'endurance', 'training_load'],
-    aiRecommendationKey: 'testingCenter.tests.bodyFat.aiRec',
-    featured: true,
-  },
-  {
-    key: 'visual_reaction',
-    categoryId: 'reaction_time',
-    icon: 'timer',
-    nameKey: 'testingCenter.tests.visualReaction.name',
-    descriptionKey: 'testingCenter.tests.visualReaction.description',
-    protocolKey: 'testingCenter.tests.visualReaction.protocol',
-    equipmentKey: 'testingCenter.tests.visualReaction.equipment',
-    unit: 'ms',
-    referenceValues: { elite: 180, good: 220, average: 260, lowerIsBetter: true },
-    affectedModules: ['speed', 'agility', 'readiness'],
-    aiRecommendationKey: 'testingCenter.tests.visualReaction.aiRec',
-    featured: true,
-  },
-  {
-    key: 'cmj_rsi',
-    categoryId: 'neuromuscular',
-    icon: 'pulse',
-    nameKey: 'testingCenter.tests.cmjRsi.name',
-    descriptionKey: 'testingCenter.tests.cmjRsi.description',
-    protocolKey: 'testingCenter.tests.cmjRsi.protocol',
-    equipmentKey: 'testingCenter.tests.cmjRsi.equipment',
-    unit: 'RSI',
-    referenceValues: { elite: 2.4, good: 1.8, average: 1.2 },
-    affectedModules: ['strength', 'fatigue', 'training_load'],
-    aiRecommendationKey: 'testingCenter.tests.cmjRsi.aiRec',
-    featured: true,
-  },
-  {
-    key: 'fms',
-    categoryId: 'functional_movement',
-    icon: 'accessibility',
-    nameKey: 'testingCenter.tests.fms.name',
-    descriptionKey: 'testingCenter.tests.fms.description',
-    protocolKey: 'testingCenter.tests.fms.protocol',
-    equipmentKey: 'testingCenter.tests.fms.equipment',
-    unit: 'score',
-    referenceValues: { elite: 18, good: 15, average: 12 },
-    affectedModules: ['flexibility', 'injury_risk', 'recovery'],
-    aiRecommendationKey: 'testingCenter.tests.fms.aiRec',
-    featured: true,
-  },
-  {
-    key: 'custom_test',
-    categoryId: 'custom',
-    icon: 'create',
-    nameKey: 'testingCenter.tests.custom.name',
-    descriptionKey: 'testingCenter.tests.custom.description',
-    protocolKey: 'testingCenter.tests.custom.protocol',
-    equipmentKey: 'testingCenter.tests.custom.equipment',
-    unit: 'units',
-    referenceValues: { elite: 100, good: 75, average: 50 },
-    affectedModules: ['physical_fitness', 'training_compliance'],
-    aiRecommendationKey: 'testingCenter.tests.custom.aiRec',
-    featured: true,
-  },
+  ...SPEED_TESTS,
+  ...STRENGTH_TESTS,
+  ...ENDURANCE_TESTS,
+  ...AGILITY_TESTS,
+  ...POWER_TESTS,
+  ...FLEXIBILITY_TESTS,
+  ...BALANCE_TESTS,
+  ...BODY_COMPOSITION_TESTS,
+  ...REACTION_TIME_TESTS,
+  ...NEUROMUSCULAR_TESTS,
+  ...FUNCTIONAL_MOVEMENT_TESTS,
+  ...CUSTOM_TESTS,
 ];
 
-const registryMap = new Map(TEST_REGISTRY.map((t) => [t.key, t]));
+const baseMap = new Map(TEST_REGISTRY.map((t) => [t.key, t]));
 
-export function getTestDefinition(key: string): TestDefinition | undefined {
-  return registryMap.get(key);
+export function getMergedRegistry(customTests: TestDefinition[] = []): TestDefinition[] {
+  if (customTests.length === 0) return TEST_REGISTRY;
+  return [...TEST_REGISTRY, ...customTests];
 }
 
-export function getTestsByCategory(categoryId: string): TestDefinition[] {
-  return TEST_REGISTRY.filter((t) => t.categoryId === categoryId);
+export function getTestDefinition(key: string, customTests: TestDefinition[] = []): TestDefinition | undefined {
+  const custom = customTests.find((t) => t.key === key);
+  if (custom) return custom;
+  return baseMap.get(key);
 }
 
-export function getFeaturedTestForCategory(categoryId: string): TestDefinition | undefined {
-  return TEST_REGISTRY.find((t) => t.categoryId === categoryId && t.featured);
+export function getTestsByCategory(categoryId: string, customTests: TestDefinition[] = []): TestDefinition[] {
+  return getMergedRegistry(customTests).filter((t) => t.categoryId === categoryId);
 }
 
-export function countTestsInCategory(categoryId: string): number {
-  return getTestsByCategory(categoryId).length;
+export function getFeaturedTestForCategory(categoryId: string, customTests: TestDefinition[] = []): TestDefinition | undefined {
+  return getMergedRegistry(customTests).find((t) => t.categoryId === categoryId && t.featured);
 }
 
-export function buildModuleImpactMap(): Record<string, TestDefinition['affectedModules']> {
-  return Object.fromEntries(TEST_REGISTRY.map((t) => [t.key, t.affectedModules]));
+export function countTestsInCategory(categoryId: string, customTests: TestDefinition[] = []): number {
+  return getTestsByCategory(categoryId, customTests).length;
+}
+
+export function buildModuleImpactMap(customTests: TestDefinition[] = []): Record<string, TestDefinition['affectedModules']> {
+  return Object.fromEntries(getMergedRegistry(customTests).map((t) => [t.key, t.affectedModules]));
+}
+
+export function getTotalTestCount(customTests: TestDefinition[] = []): number {
+  return getMergedRegistry(customTests).length;
 }

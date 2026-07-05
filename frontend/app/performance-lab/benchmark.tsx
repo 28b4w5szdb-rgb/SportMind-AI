@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
 import { Card } from '@/src/components/common/Card';
 import { BENCHMARK_NORMS, benchmarkRating } from '@/src/data/mock/lab';
-import { getTestDefinition } from '@/src/features/performance-lab';
+import { getTestDefinition, getTestName } from '@/src/features/performance-lab';
 import { useMockStore } from '@/src/data/mock/store';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
@@ -31,7 +31,7 @@ export default function LabBenchmarkScreen() {
         const rating = latest ? benchmarkRating(latest.value, norm) : null;
         const color = rating ? RATING_COLORS[rating] : theme.colors.textTertiary;
         const def = getTestDefinition(norm.testKey);
-        const label = def ? t(def.nameKey) : norm.testKey;
+        const label = def ? getTestName(def, isRTL) : norm.testKey;
 
         return (
           <Card key={norm.testKey} variant="elevated" padding="lg" style={{ borderRadius: theme.borderRadius['2xl'], marginBottom: theme.spacing.md }}>

@@ -1,4 +1,5 @@
 import type { MockAthlete, MockPerformanceTest } from '@/src/data/mock/types';
+import { resolveSignalKey } from '@/src/features/performance-lab/registry/signalAliases';
 import type { AnalyticsRawSignals } from '../types';
 
 function ageFromDob(dob?: string): number | undefined {
@@ -12,6 +13,10 @@ function ageFromDob(dob?: string): number | undefined {
 export function buildRawSignals(athlete: MockAthlete, tests: MockPerformanceTest[]): AnalyticsRawSignals {
   const testSignals: AnalyticsRawSignals['testSignals'] = {};
   for (const test of tests) {
+    const signalKey = resolveSignalKey(test.test_type_key);
+    if (testSignals[signalKey] === undefined) {
+      testSignals[signalKey] = test.value;
+    }
     if (testSignals[test.test_type_key] === undefined) {
       testSignals[test.test_type_key] = test.value;
     }

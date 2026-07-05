@@ -13,9 +13,10 @@ import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import {
   TestResultCard,
+  useTestDefinition,
   computeResultAnalyticsSnapshot,
   computeTestAnalyticsImpact,
-  getTestDefinition,
+  getTestText,
 } from '@/src/features/performance-lab';
 import type { MockPerformanceTest } from '@/src/data/mock/types';
 
@@ -25,8 +26,9 @@ export default function TestResultDetailScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
-  const { textAlign } = useDirection();
+  const { textAlign, isRTL } = useDirection();
   const test = useTestById(id);
+  const definition = useTestDefinition(test?.test_type_key);
   const athlete = useAthleteById(test?.athlete_id);
   const allTests = useMockStore((s) => s.tests);
 
@@ -43,8 +45,6 @@ export default function TestResultDetailScreen() {
     return computeTestAnalyticsImpact(athlete, prior, simulated);
   }, [athlete, test, allTests]);
 
-  const definition = test ? getTestDefinition(test.test_type_key) : undefined;
-
   if (!test) {
     return (
       <FeatureScrollScreen title={t('testingCenter.resultTitle')}>
@@ -55,7 +55,7 @@ export default function TestResultDetailScreen() {
 
   return (
     <FeatureScrollScreen title={t('testingCenter.resultTitle')}>
-      <TestResultCard test={test} analytics={analytics} impact={impact} />
+      <TestResultCard test={test} analytics={analytics} impact={impact} definition={definition} />
 
       {analytics ? (
         <FormSection title={t('testingCenter.kpiSummary')}>
@@ -73,7 +73,7 @@ export default function TestResultDetailScreen() {
       {definition ? (
         <FormSection title={t('testingCenter.sections.aiRecommendation')}>
           <Text style={[type.body, { color: theme.colors.text, textAlign: textAlign('start'), lineHeight: 22 }]}>
-            {t(definition.aiRecommendationKey)}
+            {getTestText(definition, 'aiRec', isRTL)}
           </Text>
         </FormSection>
       ) : null}

@@ -30,11 +30,11 @@ import { useTeamAnalyticsOverview, buildAiSummaryFromAnalytics } from '@/src/ana
 import { ProgressRingChart } from '@/src/components/charts';
 import {
   TESTING_CATEGORIES,
-  TEST_REGISTRY,
   countTestsInCategory,
   getFeaturedTestForCategory,
   CategoryCard,
   TestResultCard,
+  getTotalTestCount,
 } from '@/src/features/performance-lab';
 
 const labTools = [
@@ -65,6 +65,7 @@ export default function PerformanceLabScreen() {
   const { flexRow, textAlign, isRTL } = useDirection();
   const storeTests = useMockStore((s) => s.tests);
   const athletes = useMockStore((s) => s.athletes);
+  const customTests = useMockStore((s) => s.customTestDefinitions);
   const teamAnalytics = useTeamAnalyticsOverview();
   const analyticsSummary = useMemo(() => buildAiSummaryFromAnalytics(teamAnalytics, isRTL), [teamAnalytics, isRTL]);
   const { width: windowWidth } = useWindowDimensions();
@@ -74,9 +75,9 @@ export default function PerformanceLabScreen() {
       { id: 'tests', value: storeTests.length, labelEn: 'Tests', labelAr: 'اختبار', color: '#0066FF' },
       { id: 'athletes', value: athletes.length, labelEn: 'Athletes', labelAr: 'لاعب', color: '#10B981' },
       { id: 'categories', value: TESTING_CATEGORIES.length, labelEn: 'Categories', labelAr: 'فئة', color: '#8B5CF6' },
-      { id: 'registry', value: TEST_REGISTRY.length, labelEn: 'Protocols', labelAr: 'بروتوكول', color: '#6366F1' },
+      { id: 'registry', value: getTotalTestCount(customTests), labelEn: 'Protocols', labelAr: 'بروتوكول', color: '#6366F1' },
     ],
-    [storeTests.length, athletes.length, TESTING_CATEGORIES.length, TEST_REGISTRY.length]
+    [storeTests.length, athletes.length, TESTING_CATEGORIES.length, customTests.length]
   );
 
   const handleToolPress = (toolId: string) => {
@@ -218,6 +219,17 @@ export default function PerformanceLabScreen() {
           </Card>
         </View>
 
+        {/* Test Library CTA */}
+        <View style={{ marginTop: theme.spacing[4], maxWidth: isDesktop ? 1400 : undefined, marginHorizontal: isDesktop ? 'auto' : undefined, width: '100%' }}>
+          <Button
+            title={isRTL ? 'مكتبة الاختبارات' : 'Browse Test Library'}
+            onPress={() => router.push(APP_ROUTES.performanceLabLibrary)}
+            variant="secondary"
+            fullWidth
+            icon="library"
+          />
+        </View>
+
         {/* Quick test entry CTA */}
         <View
           style={{
@@ -352,7 +364,7 @@ export default function PerformanceLabScreen() {
             <CategoryCard
               key={category.id}
               category={category}
-              testCount={countTestsInCategory(category.id)}
+              testCount={countTestsInCategory(category.id, customTests)}
               index={index}
               onPress={() => router.push(APP_ROUTES.performanceLabCategory(category.id))}
             />
@@ -414,7 +426,7 @@ export default function PerformanceLabScreen() {
               </Text>
               <View style={[styles.statsRow, { flexDirection: flexRow(true), marginTop: theme.spacing[5] }]}>
                 <View style={styles.statItem}>
-                  <Text style={[type.numberDisplay, { color: '#FFFFFF', fontSize: 36 }]}>{TEST_REGISTRY.length}</Text>
+                  <Text style={[type.numberDisplay, { color: '#FFFFFF', fontSize: 36 }]}>{getTotalTestCount(customTests)}</Text>
                   <Text style={[type.caption, { color: 'rgba(255,255,255,0.8)', marginTop: 4 }]}>
                     {isRTL ? 'اختبار متاح' : 'Tests Available'}
                   </Text>

@@ -17,6 +17,8 @@ import {
   getTestsByCategory,
   getFeaturedTestForCategory,
   TestResultCard,
+  useCustomTestDefinitions,
+  getTestName,
 } from '@/src/features/performance-lab';
 
 export default function LabCategoryScreen() {
@@ -27,8 +29,9 @@ export default function LabCategoryScreen() {
   const type = useTypography();
   const { flexRow, textAlign, isRTL } = useDirection();
   const tests = useMockStore((s) => s.tests);
+  const customTests = useCustomTestDefinitions();
   const category = getCategoryById(id ?? '');
-  const categoryTests = getTestsByCategory(id ?? '');
+  const categoryTests = getTestsByCategory(id ?? '', customTests);
   const featured = getFeaturedTestForCategory(id ?? '');
 
   if (!category) {
@@ -67,7 +70,7 @@ export default function LabCategoryScreen() {
       {categoryTests.map((def) => (
         <Button
           key={def.key}
-          title={t(def.nameKey)}
+          title={getTestName(def, isRTL)}
           onPress={() => router.push(APP_ROUTES.performanceLabTest(def.key))}
           variant={def.featured ? 'primary' : 'outline'}
           size="small"
@@ -78,7 +81,7 @@ export default function LabCategoryScreen() {
 
       {featured ? (
         <Button
-          title={isRTL ? `بدء ${t(featured.nameKey)}` : `Start ${t(featured.nameKey)}`}
+          title={isRTL ? `بدء ${getTestName(featured, true)}` : `Start ${getTestName(featured, false)}`}
           onPress={() => router.push(APP_ROUTES.performanceLabTest(featured.key))}
           fullWidth
           icon="play"

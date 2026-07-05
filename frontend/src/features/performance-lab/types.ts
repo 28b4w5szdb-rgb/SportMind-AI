@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
 import type { Ionicons } from '@expo/vector-icons';
 
-import type { AnalyticsModuleId } from '@/src/analytics/types';
+import type { AnalyticsModuleId, TrendDirection } from '@/src/analytics/types';
 
 export type TestCategoryId =
   | 'speed'
@@ -19,6 +19,26 @@ export type TestCategoryId =
 
 export type PerformanceLevel = 'elite' | 'good' | 'average' | 'below';
 
+/** Filter taxonomy — scalable objective tags for library search. */
+export type TestObjective =
+  | 'linear_speed'
+  | 'max_force'
+  | 'aerobic_capacity'
+  | 'change_of_direction'
+  | 'explosive_power'
+  | 'range_of_motion'
+  | 'stability'
+  | 'body_composition'
+  | 'reaction_cognition'
+  | 'neuromuscular'
+  | 'movement_quality'
+  | 'custom_metric';
+
+export interface BilingualText {
+  en: string;
+  ar: string;
+}
+
 export interface TestReferenceValues {
   elite: number;
   good: number;
@@ -26,21 +46,39 @@ export interface TestReferenceValues {
   lowerIsBetter?: boolean;
 }
 
-/** Registry entry — add hundreds of tests by extending TEST_REGISTRY only. */
+export interface TestCopyBundle {
+  name: BilingualText;
+  description: BilingualText;
+  purpose: BilingualText;
+  equipment: BilingualText;
+  protocol: BilingualText;
+  scoring: BilingualText;
+  interpretation: BilingualText;
+  aiRec: BilingualText;
+  notes?: BilingualText;
+}
+
+/** Registry entry — extend catalog rows only to scale to 300+ tests. */
 export interface TestDefinition {
   key: string;
   categoryId: TestCategoryId;
   icon: ComponentProps<typeof Ionicons>['name'];
-  nameKey: string;
-  descriptionKey: string;
-  protocolKey: string;
-  equipmentKey: string;
   unit: string;
   referenceValues: TestReferenceValues;
   affectedModules: AnalyticsModuleId[];
-  aiRecommendationKey: string;
-  /** Primary demo test shown for its category card. */
+  analyticsWeight: number;
+  expectedTrend: TrendDirection;
+  objective: TestObjective;
   featured: boolean;
+  isCustom?: boolean;
+  /** Legacy i18n keys — optional when copy bundle is present. */
+  nameKey?: string;
+  descriptionKey?: string;
+  protocolKey?: string;
+  equipmentKey?: string;
+  aiRecommendationKey?: string;
+  copy: TestCopyBundle;
+  defaultRecommendationKey?: string;
 }
 
 export interface TestingCategoryDefinition {
@@ -61,4 +99,23 @@ export interface TestAnalyticsImpact {
   loadDelta: number;
   recoveryDelta: number;
   injuryRiskDelta: number;
+}
+
+export interface CustomTestInput {
+  name: string;
+  nameAr?: string;
+  unit: string;
+  protocol: string;
+  protocolAr?: string;
+  targetMetric?: string;
+  targetMetricAr?: string;
+  notes?: string;
+  notesAr?: string;
+}
+
+export interface TestLibraryFilters {
+  query: string;
+  categoryId: TestCategoryId | 'all';
+  objective: TestObjective | 'all';
+  favoritesOnly: boolean;
 }

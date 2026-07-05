@@ -10,7 +10,8 @@ import type { AthleteAnalyticsSnapshot } from '@/src/analytics/types';
 import type { MockPerformanceTest } from '@/src/data/mock/types';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
-import { getTestDefinition, rateTestResult, PERFORMANCE_LEVEL_COLORS } from '../index';
+import { getTestDefinition, rateTestResult, PERFORMANCE_LEVEL_COLORS, getTestName, getTestText, useCustomTestDefinitions } from '../index';
+import type { TestDefinition } from '../types';
 import type { TestAnalyticsImpact } from '../types';
 
 interface TestResultCardProps {
@@ -19,14 +20,16 @@ interface TestResultCardProps {
   impact?: TestAnalyticsImpact;
   compact?: boolean;
   onPress?: () => void;
+  definition?: TestDefinition;
 }
 
-export function TestResultCard({ test, analytics, impact, compact = false, onPress }: TestResultCardProps) {
+export function TestResultCard({ test, analytics, impact, compact = false, onPress, definition: definitionProp }: TestResultCardProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
   const { flexRow, textAlign, isRTL, chevronIcon } = useDirection();
-  const definition = getTestDefinition(test.test_type_key);
+  const customTests = useCustomTestDefinitions();
+  const definition = definitionProp ?? getTestDefinition(test.test_type_key, customTests);
   const level = definition ? rateTestResult(test.value, definition.referenceValues) : 'average';
   const levelColor = PERFORMANCE_LEVEL_COLORS[level];
   const affected = definition?.affectedModules ?? [];
@@ -42,7 +45,9 @@ export function TestResultCard({ test, analytics, impact, compact = false, onPre
           <Ionicons name={(definition?.icon ?? 'analytics') as keyof typeof Ionicons.glyphMap} size={22} color={levelColor} />
         </View>
         <View style={{ flex: 1, marginHorizontal: theme.spacing.md }}>
-          <Text style={[type.body, { color: theme.colors.text, textAlign: textAlign('start') }]}>{test.test_type}</Text>
+          <Text style={[type.body, { color: theme.colors.text, textAlign: textAlign('start') }]}>
+            {definition ? getTestName(definition, isRTL) : test.test_type}
+          </Text>
           <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 2, textAlign: textAlign('start') }]}>
             {test.athlete_name} · {test.date}
           </Text>
@@ -75,7 +80,7 @@ export function TestResultCard({ test, analytics, impact, compact = false, onPre
 
           {definition ? (
             <Text style={[type.bodySm, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>
-              {t(definition.aiRecommendationKey)}
+              {getTestText(definition, 'aiRec', isRTL)}
             </Text>
           ) : null}
 

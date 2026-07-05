@@ -3,6 +3,9 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import type { AiAgentId, AiMessage } from './ai-coach';
+import type { CustomTestInput } from '@/src/features/performance-lab/types';
+import { buildCustomTestDefinition } from '@/src/features/performance-lab/registry/factory';
+import type { TestDefinition } from '@/src/features/performance-lab/types';
 import type {
   MockAthlete,
   MockCalculationRecord,
@@ -53,6 +56,10 @@ export interface MockStore {
   activeConversationId: string | null;
   selectedAgent: AiAgentId;
 
+  favoriteTestKeys: string[];
+  recentTestKeys: string[];
+  customTestDefinitions: TestDefinition[];
+
   addAthlete: (input: Omit<MockAthlete, 'id' | 'created_at' | 'tests_count' | 'trend_percent'>) => MockAthlete;
   updateAthlete: (id: string, patch: Partial<MockAthlete>) => void;
   getAthlete: (id: string) => MockAthlete | undefined;
@@ -74,6 +81,10 @@ export interface MockStore {
   setActiveMessages: (messages: AiMessage[]) => void;
   appendActiveMessage: (message: AiMessage) => void;
   touchActiveConversation: () => void;
+
+  toggleFavoriteTest: (key: string) => void;
+  pushRecentTest: (key: string) => void;
+  addCustomTestDefinition: (input: CustomTestInput) => TestDefinition;
 }
 
 function ensureActiveConversation(get: () => MockStore, set: (partial: Partial<MockStore>) => void): string {
@@ -112,6 +123,9 @@ export const useMockStore = create<MockStore>()(
       conversations: [],
       activeConversationId: null,
       selectedAgent: 'performance',
+      favoriteTestKeys: [],
+      recentTestKeys: [],
+      customTestDefinitions: [],
 
       addAthlete: (input) => {
         const athlete: MockAthlete = {
@@ -301,6 +315,28 @@ export const useMockStore = create<MockStore>()(
           ),
         }));
       },
+
+      toggleFavoriteTest: (key) => {
+        set((s) => ({
+          favoriteTestKeys: s.favoriteTestKeys.includes(key)
+            ? s.favoriteTestKeys.filter((k) => k !== key)
+            : [key, ...s.favoriteTestKeys],
+        }));
+      },
+
+      pushRecentTest: (key) => {
+        set((s) => ({
+          recentTestKeys: [key, ...s.recentTestKeys.filter((k) => k !== key)].slice(0, 12),
+        }));
+      },
+
+      addCustomTestDefinition: (input) => {
+        const key = uid('custom_test');
+        const def = buildCustomTestDefinition(input, key);
+        def.isCustom = true;
+        set((s) => ({ customTestDefinitions: [def, ...s.customTestDefinitions] }));
+        return def;
+      },
     }),
     {
       name: STORAGE_KEY,
@@ -314,6 +350,9 @@ export const useMockStore = create<MockStore>()(
         conversations: state.conversations,
         activeConversationId: state.activeConversationId,
         selectedAgent: state.selectedAgent,
+        favoriteTestKeys: state.favoriteTestKeys,
+        recentTestKeys: state.recentTestKeys,
+        customTestDefinitions: state.customTestDefinitions,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

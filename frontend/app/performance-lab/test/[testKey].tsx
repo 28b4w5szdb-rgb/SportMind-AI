@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,10 +18,14 @@ import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import { useFormAction } from '@/src/hooks/useFormAction';
 import {
-  getTestDefinition,
   computeTestAnalyticsImpact,
   PERFORMANCE_LEVEL_COLORS,
   rateTestResult,
+  getTestName,
+  getTestText,
+  useTestDefinition,
+  useTestLibraryActions,
+  getObjectiveLabelKey,
 } from '@/src/features/performance-lab';
 import type { MockPerformanceTest } from '@/src/data/mock/types';
 
@@ -34,10 +38,12 @@ export default function TestDetailScreen() {
   const { flexRow, textAlign, isRTL } = useDirection();
   const athletes = useMockStore((s) => s.athletes);
   const tests = useMockStore((s) => s.tests);
+  const favorites = useMockStore((s) => s.favoriteTestKeys);
   const addTest = useMockStore((s) => s.addTest);
   const { loading, success, run } = useFormAction();
+  const { pushRecent, toggleFavorite } = useTestLibraryActions();
 
-  const definition = getTestDefinition(testKey ?? '');
+  const definition = useTestDefinition(testKey);
 
   const [athleteId, setAthleteId] = useState(athletes[0]?.id ?? '');
   const [value, setValue] = useState('');
@@ -54,14 +60,14 @@ export default function TestDetailScreen() {
       id: 'preview',
       athlete_id: athlete.id,
       athlete_name: `${athlete.first_name} ${athlete.last_name}`,
-      test_type: t(definition.nameKey),
+      test_type: getTestName(definition, isRTL),
       test_type_key: definition.key,
       value: Number(value),
       unit: definition.unit,
       date,
     };
     return computeTestAnalyticsImpact(athlete, athleteTests, simulated);
-  }, [athlete, athleteTests, value, definition, date, t]);
+  }, [athlete, athleteTests, value, definition, date, isRTL]);
 
   const projectedLevel = useMemo(() => {
     if (!definition || !value.trim() || Number.isNaN(Number(value))) return null;
@@ -78,6 +84,7 @@ export default function TestDetailScreen() {
 
   const ref = definition.referenceValues;
   const levelColor = projectedLevel ? PERFORMANCE_LEVEL_COLORS[projectedLevel] : theme.colors.primary;
+  const isFavorite = favorites.includes(definition.key);
 
   const validate = () => {
     const next: typeof errors = {};
@@ -91,10 +98,11 @@ export default function TestDetailScreen() {
   const handleSave = () => {
     if (!validate() || !athlete) return;
     run(() => {
+      pushRecent(definition.key);
       const saved = addTest({
         athlete_id: athlete.id,
         athlete_name: `${athlete.first_name} ${athlete.last_name}`,
-        test_type: t(definition.nameKey),
+        test_type: getTestName(definition, isRTL),
         test_type_key: definition.key,
         value: Number(value),
         unit: definition.unit,
@@ -106,26 +114,39 @@ export default function TestDetailScreen() {
   };
 
   return (
-    <FeatureScrollScreen title={t(definition.nameKey)}>
+    <FeatureScrollScreen
+      title={getTestName(definition, isRTL)}
+      rightAction={{ icon: isFavorite ? 'star' : 'star-outline', onPress: () => toggleFavorite(definition.key) }}
+    >
       <SuccessBanner message={t('features.lab.saved')} visible={success} />
 
       <Card variant="gradient" padding="lg" gradientColors={[levelColor, levelColor + '99']} style={{ borderRadius: theme.borderRadius['2xl'], marginBottom: theme.spacing.lg }}>
         <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
           <Ionicons name={definition.icon} size={36} color="#FFF" />
           <View style={{ flex: 1, marginHorizontal: theme.spacing.md }}>
-            <Text style={[type.h4, { color: '#FFF', textAlign: textAlign('start') }]}>{t(definition.nameKey)}</Text>
-            <Text style={[type.bodySm, { color: 'rgba(255,255,255,0.9)', marginTop: 4, textAlign: textAlign('start') }]}>{t(definition.descriptionKey)}</Text>
+            <Text style={[type.h4, { color: '#FFF', textAlign: textAlign('start') }]}>{getTestName(definition, isRTL)}</Text>
+            <Text style={[type.bodySm, { color: 'rgba(255,255,255,0.9)', marginTop: 4, textAlign: textAlign('start') }]}>
+              {getTestText(definition, 'description', isRTL)}
+            </Text>
           </View>
           <Badge label={t('testingCenter.analyticsBadge')} variant="info" />
         </View>
       </Card>
 
+      <FormSection title={t('testingCenter.sections.purpose')}>
+        <Text style={[type.body, { color: theme.colors.text, textAlign: textAlign('start'), lineHeight: 22 }]}>{getTestText(definition, 'purpose', isRTL)}</Text>
+      </FormSection>
+
       <FormSection title={t('testingCenter.sections.protocol')} subtitle={t('testingCenter.sections.protocolHint')}>
-        <Text style={[type.body, { color: theme.colors.text, textAlign: textAlign('start'), lineHeight: 22 }]}>{t(definition.protocolKey)}</Text>
+        <Text style={[type.body, { color: theme.colors.text, textAlign: textAlign('start'), lineHeight: 22 }]}>{getTestText(definition, 'protocol', isRTL)}</Text>
       </FormSection>
 
       <FormSection title={t('testingCenter.sections.equipment')}>
-        <Text style={[type.bodySm, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>{t(definition.equipmentKey)}</Text>
+        <Text style={[type.bodySm, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>{getTestText(definition, 'equipment', isRTL)}</Text>
+      </FormSection>
+
+      <FormSection title={t('testingCenter.sections.scoring')}>
+        <Text style={[type.bodySm, { color: theme.colors.text, textAlign: textAlign('start') }]}>{getTestText(definition, 'scoring', isRTL)}</Text>
       </FormSection>
 
       <FormSection title={t('testingCenter.sections.referenceValues')}>
@@ -134,9 +155,21 @@ export default function TestDetailScreen() {
             ? `نخبة: ${ref.elite} · جيد: ${ref.good} · متوسط: ${ref.average} ${definition.unit}`
             : `Elite: ${ref.elite} · Good: ${ref.good} · Average: ${ref.average} ${definition.unit}`}
         </Text>
+        <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 6, textAlign: textAlign('start') }]}>
+          {t('testingCenter.library.analyticsWeight')}: {Math.round(definition.analyticsWeight * 100)}% · {t('testingCenter.library.expectedTrend')}: {definition.expectedTrend}
+        </Text>
+      </FormSection>
+
+      <FormSection title={t('testingCenter.sections.interpretation')}>
+        <Text style={[type.bodySm, { color: theme.colors.textSecondary, textAlign: textAlign('start'), lineHeight: 22 }]}>
+          {getTestText(definition, 'interpretation', isRTL)}
+        </Text>
       </FormSection>
 
       <FormSection title={t('testingCenter.sections.analyticsImpact')}>
+        <Text style={[type.caption, { color: theme.colors.textTertiary, marginBottom: 8, textAlign: textAlign('start') }]}>
+          {t(getObjectiveLabelKey(definition.objective))}
+        </Text>
         <View style={{ flexDirection: flexRow(true), flexWrap: 'wrap', gap: 6 }}>
           {definition.affectedModules.map((modId) => {
             const mod = ANALYTICS_MODULES.find((m) => m.id === modId);
@@ -144,6 +177,18 @@ export default function TestDetailScreen() {
           })}
         </View>
       </FormSection>
+
+      <FormSection title={t('testingCenter.sections.aiRecommendation')}>
+        <Text style={[type.bodySm, { color: theme.colors.text, textAlign: textAlign('start'), lineHeight: 22 }]}>
+          {getTestText(definition, 'aiRec', isRTL)}
+        </Text>
+      </FormSection>
+
+      {definition.copy.notes ? (
+        <FormSection title={t('features.lab.notes')}>
+          <Text style={[type.bodySm, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>{getTestText(definition, 'notes', isRTL)}</Text>
+        </FormSection>
+      ) : null}
 
       <FormSection title={t('features.lab.selectAthlete')}>
         <View style={{ flexDirection: flexRow(true), flexWrap: 'wrap', gap: 8 }}>
@@ -205,9 +250,6 @@ export default function TestDetailScreen() {
             </Text>
             <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 6, textAlign: textAlign('start') }]}>
               {t('analytics.kpi.readiness')} {projectedImpact.readinessDelta >= 0 ? '+' : ''}{projectedImpact.readinessDelta}% · {t('analytics.kpi.fatigue')} {projectedImpact.fatigueDelta >= 0 ? '+' : ''}{projectedImpact.fatigueDelta}%
-            </Text>
-            <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 6, textAlign: textAlign('start') }]}>
-              {t(definition.aiRecommendationKey)}
             </Text>
           </Card>
         </FormSection>
