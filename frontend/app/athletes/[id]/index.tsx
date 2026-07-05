@@ -10,7 +10,7 @@ import { Card } from '@/src/components/common/Card';
 import { Button } from '@/src/components/common/Button';
 import { Badge } from '@/src/components/common/Badge';
 import { ReadinessScore } from '@/src/components/features/ReadinessScore';
-import { useMockStore } from '@/src/data/mock/store';
+import { useAthleteById, useTestsForAthlete } from '@/src/data/mock/hooks';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
@@ -23,8 +23,8 @@ export default function AthleteDetailScreen() {
   const theme = useTheme();
   const type = useTypography();
   const { flexRow, textAlign, isRTL } = useDirection();
-  const athlete = useMockStore((s) => s.getAthlete(id ?? ''));
-  const tests = useMockStore((s) => s.tests.filter((t) => t.athlete_id === id));
+  const athlete = useAthleteById(id);
+  const tests = useTestsForAthlete(id);
 
   if (!athlete) {
     return (

@@ -35,6 +35,7 @@ import {
   type AiAgentId,
   type AiMessage,
 } from '@/src/data/mock/ai-coach';
+import { useActiveConversationMessages } from '@/src/data/mock/hooks';
 import { useMockStore } from '@/src/data/mock/store';
 import { copyToClipboard, exportTextPlaceholder } from '@/src/utils/clipboard';
 
@@ -58,9 +59,6 @@ function formatConversationDate(iso: string, isRTL: boolean): string {
   return d.toLocaleDateString(isRTL ? 'ar' : 'en', { month: 'short', day: 'numeric' });
 }
 
-/** Stable fallback — never return a fresh [] from a Zustand selector (breaks Object.is equality). */
-const EMPTY_MESSAGES: AiMessage[] = [];
-
 export default function AICoachScreen() {
   const theme = useTheme();
   const type = useTypography();
@@ -78,10 +76,7 @@ export default function AICoachScreen() {
   const startNewConversation = useMockStore((s) => s.startNewConversation);
   const setActiveConversation = useMockStore((s) => s.setActiveConversation);
 
-  const messages = useMockStore((s) => {
-    if (!s.activeConversationId) return EMPTY_MESSAGES;
-    return s.conversations.find((c) => c.id === s.activeConversationId)?.messages ?? EMPTY_MESSAGES;
-  });
+  const messages = useActiveConversationMessages();
 
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);

@@ -3,6 +3,7 @@
  * Central theme configuration with light/dark mode support
  */
 
+import { useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import { colors, gradients, chartColors, ColorScheme, Colors } from './colors';
 import { typography, Typography, fontSizes, fontWeights, lineHeights, letterSpacing } from './typography';
@@ -29,19 +30,22 @@ export function useTheme(): Theme {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
-  return {
-    colors: isDark ? colors.dark : colors.light,
-    typography,
-    spacing,
-    borderRadius,
-    shadows,
-    layout,
-    timing,
-    zIndex,
-    gradients,
-    chartColors: isDark ? chartColors.dark : chartColors.light,
-    isDark,
-  };
+  return useMemo(
+    () => ({
+      colors: isDark ? colors.dark : colors.light,
+      typography,
+      spacing,
+      borderRadius,
+      shadows,
+      layout,
+      timing,
+      zIndex,
+      gradients,
+      chartColors: isDark ? chartColors.dark : chartColors.light,
+      isDark,
+    }),
+    [isDark]
+  );
 }
 
 // Export individual theme parts

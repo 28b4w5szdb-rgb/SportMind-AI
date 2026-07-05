@@ -11,6 +11,7 @@ import {
   formValuesToAthleteInput,
   type AthleteFormValues,
 } from '@/src/components/features';
+import { useAthleteById } from '@/src/data/mock/hooks';
 import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import { useTheme, useTypography } from '@/src/core/theme';
@@ -22,7 +23,7 @@ export default function EditAthleteScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
-  const athlete = useMockStore((s) => s.getAthlete(id ?? ''));
+  const athlete = useAthleteById(id);
   const updateAthlete = useMockStore((s) => s.updateAthlete);
   const { loading, success, run } = useFormAction();
 
