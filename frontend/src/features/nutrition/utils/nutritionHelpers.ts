@@ -77,18 +77,33 @@ export function buildAthleteNutritionSnapshot(params: {
   });
 }
 
-export function formatNutritionForAI(snapshot: NutritionSnapshot, athleteName: string, isRTL: boolean): string {
-  const { totals, targets, hydration, compliancePercent, goal, primaryRecommendation } = snapshot;
+export function formatNutritionForAI(snapshot: NutritionSnapshot, athleteName: string, isRTL: boolean, translate?: (key: string) => string): string {
+  const { totals, targets, hydration, compliance, goal, primaryRecommendation, bodyCompositionAnalysis } = snapshot;
+  const recText = primaryRecommendation
+    ? translate
+      ? translate(primaryRecommendation.titleKey)
+      : primaryRecommendation.titleKey
+    : '';
+  const bc = bodyCompositionAnalysis;
+  const bodyLine =
+    bc?.latest && isRTL
+      ? `تركيب الجسم: ${bc.latest.weight_kg} kg${bc.bodyFatChange !== undefined ? ` · دهون ${bc.bodyFatChange > 0 ? '+' : ''}${bc.bodyFatChange}%` : ''}.`
+      : bc?.latest
+        ? `Body comp: ${bc.latest.weight_kg} kg${bc.bodyFatChange !== undefined ? ` · BF ${bc.bodyFatChange > 0 ? '+' : ''}${bc.bodyFatChange}%` : ''}.`
+        : '';
+
   if (isRTL) {
     return (
       `🥗 تغذية ${athleteName}: ${totals.calories}/${targets.calories} kcal، بروtein ${totals.protein_g}/${targets.protein_g}g، ماء ${totals.water_liters}/${targets.water_liters}L.\n` +
-      `الامتثال ${compliancePercent}%. الترطيب ${hydration.hydrationPercent}%. الهدف: ${goal}.\n` +
-      (primaryRecommendation ? `💡 ${primaryRecommendation.titleKey}` : '')
+      `الامتثال ${compliance.overall}% (بروtein ${compliance.protein}% · ترطيب ${compliance.hydration}%). الهدف: ${goal}.\n` +
+      bodyLine +
+      (recText ? `\n💡 ${recText}` : '')
     );
   }
   return (
     `🥗 Nutrition for ${athleteName}: ${totals.calories}/${targets.calories} kcal, protein ${totals.protein_g}/${targets.protein_g}g, water ${totals.water_liters}/${targets.water_liters}L.\n` +
-    `Compliance ${compliancePercent}%. Hydration ${hydration.hydrationPercent}%. Goal: ${goal}.\n` +
-    (primaryRecommendation ? `💡 ${primaryRecommendation.titleKey}` : '')
+    `Compliance ${compliance.overall}% (protein ${compliance.protein}%, hydration ${compliance.hydration}%). Goal: ${goal}.\n` +
+    bodyLine +
+    (recText ? `\n💡 ${recText}` : '')
   );
 }

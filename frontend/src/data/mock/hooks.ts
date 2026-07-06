@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 
 import type { AiMessage } from './ai-coach';
 import { useMockStore } from './store';
-import type { MockAthlete, MockPerformanceTest, MockReport, MockResearchProject, MockTeam, DailyCheckIn, InjuryRecord, TrainingPlan, DailyNutritionLog, NutritionGoalSetting } from './types';
+import type { MockAthlete, MockPerformanceTest, MockReport, MockResearchProject, MockTeam, DailyCheckIn, InjuryRecord, TrainingPlan, DailyNutritionLog, NutritionGoalSetting, BodyCompositionRecord } from './types';
 import { getLatestCheckIn, todayDateKey } from '@/src/features/daily-checkin/validation';
 
 const EMPTY_MESSAGES: AiMessage[] = [];
@@ -16,6 +16,7 @@ const EMPTY_CHECKINS: DailyCheckIn[] = [];
 const EMPTY_INJURIES: InjuryRecord[] = [];
 const EMPTY_PLANS: TrainingPlan[] = [];
 const EMPTY_NUTRITION_LOGS: DailyNutritionLog[] = [];
+const EMPTY_BODY_COMP: BodyCompositionRecord[] = [];
 
 export function useAthleteById(id: string | undefined): MockAthlete | undefined {
   return useMockStore((s) => (id ? s.athletes.find((a) => a.id === id) : undefined));
@@ -139,4 +140,20 @@ export function useNutritionLogsForAthlete(athleteId: string | undefined): Daily
     const filtered = nutritionLogs.filter((l) => l.athlete_id === athleteId);
     return filtered.length > 0 ? filtered : EMPTY_NUTRITION_LOGS;
   }, [nutritionLogs, athleteId]);
+}
+
+export function useBodyCompositionForAthlete(athleteId: string | undefined): BodyCompositionRecord[] {
+  const bodyCompositionRecords = useMockStore((s) => s.bodyCompositionRecords);
+  return useMemo(() => {
+    if (!athleteId) return EMPTY_BODY_COMP;
+    const filtered = bodyCompositionRecords
+      .filter((r) => r.athlete_id === athleteId)
+      .sort((a, b) => b.date.localeCompare(a.date));
+    return filtered.length > 0 ? filtered : EMPTY_BODY_COMP;
+  }, [bodyCompositionRecords, athleteId]);
+}
+
+export function useBodyCompositionForAthleteOnDate(athleteId: string | undefined, dateKey: string = todayDateKey()): BodyCompositionRecord | undefined {
+  const records = useBodyCompositionForAthlete(athleteId);
+  return useMemo(() => records.find((r) => r.date === dateKey), [records, dateKey]);
 }

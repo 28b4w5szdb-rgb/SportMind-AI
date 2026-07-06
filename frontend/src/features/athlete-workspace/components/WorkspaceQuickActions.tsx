@@ -30,6 +30,7 @@ const ACTIONS: Array<{
   { id: 'log_session', icon: 'checkmark-done', labelKey: 'athleteWorkspace.actions.logSession', color: '#0D9488' },
   { id: 'nutrition_log', icon: 'restaurant', labelKey: 'athleteWorkspace.actions.nutritionLog', color: '#F97316' },
   { id: 'nutrition_center', icon: 'nutrition', labelKey: 'athleteWorkspace.actions.nutritionCenter', color: '#EA580C' },
+  { id: 'log_body_composition', icon: 'body', labelKey: 'athleteWorkspace.actions.logBodyComposition', color: '#D97706' },
   { id: 'edit_athlete', icon: 'create-outline', labelKey: 'athleteWorkspace.actions.editAthlete', color: '#0D9488' },
   { id: 'create_report', icon: 'document-text', labelKey: 'athleteWorkspace.actions.createReport', color: '#8B5CF6' },
   { id: 'compare', icon: 'git-compare', labelKey: 'athleteWorkspace.actions.compare', color: '#F97316' },
@@ -75,6 +76,9 @@ export function WorkspaceQuickActions({ athlete }: WorkspaceQuickActionsProps) {
         break;
       case 'nutrition_center':
         router.push(APP_ROUTES.nutritionCenter(athlete.id));
+        break;
+      case 'log_body_composition':
+        router.push(APP_ROUTES.bodyComposition(athlete.id));
         break;
       case 'edit_athlete':
         router.push(APP_ROUTES.athleteEdit(athlete.id));

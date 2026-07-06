@@ -32,6 +32,9 @@ export function useNutritionSnapshot(
       checkIn,
       injuries: injuryRecords.filter((i) => i.athlete_id === athlete.id),
       trainingPlans: trainingPlans.filter((p) => p.athlete_id === athlete.id),
+      nutritionLogs,
+      bodyCompositionRecords,
+      nutritionGoalSettings,
     });
 
     return buildAthleteNutritionSnapshot({

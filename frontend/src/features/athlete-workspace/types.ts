@@ -38,6 +38,7 @@ export type QuickActionId =
   | 'log_session'
   | 'nutrition_log'
   | 'nutrition_center'
+  | 'log_body_composition'
   | 'edit_athlete'
   | 'create_report'
   | 'compare'

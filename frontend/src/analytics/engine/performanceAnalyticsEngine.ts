@@ -1,4 +1,4 @@
-import type { MockAthlete, MockPerformanceTest, DailyCheckIn, InjuryRecord, TrainingPlan } from '@/src/data/mock/types';
+import type { MockAthlete, MockPerformanceTest, DailyCheckIn, InjuryRecord, TrainingPlan, DailyNutritionLog, BodyCompositionRecord, NutritionGoalSetting } from '@/src/data/mock/types';
 import type { AnalyticsEngineContext, AthleteAnalyticsSnapshot } from '../types';
 import { buildRawSignals, ageFromDob } from '../input/buildSignals';
 import { computeInjuryPreventionProfile } from '@/src/features/sports-medicine/engine/injuryPreventionEngine';
@@ -16,11 +16,18 @@ export interface PerformanceAnalyticsInput {
   checkIn?: DailyCheckIn;
   injuries?: InjuryRecord[];
   trainingPlans?: TrainingPlan[];
+  nutritionLogs?: DailyNutritionLog[];
+  bodyCompositionRecords?: BodyCompositionRecord[];
+  nutritionGoalSettings?: NutritionGoalSetting[];
   context?: Partial<AnalyticsEngineContext>;
 }
 
 export function computeAthleteAnalytics(input: PerformanceAnalyticsInput): AthleteAnalyticsSnapshot {
-  const signals = buildRawSignals(input.athlete, input.tests, input.checkIn, input.trainingPlans);
+  const signals = buildRawSignals(input.athlete, input.tests, input.checkIn, input.trainingPlans, {
+    nutritionLogs: input.nutritionLogs,
+    bodyCompositionRecords: input.bodyCompositionRecords,
+    nutritionGoalSettings: input.nutritionGoalSettings,
+  });
   const injuries = input.injuries ?? [];
   const injuryProfile = computeInjuryPreventionProfile({
     athlete: input.athlete,

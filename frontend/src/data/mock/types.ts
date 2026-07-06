@@ -64,6 +64,9 @@ export interface MockReportSections {
   training_summary?: string;
   training_compliance_summary?: string;
   nutrition_summary?: string;
+  nutrition_hydration_status?: string;
+  nutrition_body_comp_trend?: string;
+  nutrition_recommendations?: string;
 }
 
 export interface MockReport {

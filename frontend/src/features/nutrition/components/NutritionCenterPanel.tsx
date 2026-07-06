@@ -6,6 +6,7 @@ import { Card } from '@/src/components/common/Card';
 import { FormSection } from '@/src/components/common/FormSection';
 import type { NutritionSnapshot } from '../types';
 import { NUTRITION_GOALS } from '../registry/nutritionCatalog';
+import { BodyCompositionHistoryPanel } from './BodyCompositionPanel';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 
@@ -38,7 +39,7 @@ export function NutritionCenterPanel({ snapshot }: NutritionCenterPanelProps) {
   const theme = useTheme();
   const type = useTypography();
   const { flexRow, textAlign } = useDirection();
-  const { totals, targets, hydration, compliancePercent, goal, goalProgress, bodyComposition, bmi, bodyCompositionTrend, recommendations } =
+  const { totals, targets, hydration, compliance, compliancePercent, goal, goalProgress, bodyCompositionAnalysis, bodyCompositionTrend, recommendations } =
     snapshot;
 
   return (
@@ -88,47 +89,11 @@ export function NutritionCenterPanel({ snapshot }: NutritionCenterPanelProps) {
       </FormSection>
 
       <FormSection title={t('nutrition.bodyCompTitle')}>
-        <Card variant="outlined" padding="md" style={{ borderRadius: theme.borderRadius.xl, marginBottom: theme.spacing.sm }}>
-          <View style={{ flexDirection: flexRow(true), flexWrap: 'wrap', gap: theme.spacing.md }}>
-            <View>
-              <Text style={[type.caption, { color: theme.colors.textSecondary }]}>{t('nutrition.weight')}</Text>
-              <Text style={[type.body, { color: theme.colors.text, fontWeight: '700' }]}>
-                {bodyComposition?.weight_kg ?? '—'} kg
-              </Text>
-            </View>
-            <View>
-              <Text style={[type.caption, { color: theme.colors.textSecondary }]}>BMI</Text>
-              <Text style={[type.body, { color: theme.colors.text, fontWeight: '700' }]}>{bmi ?? '—'}</Text>
-            </View>
-            <View>
-              <Text style={[type.caption, { color: theme.colors.textSecondary }]}>{t('nutrition.bodyFat')}</Text>
-              <Text style={[type.body, { color: theme.colors.text, fontWeight: '700' }]}>
-                {bodyComposition?.body_fat_percent != null ? `${bodyComposition.body_fat_percent}%` : '—'}
-              </Text>
-            </View>
-            <View>
-              <Text style={[type.caption, { color: theme.colors.textSecondary }]}>{t('nutrition.leanMass')}</Text>
-              <Text style={[type.body, { color: theme.colors.text, fontWeight: '700' }]}>
-                {bodyComposition?.lean_mass_kg != null ? `${bodyComposition.lean_mass_kg} kg` : '—'}
-              </Text>
-            </View>
-          </View>
-        </Card>
-        {bodyCompositionTrend.length > 1 ? (
-          <View style={{ flexDirection: flexRow(true), alignItems: 'flex-end', height: 60, gap: 6 }}>
-            {[...bodyCompositionTrend].reverse().map((pt) => {
-              const h = Math.max(12, Math.min(56, pt.weight_kg * 0.6));
-              return (
-                <View key={pt.id} style={{ flex: 1, alignItems: 'center' }}>
-                  <View style={{ width: 14, height: h, backgroundColor: theme.colors.primary, borderRadius: 4, opacity: 0.85 }} />
-                  <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 4, fontSize: 9 }]} numberOfLines={1}>
-                    {pt.date.slice(5)}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-        ) : null}
+        {bodyCompositionAnalysis ? (
+          <BodyCompositionHistoryPanel analysis={bodyCompositionAnalysis} trend={bodyCompositionTrend} showSectionTitle={false} />
+        ) : (
+          <Text style={[type.bodySm, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>{t('nutrition.bodyComp.noHistory')}</Text>
+        )}
       </FormSection>
 
       <FormSection title={t('nutrition.recommendationsTitle')}>

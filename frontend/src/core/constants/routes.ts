@@ -57,6 +57,8 @@ export const APP_ROUTES = {
     (athleteId ? `/nutrition?athleteId=${encodeURIComponent(athleteId)}` : '/nutrition') as Href,
   nutritionLog: (athleteId?: string): Href =>
     (athleteId ? `/nutrition/log?athleteId=${encodeURIComponent(athleteId)}` : '/nutrition/log') as Href,
+  bodyComposition: (athleteId?: string): Href =>
+    (athleteId ? `/nutrition/body-composition?athleteId=${encodeURIComponent(athleteId)}` : '/nutrition/body-composition') as Href,
   knowledgeCategory: (key: string): Href => `/knowledge/${key}` as Href,
   settings: '/settings' as Href,
   help: '/help' as Href,

@@ -58,9 +58,36 @@ export interface BodyCompositionRecord {
   muscle_mass_kg?: number;
   lean_mass_kg?: number;
   body_water_percent?: number;
+  waist_cm?: number;
+  hip_cm?: number;
+  notes?: string;
 }
 
-export type BodyCompositionInput = Omit<BodyCompositionRecord, 'id'>;
+export type BodyCompositionTrendDirection = 'up' | 'down' | 'stable';
+
+export type BodyCompositionStatusId = 'optimal' | 'monitor' | 'attention';
+
+export interface BodyCompositionAnalysis {
+  latest?: BodyCompositionRecord;
+  previous?: BodyCompositionRecord;
+  weightChange?: number;
+  bodyFatChange?: number;
+  muscleMassChange?: number;
+  trendDirection: BodyCompositionTrendDirection;
+  bmi?: number;
+  waistHipRatio?: number;
+  status: BodyCompositionStatusId;
+  statusKey: string;
+}
+
+export interface NutritionComplianceBreakdown {
+  overall: number;
+  protein: number;
+  hydration: number;
+  calories: number;
+}
+
+export type BodyCompositionInput = Omit<BodyCompositionRecord, 'id' | 'date'> & { date?: string };
 
 export interface NutritionGoalSetting {
   athlete_id: string;
@@ -115,8 +142,10 @@ export interface NutritionSnapshot {
   targets: NutritionTargets;
   totals: MacroTotals;
   compliancePercent: number;
+  compliance: NutritionComplianceBreakdown;
   hydration: HydrationSnapshot;
   bodyComposition?: BodyCompositionRecord;
+  bodyCompositionAnalysis?: BodyCompositionAnalysis;
   bodyCompositionTrend: BodyCompositionRecord[];
   bmi?: number;
   goal: NutritionGoalId;

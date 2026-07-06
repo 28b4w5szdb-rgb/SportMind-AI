@@ -291,6 +291,8 @@ export const SEED_BODY_COMPOSITION: BodyCompositionRecord[] = [
     muscle_mass_kg: 38.2,
     lean_mass_kg: 69.2,
     body_water_percent: 58.5,
+    waist_cm: 82,
+    hip_cm: 98,
   },
   {
     id: 'bc3',
@@ -301,6 +303,9 @@ export const SEED_BODY_COMPOSITION: BodyCompositionRecord[] = [
     muscle_mass_kg: 38.5,
     lean_mass_kg: 68.8,
     body_water_percent: 59,
+    waist_cm: 81,
+    hip_cm: 98,
+    notes: 'Pre-match weigh-in — on target.',
   },
   {
     id: 'bc4',

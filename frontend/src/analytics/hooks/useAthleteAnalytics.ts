@@ -14,6 +14,9 @@ export function useAthleteAnalytics(
   const latestCheckIn = useLatestCheckInForAthlete(athlete?.id);
   const injuryRecords = useMockStore((s) => s.injuryRecords);
   const trainingPlans = useMockStore((s) => s.trainingPlans);
+  const nutritionLogs = useMockStore((s) => s.nutritionLogs);
+  const bodyCompositionRecords = useMockStore((s) => s.bodyCompositionRecords);
+  const nutritionGoalSettings = useMockStore((s) => s.nutritionGoalSettings);
 
   return useMemo(() => {
     if (!athlete) return null;
@@ -25,7 +28,20 @@ export function useAthleteAnalytics(
       checkIn: latestCheckIn,
       injuries,
       trainingPlans: plans,
+      nutritionLogs,
+      bodyCompositionRecords,
+      nutritionGoalSettings,
       context: { teamAvgOverall, athleteId: athlete.id },
     });
-  }, [athlete, tests, teamAvgOverall, latestCheckIn, injuryRecords, trainingPlans]);
+  }, [
+    athlete,
+    tests,
+    teamAvgOverall,
+    latestCheckIn,
+    injuryRecords,
+    trainingPlans,
+    nutritionLogs,
+    bodyCompositionRecords,
+    nutritionGoalSettings,
+  ]);
 }

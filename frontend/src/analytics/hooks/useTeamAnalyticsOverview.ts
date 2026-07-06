@@ -9,9 +9,22 @@ export function useTeamAnalyticsOverview(): TeamAnalyticsOverview {
   const dailyCheckIns = useMockStore((s) => s.dailyCheckIns);
   const injuryRecords = useMockStore((s) => s.injuryRecords);
   const trainingPlans = useMockStore((s) => s.trainingPlans);
+  const nutritionLogs = useMockStore((s) => s.nutritionLogs);
+  const bodyCompositionRecords = useMockStore((s) => s.bodyCompositionRecords);
+  const nutritionGoalSettings = useMockStore((s) => s.nutritionGoalSettings);
 
   return useMemo(
-    () => computeTeamOverview(athletes, tests, dailyCheckIns, injuryRecords, trainingPlans),
-    [athletes, tests, dailyCheckIns, injuryRecords, trainingPlans]
+    () =>
+      computeTeamOverview(
+        athletes,
+        tests,
+        dailyCheckIns,
+        injuryRecords,
+        trainingPlans,
+        nutritionLogs,
+        bodyCompositionRecords,
+        nutritionGoalSettings
+      ),
+    [athletes, tests, dailyCheckIns, injuryRecords, trainingPlans, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings]
   );
 }

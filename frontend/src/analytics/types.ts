@@ -161,4 +161,13 @@ export interface AnalyticsRawSignals {
     avgPostFatigue?: number;
     avgPostPain?: number;
   };
+  nutrition?: {
+    compliancePercent: number;
+    hydrationCompliance: number;
+    proteinCompliance: number;
+    calorieCompliance: number;
+    bodyCompositionTrendScore: number;
+    hasLogToday: boolean;
+    hasBodyComposition: boolean;
+  };
 }

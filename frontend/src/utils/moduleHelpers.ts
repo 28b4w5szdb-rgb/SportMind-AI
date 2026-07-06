@@ -127,14 +127,21 @@ export function buildNutritionReportSections(
   goalSettings: NutritionGoalSetting[],
   t: TFunction,
   isRTL: boolean
-): Pick<MockReportSections, 'nutrition_summary'> {
+): Pick<
+  MockReportSections,
+  'nutrition_summary' | 'nutrition_hydration_status' | 'nutrition_body_comp_trend' | 'nutrition_recommendations'
+> {
   const athletePlans = trainingPlans.filter((p) => p.athlete_id === athlete.id);
+  const athleteTests = tests.filter((tst) => tst.athlete_id === athlete.id);
   const analytics = computeAthleteAnalytics({
     athlete,
-    tests: tests.filter((tst) => tst.athlete_id === athlete.id),
+    tests: athleteTests,
     checkIn,
     injuries: injuries.filter((i) => i.athlete_id === athlete.id),
     trainingPlans: athletePlans,
+    nutritionLogs,
+    bodyCompositionRecords: bodyRecords,
+    nutritionGoalSettings: goalSettings,
   });
   const snapshot = buildAthleteNutritionSnapshot({
     athlete,
@@ -146,19 +153,50 @@ export function buildNutritionReportSections(
     trainingPlans: athletePlans,
     dateKey: new Date().toISOString().slice(0, 10),
   });
-  const { totals, targets, hydration, compliancePercent, goal, primaryRecommendation } = snapshot;
+  const { totals, targets, hydration, compliance, goal, primaryRecommendation, recommendations, bodyCompositionAnalysis } =
+    snapshot;
 
   const goalLabel = t(NUTRITION_GOALS.find((g) => g.id === goal)?.labelKey ?? 'nutrition.goals.performance');
 
   const nutritionSummary = isRTL
     ? `السعرات ${totals.calories}/${targets.calories} · بروtein ${totals.protein_g}/${targets.protein_g}g · ماء ${totals.water_liters}/${targets.water_liters}L.\n` +
-      `الامتثال ${compliancePercent}%. الترطيب ${hydration.hydrationPercent}%. الهدف: ${goalLabel}.\n` +
-      (primaryRecommendation ? `توصية: ${t(primaryRecommendation.titleKey)}` : 'الامتثال ضمن النطاق المستهدف.')
+      `الامتثال ${compliance.overall}%. البروtein ${compliance.protein}%. السعرات ${compliance.calories}%. الهدف: ${goalLabel}.`
     : `Calories ${totals.calories}/${targets.calories} · Protein ${totals.protein_g}/${targets.protein_g}g · Water ${totals.water_liters}/${targets.water_liters}L.\n` +
-      `Compliance ${compliancePercent}%. Hydration ${hydration.hydrationPercent}%. Goal: ${goalLabel}.\n` +
-      (primaryRecommendation ? `Recommendation: ${t(primaryRecommendation.titleKey)}` : 'Nutrition compliance on target.');
+      `Overall compliance ${compliance.overall}%. Protein ${compliance.protein}%. Calories ${compliance.calories}%. Goal: ${goalLabel}.`;
 
-  return { nutrition_summary: nutritionSummary };
+  const nutritionHydrationStatus = isRTL
+    ? `الترطيب ${hydration.hydrationPercent}% (${totals.water_liters}/${targets.water_liters}L). خطر التعرق: ${t(`nutrition.sweatRisk.${hydration.sweatRisk}`)}.`
+    : `Hydration ${hydration.hydrationPercent}% (${totals.water_liters}/${targets.water_liters}L). Sweat risk: ${t(`nutrition.sweatRisk.${hydration.sweatRisk}`)}.`;
+
+  const bc = bodyCompositionAnalysis;
+  const nutritionBodyCompTrend =
+    bc?.latest && bc.previous
+      ? isRTL
+        ? `الأحدث ${bc.latest.weight_kg} kg (${bc.latest.date}) · السابق ${bc.previous.weight_kg} kg. التغير ${bc.weightChange ?? 0} kg. BMI ${bc.bmi ?? '—'}. WHR ${bc.waistHipRatio ?? '—'}. ${t(bc.statusKey)}.`
+        : `Latest ${bc.latest.weight_kg} kg (${bc.latest.date}) · Previous ${bc.previous.weight_kg} kg. Change ${bc.weightChange ?? 0} kg. BMI ${bc.bmi ?? '—'}. WHR ${bc.waistHipRatio ?? '—'}. ${t(bc.statusKey)}.`
+      : bc?.latest
+        ? isRTL
+          ? `الوزن ${bc.latest.weight_kg} kg · BMI ${bc.bmi ?? '—'}. ${t(bc.statusKey)}.`
+          : `Weight ${bc.latest.weight_kg} kg · BMI ${bc.bmi ?? '—'}. ${t(bc.statusKey)}.`
+        : isRTL
+          ? 'لا توجد قياسات تركيب جسم كافية.'
+          : 'Insufficient body composition measurements.';
+
+  const nutritionRecommendations =
+    recommendations.length > 0
+      ? recommendations.map((rec) => `• ${t(rec.titleKey)}: ${t(rec.bodyKey)}`).join('\n')
+      : primaryRecommendation
+        ? `• ${t(primaryRecommendation.titleKey)}: ${t(primaryRecommendation.bodyKey)}`
+        : isRTL
+          ? 'التغذية ضمن الأهداف — لا توصيات عاجلة.'
+          : 'Nutrition on target — no urgent recommendations.';
+
+  return {
+    nutrition_summary: nutritionSummary,
+    nutrition_hydration_status: nutritionHydrationStatus,
+    nutrition_body_comp_trend: nutritionBodyCompTrend,
+    nutrition_recommendations: nutritionRecommendations,
+  };
 }
 
 export function buildDefaultReportSections(
@@ -191,6 +229,9 @@ export function buildDefaultReportSections(
     checkIn: context?.checkIn,
     injuries: context?.injuries?.filter((i) => i.athlete_id === athlete.id),
     trainingPlans: context?.trainingPlans?.filter((p) => p.athlete_id === athlete.id),
+    nutritionLogs: context?.nutritionLogs,
+    bodyCompositionRecords: context?.bodyCompositionRecords,
+    nutritionGoalSettings: context?.nutritionGoalSettings,
   });
   const enriched = buildAnalyticsReportSections(analytics, t);
   const injurySections = buildInjuryReportSections(

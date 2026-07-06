@@ -487,8 +487,21 @@ export const useMockStore = create<MockStore>()(
       },
 
       addBodyCompositionRecord: (input) => {
-        const record: BodyCompositionRecord = { ...input, id: uid('bcomp') };
-        set((s) => ({ bodyCompositionRecords: [record, ...s.bodyCompositionRecords] }));
+        const date = input.date ?? todayDateKey();
+        const existingIdx = get().bodyCompositionRecords.findIndex(
+          (r) => r.athlete_id === input.athlete_id && r.date === date
+        );
+        const record: BodyCompositionRecord = {
+          ...input,
+          id: existingIdx >= 0 ? get().bodyCompositionRecords[existingIdx].id : uid('bcomp'),
+          date,
+        };
+        set((s) => ({
+          bodyCompositionRecords:
+            existingIdx >= 0
+              ? s.bodyCompositionRecords.map((r, i) => (i === existingIdx ? record : r))
+              : [record, ...s.bodyCompositionRecords],
+        }));
         return record;
       },
 

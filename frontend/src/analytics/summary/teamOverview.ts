@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next';
 
-import type { MockAthlete, MockPerformanceTest, DailyCheckIn, InjuryRecord, TrainingPlan } from '@/src/data/mock/types';
+import type { MockAthlete, MockPerformanceTest, DailyCheckIn, InjuryRecord, TrainingPlan, DailyNutritionLog, BodyCompositionRecord, NutritionGoalSetting } from '@/src/data/mock/types';
 import { computeAthleteAnalytics } from '../engine/performanceAnalyticsEngine';
 import type { AnalyticsModuleResult, AthleteAnalyticsSnapshot } from '../types';
 
@@ -29,7 +29,10 @@ export function computeTeamOverview(
   tests: MockPerformanceTest[],
   dailyCheckIns: DailyCheckIn[] = [],
   injuries: InjuryRecord[] = [],
-  trainingPlans: TrainingPlan[] = []
+  trainingPlans: TrainingPlan[] = [],
+  nutritionLogs: DailyNutritionLog[] = [],
+  bodyCompositionRecords: BodyCompositionRecord[] = [],
+  nutritionGoalSettings: NutritionGoalSetting[] = []
 ): TeamAnalyticsOverview {
   const snapshots = athletes.map((athlete) => {
     const checkIn = dailyCheckIns
@@ -43,6 +46,9 @@ export function computeTeamOverview(
         checkIn,
         injuries: injuries.filter((i) => i.athlete_id === athlete.id),
         trainingPlans: trainingPlans.filter((p) => p.athlete_id === athlete.id),
+        nutritionLogs,
+        bodyCompositionRecords,
+        nutritionGoalSettings,
       }),
     };
   });

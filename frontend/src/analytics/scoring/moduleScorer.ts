@@ -21,6 +21,22 @@ function normTest(value: number | undefined, good: number, elite: number, invert
 
 type ModuleScorer = (signals: AnalyticsRawSignals) => { score: number; trendDelta: number; recommendationKey?: string };
 
+function nutritionAdjustment(s: AnalyticsRawSignals, kind: 'recovery' | 'fatigue' | 'readiness' | 'compliance'): number {
+  const n = s.nutrition;
+  if (!n) return 0;
+  switch (kind) {
+    case 'recovery':
+      return clamp((n.compliancePercent - 55) * 0.12 + (n.hydrationCompliance - 60) * 0.08 + (n.bodyCompositionTrendScore - 50) * 0.05);
+    case 'fatigue':
+      return clamp((n.proteinCompliance - 70) * 0.08 + (n.hydrationCompliance - 65) * 0.06 + (n.calorieCompliance - 90 > 15 ? -6 : 0));
+    case 'readiness':
+      return clamp((n.compliancePercent - 60) * 0.1 + (n.proteinCompliance - 75) * 0.06 + (n.hydrationCompliance - 70) * 0.05);
+    case 'compliance':
+      return n.hasLogToday ? clamp((n.compliancePercent - 50) * 0.2) : -5;
+    default:
+      return 0;
+  }
+}
 function signal(s: AnalyticsRawSignals, ...keys: string[]): number | undefined {
   for (const key of keys) {
     const v = s.testSignals[key];
@@ -88,7 +104,8 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
   recovery: (s) => {
     const base = clamp(s.status === 'rest' ? 78 : s.status === 'injured' ? 42 : 68 + s.trendPercent * 0.5);
     const checkInScore = s.checkIn?.recoveryScore;
-    const score = checkInScore !== undefined ? clamp(base * 0.45 + checkInScore * 0.55) : base;
+    let score = checkInScore !== undefined ? clamp(base * 0.45 + checkInScore * 0.55) : base;
+    score = clamp(score + nutritionAdjustment(s, 'recovery'));
     return {
       score,
       trendDelta: s.trendPercent * 0.4 + (checkInScore !== undefined ? (checkInScore - 50) * 0.08 : 0),
@@ -124,6 +141,7 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
     if (s.training?.avgSessionRpe !== undefined && s.training.avgSessionRpe >= 8) {
       fatigueScore = clamp(fatigueScore - (s.training.avgSessionRpe - 7) * 5);
     }
+    fatigueScore = clamp(fatigueScore + nutritionAdjustment(s, 'fatigue'));
     return {
       score: fatigueScore,
       trendDelta: -s.trendPercent * 0.25 + (s.checkIn ? -(s.checkIn.fatigue - 5) * 0.4 : 0),
@@ -173,6 +191,7 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
           (s.checkIn.fatigue - 5) * 2.5
       );
     }
+    score = clamp(score + nutritionAdjustment(s, 'readiness'));
     return {
       score,
       trendDelta: s.trendPercent * 0.45 + (s.checkIn ? (s.checkIn.recoveryScore - 50) * 0.06 : 0),
@@ -180,10 +199,21 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
   },
   training_compliance: (s) => {
     if (s.training && s.training.plannedSessions > 0) {
-      const score = clamp(s.training.compliancePercent);
+      let score = clamp(s.training.compliancePercent);
+      if (s.nutrition) {
+        score = clamp(score * 0.7 + s.nutrition.compliancePercent * 0.3 + nutritionAdjustment(s, 'compliance'));
+      }
       return {
         score,
         trendDelta: (s.training.completedSessions - s.training.skippedSessions) * 0.5,
+        recommendationKey: score < 60 ? 'analytics.rec.compliance' : undefined,
+      };
+    }
+    if (s.nutrition?.hasLogToday) {
+      const score = clamp(s.nutrition.compliancePercent);
+      return {
+        score,
+        trendDelta: nutritionAdjustment(s, 'compliance') * 0.1,
         recommendationKey: score < 60 ? 'analytics.rec.compliance' : undefined,
       };
     }

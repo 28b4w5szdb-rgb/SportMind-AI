@@ -10,6 +10,7 @@ import type {
   NutritionTargets,
   SweatRiskLevel,
 } from '../types';
+import { analyzeBodyComposition } from './bodyCompositionEngine';
 
 function clamp(n: number, min = 0, max = 100): number {
   return Math.max(min, Math.min(max, Math.round(n)));
@@ -106,6 +107,22 @@ export function computeCompliancePercent(totals: MacroTotals, targets: Nutrition
   const waterPct = targets.water_liters > 0 ? totals.water_liters / targets.water_liters : 0;
   const avg = (Math.min(calPct, 1.15) + Math.min(proPct, 1.15) + Math.min(waterPct, 1.15)) / 3;
   return clamp(avg * 100);
+}
+
+export function computeComplianceBreakdown(
+  totals: MacroTotals,
+  targets: NutritionTargets,
+  hydrationPercent: number
+): import('../types').NutritionComplianceBreakdown {
+  const protein = targets.protein_g > 0 ? clamp(Math.min(115, (totals.protein_g / targets.protein_g) * 100)) : 0;
+  const calories = targets.calories > 0 ? clamp(Math.min(115, (totals.calories / targets.calories) * 100)) : 0;
+  const hydration = clamp(hydrationPercent);
+  return {
+    overall: computeCompliancePercent(totals, targets),
+    protein,
+    hydration,
+    calories,
+  };
 }
 
 export function computeGoalProgress(
@@ -217,18 +234,22 @@ export function buildNutritionSnapshot(params: {
   const targets = computeNutritionTargets(input);
   const hydration = computeHydrationSnapshot(totals, targets, input);
   const compliancePercent = computeCompliancePercent(totals, targets);
+  const compliance = computeComplianceBreakdown(totals, targets, hydration.hydrationPercent);
   const goalProgress = computeGoalProgress(goal, totals, targets, bodyTrend);
   const recommendations = buildNutritionRecommendations(totals, targets, hydration, input, compliancePercent);
   const bodyComposition = bodyTrend[0];
-  const bmi = heightCm > 0 ? computeBmi(bodyComposition?.weight_kg ?? weightKg, heightCm) : undefined;
+  const bodyCompositionAnalysis = analyzeBodyComposition(bodyTrend, heightCm, goal);
+  const bmi = bodyCompositionAnalysis.bmi ?? (heightCm > 0 ? computeBmi(bodyComposition?.weight_kg ?? weightKg, heightCm) : undefined);
 
   return {
     log,
     targets,
     totals,
     compliancePercent,
+    compliance,
     hydration,
     bodyComposition,
+    bodyCompositionAnalysis,
     bodyCompositionTrend: bodyTrend.slice(0, 6),
     bmi,
     goal,

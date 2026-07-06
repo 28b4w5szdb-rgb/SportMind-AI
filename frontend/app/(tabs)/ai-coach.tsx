@@ -101,6 +101,9 @@ export default function AICoachScreen() {
       checkIn,
       injuries: injuryRecords.filter((i) => i.athlete_id === athlete.id),
       trainingPlans: trainingPlans.filter((p) => p.athlete_id === athlete.id),
+      nutritionLogs,
+      bodyCompositionRecords,
+      nutritionGoalSettings,
     });
     const nutrition = buildAthleteNutritionSnapshot({
       athlete,

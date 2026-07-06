@@ -118,8 +118,11 @@ export default function DashboardScreen() {
     const today = todayDateKey();
     let logsToday = 0;
     let complianceTotal = 0;
-    let complianceCount = 0;
     let hydrationTotal = 0;
+    let proteinTotal = 0;
+    let complianceCount = 0;
+    let bodyCompLogged = 0;
+    let recommendationPreview = '';
 
     for (const athlete of athletes) {
       const log = nutritionLogs.find((l) => l.athlete_id === athlete.id && l.date === today);
@@ -133,6 +136,9 @@ export default function DashboardScreen() {
         checkIn,
         injuries: injuryRecords.filter((i) => i.athlete_id === athlete.id),
         trainingPlans: trainingPlans.filter((p) => p.athlete_id === athlete.id),
+        nutritionLogs,
+        bodyCompositionRecords,
+        nutritionGoalSettings,
       });
       const snapshot = buildAthleteNutritionSnapshot({
         athlete,
@@ -144,8 +150,11 @@ export default function DashboardScreen() {
         trainingPlans: trainingPlans.filter((p) => p.athlete_id === athlete.id),
         dateKey: today,
       });
-      complianceTotal += snapshot.compliancePercent;
-      hydrationTotal += snapshot.hydration.hydrationPercent;
+      complianceTotal += snapshot.compliance.overall;
+      hydrationTotal += snapshot.compliance.hydration;
+      proteinTotal += snapshot.compliance.protein;
+      if (snapshot.primaryRecommendation) recommendationPreview = t(snapshot.primaryRecommendation.titleKey);
+      if (snapshot.bodyCompositionAnalysis?.latest) bodyCompLogged += 1;
       complianceCount += 1;
     }
 
@@ -153,8 +162,11 @@ export default function DashboardScreen() {
       logsToday,
       avgCompliance: complianceCount > 0 ? Math.round(complianceTotal / complianceCount) : 0,
       avgHydration: complianceCount > 0 ? Math.round(hydrationTotal / complianceCount) : 0,
+      avgProtein: complianceCount > 0 ? Math.round(proteinTotal / complianceCount) : 0,
+      bodyCompLogged,
+      recommendationPreview,
     };
-  }, [athletes, tests, trainingPlans, dailyCheckIns, injuryRecords, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings]);
+  }, [athletes, tests, trainingPlans, dailyCheckIns, injuryRecords, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings, t]);
 
   const statsData = useMemo(
     () =>
@@ -468,8 +480,13 @@ export default function DashboardScreen() {
                         : `${nutritionDashboard.logsToday}/${athletes.length} nutrition logs today`}
                     </Text>
                     <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 4, textAlign: textAlign('start') }]}>
-                      {t('nutrition.complianceLabel')}: {nutritionDashboard.avgCompliance}% · {t('nutrition.hydrationPercent')}: {nutritionDashboard.avgHydration}%
+                      {t('nutrition.complianceLabel')}: {nutritionDashboard.avgCompliance}% · {t('nutrition.protein')}: {nutritionDashboard.avgProtein}% · {t('nutrition.hydrationPercent')}: {nutritionDashboard.avgHydration}%
                     </Text>
+                    {nutritionDashboard.recommendationPreview ? (
+                      <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 4, textAlign: textAlign('start') }]} numberOfLines={1}>
+                        {nutritionDashboard.recommendationPreview}
+                      </Text>
+                    ) : null}
                   </View>
                   <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color={theme.colors.textTertiary} />
                 </View>

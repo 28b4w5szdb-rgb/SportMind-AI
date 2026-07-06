@@ -152,10 +152,11 @@ const MOCK_RESPONSES: Record<AiAgentId, { en: string; ar: string }> = {
 };
 
 type AnalyticsTopic = 'readiness' | 'injury' | 'load' | 'trend' | 'performance';
-type NutritionTopic = 'macros' | 'hydration' | 'protein' | 'compliance' | 'goal';
+type NutritionTopic = 'macros' | 'hydration' | 'protein' | 'compliance' | 'goal' | 'body_comp';
 
 function detectNutritionTopic(message: string): NutritionTopic | null {
   const m = message.toLowerCase();
+  if (/body comp|body fat|bmi|whr|waist|hip|تركيب|دهون|خصر/.test(m)) return 'body_comp';
   if (/protein|بروtein|بروتين/.test(message)) return 'protein';
   if (/hydration|water|ماء|ترطيب/.test(message)) return 'hydration';
   if (/calorie|macro|سعر|ماكرو/.test(m)) return 'macros';
@@ -168,9 +169,20 @@ function detectNutritionTopic(message: string): NutritionTopic | null {
 function buildNutritionTopicResponse(topic: NutritionTopic, ctx: AnalyticsCoachContext, isRTL: boolean): string {
   const snap = ctx.nutrition!;
   const name = ctx.athleteName ?? (isRTL ? 'اللاعب' : 'the athlete');
-  const { totals, targets, hydration, compliancePercent, goal, primaryRecommendation } = snap;
+  const { totals, targets, hydration, compliance, goal, primaryRecommendation, bodyCompositionAnalysis } = snap;
 
   switch (topic) {
+    case 'body_comp': {
+      const bc = bodyCompositionAnalysis;
+      if (!bc?.latest) {
+        return isRTL ? `📏 لا توجد قياسات تركيب جسم مسجلة لـ ${name}.` : `📏 No body composition entries logged for ${name}.`;
+      }
+      return isRTL
+        ? `📏 تركيب جسم ${name}: ${bc.latest.weight_kg} kg · BMI ${bc.bmi ?? '—'} · WHR ${bc.waistHipRatio ?? '—'}.\n` +
+            `التغير ${bc.weightChange ?? 0} kg · ${bc.statusKey}`
+        : `📏 Body composition for ${name}: ${bc.latest.weight_kg} kg · BMI ${bc.bmi ?? '—'} · WHR ${bc.waistHipRatio ?? '—'}.\n` +
+            `Change ${bc.weightChange ?? 0} kg · status ${bc.status}`;
+    }
     case 'protein':
       return isRTL
         ? `🥩 بروtein ${name}: ${totals.protein_g}/${targets.protein_g}g (${Math.round((totals.protein_g / targets.protein_g) * 100)}%).\n` +
@@ -185,8 +197,8 @@ function buildNutritionTopicResponse(topic: NutritionTopic, ctx: AnalyticsCoachC
 
     case 'compliance':
       return isRTL
-        ? `📋 امتثال التغذية لـ ${name}: ${compliancePercent}%. السعرات ${totals.calories}/${targets.calories} kcal.`
-        : `📋 Nutrition compliance for ${name}: ${compliancePercent}%. Calories ${totals.calories}/${targets.calories} kcal.`;
+        ? `📋 امتثال التغذية لـ ${name}: ${compliance.overall}%. بروtein ${compliance.protein}%. ترطيب ${compliance.hydration}%.`
+        : `📋 Nutrition compliance for ${name}: ${compliance.overall}%. Protein ${compliance.protein}%. Hydration ${compliance.hydration}%.`;
 
     case 'goal':
       return isRTL

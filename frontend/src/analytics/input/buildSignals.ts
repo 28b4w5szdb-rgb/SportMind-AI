@@ -1,8 +1,15 @@
-import type { MockAthlete, MockPerformanceTest, DailyCheckIn, TrainingPlan } from '@/src/data/mock/types';
+import type { MockAthlete, MockPerformanceTest, DailyCheckIn, TrainingPlan, DailyNutritionLog, BodyCompositionRecord, NutritionGoalSetting } from '@/src/data/mock/types';
 import { resolveSignalKey } from '@/src/features/performance-lab/registry/signalAliases';
 import { computeRecoveryScoreFromCheckIn } from '@/src/features/recovery/recoveryEngine';
 import { buildTrainingSignals } from '@/src/features/training-builder/utils/trainingSignals';
+import { buildNutritionSignals } from '@/src/features/nutrition/utils/nutritionSignals';
 import type { AnalyticsRawSignals } from '../types';
+
+export interface BuildRawSignalsOptions {
+  nutritionLogs?: DailyNutritionLog[];
+  bodyCompositionRecords?: BodyCompositionRecord[];
+  nutritionGoalSettings?: NutritionGoalSetting[];
+}
 
 function ageFromDob(dob?: string): number | undefined {
   if (!dob) return undefined;
@@ -16,7 +23,8 @@ export function buildRawSignals(
   athlete: MockAthlete,
   tests: MockPerformanceTest[],
   checkIn?: DailyCheckIn,
-  trainingPlans?: TrainingPlan[]
+  trainingPlans?: TrainingPlan[],
+  nutritionOptions?: BuildRawSignalsOptions
 ): AnalyticsRawSignals {
   const testSignals: AnalyticsRawSignals['testSignals'] = {};
   for (const test of tests) {
@@ -56,6 +64,17 @@ export function buildRawSignals(
 
   if (trainingPlans && trainingPlans.length > 0) {
     signals.training = buildTrainingSignals(trainingPlans, athlete.id);
+  }
+
+  if (nutritionOptions) {
+    signals.nutrition = buildNutritionSignals({
+      athlete,
+      logs: nutritionOptions.nutritionLogs ?? [],
+      bodyRecords: nutritionOptions.bodyCompositionRecords ?? [],
+      goalSettings: nutritionOptions.nutritionGoalSettings ?? [],
+      checkIn,
+      trainingPlans,
+    });
   }
 
   return signals;

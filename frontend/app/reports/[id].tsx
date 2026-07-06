@@ -82,6 +82,9 @@ export default function ReportDetailScreen() {
     { key: 'training_summary', title: t('features.reports.sectionTrainingSummary'), body: sections.training_summary, icon: 'barbell' as const },
     { key: 'training_compliance_summary', title: t('features.reports.sectionTrainingCompliance'), body: sections.training_compliance_summary, icon: 'checkmark-done' as const },
     { key: 'nutrition_summary', title: t('features.reports.sectionNutritionSummary'), body: sections.nutrition_summary, icon: 'nutrition' as const },
+    { key: 'nutrition_hydration_status', title: t('features.reports.sectionNutritionHydration'), body: sections.nutrition_hydration_status, icon: 'water' as const },
+    { key: 'nutrition_body_comp_trend', title: t('features.reports.sectionNutritionBodyComp'), body: sections.nutrition_body_comp_trend, icon: 'body' as const },
+    { key: 'nutrition_recommendations', title: t('features.reports.sectionNutritionRecommendations'), body: sections.nutrition_recommendations, icon: 'bulb' as const },
   ].filter((block) => block.body);
 
   return (
