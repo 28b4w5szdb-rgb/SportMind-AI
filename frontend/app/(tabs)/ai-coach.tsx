@@ -297,6 +297,7 @@ export default function AICoachScreen() {
           style={styles.messageList}
           data={groupedItems}
           keyExtractor={(item) => item.key}
+          removeClippedSubviews={false}
           renderItem={({ item }) =>
             item.type === 'date' ? (
               <Text
