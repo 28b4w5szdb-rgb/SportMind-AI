@@ -36,3 +36,5 @@ export {
   mapInputsWithUnits,
 } from './scientificCalculationEngine';
 export { executeFormula, FORMULA_EXECUTORS } from './formulaExecutors';
+export type { FormulaExecutionResult, FormulaExecutor } from './formulaExecutors';
+export { calculateHeartRateZones, estimateMaxHeartRate } from './hrZoneCalculator';

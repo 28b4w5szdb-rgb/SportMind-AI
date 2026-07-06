@@ -75,16 +75,19 @@ export const SEED_FORMULA_VERSIONS: CatalogFormulaVersion[] = [
     notes: bilingual('Field estimate from Cooper-style inputs', 'تقدير ميداني من مدخلات Cooper'),
   },
   {
-    ...seedDocumentMeta('formula_hr_zones_v1'),
-    ...seedVersionMeta('1.0.0'),
+    ...seedDocumentMeta('formula_hr_zones_v2'),
+    ...seedVersionMeta('1.1.0'),
     formula_id: 'formula_hr_zones',
     expression_key: 'hr_zones',
-    input_keys: ['age_years'],
+    input_keys: ['age_years', 'resting_hr', 'hr_zone_method'],
     output_key: 'max_heart_rate',
     output_unit: 'bpm',
     evidence_tier: 'screening',
     citation_ids: ['cite_hr_zones'],
-    notes: bilingual('Age-predicted maximum heart rate', 'الحد الأقصى لضربات القلب حسب العمر'),
+    notes: bilingual(
+      'Five HR zones via %HRmax or Karvonen',
+      'خمس مناطق لضربات القلب عبر %HRmax أو Karvonen'
+    ),
   },
   {
     ...seedDocumentMeta('formula_training_load_v1'),
@@ -229,11 +232,14 @@ export const SEED_FORMULAS: CatalogFormula[] = [
   },
   {
     ...seedDocumentMeta('formula_hr_zones'),
-    ...seedVersionMeta('1.0.0'),
+    ...seedVersionMeta('1.1.0'),
     key: 'hr_zones',
     name: bilingual('HR Zones', 'مناطق ضربات القلب'),
-    description: bilingual('Age-predicted maximum heart rate', 'الحد الأقصى لضربات القلب حسب العمر'),
-    current_version_id: 'formula_hr_zones_v1',
+    description: bilingual(
+      'Five heart rate zones via %HRmax or Karvonen',
+      'خمس مناطق لضربات القلب عبر %HRmax أو Karvonen'
+    ),
+    current_version_id: 'formula_hr_zones_v2',
     active: true,
   },
   {

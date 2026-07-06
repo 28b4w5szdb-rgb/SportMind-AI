@@ -17,6 +17,23 @@ function normalizeUnit(unit: string): string {
   return unit.trim().toLowerCase().replace('²', '2').replace('×', 'x');
 }
 
+function rejectsNegativeValue(field: FormulaInputSpec, value: number): boolean {
+  if (field.min !== undefined && field.min >= 0) return value < 0;
+  if (
+    field.key.includes('weight') ||
+    field.key.includes('height') ||
+    field.key.includes('distance') ||
+    field.key.includes('duration') ||
+    field.key.includes('load') ||
+    field.key.includes('mass') ||
+    field.key.includes('velocity') ||
+    field.key.includes('time')
+  ) {
+    return value < 0;
+  }
+  return false;
+}
+
 export function validateCalculationInputs(
   definition: ScientificFormulaDefinition,
   inputs: Record<string, CalculationInputValue>
@@ -40,6 +57,10 @@ export function validateCalculationInputs(
       continue;
     }
 
+    if (rejectsNegativeValue(field, input.value)) {
+      errors.push(`negative_value:${field.key}`);
+    }
+
     if (field.min !== undefined && input.value < field.min) {
       errors.push(`below_minimum:${field.key}`);
     }
@@ -48,6 +69,17 @@ export function validateCalculationInputs(
     }
 
     applyRuleValidation(definition, field, input.value, errors);
+  }
+
+  if (definition.key === 'hr_zones') {
+    const method = inputs.hr_zone_method?.value;
+    if (method !== undefined && method !== 1 && method !== 2) {
+      errors.push('invalid_hr_zone_method');
+    }
+    const resting = inputs.resting_hr?.value;
+    if (resting !== undefined && (resting < 30 || resting > 120)) {
+      errors.push('invalid_hr:resting_hr');
+    }
   }
 
   return ok(errors);
@@ -78,6 +110,9 @@ function applyRuleValidation(
   errors: string[]
 ): void {
   for (const rule of definition.validation_rules) {
+    if (rule === 'no_negative_values' && value < 0) {
+      errors.push(`negative_value:${field.key}`);
+    }
     if (rule === 'no_negative_weight' && field.key.includes('weight') && value <= 0) {
       errors.push(`negative_weight:${field.key}`);
     }
@@ -90,7 +125,7 @@ function applyRuleValidation(
     if (
       rule === 'invalid_body_fat_range' &&
       field.key.includes('body_fat') &&
-      (value < 0 || value > 60)
+      (value < 0 || value > 100)
     ) {
       errors.push(`invalid_body_fat:${field.key}`);
     }

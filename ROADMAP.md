@@ -81,8 +81,11 @@
 | **6C.4** | Normative Reference Engine — 34 profiles, classification API, validation | ✅ Complete |
 | **6C.5** | Universal Assessment Session Engine — Raw → Derived → Interpretation pipeline | ✅ Complete |
 | **6C.6** | Scientific Calculation Engine — 14 versioned formulas, sole calculation layer | ✅ Complete |
+| **6C.6.1** | Scientific Calculation Audit — validation hardening, HR zones v1.1, test suite | ✅ Complete |
 | **6C.7** | Firestore session persistence + security rules deployment | 🔜 Next |
 | **6C.8** | Organization write paths + Performance Lab bridge | Planned |
+
+**6C.6.1 exit criteria (met):** All 14 formulas audited, HR zones Zone 1–5 (%HRmax + Karvonen), strengthened validation, calculation metadata, 24 passing tests — no UI/SSID/Firestore changes.
 
 **6C.6 exit criteria (met):** Formula registry (14 formulas), `ScientificCalculationEngine` API, input/unit validation, deterministic executors, session engine integration — no UI/Firestore writes/SSID/AI.
 

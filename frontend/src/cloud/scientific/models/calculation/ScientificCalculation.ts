@@ -3,8 +3,22 @@
  */
 
 import type { BilingualText, EvidenceTier } from '../common';
+import type { HeartRateZoneMethod, HeartRateZoneResult } from './HeartRateZones';
 
 export type CalculationStatus = 'success' | 'error' | 'warning';
+
+export type ValidationStatus = CalculationStatus;
+
+export interface CalculationResultMetadata {
+  formulaVersion: string;
+  calculationTime: string;
+  warnings: string[];
+  validationStatus: ValidationStatus;
+}
+
+export interface CalculationStructuredResult {
+  hr_zones?: HeartRateZoneResult;
+}
 
 export interface FormulaInputSpec {
   key: string;
@@ -56,7 +70,15 @@ export interface CalculationResult {
   calculated_at: string;
   formula_key: string;
   errors?: string[];
+  /** Phase 6C.6.1 — camelCase metadata aliases (backward compatible) */
+  formulaVersion?: string;
+  calculationTime?: string;
+  validationStatus?: ValidationStatus;
+  metadata?: CalculationResultMetadata;
+  structured_result?: CalculationStructuredResult;
 }
+
+export type { HeartRateZoneMethod, HeartRateZoneResult };
 
 export interface ResolvedFormula {
   definition: ScientificFormulaDefinition;

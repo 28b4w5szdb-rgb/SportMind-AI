@@ -8,6 +8,8 @@ import type {
   CalculationInputValue,
   CalculationRequest,
   CalculationResult,
+  CalculationResultMetadata,
+  CalculationStatus,
   ResolvedFormula,
   ScientificFormulaDefinition,
 } from '../models/calculation/ScientificCalculation';
@@ -17,11 +19,48 @@ import {
   getFormulaDefinitionByKey,
   listActiveFormulaDefinitions,
 } from '../seed/calculationFormulaRegistry';
+import { validateCalculationOutput } from '../validation/calculationOutputValidators';
 import {
   validateCalculationInputs,
   validateCalculationUnits,
 } from '../validation/calculationValidators';
 import { executeFormula, FORMULA_EXECUTORS } from './formulaExecutors';
+
+function buildResultMetadata(
+  formulaVersion: string,
+  calculationTime: string,
+  warnings: string[],
+  validationStatus: CalculationStatus
+): CalculationResultMetadata {
+  return {
+    formulaVersion,
+    calculationTime,
+    warnings,
+    validationStatus,
+  };
+}
+
+function enrichCalculationResult(
+  result: Omit<
+    CalculationResult,
+    'formulaVersion' | 'calculationTime' | 'validationStatus' | 'metadata'
+  >
+): CalculationResult {
+  const metadata = buildResultMetadata(
+    result.formula_version,
+    result.calculated_at,
+    result.warnings,
+    result.calculation_status
+  );
+
+  return {
+    ...result,
+    formulaVersion: metadata.formulaVersion,
+    calculationTime: metadata.calculationTime,
+    validationStatus: metadata.validationStatus,
+    metadata,
+  };
+}
 
 export class ScientificCalculationEngine {
   constructor(private readonly catalog?: ScientificCatalogRepository) {}
@@ -78,7 +117,9 @@ export class ScientificCalculationEngine {
     const definition = getFormulaDefinitionByKey(formulaKey);
 
     if (!definition) {
-      return this.errorResult(formulaKey, calculatedAt, ['formula_not_found'], inputs);
+      return enrichCalculationResult(
+        this.errorResult(formulaKey, calculatedAt, ['formula_not_found'], inputs)
+      );
     }
 
     const inputValidation = validateCalculationInputs(definition, inputs);
@@ -86,7 +127,9 @@ export class ScientificCalculationEngine {
     const errors = [...inputValidation.errors, ...unitValidation.errors];
 
     if (errors.length > 0) {
-      return this.errorResult(formulaKey, calculatedAt, errors, inputs, definition);
+      return enrichCalculationResult(
+        this.errorResult(formulaKey, calculatedAt, errors, inputs, definition)
+      );
     }
 
     const numericInputs: Record<string, number> = {};
@@ -97,21 +140,47 @@ export class ScientificCalculationEngine {
     const warnings: string[] = [];
 
     try {
-      const value = executeFormula(definition.expression_key, numericInputs, warnings);
-      return {
+      const execution = executeFormula(definition.expression_key, numericInputs, warnings);
+      const outputValidation = validateCalculationOutput(
+        definition,
+        execution.value,
+        inputs,
+        execution.structured
+      );
+      warnings.push(...outputValidation.warnings);
+
+      if (!outputValidation.valid) {
+        return enrichCalculationResult(
+          this.errorResult(
+            formulaKey,
+            calculatedAt,
+            outputValidation.errors,
+            inputs,
+            definition,
+            warnings
+          )
+        );
+      }
+
+      const status: CalculationStatus = warnings.length > 0 ? 'warning' : 'success';
+
+      return enrichCalculationResult({
         metric_key: definition.output_metric,
-        value,
+        value: execution.value,
         unit: definition.output_unit,
         formula_version: definition.version,
         input_keys: Object.keys(inputs),
-        calculation_status: warnings.length > 0 ? 'warning' : 'success',
+        calculation_status: status,
         warnings,
         calculated_at: calculatedAt,
         formula_key: formulaKey,
-      };
+        structured_result: execution.structured,
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'calculation_failed';
-      return this.errorResult(formulaKey, calculatedAt, [message], inputs, definition, warnings);
+      return enrichCalculationResult(
+        this.errorResult(formulaKey, calculatedAt, [message], inputs, definition, warnings)
+      );
     }
   }
 

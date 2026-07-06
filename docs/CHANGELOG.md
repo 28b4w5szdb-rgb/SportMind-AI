@@ -245,6 +245,33 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6C.6.1 — Scientific Calculation Audit & Validation] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Scientific Calculation Audit** — all 14 formulas verified for version, units, inputs, edge cases, and deterministic output
+- **HR Zones v1.1.0** — five zones (Zone 1–5) via `%HRmax` or Karvonen (HRR); method stored in `structured_result.hr_zones`
+- **Post-calculation validators** — reject impossible BMI, body fat >100%, invalid HR zones, lean mass > weight
+- **Strengthened input validation** — negative values, impossible HR, unit mismatch, division by zero
+- **Calculation metadata** — `formulaVersion`, `calculationTime`, `warnings`, `validationStatus` on every result (backward compatible)
+- **Test suite** — 24 audit tests across 11 formula groups (`npm run test:scientific`)
+
+### Design principles documented
+
+- Correctness and consistency before SSID integration
+- Backward-compatible API — existing snake_case fields preserved
+- Traceable calculation metadata on every result
+
+### Unchanged (by design)
+
+- No UI, dashboard, analytics, SSID, AI Coach, reports, passport, or timeline
+- No Firestore session writes or security rules deployment
+- Mock store + Performance Lab registry remain default runtime
+
+---
+
 ## Upcoming
 
 - **Phase 6C.7** — Firestore session persistence + security rules
@@ -254,4 +281,4 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6C.6*
+*Last updated: Phase 6C.6.1*

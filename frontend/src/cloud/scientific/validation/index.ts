@@ -30,3 +30,5 @@ export {
   validateCalculationUnits,
   validateScientificFormulaDefinition,
 } from './calculationValidators';
+
+export { validateCalculationOutput } from './calculationOutputValidators';

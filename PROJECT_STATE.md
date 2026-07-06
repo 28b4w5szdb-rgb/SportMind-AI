@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.6 — Scientific Calculation Engine (complete) |
+| **Current phase** | Phase 6C.6.1 — Scientific Calculation Audit & Validation (complete) |
 | **Next phase** | Phase 6C.7 — Firestore Session Persistence + Security Rules |
 
 ---
@@ -29,6 +29,7 @@
 | **6C.4** | Normative Reference Engine — 34 placeholder profiles + classification API | ✅ Complete |
 | **6C.5** | Universal Assessment Session Engine — Raw → Derived → Interpretation pipeline | ✅ Complete |
 | **6C.6** | Scientific Calculation Engine — 14 versioned formulas, sole calculation layer | ✅ Complete |
+| **6C.6.1** | Scientific Calculation Audit — validation hardening, HR zones v1.1, 24 tests | ✅ Complete |
 
 ---
 
@@ -59,6 +60,22 @@ frontend/src/cloud/
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6C.6.1 — Scientific Calculation Audit & Validation
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Correctness first** | All 14 formulas audited — input, unit, output, and edge-case validation |
+| **HR Zones upgrade** | Five zones via `%HRmax` or Karvonen (HRR); method stored in `structured_result` |
+| **Traceable metadata** | Every result exposes `formulaVersion`, `calculationTime`, `warnings`, `validationStatus` |
+| **Test coverage** | 24 lightweight tests across 11 formula groups + validation edge cases |
+
+| Area | Contents |
+|------|----------|
+| **Validation** | Negative values, impossible BMI/HR, body fat >100%, division by zero, unit mismatch |
+| **Post-calc checks** | Output validators reject impossible derived values after formula execution |
+| **HR Zones** | `hrZoneCalculator.ts` — Zone 1–5 with `%HRmax` and Karvonen methods (v1.1.0) |
+| **Tests** | `npm run test:scientific` — 24 passing audit tests |
 
 #### Phase 6C.6 — Scientific Calculation Engine
 
@@ -159,7 +176,8 @@ frontend/src/cloud/
 
 | Commit | Phase | Description |
 |--------|-------|-------------|
-| *(pending)* | 6C.6 | Scientific Calculation Engine — 14 versioned formulas |
+| *(pending)* | 6C.6.1 | Scientific Calculation Audit — HR zones, validation, 24 tests |
+| `4b9c54f` | 6C.6 | Scientific Calculation Engine — 14 versioned formulas |
 | `96a1133` | 6C.5 | Universal Assessment Session Engine |
 | `2a73393` | 6C.4 | Normative Reference Engine — 34 placeholder profiles |
 | `e81b8c2` | 6C.1 | Scientific Firestore core foundation |
@@ -186,9 +204,10 @@ See [ROADMAP.md](./ROADMAP.md).
 2. **Scientific catalog reads use seed data in mock mode.** Firestore adapters fall back to seed when collections are empty.
 3. **`USE_CLOUD_DATA=false` by default.** Safe for v0.9-alpha demos.
 4. **Do not commit secrets.** Use `frontend/.env.example`.
-5. **SSID, analytics, AI Coach, dashboard unchanged** through Phase 6C.6.
+5. **SSID, analytics, AI Coach, dashboard unchanged** through Phase 6C.6.1.
 6. **Sessions are in-memory only** — append-only mock store until Firestore persistence phase.
 7. **All derived metrics must flow through `ScientificCalculationEngine`** — no duplicated equations in session or UI paths.
+8. **Scientific Calculation Audit complete** — run `npm run test:scientific` before SSID integration.
 
 ---
 
@@ -201,4 +220,4 @@ See [ROADMAP.md](./ROADMAP.md).
 | Brand guide | [frontend/BRAND_GUIDE.md](./frontend/BRAND_GUIDE.md) |
 | Env template | [frontend/.env.example](./frontend/.env.example) |
 
-*Last updated: Phase 6C.6*
+*Last updated: Phase 6C.6.1*

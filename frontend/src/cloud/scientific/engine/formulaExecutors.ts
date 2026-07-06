@@ -2,10 +2,21 @@
  * Deterministic formula executors — single source of scientific equations.
  */
 
+import type { CalculationStructuredResult } from '../models/calculation/ScientificCalculation';
+import {
+  calculateHeartRateZones,
+  resolveHeartRateZoneMethod,
+} from './hrZoneCalculator';
+
+export interface FormulaExecutionResult {
+  value: number;
+  structured?: CalculationStructuredResult;
+}
+
 export type FormulaExecutor = (
   inputs: Record<string, number>,
   warnings: string[]
-) => number;
+) => number | FormulaExecutionResult;
 
 function requireInput(inputs: Record<string, number>, key: string): number {
   const value = inputs[key];
@@ -13,6 +24,10 @@ function requireInput(inputs: Record<string, number>, key: string): number {
     throw new Error(`missing_required:${key}`);
   }
   return value;
+}
+
+function asResult(value: number, structured?: CalculationStructuredResult): FormulaExecutionResult {
+  return structured ? { value, structured } : { value };
 }
 
 export const FORMULA_EXECUTORS: Record<string, FormulaExecutor> = {
@@ -29,6 +44,9 @@ export const FORMULA_EXECUTORS: Record<string, FormulaExecutor> = {
     const neck = requireInput(inputs, 'neck_cm');
     const height = requireInput(inputs, 'height_cm');
     if (height <= 0) throw new Error('division_by_zero');
+    if (waist <= neck) {
+      throw new Error('invalid_body_fat:waist_neck');
+    }
     const hip = inputs.hip_cm;
     if (hip !== undefined) {
       warnings.push('hip_circumference_used');
@@ -38,12 +56,12 @@ export const FORMULA_EXECUTORS: Record<string, FormulaExecutor> = {
             0.35004 * Math.log10(waist + hip - neck) +
             0.221 * Math.log10(height)) -
         450;
-      return Math.max(0, Math.min(60, bf));
+      return Math.max(0, Math.min(100, bf));
     }
     const bf =
       495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 0.15456 * Math.log10(height)) -
       450;
-    return Math.max(0, Math.min(60, bf));
+    return Math.max(0, Math.min(100, bf));
   },
 
   lean_body_mass(inputs) {
@@ -72,21 +90,32 @@ export const FORMULA_EXECUTORS: Record<string, FormulaExecutor> = {
 
   hr_zones(inputs, warnings) {
     const age = requireInput(inputs, 'age_years');
-    const maxHr = 220 - age;
-    if (inputs.resting_hr !== undefined) {
-      warnings.push('karvonen_not_applied_using_age_estimate');
+    const restingHr = inputs.resting_hr;
+    const method = resolveHeartRateZoneMethod(inputs.hr_zone_method, restingHr);
+    if (method === 'karvonen' && restingHr === undefined) {
+      warnings.push('karvonen_default_resting_hr_60');
     }
-    return maxHr;
+    const hrZones = calculateHeartRateZones({
+      ageYears: age,
+      restingHr,
+      method,
+    });
+    return asResult(hrZones.max_heart_rate, { hr_zones: hrZones });
   },
 
   session_rpe_load(inputs) {
-    return requireInput(inputs, 'duration_min') * requireInput(inputs, 'rpe');
+    const duration = requireInput(inputs, 'duration_min');
+    const rpe = requireInput(inputs, 'rpe');
+    if (duration <= 0 || rpe < 0) throw new Error('invalid_training_load');
+    return duration * rpe;
   },
 
   acwr_ratio(inputs) {
     const chronic = requireInput(inputs, 'chronic_load');
     if (chronic === 0) throw new Error('division_by_zero');
-    return requireInput(inputs, 'acute_load') / chronic;
+    const acute = requireInput(inputs, 'acute_load');
+    if (acute < 0) throw new Error('negative_acute_load');
+    return acute / chronic;
   },
 
   recovery_composite(inputs) {
@@ -108,17 +137,24 @@ export const FORMULA_EXECUTORS: Record<string, FormulaExecutor> = {
   relative_strength(inputs) {
     const bodyWeight = requireInput(inputs, 'body_weight_kg');
     if (bodyWeight <= 0) throw new Error('division_by_zero');
-    return requireInput(inputs, 'load_kg') / bodyWeight;
+    const load = requireInput(inputs, 'load_kg');
+    if (load <= 0) throw new Error('negative_load');
+    return load / bodyWeight;
   },
 
   sprint_momentum(inputs) {
-    return requireInput(inputs, 'body_mass_kg') * requireInput(inputs, 'velocity_m_s');
+    const mass = requireInput(inputs, 'body_mass_kg');
+    const velocity = requireInput(inputs, 'velocity_m_s');
+    if (mass <= 0 || velocity <= 0) throw new Error('negative_value');
+    return mass * velocity;
   },
 
   running_speed(inputs) {
     const time = requireInput(inputs, 'time_s');
     if (time <= 0) throw new Error('division_by_zero');
-    return requireInput(inputs, 'distance_m') / time;
+    const distance = requireInput(inputs, 'distance_m');
+    if (distance <= 0) throw new Error('negative_distance');
+    return distance / time;
   },
 };
 
@@ -126,10 +162,11 @@ export function executeFormula(
   expressionKey: string,
   inputs: Record<string, number>,
   warnings: string[] = []
-): number {
+): FormulaExecutionResult {
   const executor = FORMULA_EXECUTORS[expressionKey];
   if (!executor) throw new Error(`executor_not_found:${expressionKey}`);
-  const value = executor(inputs, warnings);
-  if (!Number.isFinite(value)) throw new Error('invalid_result');
-  return value;
+  const result = executor(inputs, warnings);
+  const normalized = typeof result === 'number' ? { value: result } : result;
+  if (!Number.isFinite(normalized.value)) throw new Error('invalid_result');
+  return normalized;
 }
