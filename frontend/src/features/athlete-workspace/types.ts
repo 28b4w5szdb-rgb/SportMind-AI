@@ -6,6 +6,7 @@ export type AthleteTimelineEventType =
   | 'recovery'
   | 'injury'
   | 'nutrition'
+  | 'wearables'
   | 'ai_recommendation'
   | 'report';
 

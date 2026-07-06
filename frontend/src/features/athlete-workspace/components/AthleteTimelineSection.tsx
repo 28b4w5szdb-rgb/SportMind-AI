@@ -22,6 +22,7 @@ const EVENT_META: Record<
   recovery: { icon: 'bed', color: '#10B981', labelKey: 'athleteWorkspace.timeline.recovery' },
   injury: { icon: 'medkit', color: '#EF4444', labelKey: 'athleteWorkspace.timeline.injury' },
   nutrition: { icon: 'nutrition', color: '#F97316', labelKey: 'athleteWorkspace.timeline.nutrition' },
+  wearables: { icon: 'watch', color: '#0EA5E9', labelKey: 'athleteWorkspace.timeline.wearables' },
   ai_recommendation: { icon: 'sparkles', color: '#8B5CF6', labelKey: 'athleteWorkspace.timeline.ai' },
   report: { icon: 'document-text', color: '#64748B', labelKey: 'athleteWorkspace.timeline.report' },
 };

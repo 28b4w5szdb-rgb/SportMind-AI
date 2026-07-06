@@ -976,6 +976,7 @@
       "recovery": "ملاحظة تعافٍ",
       "injury": "ملاحظة إصابة",
       "nutrition": "ملاحظة تغذية",
+      "wearables": "مزامنة جهاز",
       "ai": "توصية AI",
       "report": "تقرير"
     },
@@ -1034,7 +1035,49 @@
     "checkInSubtitle": "أحدث بيانات التسجيل الصباحي",
     "checkInCta": "تسجيل",
     "latestCheckIn": "آخر تسجيل",
-    "noCheckIn": "لا يوجد تسجيل — ابدأ سجل العافية لليوم."
+    "noCheckIn": "لا يوجد تسجيل — ابدأ سجل العافية لليوم.",
+    "cockpit": {
+      "commandCenter": "مركز قيادة علوم الرياضة",
+      "aiTitle": "ملخص الذكاء الاصطناعي",
+      "aiSubtitle": "أحدث توصية علمية رياضية",
+      "reasoning": "التفسير العلمي",
+      "nextAction": "الخطوة التالية",
+      "bodyInteractive": "مناطق تفاعلية",
+      "bodyRiskOverlay": "طبقة المخاطر",
+      "bodyRecoveryOverlay": "طبقة التعافي",
+      "nav": {
+        "overview": "نظرة عامة",
+        "performance": "الأداء",
+        "training": "التدريب",
+        "recovery": "التعافي",
+        "nutrition": "التغذية",
+        "medical": "الطب الرياضي",
+        "wearables": "الأجهزة",
+        "ai": "ذكاء",
+        "timeline": "الخط الزمني"
+      },
+      "charts": {
+        "trend": "اتجاه الأداء",
+        "readiness": "الجاهزية",
+        "load": "حمل التدريب",
+        "recovery": "التعافي",
+        "risk": "مخاطر الإصابة"
+      },
+      "snapshot": {
+        "test": "آخر اختبار",
+        "session": "آخر جلسة",
+        "nutrition": "آخر تغذية",
+        "nutritionLogged": "تم تسجيل التغذية",
+        "recovery": "آخر تعافي",
+        "wearable": "مزامنة الجهاز",
+        "synced": "تمت المزامنة",
+        "report": "آخر تقرير",
+        "noSession": "لا توجد جلسات مسجلة",
+        "noNutrition": "لا يوجد سجل تغذية اليوم",
+        "noWearable": "لا توجد مزامنة بعد",
+        "noReport": "لا توجد تقارير بعد"
+      }
+    }
   },
   "dailyCheckIn": {
     "title": "التسجيل اليومي",

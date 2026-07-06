@@ -972,6 +972,7 @@
       "recovery": "Recovery note",
       "injury": "Injury note",
       "nutrition": "Nutrition note",
+      "wearables": "Wearable sync",
       "ai": "AI recommendation",
       "report": "Report"
     },
@@ -1030,7 +1031,49 @@
     "checkInSubtitle": "Latest morning check-in data",
     "checkInCta": "Log check-in",
     "latestCheckIn": "Latest check-in",
-    "noCheckIn": "No check-in logged yet — start today's wellness log."
+    "noCheckIn": "No check-in logged yet — start today's wellness log.",
+    "cockpit": {
+      "commandCenter": "Sports Science Command Center",
+      "aiTitle": "AI Intelligence Summary",
+      "aiSubtitle": "Latest sports science recommendation",
+      "reasoning": "Scientific reasoning",
+      "nextAction": "Next action",
+      "bodyInteractive": "Interactive zones",
+      "bodyRiskOverlay": "Risk overlay",
+      "bodyRecoveryOverlay": "Recovery overlay",
+      "nav": {
+        "overview": "Overview",
+        "performance": "Performance",
+        "training": "Training",
+        "recovery": "Recovery",
+        "nutrition": "Nutrition",
+        "medical": "Medical",
+        "wearables": "Wearables",
+        "ai": "AI",
+        "timeline": "Timeline"
+      },
+      "charts": {
+        "trend": "Performance trend",
+        "readiness": "Readiness",
+        "load": "Training load",
+        "recovery": "Recovery",
+        "risk": "Injury risk"
+      },
+      "snapshot": {
+        "test": "Latest test",
+        "session": "Latest session",
+        "nutrition": "Latest nutrition",
+        "nutritionLogged": "Nutrition logged",
+        "recovery": "Latest recovery",
+        "wearable": "Wearable sync",
+        "synced": "Device synced",
+        "report": "Latest report",
+        "noSession": "No sessions logged yet",
+        "noNutrition": "No nutrition log today",
+        "noWearable": "No wearable sync yet",
+        "noReport": "No reports yet"
+      }
+    }
   },
   "dailyCheckIn": {
     "title": "Daily Check-in",
