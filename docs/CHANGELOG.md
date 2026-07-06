@@ -83,13 +83,37 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6C.1 — Scientific Firestore Core Foundation] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **`frontend/src/cloud/scientific/`** — infrastructure-only scientific module
+- **Global catalog path helpers** — sports, assessment categories (A–R), definitions, evidence tiers, formulas, equipment types/models, normative references, questionnaire templates
+- **Organization path helpers** — users, teams, athletes, seasons, locations, equipment, sport_configs, role_definitions
+- **Typed models** — versioned catalog documents + org-scoped scientific entities
+- **Validation layer** — runtime validators for evidence tier, category codes, version meta, key entities
+- **Security policy metadata** — future Firestore rules preparation (tenant isolation, no public writes)
+- **Repository contracts** — catalog + organization interfaces; lazy registry stub (`null` adapters)
+- **Feature gate** — `isScientificCloudEnabled()` requires `USE_CLOUD_DATA=true` + Firebase configured
+
+### Unchanged (by design)
+
+- No UI, dashboard, analytics, SSID, or AI Coach changes
+- No assessment sessions, passport, timeline, or environmental records
+- No Firestore reads/writes, migrations, Cloud Functions, or BigQuery
+- Mock store remains default runtime
+
+---
+
 ## Upcoming
 
-- **Phase 6B** — Firebase Authentication
-- **Phase 6C** — Firestore data migration
+- **Phase 6C.2** — Assessment sessions entity + catalog seed
+- **Phase 6C.3** — Firestore adapters + security rules
 - **Phase 6D** — Firebase Storage
 - **Phase 6E** — Cloud sync engine
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Pre Phase 6B documentation pass*
+*Last updated: Phase 6C.1*

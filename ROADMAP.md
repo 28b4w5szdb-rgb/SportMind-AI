@@ -42,6 +42,8 @@
 | Phase | Deliverable | Status |
 |-------|-------------|--------|
 | **6A** | Firebase config layer, typed models, repository interfaces, feature flag, readiness UI | ✅ Complete |
+| **6B** | Firebase Authentication + session persistence + user profiles | ✅ Complete |
+| **6C.1** | Scientific Firestore core foundation (catalog + org types, contracts) | ✅ Complete |
 
 ---
 
@@ -60,19 +62,27 @@
 
 **Exit criteria:** Users can authenticate via Firebase; app routes correctly; mock bypass still works.
 
+**Status:** ✅ Complete (6B + 6B.1)
+
 ---
 
-### Phase 6C — Firestore Data Migration
+### Phase 6C — Firestore Scientific Platform
 
-**Goal:** Wire cloud repositories for core entities.
+**Goal:** Implement approved scientific data model (6C.0.1–6C.0.3) incrementally without breaking mock mode.
 
-- Implement Firestore adapters: `Athlete`, `Team`, `Test`, `Report`
-- Organization-scoped collections and security rules (design)
-- Repository factory: mock vs cloud based on `USE_CLOUD_DATA`
-- Migrate high-traffic screens one module at a time (athletes → teams → tests → reports)
-- Seed/sync strategy for demo organizations
+| Sub-phase | Deliverable | Status |
+|-----------|-------------|--------|
+| **6C.0.1** | Scientific assessments audit | ✅ Design approved |
+| **6C.0.2** | Scientific data model & Firestore schema design | ✅ Design approved |
+| **6C.0.3** | Elite platform extensions (equipment, environment, passport, timeline) | ✅ Design approved |
+| **6C.1** | Scientific Firestore core foundation — types, paths, validation, repository contracts | ✅ Complete |
+| **6C.2** | Assessment sessions entity + catalog seed | 🔜 Next |
+| **6C.3** | Organization Firestore adapters + security rules | Planned |
+| **6C.4** | Screen migration (athletes → tests) | Planned |
 
-**Exit criteria:** At least athletes + tests readable/writable from Firestore when cloud mode enabled.
+**6C.1 exit criteria (met):** Typed catalog + org models, path helpers, validators, repository interfaces, feature gate, security policy metadata — no UI changes, no Firestore writes.
+
+**6C overall exit criteria:** Assessment sessions, scientific catalog seeded, org-scoped reads/writes when cloud mode enabled.
 
 ---
 
@@ -177,4 +187,4 @@
 - **SSID and analytics logic unchanged** unless explicitly scoped.
 - **EN + AR** maintained for all user-facing strings.
 
-*Last updated: Pre Phase 6B documentation pass*
+*Last updated: Phase 6C.1*

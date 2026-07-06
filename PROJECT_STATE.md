@@ -6,9 +6,9 @@
 |-------|-------|
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
-| **Stable tag** | `v0.9-alpha` |
-| **Current phase** | Phase 6A — Cloud Foundation (complete) |
-| **Next phase** | Phase 6B — Authentication |
+| **Stable tag** | `v0.9-alpha` on `main` |
+| **Current phase** | Phase 6C.1 — Scientific Firestore Core Foundation (complete) |
+| **Next phase** | Phase 6C.2 — Assessment Sessions & Catalog Seed |
 
 ---
 
@@ -16,20 +16,14 @@
 
 | Phase | Focus | Status |
 |-------|-------|--------|
-| **3A–3K** | Core product modules: analytics, testing center, athlete workspace, check-in, recovery, sports medicine, training builder, nutrition, team intelligence, SSID engine, wearables | ✅ Complete |
-| **4A** | Wearables integration architecture (mock sync) | ✅ Complete |
-| **5A** | Global design system tokens and shared UI primitives | ✅ Complete |
-| **5A.1** | High-traffic screen migration to design system | ✅ Complete |
-| **5B** | Dashboard as Sports Science Command Center | ✅ Complete |
-| **5C** | AI Coach premium consultant redesign | ✅ Complete |
-| **5D** | Athlete Workspace command center | ✅ Complete |
-| **5E.1** | Performance Lab premium laboratory | ✅ Complete |
-| **5E.2** | Scientific Report Builder (wizard, themes, export) | ✅ Complete |
-| **5E.2.1** | Report builder persistence and detail preview | ✅ Complete |
-| **5F** | Production polish (RTL, empty/error states, accessibility) | ✅ Complete |
-| **5F.1** | Final localization and naming cleanup | ✅ Complete |
-| **5G** | Brand identity, splash, onboarding, auth shell, app icon | ✅ Complete |
-| **6A** | Firebase cloud foundation (config, models, repositories, feature flag) | ✅ Complete |
+| **3A–3K** | Core product modules, SSID, testing center, wellness stack | ✅ Complete |
+| **4A–5G** | Wearables, design system, dashboard, AI Coach, lab, reports, brand | ✅ Complete |
+| **5F–5F.1** | Production polish + localization | ✅ Complete |
+| **6A** | Firebase cloud foundation (config, models, feature flag) | ✅ Complete |
+| **6B** | Firebase Authentication production layer | ✅ Complete |
+| **6B.1** | Auth persistence, Firestore user profiles, SessionManager | ✅ Complete |
+| **6C.0.1–6C.0.3** | Scientific audit + data model + elite extensions (design) | ✅ Approved |
+| **6C.1** | Scientific Firestore core foundation (types, paths, contracts) | ✅ Complete |
 
 ---
 
@@ -37,40 +31,49 @@
 
 ### Frontend (Expo / React Native)
 
-- **Router:** Expo Router with tab navigation, auth gate, onboarding flow
-- **State:** Zustand mock store with AsyncStorage persistence (`frontend/src/data/mock/`)
-- **i18n:** English + Arabic with RTL via `DirectionProvider`
-- **Design system:** Theme tokens, shared components (`EmptyState`, `ErrorState`, `Skeleton`, etc.)
-- **Analytics / SSID:** Local mock engines — not connected to cloud
-- **AI Coach:** Mock responses — no OpenAI integration
+- **Router:** Expo Router — unchanged; mock mode default
+- **State:** Zustand mock store — runtime source of truth when `USE_CLOUD_DATA=false`
+- **i18n:** English + Arabic with RTL
+- **Analytics / SSID / AI Coach:** Unchanged — local mock engines
 
 ### Data Mode (current runtime)
 
 | Setting | Default | Effect |
 |---------|---------|--------|
-| `EXPO_PUBLIC_USE_CLOUD_DATA` | `false` | App uses **mock store** for all screens |
-| `EXPO_PUBLIC_DEV_BYPASS_AUTH` | `true` (dev) | Skips auth gate in development |
+| `EXPO_PUBLIC_USE_CLOUD_DATA` | `false` | Mock store for all screens |
+| `EXPO_PUBLIC_DEV_BYPASS_AUTH` | `true` (dev) | Dev auth bypass |
 
-### Cloud Foundation (Phase 6A — not wired to screens)
+### Cloud Stack
 
 ```
 frontend/src/cloud/
-├── firebase/     # Lazy-init app, auth, firestore, storage, messaging placeholder
-├── auth/         # AuthRepository interface
-├── firestore/    # Typed models + repository interfaces
-├── storage/      # StorageRepository placeholder
-└── sync/         # Sync engine placeholder + cloud readiness diagnostics
+├── firebase/       # Lazy-init app, auth, firestore, storage
+├── auth/           # Firebase + Supabase unified AuthProvider
+├── firestore/      # Phase 6A entity models + repository interfaces
+├── scientific/     # Phase 6C.1 — catalog + org scientific foundation
+├── storage/        # Placeholder
+└── sync/           # Readiness diagnostics + sync placeholder
 ```
 
-- Firebase SDK installed; initializes only when env keys are present
-- Repository interfaces defined: `Auth`, `Athlete`, `Team`, `Test`, `Report`
-- Cloud models: `UserProfile`, `Organization`, `Team`, `Athlete`, `TestResult`, `TrainingPlan`, `InjuryRecord`, `NutritionLog`, `Report`, `WearableRecord`
-- Settings → **Cloud & Data** → Firebase Readiness screen shows config status
+#### Phase 6C.1 — `scientific/` module (infrastructure only)
 
-### Legacy / Parallel
+| Area | Contents |
+|------|----------|
+| **Paths** | Global `catalog/*` + `organizations/{orgId}/*` path helpers |
+| **Catalog models** | Sports, assessment categories (A–R), definitions, evidence tiers, formulas, equipment types/models, normative references, questionnaire templates |
+| **Org models** | Organization root, users, teams, athletes, seasons, locations, equipment, sport_configs, role_definitions |
+| **Validation** | Runtime validators for versioned catalog + org entities |
+| **Security** | Collection policy metadata for future Firestore rules |
+| **Repositories** | Interface contracts only; registry returns `null` adapters until 6C.2+ |
 
-- **Supabase:** Auth service still present (`frontend/src/services/supabase/`) — migration to Firebase planned in Phase 6B
-- **Backend:** FastAPI stub exists; not required for v0.9 alpha
+**Not implemented (by design):** assessment sessions, passport, timeline, equipment logic, environmental records, migrations, Firestore writes.
+
+### Authentication (Phase 6B / 6B.1)
+
+- Firebase Auth when `USE_CLOUD_DATA=true` + Firebase configured
+- Native/web session persistence (AsyncStorage / browser)
+- Firestore `users/{uid}` profile on sign-up (cloud mode)
+- Supabase + dev bypass preserved
 
 ---
 
@@ -78,37 +81,32 @@ frontend/src/cloud/
 
 | Commit | Phase | Description |
 |--------|-------|-------------|
-| `202de29` | 6A | Firebase cloud foundation architecture |
-| `1e78879` | 5G | Brand identity and first-run experience |
-| `de5cda3` | 5F.1 | Localization and naming cleanup |
-| `9492ccb` | 5F | Production polish for v0.9 Alpha |
-| `d734303` | 5E.2.1 | Report builder persistence |
-| `458a094` | 5E.2 | Scientific Report Builder |
+| *(pending)* | 6C.1 | Scientific Firestore core foundation |
+| `8ee0f4b` | UX | Calculator Hub entry from More screen |
+| `f9d693e` | 6B.1 | Auth persistence + user profiles |
+| `6973515` | 6B | Firebase Auth production layer |
+| `202de29` | 6A | Cloud foundation architecture |
 
 ---
 
-## Next Planned Phase: 6B Authentication
+## Next Planned Phase: 6C.2
 
-- Implement Firebase Auth repository
-- Wire sign-in / sign-up / session restore
-- Migrate off Supabase auth (or run parallel during transition)
-- Keep mock mode available via feature flags
+- Catalog seed data (static or admin tooling design)
+- Assessment session entity models (no UI wiring)
+- Firestore adapter implementations for catalog read paths
+- Security rules draft from `scientific/security/collectionPolicy.ts`
 
-See [ROADMAP.md](./ROADMAP.md) for full plan.
+See [ROADMAP.md](./ROADMAP.md).
 
 ---
 
 ## Important Notes
 
-1. **Mock data is active by default.** All screens read from the local Zustand mock store unless `EXPO_PUBLIC_USE_CLOUD_DATA=true` **and** Firebase is fully configured.
-
-2. **Firebase foundation exists but is not wired to runtime screens.** No Firestore reads/writes occur in production UI paths yet.
-
-3. **`USE_CLOUD_DATA=false` by default.** Safe for v0.9-alpha testing and demos without a Firebase project.
-
-4. **Do not commit real secrets.** Use `frontend/.env.example` as template. Copy to `.env` locally. Never commit `.env`, API keys, or service account files.
-
-5. **Stable baseline:** Tag `v0.9-alpha` on `main` marks the pre-Firebase-wiring product freeze. Cloud work continues on `develop/cloud-foundation`.
+1. **Mock data is active by default.** No Firestore scientific writes occur in UI paths.
+2. **Scientific module is infrastructure-only.** Repository registry returns null adapters.
+3. **`USE_CLOUD_DATA=false` by default.** Safe for v0.9-alpha demos.
+4. **Do not commit secrets.** Use `frontend/.env.example`.
+5. **SSID, analytics, AI Coach, dashboard unchanged** in Phase 6C.1.
 
 ---
 
@@ -118,8 +116,7 @@ See [ROADMAP.md](./ROADMAP.md) for full plan.
 |----------|----------|
 | Roadmap | [ROADMAP.md](./ROADMAP.md) |
 | Changelog | [docs/CHANGELOG.md](./docs/CHANGELOG.md) |
-| Brand guide | [frontend/docs/BRAND_GUIDE.md](./frontend/docs/BRAND_GUIDE.md) |
-| Engineering docs | [frontend/ENG_INDEX.md](./frontend/ENG_INDEX.md) |
-| Architecture | [frontend/ARCHITECTURE_OVERVIEW.md](./frontend/ARCHITECTURE_OVERVIEW.md) |
+| Brand guide | [frontend/BRAND_GUIDE.md](./frontend/BRAND_GUIDE.md) |
+| Env template | [frontend/.env.example](./frontend/.env.example) |
 
-*Last updated: Phase 6A complete — pre Phase 6B documentation pass*
+*Last updated: Phase 6C.1*
