@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
 import { Badge } from '@/src/components/common/Badge';
+import { EmptyState } from '@/src/components/common/EmptyState';
 import { Button } from '@/src/components/common/Button';
 import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
@@ -37,8 +38,8 @@ export default function LabCategoryScreen() {
 
   if (!category) {
     return (
-      <FeatureScrollScreen title={t('testingCenter.categoriesTitle')}>
-        <Text style={[type.body, { color: theme.colors.textSecondary, textAlign: 'center' }]}>{t('states.empty.defaultDescription')}</Text>
+      <FeatureScrollScreen title={t('testingCenter.categoryNotFound')}>
+        <EmptyState icon="folder-outline" title={t('testingCenter.categoryNotFound')} description={t('testingCenter.categoryNotFoundDesc')} />
       </FeatureScrollScreen>
     );
   }

@@ -1,10 +1,10 @@
 import React from 'react';
-import { View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
 import { Button } from '@/src/components/common/Button';
+import { EmptyState } from '@/src/components/common/EmptyState';
 import { SuccessBanner } from '@/src/components/common/SuccessBanner';
 import { useReportById } from '@/src/data/mock/hooks';
 import { useMockStore } from '@/src/data/mock/store';
@@ -24,7 +24,13 @@ export default function ReportDetailScreen() {
   if (!report || !config) {
     return (
       <FeatureScrollScreen title={t('features.reports.detailTitle')}>
-        <Button title={t('common.back')} onPress={() => router.replace(APP_ROUTES.reports)} variant="ghost" fullWidth />
+        <EmptyState
+          icon="document-text-outline"
+          title={t('features.reports.notFoundTitle')}
+          description={t('features.reports.notFoundDesc')}
+          actionLabel={t('common.back')}
+          onAction={() => router.replace(APP_ROUTES.reports)}
+        />
       </FeatureScrollScreen>
     );
   }
@@ -53,9 +59,7 @@ export default function ReportDetailScreen() {
         actionLoading={loading}
       />
 
-      <View style={{ marginTop: 8 }}>
-        <Button title={t('common.back')} onPress={() => router.replace(APP_ROUTES.reports)} variant="ghost" fullWidth />
-      </View>
+      <Button title={t('common.back')} onPress={() => router.replace(APP_ROUTES.reports)} variant="ghost" fullWidth style={{ marginTop: 8 }} />
     </FeatureScrollScreen>
   );
 }

@@ -69,7 +69,7 @@ export function SportsMedicinePanel({ snapshot }: SportsMedicinePanelProps) {
             <View style={{ flex: 1, height: 8, backgroundColor: theme.colors.border, borderRadius: 4, overflow: 'hidden' }}>
               <View style={{ width: `${profile.regional[key]}%`, height: 8, backgroundColor: riskColor(profile.regional[key]) }} />
             </View>
-            <Text style={[type.caption, { color: theme.colors.text, width: 36, textAlign: 'right' }]}>{profile.regional[key]}</Text>
+            <Text style={[type.caption, { color: theme.colors.text, width: 36, textAlign: textAlign('end') }]}>{profile.regional[key]}</Text>
           </View>
         ))}
       </FormSection>

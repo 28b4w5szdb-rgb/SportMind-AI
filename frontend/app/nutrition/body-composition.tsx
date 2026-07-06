@@ -44,7 +44,7 @@ export default function BodyCompositionScreen() {
   if (athletes.length === 0) {
     return (
       <FeatureScrollScreen title={t('nutrition.bodyComp.screenTitle')}>
-        <EmptyState icon="body-outline" title={t('states.empty.defaultDescription')} />
+        <EmptyState icon="body-outline" title={t('athletes.emptyRoster.title')} description={t('athletes.emptyRoster.description')} />
       </FeatureScrollScreen>
     );
   }

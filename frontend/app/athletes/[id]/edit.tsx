@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
+import { EmptyState } from '@/src/components/common/EmptyState';
 import { SuccessBanner } from '@/src/components/common/SuccessBanner';
 import {
   AthleteForm,
@@ -30,9 +31,7 @@ export default function EditAthleteScreen() {
   if (!athlete) {
     return (
       <FeatureScrollScreen title={t('features.athletes.editTitle')}>
-        <Text style={[type.body, { color: theme.colors.textSecondary, textAlign: 'center' }]}>
-          {t('states.empty.defaultDescription')}
-        </Text>
+        <EmptyState icon="person-outline" title={t('athletes.notFound.title')} description={t('athletes.notFound.description')} />
       </FeatureScrollScreen>
     );
   }

@@ -10,6 +10,7 @@ import { Badge } from '@/src/components/common/Badge';
 import { Button } from '@/src/components/common/Button';
 import { FormSection } from '@/src/components/common/FormSection';
 import { SuccessBanner } from '@/src/components/common/SuccessBanner';
+import { EmptyState } from '@/src/components/common/EmptyState';
 import { useResearchById } from '@/src/data/mock/hooks';
 import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
@@ -44,7 +45,7 @@ export default function ResearchDetailScreen() {
   if (!project) {
     return (
       <FeatureScrollScreen title={t('features.research.detailTitle')}>
-        <Text style={[type.body, { color: theme.colors.textSecondary, textAlign: 'center' }]}>{t('states.empty.defaultDescription')}</Text>
+        <EmptyState icon="library-outline" title={t('features.research.notFoundTitle')} description={t('features.research.notFoundDesc')} />
       </FeatureScrollScreen>
     );
   }

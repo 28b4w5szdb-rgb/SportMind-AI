@@ -9,6 +9,7 @@ import { Input } from '@/src/components/common/Input';
 import { Button } from '@/src/components/common/Button';
 import { FormSection } from '@/src/components/common/FormSection';
 import { SuccessBanner } from '@/src/components/common/SuccessBanner';
+import { EmptyState } from '@/src/components/common/EmptyState';
 import { Card } from '@/src/components/common/Card';
 import { Badge } from '@/src/components/common/Badge';
 import { ANALYTICS_MODULES } from '@/src/analytics/registry/modules';
@@ -89,7 +90,7 @@ export default function TestDetailScreen() {
   if (!definition) {
     return (
       <FeatureScrollScreen title={t('testingCenter.testNotFound')}>
-        <Text style={[type.body, { color: theme.colors.textSecondary, textAlign: 'center' }]}>{t('states.empty.defaultDescription')}</Text>
+        <EmptyState icon="flask-outline" title={t('testingCenter.testNotFound')} description={t('testingCenter.testNotFoundDesc')} />
       </FeatureScrollScreen>
     );
   }
@@ -200,7 +201,7 @@ export default function TestDetailScreen() {
           label={t('features.lab.date')}
           value={date}
           onChangeText={setDate}
-          placeholder="YYYY-MM-DD"
+          placeholder={t('common.datePlaceholder')}
           containerStyle={{ marginTop: theme.spacing.md }}
           error={errors.date}
         />

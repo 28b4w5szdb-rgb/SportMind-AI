@@ -194,13 +194,13 @@ export function ReportBuilderWizard() {
               label={t('reportBuilder.dateFrom')}
               value={config.dateFrom}
               onChangeText={(dateFrom) => patchConfig({ dateFrom })}
-              placeholder="YYYY-MM-DD"
+              placeholder={t('common.datePlaceholder')}
             />
             <Input
               label={t('reportBuilder.dateTo')}
               value={config.dateTo}
               onChangeText={(dateTo) => patchConfig({ dateTo })}
-              placeholder="YYYY-MM-DD"
+              placeholder={t('common.datePlaceholder')}
               containerStyle={{ marginTop: theme.spacing.md }}
             />
           </FormSection>

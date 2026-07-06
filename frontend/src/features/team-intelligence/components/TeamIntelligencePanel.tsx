@@ -134,7 +134,7 @@ export function TeamIntelligencePanel({ snapshot, compact = false, showOpenLink 
                   <PlayerRow
                     key={`${ranking.category}-${entry.athleteId}`}
                     name={`#${entry.rank} ${entry.athleteName ?? entry.athleteId}`}
-                    meta={ranking.category}
+                    meta={t(rankingTitleKey[ranking.category] ?? ranking.category)}
                     value={entry.displayValue}
                     onPress={() => router.push(APP_ROUTES.athleteDetail(entry.athleteId))}
                   />
@@ -196,9 +196,9 @@ export function TeamIntelligencePanel({ snapshot, compact = false, showOpenLink 
               {trends.map((pt) => {
                 const h = Math.max(12, Math.min(56, (pt.overallScore / 1000) * 56));
                 return (
-                  <View key={pt.label} style={{ flex: 1, alignItems: 'center' }}>
+                  <View key={pt.labelKey} style={{ flex: 1, alignItems: 'center' }}>
                     <View style={{ width: 16, height: h, backgroundColor: theme.colors.primary, borderRadius: 4, opacity: 0.85 }} />
-                    <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 4, fontSize: 9 }]}>{pt.label}</Text>
+                    <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 4, fontSize: 9, textAlign: textAlign('center') }]}>{t(pt.labelKey)}</Text>
                   </View>
                 );
               })}

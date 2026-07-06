@@ -17,7 +17,7 @@ export interface DashboardKpiItem {
   value: string;
   unit: string;
   color: string;
-  trend: string;
+  trendKey: string;
 }
 
 interface DashboardKpiGridProps {
@@ -50,7 +50,7 @@ export function DashboardKpiGrid({ kpis, columns }: DashboardKpiGridProps) {
                   <View style={{ width: 40, height: 40, borderRadius: theme.borderRadius.lg, backgroundColor: kpi.color + '22', alignItems: 'center', justifyContent: 'center' }}>
                     <Ionicons name={kpi.icon} size={20} color={kpi.color} />
                   </View>
-                  <Badge label={kpi.trend} toneColor={kpi.color} />
+                  <Badge label={t(kpi.trendKey)} toneColor={kpi.color} />
                 </View>
                 <Text style={[type.numberMedium, { color: theme.colors.text, marginTop: theme.spacing[3], textAlign: textAlign('start') }]}>
                   {kpi.value}

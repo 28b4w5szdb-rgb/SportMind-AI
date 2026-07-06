@@ -178,7 +178,7 @@ export function TrainingBuilderPanel({ snapshot, athleteId, onGenerate, generati
           <Text style={[type.bodySm, { color: theme.colors.textSecondary }]}>{t('trainingBuilder.allGood')}</Text>
         ) : (
           recommendations.map((rec) => (
-            <Card key={rec.id} variant="outlined" padding="md" style={{ borderRadius: theme.borderRadius.xl, marginBottom: theme.spacing.sm, borderLeftWidth: 3, borderLeftColor: priorityColor(rec.priority) }}>
+            <Card key={rec.id} variant="outlined" padding="md" style={{ borderRadius: theme.borderRadius.xl, marginBottom: theme.spacing.sm, borderStartWidth: 3, borderStartColor: priorityColor(rec.priority) }}>
               <Text style={[type.bodySm, { color: theme.colors.text, fontWeight: '700', textAlign: textAlign('start') }]}>{t(rec.titleKey)}</Text>
               <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 4, textAlign: textAlign('start') }]}>{t(rec.bodyKey)}</Text>
             </Card>

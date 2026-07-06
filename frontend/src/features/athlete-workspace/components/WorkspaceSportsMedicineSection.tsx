@@ -64,7 +64,7 @@ export function WorkspaceSportsMedicineSection({ athleteId, snapshot }: Workspac
 
       {primaryInjury ? (
         <View style={{ flexDirection: flexRow(true), flexWrap: 'wrap', gap: theme.spacing.sm }}>
-          <Card variant="outlined" padding="md" style={{ flex: 1, minWidth: 150, borderRadius: theme.borderRadius.xl, borderLeftWidth: 3, borderLeftColor: theme.colors.error }}>
+          <Card variant="outlined" padding="md" style={{ flex: 1, minWidth: 150, borderRadius: theme.borderRadius.xl, borderStartWidth: 3, borderStartColor: theme.colors.error }}>
             <View style={{ flexDirection: flexRow(true), alignItems: 'center', gap: 6, marginBottom: 4 }}>
               <Ionicons name="medkit" size={16} color={theme.colors.error} />
               <Text style={[type.caption, { color: theme.colors.textSecondary }]}>{t('sportsMedicine.activeInjuryCard')}</Text>

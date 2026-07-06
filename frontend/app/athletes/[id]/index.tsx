@@ -22,7 +22,7 @@ export default function AthleteDetailScreen() {
     return (
       <Screen padding={false}>
         <Header title={t('athleteWorkspace.screenTitle')} showBack />
-        <EmptyState icon="person-outline" title={t('states.empty.defaultDescription')} />
+        <EmptyState icon="person-outline" title={t('athletes.notFound.title')} description={t('athletes.notFound.description')} />
       </Screen>
     );
   }

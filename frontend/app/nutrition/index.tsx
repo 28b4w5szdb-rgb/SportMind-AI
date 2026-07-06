@@ -28,7 +28,7 @@ export default function NutritionCenterScreen() {
   if (athletes.length === 0) {
     return (
       <FeatureScrollScreen title={t('nutrition.title')}>
-        <EmptyState icon="nutrition-outline" title={t('states.empty.defaultDescription')} />
+        <EmptyState icon="nutrition-outline" title={t('athletes.emptyRoster.title')} description={t('athletes.emptyRoster.description')} />
       </FeatureScrollScreen>
     );
   }

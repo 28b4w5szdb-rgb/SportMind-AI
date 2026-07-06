@@ -78,7 +78,11 @@ export function ReportChartsBlock({ sections, accent, accentSoft, body }: Report
   const theme = useTheme();
   const type = useTypography();
   const { textAlign } = useDirection();
-  const chartData = buildReportChartData(sections);
+  const chartData = buildReportChartData(sections, {
+    performance: t('reportBuilder.preview.chartPerformance'),
+    recovery: t('reportBuilder.preview.chartRecovery'),
+    load: t('reportBuilder.preview.chartLoad'),
+  });
 
   return (
     <View style={{ gap: theme.spacing.md }}>

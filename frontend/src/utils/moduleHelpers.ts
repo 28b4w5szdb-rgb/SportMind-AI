@@ -29,9 +29,12 @@ export function buildAthleteSummary(athlete: MockAthlete | undefined, isRTL: boo
   if (!athlete) {
     return isRTL ? 'لم يتم اختيار لاعب.' : 'No athlete selected.';
   }
+  const statusLabel = isRTL
+    ? ({ active: 'نشط', injured: 'مصاب', rest: 'راحة' } as const)[athlete.status]
+    : ({ active: 'Active', injured: 'Injured', rest: 'Rest' } as const)[athlete.status];
   return isRTL
-    ? `${athlete.first_name} ${athlete.last_name} — ${athlete.position}. الحالة: ${athlete.status}. الاختبارات: ${athlete.tests_count}. الاتجاه: ${athlete.trend_percent}%.`
-    : `${athlete.first_name} ${athlete.last_name} — ${athlete.position}. Status: ${athlete.status}. Tests: ${athlete.tests_count}. Trend: ${athlete.trend_percent}%.`;
+    ? `${athlete.first_name} ${athlete.last_name} — ${athlete.position}. الحالة: ${statusLabel}. الاختبارات: ${athlete.tests_count}. الاتجاه: ${athlete.trend_percent}%.`
+    : `${athlete.first_name} ${athlete.last_name} — ${athlete.position}. Status: ${statusLabel}. Tests: ${athlete.tests_count}. Trend: ${athlete.trend_percent}%.`;
 }
 
 export function buildMockAiInsights(isRTL: boolean): string {

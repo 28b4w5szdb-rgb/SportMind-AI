@@ -16,6 +16,7 @@
     "back": "رجوع",
     "next": "التالي",
     "done": "تم",
+    "datePlaceholder": "YYYY-MM-DD",
     "error": "حدث خطأ ما",
     "tryAgain": "يرجى المحاولة مرة أخرى"
   },
@@ -71,6 +72,11 @@
       "moderate": "متوسط",
       "high": "خطر مرتفع"
     },
+    "trend": {
+      "up": "اتجاه صاعد",
+      "down": "اتجاه هابط",
+      "stable": "مستقر"
+    },
     "chart": {
       "performanceTrend": "الأداء الأسبوعي",
       "performanceTrendSub": "اتجاه النتيجة الإجمالية",
@@ -121,12 +127,24 @@
     "export": "تصدير",
     "share": "مشاركة"
   },
+  "accessibility": {
+    "goBack": "رجوع",
+    "loading": "جارٍ التحميل"
+  },
   "athletes": {
     "title": "اللاعبون",
     "empty": {
       "title": "لا يوجد لاعبون بعد",
       "description": "أضف أول لاعب لبدء تتبع الأداء.",
       "cta": "إضافة لاعب"
+    },
+    "emptyRoster": {
+      "title": "لا يوجد لاعبون في القائمة",
+      "description": "أضف لاعبين إلى فريقك لاستخدام هذه الميزة."
+    },
+    "notFound": {
+      "title": "اللاعب غير موجود",
+      "description": "ربما تمت إزالة هذا اللاعب أو أن الرابط غير صحيح."
     },
     "count_zero": "لا يوجد لاعبون",
     "count_one": "لاعب واحد",
@@ -255,6 +273,14 @@
     "calendarTitle": "تقويم الاختبارات",
     "calendarHint": "جدولة بطاريات الاختبار وإعادة الاختبار — مزامنة التقويم قريباً.",
     "comingSoon": "قريباً",
+    "compareScreen": {
+      "title": "مقارنة اللاعبين",
+      "subtitle": "قارن نتائج الاختبارات جنباً إلى جنب",
+      "athleteA": "اللاعب أ",
+      "athleteB": "اللاعب ب",
+      "test": "الاختبار",
+      "noComparison": "لا توجد اختبارات مطابقة لهذا الزوج"
+    },
     "labTimeline": "الخط الزمني للمختبر",
     "timelineEmpty": "لا يوجد سجل اختبارات بعد",
     "decisionLogged": "قرار مسجّل",
@@ -327,6 +353,11 @@
     "analyticsBadge": "مرتبط بالتحليلات",
     "testsAvailable": "اختبار متاح",
     "testNotFound": "الاختبار غير موجود",
+    "testNotFoundDesc": "تعذر العثور على بروتوكول الاختبار. ارجع إلى مكتبة الاختبارات وحاول مرة أخرى.",
+    "categoryNotFound": "الفئة غير موجودة",
+    "categoryNotFoundDesc": "فئة الاختبار هذه غير متاحة.",
+    "resultNotFound": "النتيجة غير موجودة",
+    "resultNotFoundDesc": "تعذر العثور على نتيجة الاختبار.",
     "resultTitle": "نتيجة الاختبار",
     "recordResult": "تسجيل النتيجة",
     "recordAnother": "تسجيل اختبار آخر",
@@ -585,12 +616,19 @@
     "appearance": "المظهر",
     "language": "اللغة",
     "theme": "السمة",
-    "about": "حول التطبيق"
+    "about": "حول التطبيق",
+    "comingSoonTitle": "قريباً",
+    "comingSoonBody": "سيتوفر هذا الإعداد في الإصدار الإنتاجي.",
+    "versionLabel": "SportMind AI v0.9 Alpha"
   },
   "states": {
     "empty": {
       "defaultTitle": "لا يوجد شيء هنا بعد",
       "defaultDescription": "سيظهر المحتوى هنا عند توفره."
+    },
+    "notFound": {
+      "title": "غير موجود",
+      "description": "ربما تمت إزالة هذا العنصر أو أن الرابط غير صحيح."
     },
     "error": {
       "defaultTitle": "تعذر تحميل هذا العنصر",
@@ -772,6 +810,8 @@
       },
       "statsTotal": "الإجمالي",
       "detailTitle": "تفاصيل التقرير",
+      "notFoundTitle": "التقرير غير موجود",
+      "notFoundDesc": "ربما تم حذف هذا التقرير أو أن الرابط غير صحيح.",
       "updated": "تم تحديث التقرير",
       "selectAthlete": "اللاعب",
       "selectAthleteHint": "تضمين سياق الأداء لهذا اللاعب",
@@ -832,6 +872,8 @@
       "statsProjects": "المشاريع",
       "avgProgress": "متوسط التقدم",
       "detailTitle": "تفاصيل المشروع",
+      "notFoundTitle": "المشروع غير موجود",
+      "notFoundDesc": "ربما تمت إزالة مشروع البحث هذا.",
       "updated": "تم تحديث المشروع",
       "designTitle": "تصميم الدراسة",
       "designSubtitle": "العينة والمنهج والمتغيرات",
@@ -868,6 +910,8 @@
       "selectAthletesHint": "اضغط على اللاعبين لإضافتهم للتشكيلة",
       "members": "{{count}} لاعب",
       "detailTitle": "تفاصيل الفريق",
+      "notFoundTitle": "الفريق غير موجود",
+      "notFoundDesc": "ربما تمت إزالة هذا الفريق أو أن الرابط غير صحيح.",
       "statsTeams": "الفرق",
       "statsRoster": "أماكن التشكيلة",
       "statsAvg": "متوسط التشكيلة",
@@ -1605,6 +1649,12 @@
     "posScore": "متوسط {{score}}/1000 · جاهزية {{readiness}}% · خطر {{risk}}%",
     "keyWeakness": "نقطة ضعف رئيسية",
     "teamTrends": "اتجاهات الفريق",
+    "trends": {
+      "w3": "قبل 3 أسابيع",
+      "w2": "قبل أسبوعين",
+      "w1": "الأسبوع الماضي",
+      "now": "هذا الأسبوع"
+    },
     "alertsTitle": "تنبيهات الفريق",
     "aiSummary": "ملخص AI للفريق",
     "staffRecommendations": "توصيات الطاقم",
@@ -1915,6 +1965,9 @@
       "noContent": "لا يوجد محتوى لهذا القسم في النطاق الزمني المحدد.",
       "empty": "اختر قسماً واحداً على الأقل لمعاينة تقريرك.",
       "chartPlaceholder": "عنصر نائب لتصور الرسم البياني",
+      "chartPerformance": "الأداء",
+      "chartRecovery": "التعافي",
+      "chartLoad": "حمل التدريب",
       "sectionsCount": "{{count}} أقسام",
       "saveDraft": "حفظ كمسودة",
       "athleteScope": "{{name}} · {{from}} → {{to}}",
@@ -1927,7 +1980,10 @@
       "pdfMessage": "تصدير PDF قريباً.\n\nتخطيط التقرير والسمة وترتيب الأقسام جاهزة. سيولّد خط التصدير في الإنتاج مستندات PDF بعلامتك التجارية من هذه المعاينة.",
       "wordMessage": "تصدير Word قريباً.\n\nتقارير .docx قابلة للتحرير بسمتك والوحدات المختارة ستتوفر عند تفعيل خدمة التصدير في الإنتاج.",
       "excelMessage": "تصدير Excel قريباً.\n\nجداول KPI وتحليلات منظمة ستُولَّد من بيانات تقريرك في الإصدار الإنتاجي.",
-      "placeholder": "التصدير غير متصل بعد. هذا عنصر نائب تجريبي."
+      "placeholder": "التصدير غير متصل بعد. هذا عنصر نائب تجريبي.",
+      "pdf": "PDF",
+      "word": "Word",
+      "excel": "Excel"
     }
   }
 }

@@ -7,6 +7,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { useDirection } from '@/src/providers/DirectionProvider';
 
@@ -24,7 +25,8 @@ export function Header({ title, subtitle, showBack = false, rightAction }: Heade
   const theme = useTheme();
   const type = useTypography();
   const router = useRouter();
-  const { flexRow, backIcon } = useDirection();
+  const { t } = useTranslation();
+  const { flexRow, backIcon, textAlign } = useDirection();
   const { tokens, layout } = theme;
 
   const iconButtonStyle = {
@@ -56,7 +58,7 @@ export function Header({ title, subtitle, showBack = false, rightAction }: Heade
             hitSlop={tokens.interaction.hitSlop}
             activeOpacity={tokens.interaction.activeOpacity}
             accessibilityRole="button"
-            accessibilityLabel="Go back"
+            accessibilityLabel={t('accessibility.goBack')}
           >
             <Ionicons name={backIcon()} size={24} color={theme.colors.text} />
           </TouchableOpacity>
@@ -64,16 +66,12 @@ export function Header({ title, subtitle, showBack = false, rightAction }: Heade
       </View>
 
       <View style={styles.center}>
-        <Text
-          style={[type.h3, { color: theme.colors.text }]}
-          numberOfLines={1}
-          accessibilityRole="header"
-        >
+        <Text style={[type.h3, { color: theme.colors.text, textAlign: textAlign('center') }]} numberOfLines={1} accessibilityRole="header">
           {title}
         </Text>
         {subtitle && (
           <Text
-            style={[type.caption, { color: theme.colors.textSecondary }]}
+            style={[type.caption, { color: theme.colors.textSecondary, textAlign: textAlign('center') }]}
             numberOfLines={1}
           >
             {subtitle}

@@ -124,8 +124,8 @@ export default function AthletesScreen() {
           style={{
             borderRadius: theme.borderRadius['2xl'],
             marginBottom: theme.spacing[3],
-            borderLeftWidth: risk === 'high' ? 3 : 0,
-            borderLeftColor: riskColor,
+            borderStartWidth: risk === 'high' ? 3 : 0,
+            borderStartColor: riskColor,
           }}
         >
           <View style={[styles.athleteRow, { flexDirection: flexRow(true) }]}>
@@ -164,7 +164,7 @@ export default function AthletesScreen() {
                 ]}
               >
                 <View style={[styles.statusDot, { backgroundColor: statusColor, borderRadius: 4 }]} />
-                <Text style={[type.caption, { color: statusColor, marginLeft: 6 }]}>
+                <Text style={[type.caption, { color: statusColor, marginStart: 6 }]}>
                   {isRTL
                     ? filterChips.find((f) => f.id === item.status)?.labelAr
                     : filterChips.find((f) => f.id === item.status)?.labelEn}
@@ -172,7 +172,7 @@ export default function AthletesScreen() {
               </View>
               <View style={[styles.riskBadge, { backgroundColor: riskColor + '15', borderRadius: theme.borderRadius.sm }]}>
                 <Ionicons name="shield" size={12} color={riskColor} />
-                <Text style={[type.caption, { color: riskColor, marginLeft: 4, fontSize: 10 }]}>
+                <Text style={[type.caption, { color: riskColor, marginStart: 4, fontSize: 10 }]}>
                   {risk === 'high' ? (isRTL ? 'خطر' : 'Risk') : risk === 'medium' ? (isRTL ? 'انتباه' : 'Watch') : (isRTL ? 'جيد' : 'OK')}
                 </Text>
               </View>
@@ -186,14 +186,14 @@ export default function AthletesScreen() {
                 {isRTL ? 'الاختبارات' : 'Tests'}
               </Text>
             </View>
-            <View style={[styles.statItem, { borderLeftWidth: 1, borderLeftColor: theme.colors.border }]} />
+            <View style={[styles.statItem, { borderStartWidth: 1, borderStartColor: theme.colors.border }]} />
             <View style={styles.statItem}>
               <Text style={[type.numberSm, { color: theme.colors.text }]}>8</Text>
               <Text style={[type.caption, { color: theme.colors.textTertiary }]}>
                 {isRTL ? 'الجلسات' : 'Sessions'}
               </Text>
             </View>
-            <View style={[styles.statItem, { borderLeftWidth: 1, borderLeftColor: theme.colors.border }]} />
+            <View style={[styles.statItem, { borderStartWidth: 1, borderStartColor: theme.colors.border }]} />
             <View style={styles.statItem}>
               <Text style={[type.numberSm, { color: item.trend_percent >= 0 ? theme.colors.success : theme.colors.warning }]}>
                 {item.trend_percent > 0 ? '+' : ''}{item.trend_percent}%

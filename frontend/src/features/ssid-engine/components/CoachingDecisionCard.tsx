@@ -25,8 +25,8 @@ export function CoachingDecisionCard({ interpretation }: CoachingDecisionCardPro
       style={{
         borderRadius: theme.borderRadius['2xl'],
         marginBottom: theme.spacing.md,
-        borderLeftWidth: 4,
-        borderLeftColor: theme.colors.secondary,
+        borderStartWidth: 4,
+        borderStartColor: theme.colors.secondary,
       }}
     >
       <View style={{ flexDirection: flexRow(true), alignItems: 'flex-start' }}>

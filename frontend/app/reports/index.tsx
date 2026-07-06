@@ -106,7 +106,7 @@ export default function ReportsScreen() {
                       {report.title}
                     </Text>
                     <View style={{ flexDirection: flexRow(true), alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
-                      <Badge label={t(`features.reports.types.${report.type}`)} variant="info" />
+                      <Badge label={report.builder_meta?.reportType ? t(`reportBuilder.types.${report.builder_meta.reportType}`) : t(`features.reports.types.${report.type}`)} variant="info" />
                       <Badge label={t(`features.reports.status.${report.status}`)} variant={reportStatusVariant(report.status)} />
                     </View>
                     <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 6, textAlign: textAlign('start') }]}>

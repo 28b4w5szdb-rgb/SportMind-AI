@@ -81,7 +81,7 @@ export default function LogTrainingSessionScreen() {
   if (!session || !plan) {
     return (
       <FeatureScrollScreen title={t('trainingBuilder.execution.title')}>
-        <EmptyState icon="barbell-outline" title={t('states.empty.defaultDescription')} />
+        <EmptyState icon="barbell-outline" title={t('athletes.emptyRoster.title')} description={t('athletes.emptyRoster.description')} />
       </FeatureScrollScreen>
     );
   }

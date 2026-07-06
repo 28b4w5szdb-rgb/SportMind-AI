@@ -28,7 +28,7 @@ export default function RecoveryCenterScreen() {
   if (athletes.length === 0) {
     return (
       <FeatureScrollScreen title={t('recovery.title')}>
-        <EmptyState icon="bed-outline" title={t('states.empty.defaultDescription')} />
+        <EmptyState icon="bed-outline" title={t('athletes.emptyRoster.title')} description={t('athletes.emptyRoster.description')} />
       </FeatureScrollScreen>
     );
   }

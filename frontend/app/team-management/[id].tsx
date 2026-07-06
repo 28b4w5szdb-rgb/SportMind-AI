@@ -10,6 +10,7 @@ import { Card } from '@/src/components/common/Card';
 import { Badge } from '@/src/components/common/Badge';
 import { Button } from '@/src/components/common/Button';
 import { FormSection } from '@/src/components/common/FormSection';
+import { EmptyState } from '@/src/components/common/EmptyState';
 import { ReadinessScore } from '@/src/components/features/ReadinessScore';
 import { useTeamById, useTeamRoster } from '@/src/data/mock/hooks';
 import { APP_ROUTES } from '@/src/core/constants/routes';
@@ -52,7 +53,7 @@ export default function TeamDetailScreen() {
   if (!team) {
     return (
       <FeatureScrollScreen title={t('features.team.detailTitle')}>
-        <Text style={[type.body, { color: theme.colors.textSecondary, textAlign: 'center' }]}>{t('states.empty.defaultDescription')}</Text>
+        <EmptyState icon="people-outline" title={t('features.team.notFoundTitle')} description={t('features.team.notFoundDesc')} />
       </FeatureScrollScreen>
     );
   }

@@ -34,7 +34,7 @@ export default function SportsMedicineScreen() {
   if (athletes.length === 0) {
     return (
       <FeatureScrollScreen title={t('sportsMedicine.title')}>
-        <EmptyState icon="medkit-outline" title={t('states.empty.defaultDescription')} />
+        <EmptyState icon="medkit-outline" title={t('athletes.emptyRoster.title')} description={t('athletes.emptyRoster.description')} />
       </FeatureScrollScreen>
     );
   }

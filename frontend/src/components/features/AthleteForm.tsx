@@ -139,7 +139,7 @@ export function AthleteForm({ initial, onSubmit, submitLabel, loading }: Athlete
         label={t('features.athletes.fields.dateOfBirth')}
         value={values.date_of_birth}
         onChangeText={(v) => set('date_of_birth', v)}
-        placeholder="YYYY-MM-DD"
+        placeholder={t('common.datePlaceholder')}
       />
       <Input
         label={t('features.athletes.fields.jerseyNumber')}

@@ -160,14 +160,14 @@ export function useDashboardPresentation() {
 
   const kpis = useMemo(
     () => [
-      { id: 'overall', icon: 'trophy' as const, labelKey: 'analytics.overallScore', value: `${teamAnalytics.avgOverallScore}`, unit: '/1000', color: '#0066FF', trend: teamAnalytics.avgOverallScore >= 600 ? '+↑' : '→' },
-      { id: 'readiness', icon: 'flash' as const, labelKey: 'analytics.kpi.readiness', value: `${teamAnalytics.avgReadiness}`, unit: '%', color: '#10B981', trend: teamAnalytics.avgReadiness >= 70 ? '+↑' : '↓' },
-      { id: 'recovery', icon: 'heart' as const, labelKey: 'analytics.kpi.recovery', value: `${teamAnalytics.avgRecovery}`, unit: '%', color: '#0D9488', trend: '+' },
-      { id: 'fatigue', icon: 'battery-dead' as const, labelKey: 'analytics.kpi.fatigue', value: `${teamAnalytics.avgFatigue}`, unit: '%', color: '#F97316', trend: teamAnalytics.avgFatigue <= 40 ? '↓' : '↑' },
-      { id: 'load', icon: 'barbell' as const, labelKey: 'analytics.kpi.trainingLoad', value: `${teamAnalytics.avgTrainingLoad}`, unit: '%', color: '#8B5CF6', trend: '→' },
-      { id: 'injury', icon: 'medkit' as const, labelKey: 'analytics.kpi.injuryRisk', value: `${teamAnalytics.avgInjuryRisk}`, unit: '%', color: '#EF4444', trend: teamAnalytics.avgInjuryRisk <= 30 ? '↓' : '↑' },
-      { id: 'nutrition', icon: 'nutrition' as const, labelKey: 'dashboard.kpi.nutritionCompliance', value: `${nutritionDashboard.avgCompliance}`, unit: '%', color: '#F97316', trend: nutritionDashboard.avgCompliance >= 70 ? '+↑' : '↓' },
-      { id: 'wearables', icon: 'watch' as const, labelKey: 'dashboard.kpi.wearablesSync', value: `${wearablesDashboard.syncedToday}`, unit: `/${wearablesDashboard.totalAthletes || 0}`, color: '#0EA5E9', trend: wearablesDashboard.syncedToday > 0 ? '+↑' : '→' },
+      { id: 'overall', icon: 'trophy' as const, labelKey: 'analytics.overallScore', value: `${teamAnalytics.avgOverallScore}`, unit: '/1000', color: '#0066FF', trendKey: teamAnalytics.avgOverallScore >= 600 ? 'dashboard.trend.up' : 'dashboard.trend.stable' },
+      { id: 'readiness', icon: 'flash' as const, labelKey: 'analytics.kpi.readiness', value: `${teamAnalytics.avgReadiness}`, unit: '%', color: '#10B981', trendKey: teamAnalytics.avgReadiness >= 70 ? 'dashboard.trend.up' : 'dashboard.trend.down' },
+      { id: 'recovery', icon: 'heart' as const, labelKey: 'analytics.kpi.recovery', value: `${teamAnalytics.avgRecovery}`, unit: '%', color: '#0D9488', trendKey: 'dashboard.trend.up' },
+      { id: 'fatigue', icon: 'battery-dead' as const, labelKey: 'analytics.kpi.fatigue', value: `${teamAnalytics.avgFatigue}`, unit: '%', color: '#F97316', trendKey: teamAnalytics.avgFatigue <= 40 ? 'dashboard.trend.down' : 'dashboard.trend.up' },
+      { id: 'load', icon: 'barbell' as const, labelKey: 'analytics.kpi.trainingLoad', value: `${teamAnalytics.avgTrainingLoad}`, unit: '%', color: '#8B5CF6', trendKey: 'dashboard.trend.stable' },
+      { id: 'injury', icon: 'medkit' as const, labelKey: 'analytics.kpi.injuryRisk', value: `${teamAnalytics.avgInjuryRisk}`, unit: '%', color: '#EF4444', trendKey: teamAnalytics.avgInjuryRisk <= 30 ? 'dashboard.trend.down' : 'dashboard.trend.up' },
+      { id: 'nutrition', icon: 'nutrition' as const, labelKey: 'dashboard.kpi.nutritionCompliance', value: `${nutritionDashboard.avgCompliance}`, unit: '%', color: '#F97316', trendKey: nutritionDashboard.avgCompliance >= 70 ? 'dashboard.trend.up' : 'dashboard.trend.down' },
+      { id: 'wearables', icon: 'watch' as const, labelKey: 'dashboard.kpi.wearablesSync', value: `${wearablesDashboard.syncedToday}`, unit: `/${wearablesDashboard.totalAthletes || 0}`, color: '#0EA5E9', trendKey: wearablesDashboard.syncedToday > 0 ? 'dashboard.trend.up' : 'dashboard.trend.stable' },
     ],
     [teamAnalytics, nutritionDashboard, wearablesDashboard]
   );

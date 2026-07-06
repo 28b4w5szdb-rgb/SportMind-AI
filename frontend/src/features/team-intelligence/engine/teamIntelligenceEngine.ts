@@ -216,10 +216,10 @@ function buildReadinessDistribution(players: PlayerTeamMetrics[]): ReadinessBuck
 function buildTrends(players: PlayerTeamMetrics[], baseOverall: number, baseReadiness: number): TeamTrendPoint[] {
   const delta = avg(players.map((p) => p.trendDelta));
   return [
-    { label: 'W-3', overallScore: Math.max(0, baseOverall - Math.round(delta * 1.5)), readiness: Math.max(0, baseReadiness - 4) },
-    { label: 'W-2', overallScore: Math.max(0, baseOverall - Math.round(delta)), readiness: Math.max(0, baseReadiness - 2) },
-    { label: 'W-1', overallScore: Math.max(0, baseOverall - Math.round(delta * 0.5)), readiness: Math.max(0, baseReadiness - 1) },
-    { label: 'Now', overallScore: baseOverall, readiness: baseReadiness },
+    { labelKey: 'teamIntelligence.trends.w3', overallScore: Math.max(0, baseOverall - Math.round(delta * 1.5)), readiness: Math.max(0, baseReadiness - 4) },
+    { labelKey: 'teamIntelligence.trends.w2', overallScore: Math.max(0, baseOverall - Math.round(delta)), readiness: Math.max(0, baseReadiness - 2) },
+    { labelKey: 'teamIntelligence.trends.w1', overallScore: Math.max(0, baseOverall - Math.round(delta * 0.5)), readiness: Math.max(0, baseReadiness - 1) },
+    { labelKey: 'teamIntelligence.trends.now', overallScore: baseOverall, readiness: baseReadiness },
   ];
 }
 

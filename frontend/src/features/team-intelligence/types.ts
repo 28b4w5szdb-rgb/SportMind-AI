@@ -92,7 +92,7 @@ export interface ReadinessBucket {
 }
 
 export interface TeamTrendPoint {
-  label: string;
+  labelKey: string;
   overallScore: number;
   readiness: number;
 }

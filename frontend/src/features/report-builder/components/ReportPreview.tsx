@@ -115,14 +115,14 @@ export function ReportPreview({
           <View style={{ flexDirection: flexRow(true), gap: theme.spacing.sm, marginBottom: theme.spacing.lg, flexWrap: 'wrap' }}>
             {(
               [
-                { id: 'pdf', icon: 'document', label: 'PDF' },
-                { id: 'word', icon: 'document-text', label: 'Word' },
-                { id: 'excel', icon: 'grid', label: 'Excel' },
+                { id: 'pdf', icon: 'document', labelKey: 'reportBuilder.export.pdf' },
+                { id: 'word', icon: 'document-text', labelKey: 'reportBuilder.export.word' },
+                { id: 'excel', icon: 'grid', labelKey: 'reportBuilder.export.excel' },
               ] as const
             ).map((item) => (
               <Button
                 key={item.id}
-                title={item.label}
+                title={t(item.labelKey)}
                 onPress={() => handleExport(item.id)}
                 variant="outline"
                 size="small"

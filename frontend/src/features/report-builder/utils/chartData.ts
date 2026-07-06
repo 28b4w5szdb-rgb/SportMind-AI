@@ -41,7 +41,10 @@ export interface ReportChartData {
   barLabels: string[];
 }
 
-export function buildReportChartData(sections: MockReportSections): ReportChartData {
+export function buildReportChartData(
+  sections: MockReportSections,
+  labels?: { performance: string; recovery: string; load: string }
+): ReportChartData {
   const strengths = parseScoreLines(sections.strengths);
   const weaknesses = parseScoreLines(sections.weaknesses);
   const kpis = parseKpiLines(sections.kpi_summary);
@@ -53,13 +56,15 @@ export function buildReportChartData(sections: MockReportSections): ReportChartD
         ? kpis.slice(0, 5)
         : [...strengths, ...weaknesses].slice(0, 5);
 
+  const fallbackLabels = labels ?? { performance: 'Performance', recovery: 'Recovery', load: 'Load' };
+
   const radarAxes: RadarAxis[] =
     radarSource.length > 0
       ? radarSource.map((item) => ({ label: item.label, value: item.value, max: 100 }))
       : [
-          { label: 'Performance', value: 72, max: 100 },
-          { label: 'Recovery', value: 68, max: 100 },
-          { label: 'Load', value: 64, max: 100 },
+          { label: fallbackLabels.performance, value: 72, max: 100 },
+          { label: fallbackLabels.recovery, value: 68, max: 100 },
+          { label: fallbackLabels.load, value: 64, max: 100 },
         ];
 
   const barSource = strengths.length > 0 || weaknesses.length > 0 ? [...strengths, ...weaknesses] : kpis.slice(0, 4);

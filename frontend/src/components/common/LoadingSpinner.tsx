@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { useTheme, useTypography } from '@/src/core/theme';
 
 interface LoadingSpinnerProps {
@@ -14,13 +15,15 @@ interface LoadingSpinnerProps {
 export function LoadingSpinner({ message, fullScreen = false }: LoadingSpinnerProps) {
   const theme = useTheme();
   const type = useTypography();
+  const { t } = useTranslation();
+  const loadingLabel = message ?? t('accessibility.loading');
 
   const content = (
     <>
       <ActivityIndicator
         size="large"
         color={theme.colors.primary}
-        accessibilityLabel={message ?? 'Loading'}
+        accessibilityLabel={loadingLabel}
       />
       {message && (
         <Text

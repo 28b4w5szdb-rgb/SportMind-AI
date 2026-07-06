@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
 import { Button } from '@/src/components/common/Button';
+import { EmptyState } from '@/src/components/common/EmptyState';
 import { useAthleteById, useTestById } from '@/src/data/mock/hooks';
 import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
@@ -43,8 +44,8 @@ export default function TestResultDetailScreen() {
 
   if (!test) {
     return (
-      <FeatureScrollScreen title={t('testingCenter.resultTitle')}>
-        <Text style={[type.body, { color: theme.colors.textSecondary, textAlign: 'center' }]}>{t('states.empty.defaultDescription')}</Text>
+      <FeatureScrollScreen title={t('testingCenter.resultNotFound')}>
+        <EmptyState icon="analytics-outline" title={t('testingCenter.resultNotFound')} description={t('testingCenter.resultNotFoundDesc')} />
       </FeatureScrollScreen>
     );
   }

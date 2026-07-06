@@ -53,7 +53,7 @@ export function BodyMapZonePanel({ modules, selectedZoneId, onSelectZone }: Body
         <Card
           variant="elevated"
           padding="md"
-          style={{ borderRadius: theme.borderRadius.xl, borderLeftWidth: 3, borderLeftColor: scoreColor(selectedScore) }}
+          style={{ borderRadius: theme.borderRadius.xl, borderStartWidth: 3, borderStartColor: scoreColor(selectedScore) }}
         >
           <View style={{ flexDirection: flexRow(true), justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <View style={{ flex: 1 }}>

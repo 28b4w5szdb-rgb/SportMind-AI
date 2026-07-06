@@ -22,8 +22,8 @@ export default function SettingsScreen() {
   const { flexRow, chevronIcon, textAlign, isRTL } = useDirection();
   const [darkModePreview, setDarkModePreview] = React.useState(theme.isDark);
 
-  const showComingSoon = (label: string) => {
-    Alert.alert(label, isRTL ? 'سيتوفر هذا القسم في تحديث قادم.' : 'This section will be available in an upcoming update.');
+  const showComingSoon = () => {
+    Alert.alert(t('settings.comingSoonTitle'), t('settings.comingSoonBody'));
   };
 
   const settingsSections = [
@@ -71,7 +71,7 @@ export default function SettingsScreen() {
                 },
               ]}
             >
-              {section.title.toUpperCase()}
+              {section.title}
             </Text>
             <Card style={{ borderRadius: theme.borderRadius['2xl'] }}>
               {section.items.map((item, index) => (
@@ -82,7 +82,7 @@ export default function SettingsScreen() {
                       disabled={item.type === 'toggle' || item.type === 'language'}
                       onPress={() => {
                         if (item.type === 'route' && 'route' in item) router.push(item.route);
-                        else if (item.type === 'link') showComingSoon(item.label);
+                        else if (item.type === 'link') showComingSoon();
                       }}
                       activeOpacity={item.type === 'toggle' || item.type === 'language' ? 1 : 0.7}
                     >
@@ -104,7 +104,7 @@ export default function SettingsScreen() {
                         <Ionicons name={chevronIcon()} size={20} color={theme.colors.textTertiary} />
                       </TouchableOpacity>
                     ) : (
-                      <TouchableOpacity onPress={() => showComingSoon(item.label)}>
+                      <TouchableOpacity onPress={() => showComingSoon()}>
                         <Ionicons name={chevronIcon()} size={20} color={theme.colors.textTertiary} />
                       </TouchableOpacity>
                     )}
@@ -139,7 +139,7 @@ export default function SettingsScreen() {
             { color: theme.colors.textTertiary, textAlign: 'center', marginTop: theme.spacing.xl },
           ]}
         >
-          SportMind AI v1.0.0
+          {t('settings.versionLabel')}
         </Text>
       </ScrollView>
     </Screen>

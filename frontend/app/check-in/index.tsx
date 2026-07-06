@@ -36,7 +36,7 @@ export default function DailyCheckInScreen() {
   if (athletes.length === 0) {
     return (
       <FeatureScrollScreen title={t('dailyCheckIn.title')}>
-        <EmptyState icon="clipboard-outline" title={t('states.empty.defaultDescription')} />
+        <EmptyState icon="clipboard-outline" title={t('athletes.emptyRoster.title')} description={t('athletes.emptyRoster.description')} />
       </FeatureScrollScreen>
     );
   }

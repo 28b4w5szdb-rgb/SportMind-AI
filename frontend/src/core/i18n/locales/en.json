@@ -16,6 +16,7 @@
     "back": "Back",
     "next": "Next",
     "done": "Done",
+    "datePlaceholder": "YYYY-MM-DD",
     "error": "Something went wrong",
     "tryAgain": "Please try again"
   },
@@ -71,6 +72,11 @@
       "moderate": "Moderate",
       "high": "High risk"
     },
+    "trend": {
+      "up": "Trending up",
+      "down": "Trending down",
+      "stable": "Stable"
+    },
     "chart": {
       "performanceTrend": "Weekly performance",
       "performanceTrendSub": "Squad overall score trend",
@@ -121,12 +127,24 @@
     "export": "Export",
     "share": "Share"
   },
+  "accessibility": {
+    "goBack": "Go back",
+    "loading": "Loading"
+  },
   "athletes": {
     "title": "Athletes",
     "empty": {
       "title": "No athletes yet",
       "description": "Add your first athlete to begin tracking performance.",
       "cta": "Add athlete"
+    },
+    "emptyRoster": {
+      "title": "No athletes on roster",
+      "description": "Add athletes to your squad to use this feature."
+    },
+    "notFound": {
+      "title": "Athlete not found",
+      "description": "This athlete may have been removed or the link is incorrect."
     },
     "count": "{{count}} athlete",
     "count_other": "{{count}} athletes"
@@ -251,6 +269,14 @@
     "calendarTitle": "Testing Calendar",
     "calendarHint": "Schedule battery tests, retests, and squad screening days — calendar sync coming soon.",
     "comingSoon": "Coming soon",
+    "compareScreen": {
+      "title": "Compare Athletes",
+      "subtitle": "Compare test results side-by-side",
+      "athleteA": "Athlete A",
+      "athleteB": "Athlete B",
+      "test": "Test",
+      "noComparison": "No matching tests for this pair"
+    },
     "labTimeline": "Laboratory Timeline",
     "timelineEmpty": "No testing history yet",
     "decisionLogged": "Decision logged",
@@ -323,6 +349,11 @@
     "analyticsBadge": "Analytics linked",
     "testsAvailable": "tests available",
     "testNotFound": "Test not found",
+    "testNotFoundDesc": "This test protocol could not be found. Return to the test library and try again.",
+    "categoryNotFound": "Category not found",
+    "categoryNotFoundDesc": "This testing category is not available.",
+    "resultNotFound": "Result not found",
+    "resultNotFoundDesc": "This test result could not be found.",
     "resultTitle": "Test Result",
     "recordResult": "Record result",
     "recordAnother": "Record another",
@@ -581,12 +612,19 @@
     "appearance": "Appearance",
     "language": "Language",
     "theme": "Theme",
-    "about": "About"
+    "about": "About",
+    "comingSoonTitle": "Coming soon",
+    "comingSoonBody": "This setting will be available in the production release.",
+    "versionLabel": "SportMind AI v0.9 Alpha"
   },
   "states": {
     "empty": {
       "defaultTitle": "Nothing here yet",
       "defaultDescription": "Content will appear here once available."
+    },
+    "notFound": {
+      "title": "Not found",
+      "description": "This item may have been removed or the link is incorrect."
     },
     "error": {
       "defaultTitle": "We couldn't load this",
@@ -768,6 +806,8 @@
       },
       "statsTotal": "Total",
       "detailTitle": "Report detail",
+      "notFoundTitle": "Report not found",
+      "notFoundDesc": "This report may have been deleted or the link is incorrect.",
       "updated": "Report updated",
       "selectAthlete": "Athlete",
       "selectAthleteHint": "Include performance context for this athlete",
@@ -828,6 +868,8 @@
       "statsProjects": "Projects",
       "avgProgress": "Avg progress",
       "detailTitle": "Project detail",
+      "notFoundTitle": "Project not found",
+      "notFoundDesc": "This research project may have been removed.",
       "updated": "Project updated",
       "designTitle": "Study design",
       "designSubtitle": "Sample, methods, and variables",
@@ -864,6 +906,8 @@
       "selectAthletesHint": "Tap athletes to add them to the roster",
       "members": "{{count}} athletes",
       "detailTitle": "Team detail",
+      "notFoundTitle": "Team not found",
+      "notFoundDesc": "This team may have been removed or the link is incorrect.",
       "statsTeams": "Teams",
       "statsRoster": "Roster slots",
       "statsAvg": "Avg roster",
@@ -1601,6 +1645,12 @@
     "posScore": "Avg {{score}}/1000 · Readiness {{readiness}}% · Risk {{risk}}%",
     "keyWeakness": "Key weakness",
     "teamTrends": "Team trends",
+    "trends": {
+      "w3": "3 wks ago",
+      "w2": "2 wks ago",
+      "w1": "Last week",
+      "now": "This week"
+    },
     "alertsTitle": "Team alerts",
     "aiSummary": "AI team summary",
     "staffRecommendations": "Staff recommendations",
@@ -1911,6 +1961,9 @@
       "noContent": "No content available for this section in the selected date range.",
       "empty": "Select at least one section to preview your report.",
       "chartPlaceholder": "Chart visualization placeholder",
+      "chartPerformance": "Performance",
+      "chartRecovery": "Recovery",
+      "chartLoad": "Training load",
       "sectionsCount": "{{count}} sections",
       "saveDraft": "Save as draft",
       "athleteScope": "{{name}} · {{from}} → {{to}}",
@@ -1923,7 +1976,10 @@
       "pdfMessage": "PDF export is coming soon.\n\nYour report layout, theme, and section order are ready. The production export pipeline will generate branded PDF documents from this preview.",
       "wordMessage": "Word export is coming soon.\n\nEditable .docx reports with your selected theme and modules will be available when the production export service is enabled.",
       "excelMessage": "Excel export is coming soon.\n\nStructured KPI and analytics spreadsheets will be generated from your report data in the production release.",
-      "placeholder": "Export is not connected yet. This is a mock placeholder."
+      "placeholder": "Export is not connected yet. This is a mock placeholder.",
+      "pdf": "PDF",
+      "word": "Word",
+      "excel": "Excel"
     }
   }
 }

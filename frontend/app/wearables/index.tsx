@@ -37,7 +37,7 @@ export default function WearablesScreen() {
   if (athletes.length === 0 || !snapshot) {
     return (
       <FeatureScrollScreen title={t('wearables.title')}>
-        <EmptyState icon="watch-outline" title={t('states.empty.defaultDescription')} />
+        <EmptyState icon="watch-outline" title={t('athletes.emptyRoster.title')} description={t('athletes.emptyRoster.description')} />
       </FeatureScrollScreen>
     );
   }

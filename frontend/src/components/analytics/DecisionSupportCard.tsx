@@ -19,7 +19,7 @@ export function DecisionSupportCard({ decision }: DecisionSupportCardProps) {
   const { flexRow, textAlign } = useDirection();
 
   return (
-    <Card variant="elevated" padding="lg" style={{ borderRadius: theme.borderRadius['2xl'], marginBottom: theme.spacing.lg, borderLeftWidth: 4, borderLeftColor: decision.color }}>
+    <Card variant="elevated" padding="lg" style={{ borderRadius: theme.borderRadius['2xl'], marginBottom: theme.spacing.lg, borderStartWidth: 4, borderStartColor: decision.color }}>
       <View style={{ flexDirection: flexRow(true), alignItems: 'flex-start' }}>
         <View style={{ width: 44, height: 44, borderRadius: theme.borderRadius.lg, backgroundColor: decision.color + '18', alignItems: 'center', justifyContent: 'center' }}>
           <Ionicons name="shield-checkmark" size={24} color={decision.color} />
