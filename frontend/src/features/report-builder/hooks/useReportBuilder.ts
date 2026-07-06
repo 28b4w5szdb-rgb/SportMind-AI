@@ -17,6 +17,7 @@ import type {
   ReportThemeId,
 } from '../types';
 import { buildPreviewBlocks, mapBuilderTypeToMockType } from '../utils/reportContent';
+import { buildReportSubtitle } from '../utils/reportMeta';
 
 const DEFAULT_DATE_TO = new Date().toISOString().slice(0, 10);
 const DEFAULT_DATE_FROM = new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10);
@@ -227,18 +228,9 @@ export function useReportBuilderContent(config: ReportBuilderConfig) {
   }, [allSections, config.sectionOrder, isTeam, t]);
 
   const subtitle = useMemo(() => {
-    if (isTeam) {
-      return t('reportBuilder.preview.teamScope', { from: config.dateFrom, to: config.dateTo });
-    }
-    if (athlete) {
-      return t('reportBuilder.preview.athleteScope', {
-        name: `${athlete.first_name} ${athlete.last_name}`,
-        from: config.dateFrom,
-        to: config.dateTo,
-      });
-    }
-    return t('reportBuilder.preview.dateScope', { from: config.dateFrom, to: config.dateTo });
-  }, [athlete, config.dateFrom, config.dateTo, isTeam, t]);
+    const name = athlete ? `${athlete.first_name} ${athlete.last_name}` : undefined;
+    return buildReportSubtitle(config, name, t);
+  }, [athlete, config, t]);
 
   return { allSections, previewBlocks, athlete, subtitle, mockType, isTeam };
 }

@@ -91,6 +91,19 @@ export interface MockReport {
   summary: string;
   athlete_id?: string;
   sections: MockReportSections;
+  /** Scientific Report Builder metadata (Phase 5E.2+) */
+  builder_meta?: MockReportBuilderMeta;
+}
+
+/** Persisted wizard configuration for premium report rendering */
+export interface MockReportBuilderMeta {
+  reportType: string;
+  theme: string;
+  sectionOrder: string[];
+  dateFrom: string;
+  dateTo: string;
+  scope: 'athlete' | 'team';
+  teamId?: string | null;
 }
 
 export interface MockResearchProject {

@@ -19,6 +19,7 @@ import { useFormAction } from '@/src/hooks/useFormAction';
 import { REPORT_SECTION_OPTIONS, REPORT_THEMES, REPORT_TYPE_OPTIONS } from '../constants';
 import { useReportBuilderState, useReportBuilderContent } from '../hooks/useReportBuilder';
 import { sectionsToMockReportSections } from '../utils/reportContent';
+import { configToBuilderMeta } from '../utils/reportMeta';
 import { WizardStepIndicator } from './wizard/WizardStepIndicator';
 import { ReportPreview } from './ReportPreview';
 
@@ -82,6 +83,7 @@ export function ReportBuilderWizard() {
         summary,
         athlete_id: config.scope === 'athlete' ? config.athleteId ?? undefined : undefined,
         sections,
+        builder_meta: configToBuilderMeta(config),
       });
       setTimeout(() => router.replace(APP_ROUTES.reportDetail(report.id)), 600);
     });
@@ -293,6 +295,7 @@ export function ReportBuilderWizard() {
             config={config}
             blocks={previewBlocks}
             subtitle={subtitle}
+            sections={allSections}
             onSave={handleSave}
             saving={loading}
           />

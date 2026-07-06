@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, Text, Alert } from 'react-native';
+import { View, Text } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
 import { Card } from '@/src/components/common/Card';
@@ -10,28 +9,51 @@ import { Badge } from '@/src/components/common/Badge';
 import { SectionHeader } from '@/src/components/common/SectionHeader';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
+import type { MockReportSections, MockReportStatus } from '@/src/data/mock/types';
+import { reportStatusVariant } from '@/src/utils/moduleHelpers';
 import { getThemeById } from '../constants';
 import { ReportSectionBlock, ReportChartsBlock } from './blocks/ReportSectionBlock';
+import { showReportExportAlert } from '../utils/exportAlert';
 import type { ReportBuilderConfig, ReportPreviewBlock } from '../types';
 
 interface ReportPreviewProps {
   config: ReportBuilderConfig;
   blocks: ReportPreviewBlock[];
   subtitle: string;
+  sections?: MockReportSections;
   onSave?: () => void;
   saving?: boolean;
   showExport?: boolean;
+  status?: MockReportStatus;
+  createdAt?: string;
+  onMarkReady?: () => void;
+  onMarkExported?: () => void;
+  actionLoading?: boolean;
 }
 
-export function ReportPreview({ config, blocks, subtitle, onSave, saving, showExport = true }: ReportPreviewProps) {
-  const { t } = useTranslation();
+export function ReportPreview({
+  config,
+  blocks,
+  subtitle,
+  sections,
+  onSave,
+  saving,
+  showExport = true,
+  status,
+  createdAt,
+  onMarkReady,
+  onMarkExported,
+  actionLoading,
+}: ReportPreviewProps) {
+  const { t, i18n } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
-  const { flexRow, textAlign } = useDirection();
+  const { flexRow, textAlign, isRTL } = useDirection();
   const reportTheme = getThemeById(config.theme);
+  const chartSections = sections ?? ({} as MockReportSections);
 
   const handleExport = (format: 'pdf' | 'word' | 'excel') => {
-    Alert.alert(t('features.reports.exportTitle', { format: format.toUpperCase() }), t('reportBuilder.export.placeholder'));
+    showReportExportAlert(format, t);
   };
 
   return (
@@ -51,7 +73,13 @@ export function ReportPreview({ config, blocks, subtitle, onSave, saving, showEx
           <Badge label={t(`reportBuilder.types.${config.reportType}`)} variant="info" />
           <Badge label={t(`reportBuilder.themes.${config.theme}`)} variant="info" />
           <Badge label={t('reportBuilder.preview.sectionsCount', { count: blocks.length })} variant="info" />
+          {status ? <Badge label={t(`features.reports.status.${status}`)} variant={reportStatusVariant(status)} /> : null}
         </View>
+        {createdAt ? (
+          <Text style={[type.caption, { color: 'rgba(255,255,255,0.75)', marginTop: theme.spacing.sm, textAlign: textAlign('start') }]}>
+            {new Date(createdAt).toLocaleString(isRTL ? 'ar' : 'en')}
+          </Text>
+        ) : null}
       </LinearGradient>
 
       {blocks.length === 0 ? (
@@ -62,13 +90,21 @@ export function ReportPreview({ config, blocks, subtitle, onSave, saving, showEx
         </Card>
       ) : (
         blocks.map((block, index) => (
-          <View key={block.id}>
-            <ReportSectionBlock block={block} accent={reportTheme.accent} accentSoft={reportTheme.accentSoft} index={index} />
+          <View key={`${block.id}-${index}`}>
             {block.id === 'charts' ? (
-              <Card variant="filled" padding="md" style={{ marginTop: -theme.spacing.sm, marginBottom: theme.spacing.md, borderRadius: theme.borderRadius.xl }}>
-                <ReportChartsBlock body={block.body} accent={reportTheme.accent} accentSoft={reportTheme.accentSoft} />
-              </Card>
-            ) : null}
+              <>
+                <ReportSectionBlock block={block} accent={reportTheme.accent} accentSoft={reportTheme.accentSoft} index={index} hideBody />
+                <Card
+                  variant="filled"
+                  padding="md"
+                  style={{ marginTop: -theme.spacing.sm, marginBottom: theme.spacing.md, borderRadius: theme.borderRadius.xl }}
+                >
+                  <ReportChartsBlock body={block.body} sections={chartSections} accent={reportTheme.accent} accentSoft={reportTheme.accentSoft} />
+                </Card>
+              </>
+            ) : (
+              <ReportSectionBlock block={block} accent={reportTheme.accent} accentSoft={reportTheme.accentSoft} index={index} />
+            )}
           </View>
         ))
       )}
@@ -106,6 +142,31 @@ export function ReportPreview({ config, blocks, subtitle, onSave, saving, showEx
           disabled={saving}
           fullWidth
           icon="save"
+        />
+      ) : null}
+
+      {status === 'draft' && onMarkReady ? (
+        <Button
+          title={t('features.reports.markReady')}
+          onPress={onMarkReady}
+          loading={actionLoading}
+          disabled={actionLoading}
+          variant="primary"
+          fullWidth
+          icon="checkmark-circle"
+          style={{ marginTop: theme.spacing.sm }}
+        />
+      ) : null}
+      {status === 'ready' && onMarkExported ? (
+        <Button
+          title={t('features.reports.markExported')}
+          onPress={onMarkExported}
+          loading={actionLoading}
+          disabled={actionLoading}
+          variant="secondary"
+          fullWidth
+          icon="download"
+          style={{ marginTop: theme.spacing.sm }}
         />
       ) : null}
     </View>

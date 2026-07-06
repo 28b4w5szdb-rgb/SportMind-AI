@@ -52,20 +52,21 @@ export function buildPreviewBlocks(
   sectionOrder: ReportSectionId[],
   sections: MockReportSections,
   isTeam: boolean,
-  fallback: string
+  fallback: string,
+  options?: { includeEmpty?: boolean }
 ): ReportPreviewBlock[] {
-  return sectionOrder
-    .map((id) => {
-      const extractor = (isTeam && TEAM_SECTION_EXTRACTORS[id]) || SECTION_EXTRACTORS[id];
-      const body = extractor(sections)?.trim() || fallback;
-      return {
-        id,
-        titleKey: sectionLabelKey(id),
-        body,
-        icon: sectionIcon(id),
-      };
-    })
-    .filter((block) => block.body.length > 0);
+  const blocks = sectionOrder.map((id) => {
+    const extractor = (isTeam && TEAM_SECTION_EXTRACTORS[id]) || SECTION_EXTRACTORS[id];
+    const body = extractor(sections)?.trim() || fallback;
+    return {
+      id,
+      titleKey: sectionLabelKey(id),
+      body,
+      icon: sectionIcon(id),
+    };
+  });
+  if (options?.includeEmpty) return blocks;
+  return blocks.filter((block) => block.body.length > 0 && block.body !== fallback);
 }
 
 export function sectionsToMockReportSections(
