@@ -1,14 +1,12 @@
 /**
  * SportMind AI - AI Coach Screen
- * Premium ChatGPT-style AI assistant with persisted mock conversations.
+ * Premium sports science consultant with persisted mock conversations.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
   TextInput,
   FlatList,
@@ -20,24 +18,26 @@ import {
   Modal,
   Pressable,
   InteractionManager,
+  Text,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 
-import { Card } from '@/src/components/common/Card';
-import { Chip } from '@/src/components/common/Chip';
-import { ChatMessage, TypingIndicator } from '@/src/components/features/ai-coach';
+import {
+  ChatMessage,
+  TypingIndicator,
+  AiCoachHeader,
+  AiCoachContextBar,
+  AiCoachEmptyState,
+  AiCoachSidebar,
+} from '@/src/components/features/ai-coach';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
-import {
-  AI_AGENTS,
-  SUGGESTED_PROMPTS,
-  generateMockResponse,
-  type AiAgentId,
-  type AiMessage,
-} from '@/src/data/mock/ai-coach';
+import { AI_MODULES } from '@/src/features/ai-coach/constants';
+import type { AiContextScope, AiModuleId, StructuredAiResponse } from '@/src/features/ai-coach/types';
+import { generateMockResponse, type AiAgentId, type AiMessage } from '@/src/data/mock/ai-coach';
 import { useActiveConversationMessages } from '@/src/data/mock/hooks';
 import { useMockStore } from '@/src/data/mock/store';
 import { computeAthleteAnalytics } from '@/src/analytics';
@@ -46,24 +46,24 @@ import { buildWearableDailySnapshot } from '@/src/features/wearables';
 import { useSquadIntelligence } from '@/src/features/team-intelligence';
 import { copyToClipboard, exportTextPlaceholder } from '@/src/utils/clipboard';
 
-function createMessage(role: AiMessage['role'], content: string, agentId?: AiAgentId): AiMessage {
+function createMessage(
+  role: AiMessage['role'],
+  content: string,
+  agentId?: AiAgentId,
+  structured?: StructuredAiResponse
+): AiMessage {
   return {
     id: `${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
     role,
     content,
     timestamp: new Date().toISOString(),
     agentId,
+    structured,
   };
 }
 
-function formatConversationDate(iso: string, isRTL: boolean): string {
-  const d = new Date(iso);
-  const now = new Date();
-  const diffMs = now.getTime() - d.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  if (diffDays === 0) return isRTL ? 'اليوم' : 'Today';
-  if (diffDays === 1) return isRTL ? 'أمس' : 'Yesterday';
-  return d.toLocaleDateString(isRTL ? 'ar' : 'en', { month: 'short', day: 'numeric' });
+function moduleToAgent(moduleId: AiModuleId): AiAgentId {
+  return AI_MODULES.find((m) => m.id === moduleId)?.agentId ?? 'performance';
 }
 
 export default function AICoachScreen() {
@@ -98,9 +98,27 @@ export default function AICoachScreen() {
   const wearableRecords = useMockStore((s) => s.wearableRecords);
   const teamIntelligence = useSquadIntelligence();
 
+  const [contextScope, setContextScope] = useState<AiContextScope>('athlete');
+  const [selectedAthleteId, setSelectedAthleteId] = useState<string | null>(null);
+  const [selectedModuleId, setSelectedModuleId] = useState<AiModuleId>('performance');
+  const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
+
+  useEffect(() => {
+    if (!selectedAthleteId && athletes.length > 0) {
+      setSelectedAthleteId(athletes[0].id);
+    }
+  }, [athletes, selectedAthleteId]);
+
   const analyticsContext = useMemo(() => {
-    const athlete = athletes[0];
+    if (contextScope === 'team') {
+      return teamIntelligence ? { teamIntelligence } : undefined;
+    }
+
+    const athlete = athletes.find((a) => a.id === selectedAthleteId) ?? athletes[0];
     if (!athlete) return undefined;
+
     const athleteTests = tests.filter((tst) => tst.athlete_id === athlete.id);
     const checkIn = dailyCheckIns
       .filter((c) => c.athlete_id === athlete.id)
@@ -140,11 +158,21 @@ export default function AICoachScreen() {
       wearables,
       teamIntelligence,
     };
-  }, [athletes, tests, dailyCheckIns, injuryRecords, trainingPlans, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings, wearableConnections, wearableRecords, teamIntelligence]);
-
-  const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(false);
+  }, [
+    athletes,
+    bodyCompositionRecords,
+    contextScope,
+    dailyCheckIns,
+    injuryRecords,
+    nutritionGoalSettings,
+    nutritionLogs,
+    selectedAthleteId,
+    teamIntelligence,
+    tests,
+    trainingPlans,
+    wearableConnections,
+    wearableRecords,
+  ]);
 
   const isDesktop = windowWidth >= 1024;
   const canSend = input.trim().length > 0 && !isTyping;
@@ -185,12 +213,26 @@ export default function AICoachScreen() {
     }
   }, [messages.length, isTyping, scrollToEnd]);
 
+  const handleModuleChange = useCallback(
+    (moduleId: AiModuleId) => {
+      setSelectedModuleId(moduleId);
+      setSelectedAgent(moduleToAgent(moduleId));
+    },
+    [setSelectedAgent]
+  );
+
   const sendMessage = useCallback(
-    (text: string) => {
+    (text: string, moduleOverride?: AiModuleId) => {
       const trimmed = text.trim();
       if (!trimmed || isTyping) return;
 
-      const userMsg = createMessage('user', trimmed, selectedAgent);
+      const agent = moduleOverride ? moduleToAgent(moduleOverride) : selectedAgent;
+      if (moduleOverride) {
+        setSelectedModuleId(moduleOverride);
+        setSelectedAgent(agent);
+      }
+
+      const userMsg = createMessage('user', trimmed, agent);
       appendActiveMessage(userMsg);
       setInput('');
       setIsTyping(true);
@@ -198,14 +240,14 @@ export default function AICoachScreen() {
       scrollToEnd(true);
 
       setTimeout(() => {
-        const reply = generateMockResponse(selectedAgent, trimmed, isRTL, analyticsContext, (key) => t(key));
-        appendActiveMessage(createMessage('assistant', reply, selectedAgent));
+        const reply = generateMockResponse(agent, trimmed, isRTL, analyticsContext, (key) => t(key));
+        appendActiveMessage(createMessage('assistant', reply.content, agent, reply.structured));
         setIsTyping(false);
         shouldAutoScrollRef.current = true;
         scrollToEnd(true);
       }, 1400 + Math.random() * 800);
     },
-    [analyticsContext, appendActiveMessage, isTyping, isRTL, scrollToEnd, selectedAgent, t]
+    [analyticsContext, appendActiveMessage, isRTL, isTyping, scrollToEnd, selectedAgent, setSelectedAgent, t]
   );
 
   const handleNewChat = () => {
@@ -231,16 +273,16 @@ export default function AICoachScreen() {
     setIsTyping(true);
     setTimeout(() => {
       const reply = generateMockResponse(selectedAgent, lastUser.content, isRTL, analyticsContext, (key) => t(key));
-      appendActiveMessage(createMessage('assistant', reply, selectedAgent));
+      appendActiveMessage(createMessage('assistant', reply.content, selectedAgent, reply.structured));
       setIsTyping(false);
       shouldAutoScrollRef.current = true;
       scrollToEnd(true);
     }, 1200);
-  }, [analyticsContext, appendActiveMessage, isRTL, isTyping, messages, scrollToEnd, selectedAgent, setActiveMessages]);
+  }, [analyticsContext, appendActiveMessage, isRTL, isTyping, messages, scrollToEnd, selectedAgent, setActiveMessages, t]);
 
   const handleExport = () => {
     const body = messages.map((m) => `${m.role}: ${m.content}`).join('\n\n');
-    exportTextPlaceholder(isRTL ? 'تصدير المحادثة' : 'Export conversation', body || '—', isRTL);
+    exportTextPlaceholder(t('aiCoach.export'), body || '—', isRTL);
   };
 
   const handleAttachment = () => {
@@ -272,58 +314,7 @@ export default function AICoachScreen() {
   }, [messages]);
 
   const renderEmptyState = () => (
-    <View style={{ paddingBottom: theme.spacing[4] }}>
-      <View style={[styles.emptyHero, { alignItems: 'center', paddingVertical: theme.spacing[4] }]}>
-        <LinearGradient colors={['#0066FF', '#0D9488']} style={[styles.emptyIcon, { borderRadius: theme.borderRadius['3xl'] }]}>
-          <Ionicons name="sparkles" size={36} color="#FFF" />
-        </LinearGradient>
-        <Text style={[type.h3, { color: theme.colors.text, marginTop: theme.spacing[4], textAlign: 'center' }]}>
-          {t('aiCoach.title')}
-        </Text>
-        <Text
-          style={[
-            type.body,
-            { color: theme.colors.textSecondary, marginTop: theme.spacing[2], textAlign: 'center', maxWidth: 320 },
-          ]}
-        >
-          {t('aiCoach.welcome')}
-        </Text>
-        <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: theme.spacing[4], textAlign: 'center' }]}>
-          {isRTL ? 'اختر وكيلاً أعلاه أو جرّب أحد الأسئلة' : 'Pick an agent above or try a suggested prompt'}
-        </Text>
-      </View>
-
-      <Text style={[type.label, { color: theme.colors.textTertiary, marginBottom: theme.spacing[3], textAlign: textAlign('start') }]}>
-        {isRTL ? 'أسئلة مقترحة' : 'Suggested prompts'}
-      </Text>
-      <View style={{ gap: theme.spacing.sm }}>
-        {SUGGESTED_PROMPTS.map((prompt) => (
-          <TouchableOpacity
-            key={prompt.id}
-            activeOpacity={0.85}
-            onPress={() => {
-              setSelectedAgent(prompt.agentId);
-              sendMessage(isRTL ? prompt.textAr : prompt.textEn);
-            }}
-          >
-            <Card variant="elevated" padding="md" style={{ borderRadius: theme.borderRadius.xl, ...theme.shadows.sm }}>
-              <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
-                <Ionicons name="chatbubble-ellipses-outline" size={20} color={theme.colors.primary} />
-                <Text
-                  style={[
-                    type.bodySm,
-                    { color: theme.colors.text, flex: 1, marginHorizontal: theme.spacing[3], textAlign: textAlign('start') },
-                  ]}
-                >
-                  {isRTL ? prompt.textAr : prompt.textEn}
-                </Text>
-                <Ionicons name={isRTL ? 'arrow-back' : 'arrow-forward'} size={16} color={theme.colors.textTertiary} />
-              </View>
-            </Card>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
+    <AiCoachEmptyState onSelectModule={handleModuleChange} onSendPrompt={(text, moduleId) => sendMessage(text, moduleId)} />
   );
 
   const composerBlock = (
@@ -459,58 +450,7 @@ export default function AICoachScreen() {
     />
   );
 
-  const sidebarContent = (
-    <>
-      <TouchableOpacity onPress={handleNewChat} activeOpacity={0.85} style={{ marginBottom: theme.spacing.md }}>
-        <LinearGradient colors={['#0066FF', '#0D9488']} style={[styles.newChatBtn, { borderRadius: theme.borderRadius.lg }]}>
-          <Ionicons name="add" size={20} color="#FFF" />
-          <Text style={[type.button, { color: '#FFF', marginStart: theme.spacing.sm, fontSize: 14 }]}>
-            {isRTL ? 'محادثة جديدة' : 'New chat'}
-          </Text>
-        </LinearGradient>
-      </TouchableOpacity>
-      <Text style={[type.label, { color: theme.colors.textTertiary, marginBottom: theme.spacing[2], textAlign: textAlign('start') }]}>
-        {isRTL ? 'الأخيرة' : 'Recent'}
-      </Text>
-      {conversations.length === 0 ? (
-        <Text style={[type.bodySm, { color: theme.colors.textTertiary, textAlign: textAlign('start'), paddingVertical: 12 }]}>
-          {isRTL ? 'لا محادثات بعد — ابدأ محادثة جديدة' : 'No conversations yet — start a new chat'}
-        </Text>
-      ) : (
-        conversations.map((conv) => {
-          const active = conv.id === activeConversationId;
-          return (
-            <TouchableOpacity
-              key={conv.id}
-              activeOpacity={0.85}
-              onPress={() => {
-                setActiveConversation(conv.id);
-                setShowSidebar(false);
-              }}
-              style={[
-                styles.convItem,
-                {
-                  borderRadius: theme.borderRadius.lg,
-                  backgroundColor: active ? theme.colors.primary + '15' : theme.colors.surface,
-                  borderWidth: active ? 1 : 0,
-                  borderColor: active ? theme.colors.primary + '40' : 'transparent',
-                },
-              ]}
-            >
-              <Text style={[type.bodySm, { color: theme.colors.text, textAlign: textAlign('start'), fontWeight: active ? '600' : '400' }]} numberOfLines={2}>
-                {conv.title}
-              </Text>
-              <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 4, textAlign: textAlign('start') }]}>
-                {formatConversationDate(conv.updatedAt, isRTL)} · {conv.messages.length} {isRTL ? 'رسائل' : 'msgs'}
-              </Text>
-            </TouchableOpacity>
-          );
-        })
-      )}
-    </>
-  );
-
-  const sidebar = (
+  const sidebarPanel = (
     <View
       style={[
         styles.sidebar,
@@ -518,7 +458,15 @@ export default function AICoachScreen() {
         isRTL ? { borderLeftWidth: StyleSheet.hairlineWidth } : { borderRightWidth: StyleSheet.hairlineWidth },
       ]}
     >
-      {sidebarContent}
+      <AiCoachSidebar
+        conversations={conversations}
+        activeConversationId={activeConversationId}
+        onNewChat={handleNewChat}
+        onSelectConversation={(id) => {
+          setActiveConversation(id);
+          setShowSidebar(false);
+        }}
+      />
     </View>
   );
 
@@ -529,54 +477,26 @@ export default function AICoachScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={keyboardVerticalOffset}
       >
-        <View
-          style={[
-            styles.header,
-            { flexDirection: flexRow(true), borderBottomColor: theme.colors.border, paddingHorizontal: theme.spacing[4] },
-          ]}
-        >
-          {!isDesktop && (
-            <TouchableOpacity onPress={() => setShowSidebar(true)} style={styles.iconBtn} accessibilityLabel={isRTL ? 'المحادثات' : 'Conversations'}>
-              <Ionicons name="menu" size={22} color={theme.colors.text} />
-            </TouchableOpacity>
-          )}
-          <View style={{ flex: 1 }}>
-            <Text style={[type.h4, { color: theme.colors.text, textAlign: textAlign('start') }]}>{t('aiCoach.title')}</Text>
-            <Text style={[type.caption, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>
-              {isRTL ? 'مساعد علوم رياضية' : 'Sports science assistant'}
-            </Text>
-          </View>
-          <TouchableOpacity onPress={handleExport} style={styles.iconBtn} accessibilityLabel={isRTL ? 'تصدير' : 'Export'}>
-            <Ionicons name="download-outline" size={22} color={theme.colors.text} />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleNewChat} style={styles.iconBtn} accessibilityLabel={isRTL ? 'محادثة جديدة' : 'New chat'}>
-            <Ionicons name="create-outline" size={22} color={theme.colors.text} />
-          </TouchableOpacity>
-        </View>
+        <AiCoachHeader
+          isDesktop={isDesktop}
+          onOpenSidebar={!isDesktop ? () => setShowSidebar(true) : undefined}
+          onExport={handleExport}
+          onNewChat={handleNewChat}
+        />
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.chipsRow}
-          contentContainerStyle={styles.chipsContent}
-        >
-          {AI_AGENTS.map((agent) => (
-            <Chip
-              key={agent.id}
-              label={isRTL ? agent.labelAr : agent.labelEn}
-              icon={agent.icon as keyof typeof Ionicons.glyphMap}
-              selected={selectedAgent === agent.id}
-              onPress={() => setSelectedAgent(agent.id)}
-              variant="solid"
-              color={agent.color}
-              size="sm"
-            />
-          ))}
-        </ScrollView>
+        <AiCoachContextBar
+          contextScope={contextScope}
+          onScopeChange={setContextScope}
+          selectedModuleId={selectedModuleId}
+          onModuleChange={handleModuleChange}
+          athletes={athletes}
+          selectedAthleteId={selectedAthleteId}
+          onAthleteChange={setSelectedAthleteId}
+        />
 
         {isDesktop ? (
           <View style={[styles.messagesArea, { flexDirection: flexRow(true) }]}>
-            {sidebar}
+            {sidebarPanel}
             <View style={styles.desktopChatStack}>
               <View style={styles.messagesListHost}>{chatList}</View>
               {composerBlock}
@@ -607,15 +527,23 @@ export default function AICoachScreen() {
             >
               <View style={[styles.sidebarHeader, { flexDirection: flexRow(true), borderBottomColor: theme.colors.border }]}>
                 <Text style={[type.h5, { color: theme.colors.text, flex: 1, textAlign: textAlign('start') }]}>
-                  {isRTL ? 'المحادثات' : 'Conversations'}
+                  {t('aiCoach.sidebar.title')}
                 </Text>
                 <TouchableOpacity onPress={() => setShowSidebar(false)} style={styles.iconBtn}>
                   <Ionicons name="close" size={22} color={theme.colors.text} />
                 </TouchableOpacity>
               </View>
-              <ScrollView contentContainerStyle={{ padding: 12 }} showsVerticalScrollIndicator={false}>
-                {sidebarContent}
-              </ScrollView>
+              <View style={{ padding: 12, flex: 1 }}>
+                <AiCoachSidebar
+                  conversations={conversations}
+                  activeConversationId={activeConversationId}
+                  onNewChat={handleNewChat}
+                  onSelectConversation={(id) => {
+                    setActiveConversation(id);
+                    setShowSidebar(false);
+                  }}
+                />
+              </View>
             </SafeAreaView>
           </View>
         </Modal>
@@ -627,34 +555,11 @@ export default function AICoachScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   keyboardRoot: { flex: 1 },
-  header: {
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
   iconBtn: {
     width: 40,
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  chipsRow: {
-    flexGrow: 0,
-    flexShrink: 0,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: 'transparent',
-  },
-  chipsContent: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    gap: 8,
-    alignItems: 'center',
-  },
-  agentChip: {
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderWidth: 1,
   },
   messagesArea: {
     flex: 1,
@@ -674,18 +579,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sidebar: {
-    width: 280,
+    width: 300,
     padding: 12,
-  },
-  newChatBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-  },
-  convItem: {
-    padding: 12,
-    marginBottom: 8,
   },
   composer: {
     flexShrink: 0,
@@ -715,13 +610,6 @@ const styles = StyleSheet.create({
   attachCircle: {
     width: 36,
     height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emptyHero: {},
-  emptyIcon: {
-    width: 72,
-    height: 72,
     alignItems: 'center',
     justifyContent: 'center',
   },

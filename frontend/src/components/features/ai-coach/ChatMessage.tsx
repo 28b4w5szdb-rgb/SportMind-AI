@@ -1,11 +1,13 @@
 import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, Platform, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import type { AiMessage } from '@/src/data/mock/ai-coach';
+import { AiStructuredResponseCard } from './AiStructuredResponseCard';
+import { AiMessageActions } from './AiMessageActions';
 
 interface ChatMessageProps {
   message: AiMessage;
@@ -36,20 +38,22 @@ export function ChatMessage({ message, onCopy, onRegenerate, isLastAssistant }: 
   const bubbleMaxWidth = isDesktop
     ? isUser
       ? '72%'
-      : '78%'
+      : '82%'
     : isTablet
       ? isUser
         ? '84%'
-        : '90%'
+        : '92%'
       : isUser
         ? '85%'
-        : '95%';
+        : '96%';
   const bodyLineHeight = isRTL ? 28 : 24;
 
   const paragraphs = useMemo(
     () => message.content.split('\n\n').map((block) => block.trim()).filter(Boolean),
     [message.content]
   );
+
+  const hasStructured = !isUser && message.structured && message.structured.sections.length > 0;
 
   const textBaseStyle = {
     color: isUser ? '#FFF' : theme.colors.text,
@@ -101,42 +105,46 @@ export function ChatMessage({ message, onCopy, onRegenerate, isLastAssistant }: 
               borderTopStartRadius: isUser ? theme.borderRadius['2xl'] : theme.borderRadius.sm,
               borderTopEndRadius: isUser ? theme.borderRadius.sm : theme.borderRadius['2xl'],
               paddingHorizontal: theme.spacing.md,
-              paddingVertical: theme.spacing.sm + 6,
+              paddingVertical: hasStructured ? theme.spacing.sm + 2 : theme.spacing.sm + 6,
               borderWidth: isUser ? 0 : 1,
               ...(!isUser ? theme.shadows.sm : {}),
             },
           ]}
           collapsable={false}
         >
-          <View style={styles.bubbleContent}>
-            {paragraphs.map((paragraph, index) => {
-              const lines = paragraph.split('\n');
-              return (
-                <Text
-                  key={`${index}-${paragraph.slice(0, 16)}`}
-                  style={[
-                    type.body,
-                    textBaseStyle,
-                    index > 0 ? styles.paragraphGap : undefined,
-                  ]}
-                >
-                  {lines.map((line, lineIndex) => (
-                    <Text
-                      key={`${index}-${lineIndex}`}
-                      style={{
-                        fontWeight: lineIndex === 0 && isSectionHeader(line) ? '700' : '400',
-                        lineHeight: bodyLineHeight,
-                        writingDirection: isRTL ? 'rtl' : 'ltr',
-                      }}
-                    >
-                      {lineIndex > 0 ? '\n' : ''}
-                      {line}
-                    </Text>
-                  ))}
-                </Text>
-              );
-            })}
-          </View>
+          {hasStructured ? (
+            <View style={styles.structuredContent}>
+              {message.structured!.sections.map((section) => (
+                <AiStructuredResponseCard key={section.id} section={section} />
+              ))}
+            </View>
+          ) : (
+            <View style={styles.bubbleContent}>
+              {paragraphs.map((paragraph, index) => {
+                const lines = paragraph.split('\n');
+                return (
+                  <Text
+                    key={`${index}-${paragraph.slice(0, 16)}`}
+                    style={[type.body, textBaseStyle, index > 0 ? styles.paragraphGap : undefined]}
+                  >
+                    {lines.map((line, lineIndex) => (
+                      <Text
+                        key={`${index}-${lineIndex}`}
+                        style={{
+                          fontWeight: lineIndex === 0 && isSectionHeader(line) ? '700' : '400',
+                          lineHeight: bodyLineHeight,
+                          writingDirection: isRTL ? 'rtl' : 'ltr',
+                        }}
+                      >
+                        {lineIndex > 0 ? '\n' : ''}
+                        {line}
+                      </Text>
+                    ))}
+                  </Text>
+                );
+              })}
+            </View>
+          )}
           <Text
             style={[
               type.caption,
@@ -152,31 +160,27 @@ export function ChatMessage({ message, onCopy, onRegenerate, isLastAssistant }: 
             {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </Text>
         </View>
-        {!isUser && (onCopy || onRegenerate) && (
-          <View
-            style={[
-              styles.actions,
-              {
-                flexDirection: flexRow(true),
-                alignSelf: isRTL ? 'flex-end' : 'flex-start',
-              },
-            ]}
-          >
-            {onCopy && (
-              <TouchableOpacity onPress={() => onCopy(message.content)} style={styles.actionBtn} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
-                <Ionicons name="copy-outline" size={16} color={theme.colors.textTertiary} />
-              </TouchableOpacity>
-            )}
-            {isLastAssistant && onRegenerate && (
-              <TouchableOpacity onPress={onRegenerate} style={[styles.actionBtn, { marginStart: 12 }]} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
-                <Ionicons name="refresh-outline" size={16} color={theme.colors.textTertiary} />
-              </TouchableOpacity>
-            )}
-          </View>
+        {!isUser && onCopy && (
+          <AiMessageActions
+            content={message.content}
+            onCopy={onCopy}
+            onRegenerate={onRegenerate}
+            showRegenerate={isLastAssistant}
+          />
         )}
       </View>
       {isUser && (
-        <View style={[styles.avatar, { borderRadius: theme.borderRadius.lg, backgroundColor: theme.colors.primary + '20', alignItems: 'center', justifyContent: 'center' }]}>
+        <View
+          style={[
+            styles.avatar,
+            {
+              borderRadius: theme.borderRadius.lg,
+              backgroundColor: theme.colors.primary + '20',
+              alignItems: 'center',
+              justifyContent: 'center',
+            },
+          ]}
+        >
           <Ionicons name="person" size={16} color={theme.colors.primary} />
         </View>
       )}
@@ -209,19 +213,15 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     overflow: 'visible',
   },
+  structuredContent: {
+    flexShrink: 1,
+    overflow: 'visible',
+  },
   paragraphGap: {
     marginTop: 10,
   },
   timestamp: {
     marginTop: 10,
     flexShrink: 0,
-  },
-  actions: {
-    alignItems: 'center',
-    marginTop: 8,
-    flexShrink: 0,
-  },
-  actionBtn: {
-    padding: 4,
   },
 });

@@ -133,9 +133,93 @@
   },
   "aiCoach": {
     "title": "AI Coach",
-    "welcome": "Ask anything about training, recovery, or performance.",
+    "subtitle": "Sports science consultant",
+    "welcomeTitle": "Your premium sports science assistant",
+    "welcome": "Ask anything about training, recovery, performance, nutrition, or team intelligence.",
     "whyLabel": "Why?",
-    "confidenceLabel": "Confidence"
+    "confidenceLabel": "Confidence",
+    "newChat": "New chat",
+    "export": "Export conversation",
+    "quickActions": "Quick actions",
+    "suggestedPrompts": "Suggested prompts",
+    "roleExamples": "Examples by role",
+    "referencePlaceholder": "Reference library integration coming soon — peer-reviewed sources will appear here.",
+    "context": {
+      "team": "Team",
+      "athlete": "Athlete"
+    },
+    "modules": {
+      "performance": "Performance",
+      "testing": "Testing",
+      "recovery": "Recovery",
+      "nutrition": "Nutrition",
+      "injury": "Injury",
+      "training": "Training",
+      "wearables": "Wearables",
+      "reports": "Reports"
+    },
+    "actions": {
+      "readiness": "Analyze readiness",
+      "injuryRisk": "Explain injury risk",
+      "trainingLoad": "Recommend training load",
+      "recoverySession": "Suggest recovery session",
+      "nutritionRec": "Nutrition recommendation",
+      "generateReport": "Generate report",
+      "compareAthletes": "Compare athletes",
+      "weeklyFocus": "Weekly team focus"
+    },
+    "prompts": {
+      "readiness": "Analyze this athlete's readiness for today's training session.",
+      "injuryRisk": "Explain the current injury risk factors and mitigation strategies.",
+      "trainingLoad": "Recommend an appropriate training load for this week.",
+      "recoverySession": "Suggest a recovery session based on current fatigue and wellness data.",
+      "nutritionRec": "Provide a nutrition recommendation aligned with training and body composition goals.",
+      "generateReport": "Generate a concise performance report for the coaching staff.",
+      "compareAthletes": "Compare readiness and load across key squad athletes.",
+      "weeklyFocus": "What should be the weekly team focus based on squad intelligence?"
+    },
+    "roles": {
+      "coach": "Head coach",
+      "researcher": "Sports researcher",
+      "physiologist": "Exercise physiologist",
+      "sportsMedicine": "Sports medicine"
+    },
+    "rolePrompts": {
+      "coach": "Which athletes should I prioritize in today's session and why?",
+      "researcher": "Summarize the key performance indicators with scientific context.",
+      "physiologist": "Interpret fatigue, recovery, and load trends for training periodization.",
+      "sportsMedicine": "Assess injury risk and recommend preventive interventions."
+    },
+    "sections": {
+      "summary": "Summary",
+      "indicators": "Key indicators",
+      "interpretation": "Scientific interpretation",
+      "decision": "Training decision",
+      "recommendations": "Recommendations",
+      "nextActions": "Next actions",
+      "confidence": "Confidence",
+      "references": "References"
+    },
+    "responseActions": {
+      "copy": "Copy",
+      "regenerate": "Regenerate",
+      "addToReport": "Add to report",
+      "addToReportHint": "Report builder integration coming soon.",
+      "exportPdf": "Export PDF",
+      "exportPdfHint": "PDF export will be available when reports module is connected.",
+      "share": "Share",
+      "shareHint": "Share link will be available in a future release."
+    },
+    "sidebar": {
+      "title": "Conversations",
+      "recent": "Recent conversations",
+      "empty": "No conversations yet — start a new chat",
+      "messages": "msgs",
+      "archive": "Archive",
+      "archiveHint": "Archive will be available when cloud sync is connected.",
+      "delete": "Delete",
+      "deleteHint": "Delete will be available when cloud sync is connected."
+    }
   },
   "lab": {
     "title": "Performance Lab",
