@@ -9,6 +9,7 @@ import {
 import { createAssessmentSessionMockRepository } from '../adapters/mock/assessmentSessionMockAdapter';
 import { canAccessScientificFirestore } from '../config';
 import { createAssessmentSessionEngine } from '../engine/assessmentSessionEngine';
+import { createScientificCalculationEngine } from '../engine/scientificCalculationEngine';
 import type {
   AssessmentSessionRepository,
   ScientificCatalogRepository,
@@ -48,8 +49,16 @@ export function resetScientificRepositoryRegistry(): void {
 /** Factory for the Universal Assessment Session Engine from registry dependencies. */
 export function createAssessmentSessionEngineFromRegistry() {
   const registry = getScientificRepositoryRegistry();
+  const calculation = createScientificCalculationEngine(registry.catalog);
   return createAssessmentSessionEngine({
     catalog: registry.catalog,
     sessions: registry.sessions,
+    calculation,
   });
+}
+
+/** Factory for the Scientific Calculation Engine from registry dependencies. */
+export function createScientificCalculationEngineFromRegistry() {
+  const registry = getScientificRepositoryRegistry();
+  return createScientificCalculationEngine(registry.catalog);
 }

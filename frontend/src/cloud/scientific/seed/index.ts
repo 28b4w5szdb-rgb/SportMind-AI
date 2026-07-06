@@ -9,7 +9,7 @@ export {
 export { ADDITIONAL_ASSESSMENT_SPECS } from './additionalAssessmentDefinitions';
 export { SEED_SPORTS } from './sports.seed';
 export { SEED_EQUIPMENT_TYPES } from './equipmentTypes.seed';
-export { SEED_FORMULAS, SEED_FORMULA_VERSIONS } from './formulas.seed';
+export { SEED_FORMULAS, SEED_FORMULA_VERSIONS, SEED_FORMULA_COUNT } from './formulas.seed';
 export { SEED_QUESTIONNAIRE_TEMPLATES } from './questionnaireTemplates.seed';
 export { CatalogSeedIndex, getCatalogSeedIndex, resetCatalogSeedIndex } from './catalogSeedIndex';
 export {
@@ -33,3 +33,9 @@ export {
   normativeVersionId,
 } from './normativeReferenceBuilder';
 export type { NormativeSeedSpec } from './normativeReferenceBuilder';
+export {
+  SCIENTIFIC_FORMULA_REGISTRY,
+  SUPPORTED_FORMULA_COUNT,
+  getFormulaDefinitionByKey,
+  listActiveFormulaDefinitions,
+} from './calculationFormulaRegistry';

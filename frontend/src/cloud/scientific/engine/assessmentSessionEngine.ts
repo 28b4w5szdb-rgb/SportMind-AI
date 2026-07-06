@@ -31,12 +31,19 @@ import {
   type NormativeLookupParams,
   type NormativeReferenceEngine,
 } from './normativeReferenceEngine';
+import {
+  createScientificCalculationEngine,
+  type ScientificCalculationEngine,
+} from './scientificCalculationEngine';
+import type { CalculationInputValue } from '../models/calculation/ScientificCalculation';
+import { getFormulaDefinitionByKey } from '../seed/calculationFormulaRegistry';
 
 
 export interface AssessmentSessionEngineDependencies {
   catalog: ScientificCatalogRepository;
   sessions: AssessmentSessionRepository;
   normative?: NormativeReferenceEngine;
+  calculation?: ScientificCalculationEngine;
 }
 
 export interface CompareSessionParams extends NormativeLookupParams {
@@ -124,9 +131,12 @@ function selectPrimaryMeasurement(
 
 export class AssessmentSessionEngine {
   private readonly normative: NormativeReferenceEngine;
+  private readonly calculation: ScientificCalculationEngine;
 
   constructor(private readonly deps: AssessmentSessionEngineDependencies) {
     this.normative = deps.normative ?? createNormativeReferenceEngine(deps.catalog);
+    this.calculation =
+      deps.calculation ?? createScientificCalculationEngine(deps.catalog);
   }
 
   async createAssessmentSession(input: CreateAssessmentSessionInput): Promise<AssessmentSession> {
@@ -268,6 +278,16 @@ export class AssessmentSessionEngine {
 
     const primary = selectPrimaryMeasurement(session, resolvedDefinition);
     const calculated: CalculatedMetric[] = [];
+    const workingInputs = new Map<string, CalculationInputValue>();
+
+    for (const measurement of session.raw_measurements) {
+      if (measurement.quality_flag !== 'invalid') {
+        workingInputs.set(measurement.metric_key, {
+          value: measurement.value,
+          unit: measurement.unit,
+        });
+      }
+    }
 
     if (primary) {
       calculated.push({
@@ -280,30 +300,36 @@ export class AssessmentSessionEngine {
     }
 
     for (const formulaKey of resolvedDefinition.formula_reference_keys) {
-      const formula = await this.deps.catalog.formulas.getByKey(formulaKey);
-      if (!formula || !primary) continue;
-      const version = await this.deps.catalog.formulas.getVersion(
-        formula.id,
-        formula.current_version_id
-      );
-      if (!version) continue;
+      const formulaDef = getFormulaDefinitionByKey(formulaKey);
+      if (!formulaDef) continue;
+
+      const inputs: Record<string, CalculationInputValue> = {};
+      for (const field of [...formulaDef.required_inputs, ...formulaDef.optional_inputs]) {
+        const value = workingInputs.get(field.key);
+        if (value) inputs[field.key] = value;
+      }
+
+      const result = await this.calculation.calculate(formulaKey, inputs);
+      if (result.calculation_status === 'error') continue;
 
       calculated.push({
-        metric_key: version.output_key,
-        value: primary.value,
-        unit: version.output_unit,
-        formula_version: version.version,
+        metric_key: result.metric_key,
+        value: result.value,
+        unit: result.unit,
+        formula_version: result.formula_version,
         calculation_source: 'formula',
       });
+      workingInputs.set(result.metric_key, { value: result.value, unit: result.unit });
     }
 
     for (const output of resolvedDefinition.calculated_outputs) {
       if (calculated.some((metric) => metric.metric_key === output.key)) continue;
-      if (!primary) continue;
+      const fromWorking = workingInputs.get(output.key);
+      if (!fromWorking) continue;
       calculated.push({
         metric_key: output.key,
-        value: primary.value,
-        unit: output.unit,
+        value: fromWorking.value,
+        unit: fromWorking.unit ?? output.unit,
         formula_version: output.formula_key ?? null,
         calculation_source: output.formula_key ? 'formula' : 'manual',
       });

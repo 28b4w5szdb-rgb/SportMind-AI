@@ -29,3 +29,10 @@ export type {
   AssessmentSessionEngineDependencies,
   CompareSessionParams,
 } from './assessmentSessionEngine';
+
+export {
+  ScientificCalculationEngine,
+  createScientificCalculationEngine,
+  mapInputsWithUnits,
+} from './scientificCalculationEngine';
+export { executeFormula, FORMULA_EXECUTORS } from './formulaExecutors';

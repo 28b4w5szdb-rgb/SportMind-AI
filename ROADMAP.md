@@ -80,8 +80,11 @@
 | **6C.3** | Assessment Definition Engine — 130 definitions, search API, validation | ✅ Complete |
 | **6C.4** | Normative Reference Engine — 34 profiles, classification API, validation | ✅ Complete |
 | **6C.5** | Universal Assessment Session Engine — Raw → Derived → Interpretation pipeline | ✅ Complete |
-| **6C.6** | Firestore session persistence + security rules deployment | 🔜 Next |
-| **6C.7** | Organization write paths + Performance Lab bridge | Planned |
+| **6C.6** | Scientific Calculation Engine — 14 versioned formulas, sole calculation layer | ✅ Complete |
+| **6C.7** | Firestore session persistence + security rules deployment | 🔜 Next |
+| **6C.8** | Organization write paths + Performance Lab bridge | Planned |
+
+**6C.6 exit criteria (met):** Formula registry (14 formulas), `ScientificCalculationEngine` API, input/unit validation, deterministic executors, session engine integration — no UI/Firestore writes/SSID/AI.
 
 **6C.5 exit criteria (met):** Session model + engine API, definition-gated creation, normative comparison snapshot, mock read-only repository, append-only memory store — no UI/Firestore writes/SSID/AI.
 

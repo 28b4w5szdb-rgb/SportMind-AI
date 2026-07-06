@@ -214,13 +214,44 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6C.6 — Scientific Calculation Engine] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Scientific Calculation Engine** — sole platform calculation layer (`ScientificCalculationEngine`)
+- **14 versioned formulas** — BMI, body fat %, lean body mass, muscle mass, body water %, VO₂max (field), HR zones, training load, ACWR, recovery score, readiness score, relative strength, sprint momentum, running speed
+- **Formula registry** — `SCIENTIFIC_FORMULA_REGISTRY` with bilingual metadata, evidence tiers, validation rules, citation placeholders
+- **Deterministic executors** — `FORMULA_EXECUTORS` keyed by `expression_key` (no duplicated equations)
+- **Engine API** — `calculate`, `calculateBatch`, `validateInputs`, `validateUnits`, `resolveFormula`, `getFormulaByKey`, `listSupportedFormulas`
+- **Calculation validators** — reject negative height/weight, invalid HR/body fat, division by zero, missing fields, unit mismatch
+- **Catalog alignment** — `SEED_FORMULAS` expanded from 6 → 14 entries
+- **Session integration** — `AssessmentSessionEngine.calculateDerivedMetrics()` delegates to calculation engine
+- **Registry factory** — `createScientificCalculationEngineFromRegistry()`
+
+### Design principles documented
+
+- Scientific Inside, Simple Outside
+- Catalog First — formulas versioned in registry + catalog seed
+- Raw → Formula → Derived Metric
+- Traceable outputs — formula version, input keys, timestamp, status, warnings
+
+### Unchanged (by design)
+
+- No UI, dashboard, analytics, SSID, AI Coach, reports, passport, or timeline
+- No Firestore session writes or security rules deployment
+- Mock store + Performance Lab registry remain default runtime
+
+---
+
 ## Upcoming
 
-- **Phase 6C.6** — Firestore session persistence + security rules
-- **Phase 6C.7** — Organization write paths + Performance Lab bridge
+- **Phase 6C.7** — Firestore session persistence + security rules
+- **Phase 6C.8** — Organization write paths + Performance Lab bridge
 - **Phase 6D** — Firebase Storage
 - **Phase 6E** — Cloud sync engine
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6C.5*
+*Last updated: Phase 6C.6*

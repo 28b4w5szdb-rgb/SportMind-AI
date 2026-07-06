@@ -7,8 +7,8 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.5 — Universal Assessment Session Engine (complete) |
-| **Next phase** | Phase 6C.6 — Firestore Session Persistence + Security Rules |
+| **Current phase** | Phase 6C.6 — Scientific Calculation Engine (complete) |
+| **Next phase** | Phase 6C.7 — Firestore Session Persistence + Security Rules |
 
 ---
 
@@ -28,6 +28,7 @@
 | **6C.3** | Assessment Definition Engine — 130 catalog definitions + search API | ✅ Complete |
 | **6C.4** | Normative Reference Engine — 34 placeholder profiles + classification API | ✅ Complete |
 | **6C.5** | Universal Assessment Session Engine — Raw → Derived → Interpretation pipeline | ✅ Complete |
+| **6C.6** | Scientific Calculation Engine — 14 versioned formulas, sole calculation layer | ✅ Complete |
 
 ---
 
@@ -54,10 +55,26 @@ frontend/src/cloud/
 ├── firebase/       # Lazy-init app, auth, firestore, storage
 ├── auth/           # Firebase + Supabase unified AuthProvider
 ├── firestore/      # Phase 6A entity models + repository interfaces
-├── scientific/     # Phase 6C.1–6C.5 — catalog, engines, session pipeline
+├── scientific/     # Phase 6C.1–6C.6 — catalog, engines, session + calculation pipeline
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6C.6 — Scientific Calculation Engine
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Scientific Inside, Simple Outside** | Versioned formulas with bilingual metadata; deterministic executors only |
+| **Catalog First** | Formula registry aligned with catalog seed (14 formulas) + optional catalog resolution |
+| **Raw → Formula → Derived Metric** | `ScientificCalculationEngine.calculate()` — sole platform calculation layer |
+| **Traceable calculations** | Every output stores formula version, input keys, timestamp, status, warnings |
+
+| Area | Contents |
+|------|----------|
+| **Formula registry** | 14 active formulas: BMI, body fat, lean mass, muscle mass, body water, VO₂max, HR zones, training load, ACWR, recovery, readiness, relative strength, sprint momentum, running speed |
+| **Engine API** | `calculate`, `calculateBatch`, `validateInputs`, `validateUnits`, `resolveFormula`, `getFormulaByKey`, `listSupportedFormulas` |
+| **Validation** | Negative height/weight, invalid HR/body fat, division by zero, missing fields, unit mismatch |
+| **Integration** | `AssessmentSessionEngine.calculateDerivedMetrics()` delegates to calculation engine |
 
 #### Phase 6C.5 — Universal Assessment Session Engine
 
@@ -142,7 +159,8 @@ frontend/src/cloud/
 
 | Commit | Phase | Description |
 |--------|-------|-------------|
-| *(pending)* | 6C.5 | Universal Assessment Session Engine |
+| *(pending)* | 6C.6 | Scientific Calculation Engine — 14 versioned formulas |
+| `96a1133` | 6C.5 | Universal Assessment Session Engine |
 | `2a73393` | 6C.4 | Normative Reference Engine — 34 placeholder profiles |
 | `e81b8c2` | 6C.1 | Scientific Firestore core foundation |
 | `8ee0f4b` | UX | Calculator Hub entry from More screen |
@@ -152,7 +170,7 @@ frontend/src/cloud/
 
 ---
 
-## Next Planned Phase: 6C.6
+## Next Planned Phase: 6C.7
 
 - Firestore assessment session persistence
 - Security rules deployment from `scientific/security/collectionPolicy.ts`
@@ -168,8 +186,9 @@ See [ROADMAP.md](./ROADMAP.md).
 2. **Scientific catalog reads use seed data in mock mode.** Firestore adapters fall back to seed when collections are empty.
 3. **`USE_CLOUD_DATA=false` by default.** Safe for v0.9-alpha demos.
 4. **Do not commit secrets.** Use `frontend/.env.example`.
-5. **SSID, analytics, AI Coach, dashboard unchanged** through Phase 6C.5.
+5. **SSID, analytics, AI Coach, dashboard unchanged** through Phase 6C.6.
 6. **Sessions are in-memory only** — append-only mock store until Firestore persistence phase.
+7. **All derived metrics must flow through `ScientificCalculationEngine`** — no duplicated equations in session or UI paths.
 
 ---
 
@@ -182,4 +201,4 @@ See [ROADMAP.md](./ROADMAP.md).
 | Brand guide | [frontend/BRAND_GUIDE.md](./frontend/BRAND_GUIDE.md) |
 | Env template | [frontend/.env.example](./frontend/.env.example) |
 
-*Last updated: Phase 6C.5*
+*Last updated: Phase 6C.6*
