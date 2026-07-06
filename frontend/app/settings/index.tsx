@@ -36,6 +36,12 @@ export default function SettingsScreen() {
       ],
     },
     {
+      title: t('cloud.sectionTitle'),
+      items: [
+        { id: 'cloud', label: t('cloud.title'), type: 'route' as const, icon: 'cloud-outline' as const, route: APP_ROUTES.settingsCloud },
+      ],
+    },
+    {
       title: t('features.settings.account'),
       items: [
         { id: 'profile', label: t('features.settings.profile'), type: 'link' as const, icon: 'person' as const },

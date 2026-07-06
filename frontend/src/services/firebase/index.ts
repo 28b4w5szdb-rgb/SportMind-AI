@@ -1,31 +1,31 @@
 /**
- * SportMind AI - Firebase Service
- * Firebase initialization and configuration
- * 
- * TODO: Install Firebase dependencies:
- * yarn expo install firebase
- * 
- * Then uncomment the code below and add your Firebase config
+ * SportMind AI - Firebase Service (legacy re-export)
+ * Prefer importing from `@/src/cloud/firebase`.
  */
 
-// import { initializeApp } from 'firebase/app';
-// import { getAuth } from 'firebase/auth';
-// import { getFirestore } from 'firebase/firestore';
-// import { getStorage } from 'firebase/storage';
-// import config from '@/src/core/config';
+export {
+  getFirebaseApp,
+  getFirebaseAuth,
+  getCloudFirestore as getFirestore,
+  getCloudStorage as getStorage,
+  getCloudMessaging,
+  isFirebaseConfigured,
+  isFirebaseAppReady,
+  messagingStatus,
+} from '@/src/cloud/firebase';
 
-// Initialize Firebase
-// const app = initializeApp(config.firebase);
+import { getFirebaseAuth } from '@/src/cloud/firebase';
+import { getCloudFirestore } from '@/src/cloud/firebase';
+import { getCloudStorage } from '@/src/cloud/firebase';
 
-// Export Firebase services
-// export const auth = getAuth(app);
-// export const db = getFirestore(app);
-// export const storage = getStorage(app);
+/** @deprecated Use getFirebaseAuth() */
+export const auth = getFirebaseAuth();
 
-// Placeholder exports
-export const auth = null;
-export const db = null;
-export const storage = null;
+/** @deprecated Use getCloudFirestore() */
+export const db = getCloudFirestore();
+
+/** @deprecated Use getCloudStorage() */
+export const storage = getCloudStorage();
 
 export default {
   auth,

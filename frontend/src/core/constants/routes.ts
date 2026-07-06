@@ -70,6 +70,7 @@ export const APP_ROUTES = {
     (athleteId ? `/wearables?athleteId=${encodeURIComponent(athleteId)}` : '/wearables') as Href,
   knowledgeCategory: (key: string): Href => `/knowledge/${key}` as Href,
   settings: '/settings' as Href,
+  settingsCloud: '/settings/cloud' as Href,
   help: '/help' as Href,
   knowledge: '/knowledge' as Href,
 };

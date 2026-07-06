@@ -684,6 +684,23 @@
     "comingSoonBody": "سيتوفر هذا الإعداد في الإصدار الإنتاجي.",
     "versionLabel": "SportMind AI v0.9 Alpha"
   },
+  "cloud": {
+    "sectionTitle": "السحابة والبيانات",
+    "title": "جاهزية Firebase",
+    "subtitle": "البنية السحابية لسبورت مايند. التطبيق يستخدم بيانات محلية افتراضياً حتى يتم إعداد Firebase وتفعيل وضع السحابة.",
+    "firebaseStatus": "إعداد Firebase",
+    "firebaseConfigured": "جميع مفاتيح Firebase المطلوبة موجودة.",
+    "firebaseNotConfigured": "Firebase غير مُعد. أضف المفاتيح من .env.example.",
+    "dataMode": "وضع البيانات الحالي",
+    "modeMock": "محلي (Mock)",
+    "modeCloud": "سحابة (Firebase)",
+    "dataModeHint": "عيّن EXPO_PUBLIC_USE_CLOUD_DATA=true وأعد Firebase لتفعيل المستودعات السحابية في مرحلة لاحقة.",
+    "cloudFlagWithoutFirebase": "علامة السحابة مفعّلة لكن مفاتيح Firebase ناقصة — التطبيق يعود للبيانات المحلية.",
+    "envKeys": "مفاتيح البيئة",
+    "envHint": "انسخ frontend/.env.example إلى .env وأدخل بيانات مشروع Firebase. لا ترفع الأسرار الحقيقية.",
+    "statusReady": "جاهز",
+    "statusPending": "غير مُعد"
+  },
   "states": {
     "empty": {
       "defaultTitle": "لا يوجد شيء هنا بعد",

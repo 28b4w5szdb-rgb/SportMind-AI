@@ -680,6 +680,23 @@
     "comingSoonBody": "This setting will be available in the production release.",
     "versionLabel": "SportMind AI v0.9 Alpha"
   },
+  "cloud": {
+    "sectionTitle": "Cloud & Data",
+    "title": "Firebase Readiness",
+    "subtitle": "Cloud foundation for SportMind AI. The app uses local mock data by default until Firebase is configured and cloud mode is enabled.",
+    "firebaseStatus": "Firebase configuration",
+    "firebaseConfigured": "All required Firebase keys are present.",
+    "firebaseNotConfigured": "Firebase is not configured. Add keys from .env.example.",
+    "dataMode": "Current data mode",
+    "modeMock": "Mock (local store)",
+    "modeCloud": "Cloud (Firebase)",
+    "dataModeHint": "Set EXPO_PUBLIC_USE_CLOUD_DATA=true and configure Firebase to enable cloud repositories in a future phase.",
+    "cloudFlagWithoutFirebase": "Cloud flag is enabled but Firebase keys are missing — app falls back to mock data.",
+    "envKeys": "Environment keys",
+    "envHint": "Copy frontend/.env.example to .env and fill in your Firebase project credentials. Never commit real secrets.",
+    "statusReady": "Configured",
+    "statusPending": "Not configured"
+  },
   "states": {
     "empty": {
       "defaultTitle": "Nothing here yet",
