@@ -290,10 +290,11 @@ export default function AICoachScreen() {
   );
 
   const chatPanel = (
-    <View style={{ flex: 1 }}>
+    <View style={styles.chatPanel}>
       {hasMessages ? (
         <FlatList
           ref={listRef}
+          style={styles.messageList}
           data={groupedItems}
           keyExtractor={(item) => item.key}
           renderItem={({ item }) =>
@@ -301,7 +302,7 @@ export default function AICoachScreen() {
               <Text
                 style={[
                   type.caption,
-                  { color: theme.colors.textTertiary, textAlign: 'center', marginVertical: theme.spacing[3] },
+                  { color: theme.colors.textTertiary, textAlign: 'center', marginVertical: theme.spacing[2] },
                 ]}
               >
                 {item.label}
@@ -317,11 +318,12 @@ export default function AICoachScreen() {
           }
           ListFooterComponent={isTyping ? <TypingIndicator /> : null}
           contentContainerStyle={{
-            paddingTop: theme.spacing[4],
+            paddingTop: theme.spacing[2],
             paddingBottom: listBottomPadding,
             paddingHorizontal: isDesktop ? theme.spacing[2] : theme.spacing[1],
-            flexGrow: 1,
           }}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
           onContentSizeChange={scrollToEnd}
         />
       ) : (
@@ -457,7 +459,7 @@ export default function AICoachScreen() {
 
         <View style={[styles.main, { flexDirection: isDesktop ? flexRow(true) : 'column' }]}>
           {isDesktop && sidebar}
-          <View style={{ flex: 1, paddingHorizontal: isDesktop ? theme.spacing[6] : theme.spacing[3] }}>{chatPanel}</View>
+          <View style={[styles.chatColumn, { paddingHorizontal: isDesktop ? theme.spacing[6] : theme.spacing[3] }]}>{chatPanel}</View>
         </View>
 
         <View
@@ -592,7 +594,18 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderWidth: 1,
   },
-  main: { flex: 1 },
+  main: { flex: 1, minHeight: 0 },
+  chatColumn: {
+    flex: 1,
+    minHeight: 0,
+  },
+  chatPanel: {
+    flex: 1,
+    minHeight: 0,
+  },
+  messageList: {
+    flex: 1,
+  },
   sidebar: {
     width: 280,
     padding: 12,

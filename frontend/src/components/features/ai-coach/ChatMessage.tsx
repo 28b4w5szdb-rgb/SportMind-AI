@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -14,6 +14,16 @@ interface ChatMessageProps {
   isLastAssistant?: boolean;
 }
 
+function isSectionHeader(line: string): boolean {
+  const trimmed = line.trim();
+  return (
+    /^(📋|📊|🎯|💡|✓|⚠️|🏋️|📈|😴|📉|❤️|🚶|🥩|💧|📏|📋|🧪|⌚)/.test(trimmed) ||
+    /^(الملخص|المؤشرات المهمة|القرار التدريبي|التوصية|مستوى الثقة|Summary|Key indicators|Training decision|Recommendation|Confidence)/i.test(
+      trimmed
+    )
+  );
+}
+
 export function ChatMessage({ message, onCopy, onRegenerate, isLastAssistant }: ChatMessageProps) {
   const theme = useTheme();
   const type = useTypography();
@@ -23,8 +33,23 @@ export function ChatMessage({ message, onCopy, onRegenerate, isLastAssistant }: 
   const isDesktop = windowWidth >= 1024;
   const isTablet = windowWidth >= 768;
 
-  const bubbleMaxWidth = isDesktop ? '78%' : isTablet ? '84%' : isUser ? '86%' : '92%';
+  const bubbleMaxWidth = isDesktop
+    ? isUser
+      ? '72%'
+      : '78%'
+    : isTablet
+      ? isUser
+        ? '82%'
+        : '88%'
+      : isUser
+        ? '85%'
+        : '94%';
   const bodyLineHeight = isRTL ? 26 : 24;
+
+  const paragraphs = useMemo(
+    () => message.content.split('\n\n').map((block) => block.trim()).filter(Boolean),
+    [message.content]
+  );
 
   return (
     <View
@@ -61,33 +86,45 @@ export function ChatMessage({ message, onCopy, onRegenerate, isLastAssistant }: 
               borderTopStartRadius: isUser ? theme.borderRadius['2xl'] : theme.borderRadius.sm,
               borderTopEndRadius: isUser ? theme.borderRadius.sm : theme.borderRadius['2xl'],
               paddingHorizontal: theme.spacing.md,
-              paddingVertical: theme.spacing.sm + 2,
+              paddingVertical: theme.spacing.sm + 4,
               borderWidth: isUser ? 0 : 1,
               width: '100%',
               ...(!isUser ? theme.shadows.sm : {}),
             },
           ]}
         >
-          <Text
-            style={[
-              type.body,
-              {
-                color: isUser ? '#FFF' : theme.colors.text,
-                textAlign: textAlign('start'),
-                lineHeight: bodyLineHeight,
-                writingDirection: isRTL ? 'rtl' : 'ltr',
-                ...(Platform.OS === 'android' ? { includeFontPadding: false } : {}),
-              },
-            ]}
-          >
-            {message.content}
-          </Text>
+          {paragraphs.map((paragraph, index) => {
+            const lines = paragraph.split('\n');
+            return (
+              <View key={`${index}-${paragraph.slice(0, 12)}`} style={index > 0 ? { marginTop: 10 } : undefined}>
+                {lines.map((line, lineIndex) => (
+                  <Text
+                    key={`${index}-${lineIndex}`}
+                    style={[
+                      type.body,
+                      {
+                        color: isUser ? '#FFF' : theme.colors.text,
+                        textAlign: textAlign('start'),
+                        lineHeight: bodyLineHeight,
+                        writingDirection: isRTL ? 'rtl' : 'ltr',
+                        fontWeight: lineIndex === 0 && isSectionHeader(line) ? '700' : '400',
+                        marginTop: lineIndex > 0 ? 4 : 0,
+                        ...(Platform.OS === 'android' ? { includeFontPadding: false } : {}),
+                      },
+                    ]}
+                  >
+                    {line}
+                  </Text>
+                ))}
+              </View>
+            );
+          })}
           <Text
             style={[
               type.caption,
               {
                 color: isUser ? 'rgba(255,255,255,0.7)' : theme.colors.textTertiary,
-                marginTop: 6,
+                marginTop: 8,
                 textAlign: textAlign('start'),
                 writingDirection: isRTL ? 'rtl' : 'ltr',
               },

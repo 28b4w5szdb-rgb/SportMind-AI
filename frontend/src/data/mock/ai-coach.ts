@@ -267,7 +267,7 @@ function buildWearableTopicResponse(
   }
 }
 
-function buildTeamTopicResponse(topic: TeamTopic, ctx: AnalyticsCoachContext, isRTL: boolean): string {
+function buildTeamTopicResponse(topic: TeamTopic, ctx: AnalyticsCoachContext, isRTL: boolean, translate: (key: string) => string): string {
   const snap = ctx.teamIntelligence!;
   const m = snap.metrics;
   const ready = snap.rankings.find((r) => r.category === 'readiness')?.entries[0];
@@ -303,12 +303,14 @@ function buildTeamTopicResponse(topic: TeamTopic, ctx: AnalyticsCoachContext, is
 
     case 'weekly_focus':
       return isRTL
-        ? `🎯 تركيز الأسبوع:\n` +
-            (topRec ? `• ${topRec.titleKey}\n` : '') +
+        ? `📋 الملخص\n🎯 تركيز الأسبوع للفريق\n\n` +
+            `📊 المؤشرات المهمة\n` +
+            (topRec ? `• ${translate(topRec.titleKey)}\n` : '') +
             `• امتثال تدريب ${m.trainingCompliance}% · تغذية ${m.nutritionCompliance}%\n` +
             `• إرهاق ${m.fatigue}% · تعافي ${m.recovery}%`
-        : `🎯 Weekly team focus:\n` +
-            (topRec ? `• ${topRec.titleKey}\n` : '') +
+        : `📋 Summary\n🎯 Weekly team focus\n\n` +
+            `📊 Key indicators\n` +
+            (topRec ? `• ${translate(topRec.titleKey)}\n` : '') +
             `• Training compliance ${m.trainingCompliance}% · Nutrition ${m.nutritionCompliance}%\n` +
             `• Fatigue ${m.fatigue}% · Recovery ${m.recovery}%`;
 
@@ -438,7 +440,12 @@ function kpiValue(analytics: AthleteAnalyticsSnapshot, id: string) {
   return analytics.kpis.find((k) => k.id === id);
 }
 
-function buildTopicResponse(topic: AnalyticsTopic, ctx: AnalyticsCoachContext, isRTL: boolean): string {
+function buildTopicResponse(
+  topic: AnalyticsTopic,
+  ctx: AnalyticsCoachContext,
+  isRTL: boolean,
+  translate: (key: string) => string
+): string {
   const analytics = ctx.primary!;
   const name = ctx.athleteName ?? (isRTL ? 'اللاعب' : 'the athlete');
   const readiness = kpiValue(analytics, 'readiness');
@@ -448,51 +455,71 @@ function buildTopicResponse(topic: AnalyticsTopic, ctx: AnalyticsCoachContext, i
   const recovery = kpiValue(analytics, 'recovery');
   const weekly = analytics.trends.find((tr) => tr.period === 'weekly');
   const primaryRec = analytics.recommendations[0];
+  const decisionTitle = translate(analytics.decision.titleKey);
+  const decisionBody = translate(analytics.decision.bodyKey);
 
   switch (topic) {
     case 'readiness':
       return isRTL
-        ? `📊 جاهزية ${name}: ${readiness?.displayValue ?? '—'} (${readiness?.status ?? 'moderate'}).\n\n` +
-            `الإرهاق ${fatigue?.displayValue ?? '—'} والتعافي ${recovery?.displayValue ?? '—'}. ` +
-            `القرار: ${analytics.decision.level.replace(/_/g, ' ')}.\n\n` +
-            (primaryRec ? `💡 ${primaryRec.titleKey}` : '')
-        : `📊 Readiness for ${name}: ${readiness?.displayValue ?? '—'} (${readiness?.status ?? 'moderate'}).\n\n` +
-            `Fatigue ${fatigue?.displayValue ?? '—'}, recovery ${recovery?.displayValue ?? '—'}. ` +
-            `Decision: ${analytics.decision.level.replace(/_/g, ' ')}.\n\n` +
-            (primaryRec ? `💡 See recommendation: ${primaryRec.titleKey}` : '');
+        ? `📋 الملخص\n${name}: الجاهزية ${readiness?.displayValue ?? '—'} (${readiness?.status ?? 'moderate'}).\n\n` +
+            `📊 المؤشرات المهمة\n` +
+            `• الإرهاق: ${fatigue?.displayValue ?? '—'}\n` +
+            `• التعافي: ${recovery?.displayValue ?? '—'}\n\n` +
+            `🎯 القرار التدريبي\n• ${decisionTitle}\n${decisionBody}\n\n` +
+            (primaryRec ? `💡 التوصية\n• ${translate(primaryRec.titleKey)}\n${translate(primaryRec.bodyKey)}` : '')
+        : `📋 Summary\n${name}: readiness ${readiness?.displayValue ?? '—'} (${readiness?.status ?? 'moderate'}).\n\n` +
+            `📊 Key indicators\n` +
+            `• Fatigue: ${fatigue?.displayValue ?? '—'}\n` +
+            `• Recovery: ${recovery?.displayValue ?? '—'}\n\n` +
+            `🎯 Training decision\n• ${decisionTitle}\n${decisionBody}\n\n` +
+            (primaryRec ? `💡 Recommendation\n• ${translate(primaryRec.titleKey)}\n${translate(primaryRec.bodyKey)}` : '');
 
     case 'injury':
       return isRTL
-        ? `⚠️ خطر الإصابة لـ ${name}: ${injury?.displayValue ?? '—'} (${injury?.status ?? 'moderate'}).\n\n` +
-            `الجاهزية ${readiness?.displayValue ?? '—'} والإرهاق ${fatigue?.displayValue ?? '—'}. ` +
+        ? `📋 الملخص\n${name}: خطر الإصابة ${injury?.displayValue ?? '—'} (${injury?.status ?? 'moderate'}).\n\n` +
+            `📊 المؤشرات المهمة\n` +
+            `• الجاهزية: ${readiness?.displayValue ?? '—'}\n` +
+            `• الإرهاق: ${fatigue?.displayValue ?? '—'}\n\n` +
+            `🎯 القرار التدريبي\n• ${decisionTitle}\n` +
             `${analytics.decision.level === 'medical_evaluation' ? 'يُنصح بتقييم طبي قبل التدريب العالي.' : 'راقب الأعراض خلال 48 ساعة.'}`
-        : `⚠️ Injury risk for ${name}: ${injury?.displayValue ?? '—'} (${injury?.status ?? 'moderate'}).\n\n` +
-            `Readiness ${readiness?.displayValue ?? '—'}, fatigue ${fatigue?.displayValue ?? '—'}. ` +
+        : `📋 Summary\n${name}: injury risk ${injury?.displayValue ?? '—'} (${injury?.status ?? 'moderate'}).\n\n` +
+            `📊 Key indicators\n` +
+            `• Readiness: ${readiness?.displayValue ?? '—'}\n` +
+            `• Fatigue: ${fatigue?.displayValue ?? '—'}\n\n` +
+            `🎯 Training decision\n• ${decisionTitle}\n` +
             `${analytics.decision.level === 'medical_evaluation' ? 'Medical evaluation advised before high-intensity work.' : 'Monitor symptoms over the next 48h.'}`;
 
     case 'load':
       return isRTL
-        ? `🏋️ حمل التدريب لـ ${name}: ${load?.displayValue ?? '—'}.\n\n` +
-            `الجاهزية ${readiness?.displayValue ?? '—'} والإرهاق ${fatigue?.displayValue ?? '—'}. ` +
+        ? `📋 الملخص\n${name}: حمل التدريب ${load?.displayValue ?? '—'}.\n\n` +
+            `📊 المؤشرات المهمة\n` +
+            `• الجاهزية: ${readiness?.displayValue ?? '—'}\n` +
+            `• الإرهاق: ${fatigue?.displayValue ?? '—'}\n\n` +
+            `🎯 القرار التدريبي\n• ${decisionTitle}\n` +
             `${analytics.decision.level === 'train_reduced_load' ? 'خفّض الحجم 20–30% هذا الأسبوع.' : 'الحمل الحالي ضمن النطاق المستهدف.'}`
-        : `🏋️ Training load for ${name}: ${load?.displayValue ?? '—'}.\n\n` +
-            `Readiness ${readiness?.displayValue ?? '—'}, fatigue ${fatigue?.displayValue ?? '—'}. ` +
+        : `📋 Summary\n${name}: training load ${load?.displayValue ?? '—'}.\n\n` +
+            `📊 Key indicators\n` +
+            `• Readiness: ${readiness?.displayValue ?? '—'}\n` +
+            `• Fatigue: ${fatigue?.displayValue ?? '—'}\n\n` +
+            `🎯 Training decision\n• ${decisionTitle}\n` +
             `${analytics.decision.level === 'train_reduced_load' ? 'Reduce volume 20–30% this week.' : 'Current load is within target range.'}`;
 
     case 'trend':
       return isRTL
-        ? `📈 اتجاه الأداء لـ ${name}: النتيجة الإجمالية ${analytics.overall.score}/1000 (${analytics.overall.trendDelta > 0 ? '+' : ''}${analytics.overall.trendDelta}).\n\n` +
-            (weekly
-              ? `الاتجاه الأسبوعي: ${weekly.changePercent > 0 ? '+' : ''}${weekly.changePercent}%.\n`
-              : '') +
-            `نقاط القوة: ${analytics.strengths.map((s) => s.id).join(', ') || '—'}.`
-        : `📈 Performance trend for ${name}: overall ${analytics.overall.score}/1000 (${analytics.overall.trendDelta > 0 ? '+' : ''}${analytics.overall.trendDelta}).\n\n` +
-            (weekly ? `Weekly change: ${weekly.changePercent > 0 ? '+' : ''}${weekly.changePercent}%.\n` : '') +
-            `Strengths: ${analytics.strengths.map((s) => s.id).join(', ') || '—'}.`;
+        ? `📋 الملخص\n${name}: النتيجة الإجمالية ${analytics.overall.score}/1000 (${analytics.overall.trendDelta > 0 ? '+' : ''}${analytics.overall.trendDelta}).\n\n` +
+            `📊 المؤشرات المهمة\n` +
+            (weekly ? `• الاتجاه الأسبوعي: ${weekly.changePercent > 0 ? '+' : ''}${weekly.changePercent}%\n` : '') +
+            `• نقاط القوة: ${analytics.strengths.map((s) => translate(s.labelKey)).join('، ') || '—'}\n\n` +
+            `🎯 القرار التدريبي\n• ${decisionTitle}`
+        : `📋 Summary\n${name}: overall ${analytics.overall.score}/1000 (${analytics.overall.trendDelta > 0 ? '+' : ''}${analytics.overall.trendDelta}).\n\n` +
+            `📊 Key indicators\n` +
+            (weekly ? `• Weekly change: ${weekly.changePercent > 0 ? '+' : ''}${weekly.changePercent}%\n` : '') +
+            `• Strengths: ${analytics.strengths.map((s) => translate(s.labelKey)).join(', ') || '—'}\n\n` +
+            `🎯 Training decision\n• ${decisionTitle}`;
 
     case 'performance':
     default:
-      return formatAthleteAnalyticsForAI(analytics, name, isRTL);
+      return formatAthleteAnalyticsForAI(analytics, name, isRTL, translate);
   }
 }
 
@@ -515,7 +542,7 @@ export function generateMockResponse(
 
   const teamTopic = detectTeamTopic(userMessage);
   if (analyticsContext?.teamIntelligence && teamTopic) {
-    const body = buildTeamTopicResponse(teamTopic, analyticsContext, isRTL);
+    const body = buildTeamTopicResponse(teamTopic, analyticsContext, isRTL, t);
     const confidence = isRTL ? '\n\n✓ مستوى الثقة: 91%' : '\n\n✓ Confidence: 91%';
     return body + confidence;
   }
@@ -554,7 +581,7 @@ export function generateMockResponse(
   }
 
   if (analyticsContext?.teamIntelligence && teamTopicFromAnalytics) {
-    const body = buildTeamTopicResponse(teamTopicFromAnalytics, analyticsContext, isRTL);
+    const body = buildTeamTopicResponse(teamTopicFromAnalytics, analyticsContext, isRTL, t);
     const confidence = isRTL ? '\n\n✓ مستوى الثقة: 91%' : '\n\n✓ Confidence: 91%';
     return body + confidence;
   }
@@ -579,8 +606,8 @@ export function generateMockResponse(
     const rec = analyticsContext.nutrition.primaryRecommendation;
     const recLine = rec
       ? isRTL
-        ? `\n\n💡 ${rec.titleKey}`
-        : `\n\n💡 Recommendation available in Nutrition Center.`
+        ? `\n\n💡 التوصية\n• ${t(rec.titleKey)}\n${t(rec.bodyKey)}`
+        : `\n\n💡 Recommendation\n• ${t(rec.titleKey)}\n${t(rec.bodyKey)}`
       : '';
     const confidence = isRTL ? '\n\n✓ مستوى الثقة: 89%' : '\n\n✓ Confidence: 89%';
     return body + recLine + confidence;
@@ -594,7 +621,7 @@ export function generateMockResponse(
         : `\n\n✓ ${t('ssid.confidenceLabel')}: ${analyticsContext.primary.decision.confidence}%`;
       return ssidBody + confidence;
     }
-    const body = buildTopicResponse(topic, analyticsContext, isRTL);
+    const body = buildTopicResponse(topic, analyticsContext, isRTL, t);
     const confidence = isRTL
       ? `\n\n✓ مستوى الثقة: ${analyticsContext.primary.decision.confidence}%`
       : `\n\n✓ Confidence: ${analyticsContext.primary.decision.confidence}%`;
@@ -605,7 +632,8 @@ export function generateMockResponse(
     const summary = formatAthleteAnalyticsForAI(
       analyticsContext.primary,
       analyticsContext.athleteName ?? (isRTL ? 'اللاعب' : 'the athlete'),
-      isRTL
+      isRTL,
+      t
     );
     const base = MOCK_RESPONSES[agentId];
     const prefix = isRTL ? base.ar.split('.')[0] + '.' : base.en.split('.')[0] + '.';

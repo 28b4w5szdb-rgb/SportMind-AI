@@ -157,30 +157,47 @@ export function buildAnalyticsReportSections(analytics: AthleteAnalyticsSnapshot
   };
 }
 
-export function formatAthleteAnalyticsForAI(analytics: AthleteAnalyticsSnapshot, athleteName: string, isRTL: boolean): string {
+export function formatAthleteAnalyticsForAI(
+  analytics: AthleteAnalyticsSnapshot,
+  athleteName: string,
+  isRTL: boolean,
+  translate?: (key: string) => string
+): string {
+  const t = translate ?? ((key: string) => key);
   const readiness = analytics.kpis.find((k) => k.id === 'readiness');
   const fatigue = analytics.kpis.find((k) => k.id === 'fatigue');
   const injury = analytics.kpis.find((k) => k.id === 'injury_risk');
   const load = analytics.kpis.find((k) => k.id === 'training_load');
+  const recovery = analytics.kpis.find((k) => k.id === 'recovery');
+  const primaryRec = analytics.recommendations[0];
+  const decisionTitle = t(analytics.decision.titleKey);
+  const decisionBody = t(analytics.decision.bodyKey);
 
   if (isRTL) {
     return (
-      `📊 تحليل ${athleteName}:\n` +
-      `• النتيجة الإجمالية: ${analytics.overall.score}/1000\n` +
+      `📋 الملخص\n${athleteName}: النتيجة الإجمالية ${analytics.overall.score}/1000\n\n` +
+      `📊 المؤشرات المهمة\n` +
       `• الجاهزية: ${readiness?.displayValue ?? '—'}\n` +
       `• الإرهاق: ${fatigue?.displayValue ?? '—'}\n` +
       `• خطر الإصابة: ${injury?.displayValue ?? '—'}\n` +
       `• حمل التدريب: ${load?.displayValue ?? '—'}\n` +
-      `• القرار: ${analytics.decision.level}`
+      `• التعافي: ${recovery?.displayValue ?? '—'}\n\n` +
+      `🎯 القرار التدريبي\n• ${decisionTitle}\n${decisionBody}\n\n` +
+      (primaryRec ? `💡 التوصية\n• ${t(primaryRec.titleKey)}\n${t(primaryRec.bodyKey)}\n\n` : '') +
+      `✓ مستوى الثقة: ${analytics.decision.confidence}%`
     );
   }
+
   return (
-    `📊 Analytics for ${athleteName}:\n` +
-    `• Overall score: ${analytics.overall.score}/1000\n` +
+    `📋 Summary\n${athleteName}: overall score ${analytics.overall.score}/1000\n\n` +
+    `📊 Key indicators\n` +
     `• Readiness: ${readiness?.displayValue ?? '—'}\n` +
     `• Fatigue: ${fatigue?.displayValue ?? '—'}\n` +
     `• Injury risk: ${injury?.displayValue ?? '—'}\n` +
     `• Training load: ${load?.displayValue ?? '—'}\n` +
-    `• Decision: ${analytics.decision.level}`
+    `• Recovery: ${recovery?.displayValue ?? '—'}\n\n` +
+    `🎯 Training decision\n• ${decisionTitle}\n${decisionBody}\n\n` +
+    (primaryRec ? `💡 Recommendation\n• ${t(primaryRec.titleKey)}\n${t(primaryRec.bodyKey)}\n\n` : '') +
+    `✓ Confidence: ${analytics.decision.confidence}%`
   );
 }
