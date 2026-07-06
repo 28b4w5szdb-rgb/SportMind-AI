@@ -2,6 +2,9 @@ import type {
   MockAthlete,
   MockCalculationRecord,
   DailyCheckIn,
+  DailyNutritionLog,
+  BodyCompositionRecord,
+  NutritionGoalSetting,
   MockPerformanceTest,
   MockReport,
   MockResearchProject,
@@ -232,3 +235,86 @@ seedPlanAthlete1.sessions[2].execution = {
 };
 
 export const SEED_TRAINING_PLANS: TrainingPlan[] = [seedPlanAthlete1];
+
+export const SEED_NUTRITION_LOGS: DailyNutritionLog[] = [
+  {
+    id: 'nl1',
+    athlete_id: '1',
+    date: '2026-07-05',
+    meals: [
+      { slot: 'breakfast', calories: 520, protein_g: 28, carbs_g: 55, fat_g: 18, description: 'Oats, eggs, fruit' },
+      { slot: 'snack_am', calories: 180, protein_g: 12, carbs_g: 20, fat_g: 6 },
+      { slot: 'lunch', calories: 680, protein_g: 42, carbs_g: 72, fat_g: 22, description: 'Chicken rice bowl' },
+      { slot: 'snack_pm', calories: 200, protein_g: 15, carbs_g: 18, fat_g: 8 },
+      { slot: 'dinner', calories: 620, protein_g: 38, carbs_g: 58, fat_g: 20 },
+      { slot: 'pre_workout', calories: 150, protein_g: 5, carbs_g: 35, fat_g: 2 },
+      { slot: 'post_workout', calories: 280, protein_g: 25, carbs_g: 35, fat_g: 4, description: 'Recovery shake' },
+    ],
+    water_liters: 2.8,
+    supplement_keys: ['whey_protein', 'electrolytes'],
+    notes: 'Pre-match day — carb emphasis.',
+    created_at: '2026-07-05T19:00:00Z',
+  },
+  {
+    id: 'nl2',
+    athlete_id: '3',
+    date: '2026-07-05',
+    meals: [
+      { slot: 'breakfast', calories: 450, protein_g: 30, carbs_g: 40, fat_g: 16 },
+      { slot: 'lunch', calories: 580, protein_g: 45, carbs_g: 55, fat_g: 18 },
+      { slot: 'dinner', calories: 520, protein_g: 40, carbs_g: 48, fat_g: 16 },
+    ],
+    water_liters: 2.1,
+    supplement_keys: ['omega3', 'vitamin_d'],
+    notes: 'Recovery-focused macros during RTP.',
+    created_at: '2026-07-05T18:30:00Z',
+  },
+];
+
+export const SEED_BODY_COMPOSITION: BodyCompositionRecord[] = [
+  {
+    id: 'bc1',
+    athlete_id: '1',
+    date: '2026-06-15',
+    weight_kg: 79.2,
+    body_fat_percent: 12.5,
+    muscle_mass_kg: 38,
+    lean_mass_kg: 69.3,
+    body_water_percent: 58,
+  },
+  {
+    id: 'bc2',
+    athlete_id: '1',
+    date: '2026-06-22',
+    weight_kg: 78.8,
+    body_fat_percent: 12.2,
+    muscle_mass_kg: 38.2,
+    lean_mass_kg: 69.2,
+    body_water_percent: 58.5,
+  },
+  {
+    id: 'bc3',
+    athlete_id: '1',
+    date: '2026-07-05',
+    weight_kg: 78,
+    body_fat_percent: 11.8,
+    muscle_mass_kg: 38.5,
+    lean_mass_kg: 68.8,
+    body_water_percent: 59,
+  },
+  {
+    id: 'bc4',
+    athlete_id: '3',
+    date: '2026-07-05',
+    weight_kg: 84,
+    body_fat_percent: 14.2,
+    muscle_mass_kg: 40,
+    lean_mass_kg: 72.1,
+    body_water_percent: 57,
+  },
+];
+
+export const SEED_NUTRITION_GOALS: NutritionGoalSetting[] = [
+  { athlete_id: '1', goal: 'performance', updated_at: '2026-06-01T00:00:00Z' },
+  { athlete_id: '3', goal: 'recovery', updated_at: '2026-06-15T00:00:00Z' },
+];

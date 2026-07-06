@@ -1,5 +1,5 @@
 import type { RecommendationItem } from '@/src/analytics/types';
-import type { MockAthlete, MockPerformanceTest, MockReport, DailyCheckIn, InjuryRecord, TrainingPlan } from '@/src/data/mock/types';
+import type { MockAthlete, MockPerformanceTest, MockReport, DailyCheckIn, InjuryRecord, TrainingPlan, DailyNutritionLog } from '@/src/data/mock/types';
 import { sessionTimelineCopy } from '@/src/features/training-builder';
 import type { AthleteTimelineEvent } from '../types';
 
@@ -128,7 +128,8 @@ export function buildAthleteTimeline(
   recommendations: RecommendationItem[],
   latestCheckIn?: DailyCheckIn,
   injuries: InjuryRecord[] = [],
-  trainingPlans: TrainingPlan[] = []
+  trainingPlans: TrainingPlan[] = [],
+  nutritionLogs: DailyNutritionLog[] = []
 ): AthleteTimelineEvent[] {
   const athleteTests = tests.filter((t) => t.athlete_id === athlete.id).map(testToEvent);
   const athleteReports = reports
@@ -191,7 +192,24 @@ export function buildAthleteTimeline(
         })
     );
 
-  return [...injuryEvents, ...trainingEvents, ...checkInEvents, ...athleteTests, ...athleteReports, ...extras, ...aiEvents].sort(
+  const nutritionEvents: AthleteTimelineEvent[] = nutritionLogs
+    .filter((l) => l.athlete_id === athlete.id)
+    .slice(0, 5)
+    .map((log) => {
+      const cals = log.meals.reduce((s, m) => s + m.calories, 0);
+      return {
+        id: `nutrition_${log.id}`,
+        athleteId: athlete.id,
+        type: 'nutrition' as const,
+        titleEn: 'Daily nutrition log',
+        titleAr: 'سجل التغذية اليومي',
+        subtitleEn: `${cals} kcal · ${log.water_liters}L water`,
+        subtitleAr: `${cals} kcal · ${log.water_liters}L ماء`,
+        date: log.date,
+      };
+    });
+
+  return [...injuryEvents, ...trainingEvents, ...nutritionEvents, ...checkInEvents, ...athleteTests, ...athleteReports, ...extras, ...aiEvents].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 }

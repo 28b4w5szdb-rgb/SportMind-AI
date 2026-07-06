@@ -30,6 +30,8 @@ import { APP_ROUTES } from '@/src/core/constants/routes';
 import { computeReadinessScore, readinessLabel } from '@/src/utils/athleteMetrics';
 import { useTeamAnalyticsOverview, buildAiSummaryFromAnalytics } from '@/src/analytics';
 import { computeCompliance, findTodaySession, todayDateKey } from '@/src/features/training-builder';
+import { buildAthleteNutritionSnapshot } from '@/src/features/nutrition/utils/nutritionHelpers';
+import { computeAthleteAnalytics } from '@/src/analytics';
 import { ProgressRingChart } from '@/src/components/charts';
 
 function getGreetingKey(): string {
@@ -78,6 +80,11 @@ export default function DashboardScreen() {
   const athletes = useMockStore((s) => s.athletes);
   const tests = useMockStore((s) => s.tests);
   const trainingPlans = useMockStore((s) => s.trainingPlans);
+  const dailyCheckIns = useMockStore((s) => s.dailyCheckIns);
+  const injuryRecords = useMockStore((s) => s.injuryRecords);
+  const nutritionLogs = useMockStore((s) => s.nutritionLogs);
+  const bodyCompositionRecords = useMockStore((s) => s.bodyCompositionRecords);
+  const nutritionGoalSettings = useMockStore((s) => s.nutritionGoalSettings);
   const teamAnalytics = useTeamAnalyticsOverview();
 
   const injuredCount = useMemo(() => athletes.filter((a) => a.status === 'injured').length, [athletes]);
@@ -106,6 +113,48 @@ export default function DashboardScreen() {
       avgCompliance: complianceCount > 0 ? Math.round(complianceTotal / complianceCount) : 0,
     };
   }, [athletes, trainingPlans]);
+
+  const nutritionDashboard = useMemo(() => {
+    const today = todayDateKey();
+    let logsToday = 0;
+    let complianceTotal = 0;
+    let complianceCount = 0;
+    let hydrationTotal = 0;
+
+    for (const athlete of athletes) {
+      const log = nutritionLogs.find((l) => l.athlete_id === athlete.id && l.date === today);
+      if (log) logsToday += 1;
+      const checkIn = dailyCheckIns
+        .filter((c) => c.athlete_id === athlete.id)
+        .sort((a, b) => b.date.localeCompare(a.date))[0];
+      const analytics = computeAthleteAnalytics({
+        athlete,
+        tests: tests.filter((t) => t.athlete_id === athlete.id),
+        checkIn,
+        injuries: injuryRecords.filter((i) => i.athlete_id === athlete.id),
+        trainingPlans: trainingPlans.filter((p) => p.athlete_id === athlete.id),
+      });
+      const snapshot = buildAthleteNutritionSnapshot({
+        athlete,
+        analytics,
+        logs: nutritionLogs,
+        bodyRecords: bodyCompositionRecords,
+        goalSettings: nutritionGoalSettings,
+        checkIn,
+        trainingPlans: trainingPlans.filter((p) => p.athlete_id === athlete.id),
+        dateKey: today,
+      });
+      complianceTotal += snapshot.compliancePercent;
+      hydrationTotal += snapshot.hydration.hydrationPercent;
+      complianceCount += 1;
+    }
+
+    return {
+      logsToday,
+      avgCompliance: complianceCount > 0 ? Math.round(complianceTotal / complianceCount) : 0,
+      avgHydration: complianceCount > 0 ? Math.round(hydrationTotal / complianceCount) : 0,
+    };
+  }, [athletes, tests, trainingPlans, dailyCheckIns, injuryRecords, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings]);
 
   const statsData = useMemo(
     () =>
@@ -391,6 +440,35 @@ export default function DashboardScreen() {
                     </Text>
                     <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 4, textAlign: textAlign('start') }]}>
                       {t('trainingBuilder.complianceTitle')}: {trainingDashboard.avgCompliance}%
+                    </Text>
+                  </View>
+                  <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color={theme.colors.textTertiary} />
+                </View>
+              </Card>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Nutrition overview */}
+        {athletes.length > 0 && (
+          <View style={[styles.section, { maxWidth: isDesktop ? 1400 : undefined, marginHorizontal: isDesktop ? 'auto' : undefined, width: '100%' }]}>
+            <TouchableOpacity activeOpacity={0.85} onPress={() => router.push(APP_ROUTES.nutritionCenter() as never)}>
+              <Card variant="elevated" padding="lg" style={{ borderRadius: theme.borderRadius['2xl'] }}>
+                <View style={{ flexDirection: flexRow(true), alignItems: 'center', gap: theme.spacing.md }}>
+                  <View style={[styles.statIcon, { backgroundColor: '#F9731620', borderRadius: theme.borderRadius.lg }]}>
+                    <Ionicons name="nutrition" size={22} color="#F97316" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[type.label, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>
+                      {t('nutrition.dashboardTitle')}
+                    </Text>
+                    <Text style={[type.h4, { color: theme.colors.text, marginTop: 4, textAlign: textAlign('start') }]}>
+                      {isRTL
+                        ? `${nutritionDashboard.logsToday}/${athletes.length} سجلات تغذية اليوم`
+                        : `${nutritionDashboard.logsToday}/${athletes.length} nutrition logs today`}
+                    </Text>
+                    <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 4, textAlign: textAlign('start') }]}>
+                      {t('nutrition.complianceLabel')}: {nutritionDashboard.avgCompliance}% · {t('nutrition.hydrationPercent')}: {nutritionDashboard.avgHydration}%
                     </Text>
                   </View>
                   <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color={theme.colors.textTertiary} />

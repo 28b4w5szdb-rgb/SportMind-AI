@@ -16,6 +16,11 @@ import type {
   TrainingPlan,
   TrainingPlanInput,
   TrainingSessionLogInput,
+  DailyNutritionLog,
+  DailyNutritionLogInput,
+  BodyCompositionRecord,
+  BodyCompositionInput,
+  NutritionGoalSetting,
   MockPerformanceTest,
   MockReport,
   MockResearchProject,
@@ -34,6 +39,9 @@ import {
   SEED_TEAMS,
   SEED_TESTS,
   SEED_TRAINING_PLANS,
+  SEED_NUTRITION_LOGS,
+  SEED_BODY_COMPOSITION,
+  SEED_NUTRITION_GOALS,
 } from './seed';
 
 const STORAGE_KEY = '@sportmind/mock-store-v1';
@@ -73,6 +81,9 @@ export interface MockStore {
   dailyCheckIns: DailyCheckIn[];
   injuryRecords: InjuryRecord[];
   trainingPlans: TrainingPlan[];
+  nutritionLogs: DailyNutritionLog[];
+  bodyCompositionRecords: BodyCompositionRecord[];
+  nutritionGoalSettings: NutritionGoalSetting[];
 
   addAthlete: (input: Omit<MockAthlete, 'id' | 'created_at' | 'tests_count' | 'trend_percent'>) => MockAthlete;
   updateAthlete: (id: string, patch: Partial<MockAthlete>) => void;
@@ -105,6 +116,9 @@ export interface MockStore {
   addTrainingPlan: (input: TrainingPlanInput | TrainingPlan) => TrainingPlan;
   updateTrainingPlan: (id: string, patch: Partial<TrainingPlan>) => void;
   logTrainingSession: (planId: string, sessionId: string, input: TrainingSessionLogInput) => void;
+  addNutritionLog: (input: DailyNutritionLogInput) => DailyNutritionLog;
+  addBodyCompositionRecord: (input: BodyCompositionInput) => BodyCompositionRecord;
+  setNutritionGoal: (athleteId: string, goal: NutritionGoalSetting['goal']) => NutritionGoalSetting;
 }
 
 function ensureActiveConversation(get: () => MockStore, set: (partial: Partial<MockStore>) => void): string {
@@ -149,6 +163,9 @@ export const useMockStore = create<MockStore>()(
       dailyCheckIns: SEED_CHECKINS,
       injuryRecords: SEED_INJURIES,
       trainingPlans: SEED_TRAINING_PLANS,
+      nutritionLogs: SEED_NUTRITION_LOGS,
+      bodyCompositionRecords: SEED_BODY_COMPOSITION,
+      nutritionGoalSettings: SEED_NUTRITION_GOALS,
 
       addAthlete: (input) => {
         const athlete: MockAthlete = {
@@ -448,6 +465,48 @@ export const useMockStore = create<MockStore>()(
           }),
         }));
       },
+
+      addNutritionLog: (input) => {
+        const date = input.date ?? todayDateKey();
+        const existingIdx = get().nutritionLogs.findIndex(
+          (l) => l.athlete_id === input.athlete_id && l.date === date
+        );
+        const record: DailyNutritionLog = {
+          ...input,
+          id: existingIdx >= 0 ? get().nutritionLogs[existingIdx].id : uid('nlog'),
+          date,
+          created_at: new Date().toISOString(),
+        };
+        set((s) => ({
+          nutritionLogs:
+            existingIdx >= 0
+              ? s.nutritionLogs.map((l, i) => (i === existingIdx ? record : l))
+              : [record, ...s.nutritionLogs],
+        }));
+        return record;
+      },
+
+      addBodyCompositionRecord: (input) => {
+        const record: BodyCompositionRecord = { ...input, id: uid('bcomp') };
+        set((s) => ({ bodyCompositionRecords: [record, ...s.bodyCompositionRecords] }));
+        return record;
+      },
+
+      setNutritionGoal: (athleteId, goal) => {
+        const existingIdx = get().nutritionGoalSettings.findIndex((g) => g.athlete_id === athleteId);
+        const record: NutritionGoalSetting = {
+          athlete_id: athleteId,
+          goal,
+          updated_at: new Date().toISOString(),
+        };
+        set((s) => ({
+          nutritionGoalSettings:
+            existingIdx >= 0
+              ? s.nutritionGoalSettings.map((g, i) => (i === existingIdx ? record : g))
+              : [record, ...s.nutritionGoalSettings],
+        }));
+        return record;
+      },
     }),
     {
       name: STORAGE_KEY,
@@ -467,6 +526,9 @@ export const useMockStore = create<MockStore>()(
         dailyCheckIns: state.dailyCheckIns,
         injuryRecords: state.injuryRecords,
         trainingPlans: state.trainingPlans,
+        nutritionLogs: state.nutritionLogs,
+        bodyCompositionRecords: state.bodyCompositionRecords,
+        nutritionGoalSettings: state.nutritionGoalSettings,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

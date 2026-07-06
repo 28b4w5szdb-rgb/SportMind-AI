@@ -36,6 +36,8 @@ export type QuickActionId =
   | 'injury_prevention'
   | 'training_builder'
   | 'log_session'
+  | 'nutrition_log'
+  | 'nutrition_center'
   | 'edit_athlete'
   | 'create_report'
   | 'compare'

@@ -28,6 +28,8 @@ const ACTIONS: Array<{
   { id: 'injury_prevention', icon: 'shield-checkmark', labelKey: 'athleteWorkspace.actions.injuryPrevention', color: '#8B5CF6' },
   { id: 'training_builder', icon: 'barbell', labelKey: 'athleteWorkspace.actions.trainingBuilder', color: '#0066FF' },
   { id: 'log_session', icon: 'checkmark-done', labelKey: 'athleteWorkspace.actions.logSession', color: '#0D9488' },
+  { id: 'nutrition_log', icon: 'restaurant', labelKey: 'athleteWorkspace.actions.nutritionLog', color: '#F97316' },
+  { id: 'nutrition_center', icon: 'nutrition', labelKey: 'athleteWorkspace.actions.nutritionCenter', color: '#EA580C' },
   { id: 'edit_athlete', icon: 'create-outline', labelKey: 'athleteWorkspace.actions.editAthlete', color: '#0D9488' },
   { id: 'create_report', icon: 'document-text', labelKey: 'athleteWorkspace.actions.createReport', color: '#8B5CF6' },
   { id: 'compare', icon: 'git-compare', labelKey: 'athleteWorkspace.actions.compare', color: '#F97316' },
@@ -67,6 +69,12 @@ export function WorkspaceQuickActions({ athlete }: WorkspaceQuickActionsProps) {
         } else {
           router.push(APP_ROUTES.trainingBuilder(athlete.id));
         }
+        break;
+      case 'nutrition_log':
+        router.push(APP_ROUTES.nutritionLog(athlete.id));
+        break;
+      case 'nutrition_center':
+        router.push(APP_ROUTES.nutritionCenter(athlete.id));
         break;
       case 'edit_athlete':
         router.push(APP_ROUTES.athleteEdit(athlete.id));

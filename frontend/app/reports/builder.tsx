@@ -66,13 +66,16 @@ export default function ReportBuilderScreen() {
   const injuryRecords = useMockStore((s) => s.injuryRecords);
   const dailyCheckIns = useMockStore((s) => s.dailyCheckIns);
   const trainingPlans = useMockStore((s) => s.trainingPlans);
+  const nutritionLogs = useMockStore((s) => s.nutritionLogs);
+  const bodyCompositionRecords = useMockStore((s) => s.bodyCompositionRecords);
+  const nutritionGoalSettings = useMockStore((s) => s.nutritionGoalSettings);
   const reportContext = useMemo(() => {
     if (!athleteId) return undefined;
     const checkIn = dailyCheckIns
       .filter((c) => c.athlete_id === athleteId)
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0];
-    return { injuries: injuryRecords, checkIn, trainingPlans };
-  }, [athleteId, injuryRecords, dailyCheckIns, trainingPlans]);
+    return { injuries: injuryRecords, checkIn, trainingPlans, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings };
+  }, [athleteId, injuryRecords, dailyCheckIns, trainingPlans, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings]);
 
   const autoFillSections = () => {
     applySections(buildDefaultReportSections(selectedAthlete, athleteTests, summary, isRTL, t, reportContext));

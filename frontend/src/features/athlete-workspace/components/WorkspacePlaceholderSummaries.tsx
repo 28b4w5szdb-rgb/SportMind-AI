@@ -66,7 +66,6 @@ export function WorkspacePlaceholderSummaries({ athlete }: WorkspacePlaceholderS
       <WorkspaceSectionHeader title={t('athleteWorkspace.summariesTitle')} subtitle={t('athleteWorkspace.summariesSubtitle')} />
       <SummaryCard icon="medkit-outline" color="#EF4444" titleKey="athleteWorkspace.summaries.medical" bodyKey={medicalBody} />
       <SummaryCard icon="bed-outline" color="#10B981" titleKey="athleteWorkspace.summaries.recovery" bodyKey="athleteWorkspace.summaries.recoveryBody" />
-      <SummaryCard icon="nutrition-outline" color="#F97316" titleKey="athleteWorkspace.summaries.nutrition" bodyKey="athleteWorkspace.summaries.nutritionBody" />
       <SummaryCard icon="clipboard-outline" color="#0066FF" titleKey="athleteWorkspace.summaries.coachNotes" bodyKey="athleteWorkspace.summaries.coachNotesBody" />
       <SummaryCard icon="sparkles-outline" color="#8B5CF6" titleKey="athleteWorkspace.summaries.aiNotes" bodyKey="athleteWorkspace.summaries.aiNotesBody" />
     </View>

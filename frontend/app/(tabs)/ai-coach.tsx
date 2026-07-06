@@ -38,6 +38,7 @@ import {
 import { useActiveConversationMessages } from '@/src/data/mock/hooks';
 import { useMockStore } from '@/src/data/mock/store';
 import { computeAthleteAnalytics } from '@/src/analytics';
+import { buildAthleteNutritionSnapshot } from '@/src/features/nutrition/utils/nutritionHelpers';
 import { copyToClipboard, exportTextPlaceholder } from '@/src/utils/clipboard';
 
 function createMessage(role: AiMessage['role'], content: string, agentId?: AiAgentId): AiMessage {
@@ -80,16 +81,43 @@ export default function AICoachScreen() {
   const messages = useActiveConversationMessages();
   const athletes = useMockStore((s) => s.athletes);
   const tests = useMockStore((s) => s.tests);
+  const dailyCheckIns = useMockStore((s) => s.dailyCheckIns);
+  const injuryRecords = useMockStore((s) => s.injuryRecords);
+  const trainingPlans = useMockStore((s) => s.trainingPlans);
+  const nutritionLogs = useMockStore((s) => s.nutritionLogs);
+  const bodyCompositionRecords = useMockStore((s) => s.bodyCompositionRecords);
+  const nutritionGoalSettings = useMockStore((s) => s.nutritionGoalSettings);
 
   const analyticsContext = useMemo(() => {
     const athlete = athletes[0];
     if (!athlete) return undefined;
     const athleteTests = tests.filter((tst) => tst.athlete_id === athlete.id);
+    const checkIn = dailyCheckIns
+      .filter((c) => c.athlete_id === athlete.id)
+      .sort((a, b) => b.date.localeCompare(a.date))[0];
+    const primary = computeAthleteAnalytics({
+      athlete,
+      tests: athleteTests,
+      checkIn,
+      injuries: injuryRecords.filter((i) => i.athlete_id === athlete.id),
+      trainingPlans: trainingPlans.filter((p) => p.athlete_id === athlete.id),
+    });
+    const nutrition = buildAthleteNutritionSnapshot({
+      athlete,
+      analytics: primary,
+      logs: nutritionLogs,
+      bodyRecords: bodyCompositionRecords,
+      goalSettings: nutritionGoalSettings,
+      checkIn,
+      trainingPlans: trainingPlans.filter((p) => p.athlete_id === athlete.id),
+      dateKey: new Date().toISOString().slice(0, 10),
+    });
     return {
-      primary: computeAthleteAnalytics({ athlete, tests: athleteTests }),
+      primary,
       athleteName: `${athlete.first_name} ${athlete.last_name}`,
+      nutrition,
     };
-  }, [athletes, tests]);
+  }, [athletes, tests, dailyCheckIns, injuryRecords, trainingPlans, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings]);
 
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);

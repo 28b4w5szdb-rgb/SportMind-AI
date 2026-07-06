@@ -6,6 +6,8 @@ import type { Ionicons } from '@expo/vector-icons';
 import type { AthleteAnalyticsSnapshot } from '@/src/analytics/types';
 import type { TeamAnalyticsOverview } from '@/src/analytics/summary/teamOverview';
 import { formatAthleteAnalyticsForAI } from '@/src/analytics/summary/teamOverview';
+import type { NutritionSnapshot } from '@/src/features/nutrition/types';
+import { formatNutritionForAI } from '@/src/features/nutrition/utils/nutritionHelpers';
 
 export type AiAgentId = 'performance' | 'recovery' | 'nutrition' | 'planning';
 
@@ -38,6 +40,7 @@ export interface AnalyticsCoachContext {
   primary?: AthleteAnalyticsSnapshot;
   team?: TeamAnalyticsOverview;
   athleteName?: string;
+  nutrition?: NutritionSnapshot;
 }
 
 export const AI_AGENTS: AiAgent[] = [
@@ -149,6 +152,52 @@ const MOCK_RESPONSES: Record<AiAgentId, { en: string; ar: string }> = {
 };
 
 type AnalyticsTopic = 'readiness' | 'injury' | 'load' | 'trend' | 'performance';
+type NutritionTopic = 'macros' | 'hydration' | 'protein' | 'compliance' | 'goal';
+
+function detectNutritionTopic(message: string): NutritionTopic | null {
+  const m = message.toLowerCase();
+  if (/protein|بروtein|بروتين/.test(message)) return 'protein';
+  if (/hydration|water|ماء|ترطيب/.test(message)) return 'hydration';
+  if (/calorie|macro|سعر|ماكرو/.test(m)) return 'macros';
+  if (/compliance|امتثال|التزام/.test(message)) return 'compliance';
+  if (/goal|weight|fat|muscle|هدف|وزن|دهون|عضل/.test(m)) return 'goal';
+  if (/meal|supplement|تغذ|وجب|مكمل/.test(m)) return 'macros';
+  return null;
+}
+
+function buildNutritionTopicResponse(topic: NutritionTopic, ctx: AnalyticsCoachContext, isRTL: boolean): string {
+  const snap = ctx.nutrition!;
+  const name = ctx.athleteName ?? (isRTL ? 'اللاعب' : 'the athlete');
+  const { totals, targets, hydration, compliancePercent, goal, primaryRecommendation } = snap;
+
+  switch (topic) {
+    case 'protein':
+      return isRTL
+        ? `🥩 بروtein ${name}: ${totals.protein_g}/${targets.protein_g}g (${Math.round((totals.protein_g / targets.protein_g) * 100)}%).\n` +
+            (totals.protein_g < targets.protein_g * 0.85 ? 'زِد البروtein في الوجبات التالية.' : 'البروtein ضمن الهدف.')
+        : `🥩 Protein for ${name}: ${totals.protein_g}/${targets.protein_g}g (${Math.round((totals.protein_g / targets.protein_g) * 100)}%).\n` +
+            (totals.protein_g < targets.protein_g * 0.85 ? 'Increase protein at upcoming meals.' : 'Protein intake on target.');
+
+    case 'hydration':
+      return isRTL
+        ? `💧 ترطيب ${name}: ${totals.water_liters}/${targets.water_liters}L (${hydration.hydrationPercent}%). خطر التعرق: ${hydration.sweatRisk}.`
+        : `💧 Hydration for ${name}: ${totals.water_liters}/${targets.water_liters}L (${hydration.hydrationPercent}%). Sweat risk: ${hydration.sweatRisk}.`;
+
+    case 'compliance':
+      return isRTL
+        ? `📋 امتثال التغذية لـ ${name}: ${compliancePercent}%. السعرات ${totals.calories}/${targets.calories} kcal.`
+        : `📋 Nutrition compliance for ${name}: ${compliancePercent}%. Calories ${totals.calories}/${targets.calories} kcal.`;
+
+    case 'goal':
+      return isRTL
+        ? `🎯 هدف التغذية: ${goal}. التقدم ${snap.goalProgress}%.`
+        : `🎯 Nutrition goal: ${goal}. Progress ${snap.goalProgress}%.`;
+
+    case 'macros':
+    default:
+      return formatNutritionForAI(snap, name, isRTL);
+  }
+}
 
 function detectAnalyticsTopic(message: string): AnalyticsTopic | null {
   const m = message.toLowerCase();
@@ -230,11 +279,31 @@ export function generateMockResponse(
   analyticsContext?: AnalyticsCoachContext
 ): string {
   const topic = detectAnalyticsTopic(userMessage);
+  const nutritionTopic = detectNutritionTopic(userMessage);
   const analyticsRelevant =
     topic !== null ||
     agentId === 'performance' ||
     agentId === 'recovery' ||
-    agentId === 'planning';
+    agentId === 'planning' ||
+    agentId === 'nutrition';
+
+  if (analyticsContext?.nutrition && (agentId === 'nutrition' || nutritionTopic)) {
+    const body = nutritionTopic
+      ? buildNutritionTopicResponse(nutritionTopic, analyticsContext, isRTL)
+      : formatNutritionForAI(
+          analyticsContext.nutrition,
+          analyticsContext.athleteName ?? (isRTL ? 'اللاعب' : 'the athlete'),
+          isRTL
+        );
+    const rec = analyticsContext.nutrition.primaryRecommendation;
+    const recLine = rec
+      ? isRTL
+        ? `\n\n💡 ${rec.titleKey}`
+        : `\n\n💡 Recommendation available in Nutrition Center.`
+      : '';
+    const confidence = isRTL ? '\n\n✓ مستوى الثقة: 89%' : '\n\n✓ Confidence: 89%';
+    return body + recLine + confidence;
+  }
 
   if (analyticsContext?.primary && analyticsRelevant && topic) {
     const body = buildTopicResponse(topic, analyticsContext, isRTL);
@@ -252,7 +321,27 @@ export function generateMockResponse(
     );
     const base = MOCK_RESPONSES[agentId];
     const prefix = isRTL ? base.ar.split('.')[0] + '.' : base.en.split('.')[0] + '.';
-    return prefix + '\n\n' + summary;
+    const nutritionBlock =
+      analyticsContext.nutrition && agentId === 'recovery'
+        ? '\n\n' +
+          formatNutritionForAI(
+            analyticsContext.nutrition,
+            analyticsContext.athleteName ?? (isRTL ? 'اللاعب' : 'the athlete'),
+            isRTL
+          )
+        : '';
+    return prefix + '\n\n' + summary + nutritionBlock;
+  }
+
+  if (agentId === 'nutrition' && analyticsContext?.nutrition) {
+    const base = MOCK_RESPONSES.nutrition;
+    const prefix = isRTL ? base.ar : base.en;
+    const detail = formatNutritionForAI(
+      analyticsContext.nutrition,
+      analyticsContext.athleteName ?? (isRTL ? 'اللاعب' : 'the athlete'),
+      isRTL
+    );
+    return prefix + '\n\n' + detail;
   }
 
   const base = MOCK_RESPONSES[agentId];

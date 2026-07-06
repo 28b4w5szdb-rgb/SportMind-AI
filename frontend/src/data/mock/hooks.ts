@@ -6,8 +6,8 @@ import { useMemo } from 'react';
 
 import type { AiMessage } from './ai-coach';
 import { useMockStore } from './store';
-import type { MockAthlete, MockPerformanceTest, MockReport, MockResearchProject, MockTeam, DailyCheckIn, InjuryRecord, TrainingPlan } from './types';
-import { getLatestCheckIn } from '@/src/features/daily-checkin/validation';
+import type { MockAthlete, MockPerformanceTest, MockReport, MockResearchProject, MockTeam, DailyCheckIn, InjuryRecord, TrainingPlan, DailyNutritionLog, NutritionGoalSetting } from './types';
+import { getLatestCheckIn, todayDateKey } from '@/src/features/daily-checkin/validation';
 
 const EMPTY_MESSAGES: AiMessage[] = [];
 const EMPTY_TESTS: MockPerformanceTest[] = [];
@@ -15,6 +15,7 @@ const EMPTY_ATHLETES: MockAthlete[] = [];
 const EMPTY_CHECKINS: DailyCheckIn[] = [];
 const EMPTY_INJURIES: InjuryRecord[] = [];
 const EMPTY_PLANS: TrainingPlan[] = [];
+const EMPTY_NUTRITION_LOGS: DailyNutritionLog[] = [];
 
 export function useAthleteById(id: string | undefined): MockAthlete | undefined {
   return useMockStore((s) => (id ? s.athletes.find((a) => a.id === id) : undefined));
@@ -113,4 +114,29 @@ export function useTrainingPlansForAthlete(athleteId: string | undefined): Train
 export function useActiveTrainingPlanForAthlete(athleteId: string | undefined): TrainingPlan | undefined {
   const plans = useTrainingPlansForAthlete(athleteId);
   return useMemo(() => plans.find((p) => p.is_active) ?? plans[0], [plans]);
+}
+
+export function useLatestNutritionLogForAthlete(athleteId: string | undefined, dateKey: string = todayDateKey()): DailyNutritionLog | undefined {
+  const nutritionLogs = useMockStore((s) => s.nutritionLogs);
+  return useMemo(() => {
+    if (!athleteId) return undefined;
+    return nutritionLogs.find((l) => l.athlete_id === athleteId && l.date === dateKey);
+  }, [nutritionLogs, athleteId, dateKey]);
+}
+
+export function useNutritionGoalForAthlete(athleteId: string | undefined): NutritionGoalSetting | undefined {
+  const nutritionGoalSettings = useMockStore((s) => s.nutritionGoalSettings);
+  return useMemo(() => {
+    if (!athleteId) return undefined;
+    return nutritionGoalSettings.find((g) => g.athlete_id === athleteId);
+  }, [nutritionGoalSettings, athleteId]);
+}
+
+export function useNutritionLogsForAthlete(athleteId: string | undefined): DailyNutritionLog[] {
+  const nutritionLogs = useMockStore((s) => s.nutritionLogs);
+  return useMemo(() => {
+    if (!athleteId) return EMPTY_NUTRITION_LOGS;
+    const filtered = nutritionLogs.filter((l) => l.athlete_id === athleteId);
+    return filtered.length > 0 ? filtered : EMPTY_NUTRITION_LOGS;
+  }, [nutritionLogs, athleteId]);
 }

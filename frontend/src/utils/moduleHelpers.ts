@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next';
 
-import type { MockAthlete, MockPerformanceTest, MockReportSections, DailyCheckIn, InjuryRecord } from '@/src/data/mock/types';
+import type { MockAthlete, MockPerformanceTest, MockReportSections, DailyCheckIn, InjuryRecord, DailyNutritionLog, BodyCompositionRecord, NutritionGoalSetting } from '@/src/data/mock/types';
 import { computeAthleteAnalytics } from '@/src/analytics';
 import { buildRawSignals } from '@/src/analytics/input/buildSignals';
 import { buildAnalyticsReportSections } from '@/src/analytics/summary/teamOverview';
@@ -8,6 +8,8 @@ import { buildSportsMedicineSnapshot } from '@/src/features/sports-medicine/util
 import { RTP_PHASES } from '@/src/features/sports-medicine/registry/rtpPhases';
 import { buildTrainingBuilderSnapshot } from '@/src/features/training-builder/utils/trainingHelpers';
 import { templateLabelKey } from '@/src/features/training-builder/utils/templateLabelKey';
+import { buildAthleteNutritionSnapshot } from '@/src/features/nutrition/utils/nutritionHelpers';
+import { NUTRITION_GOALS } from '@/src/features/nutrition/registry/nutritionCatalog';
 import type { TrainingPlan } from '@/src/features/training-builder/types';
 
 export function buildPerformanceTestsSummary(tests: MockPerformanceTest[], isRTL: boolean): string {
@@ -114,13 +116,65 @@ export function buildTrainingReportSections(
   return { training_summary: trainingSummary, training_compliance_summary: complianceSummary };
 }
 
+export function buildNutritionReportSections(
+  athlete: MockAthlete,
+  tests: MockPerformanceTest[],
+  injuries: InjuryRecord[],
+  checkIn: DailyCheckIn | undefined,
+  trainingPlans: TrainingPlan[],
+  nutritionLogs: DailyNutritionLog[],
+  bodyRecords: BodyCompositionRecord[],
+  goalSettings: NutritionGoalSetting[],
+  t: TFunction,
+  isRTL: boolean
+): Pick<MockReportSections, 'nutrition_summary'> {
+  const athletePlans = trainingPlans.filter((p) => p.athlete_id === athlete.id);
+  const analytics = computeAthleteAnalytics({
+    athlete,
+    tests: tests.filter((tst) => tst.athlete_id === athlete.id),
+    checkIn,
+    injuries: injuries.filter((i) => i.athlete_id === athlete.id),
+    trainingPlans: athletePlans,
+  });
+  const snapshot = buildAthleteNutritionSnapshot({
+    athlete,
+    analytics,
+    logs: nutritionLogs,
+    bodyRecords,
+    goalSettings,
+    checkIn,
+    trainingPlans: athletePlans,
+    dateKey: new Date().toISOString().slice(0, 10),
+  });
+  const { totals, targets, hydration, compliancePercent, goal, primaryRecommendation } = snapshot;
+
+  const goalLabel = t(NUTRITION_GOALS.find((g) => g.id === goal)?.labelKey ?? 'nutrition.goals.performance');
+
+  const nutritionSummary = isRTL
+    ? `السعرات ${totals.calories}/${targets.calories} · بروtein ${totals.protein_g}/${targets.protein_g}g · ماء ${totals.water_liters}/${targets.water_liters}L.\n` +
+      `الامتثال ${compliancePercent}%. الترطيب ${hydration.hydrationPercent}%. الهدف: ${goalLabel}.\n` +
+      (primaryRecommendation ? `توصية: ${t(primaryRecommendation.titleKey)}` : 'الامتثال ضمن النطاق المستهدف.')
+    : `Calories ${totals.calories}/${targets.calories} · Protein ${totals.protein_g}/${targets.protein_g}g · Water ${totals.water_liters}/${targets.water_liters}L.\n` +
+      `Compliance ${compliancePercent}%. Hydration ${hydration.hydrationPercent}%. Goal: ${goalLabel}.\n` +
+      (primaryRecommendation ? `Recommendation: ${t(primaryRecommendation.titleKey)}` : 'Nutrition compliance on target.');
+
+  return { nutrition_summary: nutritionSummary };
+}
+
 export function buildDefaultReportSections(
   athlete: MockAthlete | undefined,
   tests: MockPerformanceTest[],
   summary: string,
   isRTL: boolean,
   t?: TFunction,
-  context?: { injuries?: InjuryRecord[]; checkIn?: DailyCheckIn; trainingPlans?: TrainingPlan[] }
+  context?: {
+    injuries?: InjuryRecord[];
+    checkIn?: DailyCheckIn;
+    trainingPlans?: TrainingPlan[];
+    nutritionLogs?: DailyNutritionLog[];
+    bodyCompositionRecords?: BodyCompositionRecord[];
+    nutritionGoalSettings?: NutritionGoalSetting[];
+  }
 ): MockReportSections {
   const base: MockReportSections = {
     athlete_summary: summary.trim() || buildAthleteSummary(athlete, isRTL),
@@ -156,6 +210,18 @@ export function buildDefaultReportSections(
     t,
     isRTL
   );
+  const nutritionSections = buildNutritionReportSections(
+    athlete,
+    tests,
+    context?.injuries ?? [],
+    context?.checkIn,
+    context?.trainingPlans ?? [],
+    context?.nutritionLogs ?? [],
+    context?.bodyCompositionRecords ?? [],
+    context?.nutritionGoalSettings ?? [],
+    t,
+    isRTL
+  );
 
   return {
     ...base,
@@ -169,6 +235,7 @@ export function buildDefaultReportSections(
     athlete_summary: `${base.athlete_summary}\n\n${enriched.overall_score}`,
     ...injurySections,
     ...trainingSections,
+    ...nutritionSections,
   };
 }
 

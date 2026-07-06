@@ -63,6 +63,7 @@ export interface MockReportSections {
   prevention_recommendations?: string;
   training_summary?: string;
   training_compliance_summary?: string;
+  nutrition_summary?: string;
 }
 
 export interface MockReport {
@@ -140,6 +141,17 @@ export type {
 } from '@/src/features/sports-medicine/types';
 
 export type { TrainingPlan, TrainingDailySession, TrainingPlanInput, TrainingSessionLogInput, TrainingSessionExecution, TrainingComplianceSnapshot } from '@/src/features/training-builder/types';
+
+export type {
+  DailyNutritionLog,
+  DailyNutritionLogInput,
+  BodyCompositionRecord,
+  BodyCompositionInput,
+  NutritionGoalSetting,
+  NutritionGoalId,
+  MealSlotId,
+  MealEntry,
+} from '@/src/features/nutrition/types';
 
 export interface CalculatorDefinition {
   id: CalculatorType;

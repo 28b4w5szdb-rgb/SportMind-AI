@@ -36,6 +36,7 @@ const mainMenuItems = [
 
 const wellnessItems = [
   { id: 'training', key: 'more.trainingBuilder', icon: 'barbell' as const, color: '#0066FF', route: '/training-builder' },
+  { id: 'nutrition', key: 'more.nutritionCenter', icon: 'nutrition' as const, color: '#F97316', route: '/nutrition' },
   { id: 'checkin', key: 'more.dailyCheckIn', icon: 'heart-circle' as const, color: '#10B981', route: '/check-in' },
   { id: 'recovery', key: 'more.recoveryCenter', icon: 'pulse' as const, color: '#0D9488', route: '/recovery' },
   { id: 'medicine', key: 'more.sportsMedicine', icon: 'medkit' as const, color: '#EF4444', route: '/sports-medicine' },
@@ -54,6 +55,7 @@ const menuItemLabels: Record<string, { en: string; ar: string }> = {
   'more.helpSupport': { en: 'Help & Support', ar: 'المساعدة والدعم' },
   'more.knowledgeCenter': { en: 'Knowledge Center', ar: 'مركز المعرفة' },
   'more.trainingBuilder': { en: 'Training Builder', ar: 'منشئ التدريب' },
+  'more.nutritionCenter': { en: 'Nutrition Center', ar: 'مركز التغذية' },
   'more.dailyCheckIn': { en: 'Daily Check-in', ar: 'التسجيل اليومي' },
   'more.recoveryCenter': { en: 'Recovery Center', ar: 'مركز التعافي' },
   'more.sportsMedicine': { en: 'Sports Medicine', ar: 'الطب الرياضي' },
