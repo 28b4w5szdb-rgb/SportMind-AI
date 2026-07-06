@@ -14,17 +14,18 @@ import { HrZonesGuide } from './HrZonesGuide';
 interface SsidInterpretationViewProps {
   interpretation: SsidInterpretation;
   titleKey?: string;
+  titleOverride?: string;
   compact?: boolean;
   inputs?: SsidInputRow[];
   hrZones?: { maxHr: number; zones: HrZoneRange[] };
 }
 
 /** Full SSID presentation for a single metric interpretation. */
-export function SsidInterpretationView({ interpretation, titleKey, compact, inputs, hrZones }: SsidInterpretationViewProps) {
+export function SsidInterpretationView({ interpretation, titleKey, titleOverride, compact, inputs, hrZones }: SsidInterpretationViewProps) {
   if (compact) {
     return (
       <View>
-        <ScientificResultCard interpretation={interpretation} titleKey={titleKey} inputs={inputs} />
+        <ScientificResultCard interpretation={interpretation} titleKey={titleKey} titleOverride={titleOverride} inputs={inputs} />
         <CoachingDecisionCard interpretation={interpretation} />
         <ReferenceConfidenceFooter interpretation={interpretation} />
       </View>
@@ -36,7 +37,7 @@ export function SsidInterpretationView({ interpretation, titleKey, compact, inpu
       {hrZones ? (
         <HrZonesGuide maxHr={hrZones.maxHr} zones={hrZones.zones} activeZoneId={interpretation.classificationId} />
       ) : null}
-      <ScientificResultCard interpretation={interpretation} titleKey={titleKey} inputs={inputs} />
+      <ScientificResultCard interpretation={interpretation} titleKey={titleKey} titleOverride={titleOverride} inputs={inputs} />
       <InterpretationPanel interpretation={interpretation} />
       <CoachingDecisionCard interpretation={interpretation} />
       <RecommendationStack interpretation={interpretation} />

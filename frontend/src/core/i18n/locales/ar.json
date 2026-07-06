@@ -96,6 +96,21 @@
     "performanceLevel": "مستوى الأداء",
     "decisionSupport": "دعم القرار",
     "kpiSummary": "ملخص المؤشرات",
+    "knowledgeTitle": "معرفة الاختبار",
+    "knowledgeSubtitle": "ماذا يقيس هذا الاختبار وكيف تستخدمه",
+    "referenceTitle": "القيم المرجعية",
+    "referenceSubtitle": "معايير النخبة والجيد والمتوسط لهذا البروتوكول",
+    "retestInterval": "فترة إعادة الاختبار المقترحة: كل {{days}} يوم",
+    "ssidPreviewSubtitle": "معاينة التفسير العلمي الرياضي",
+    "lowerIsBetter": "القيم الأقل تعني أداءً أفضل في هذا الاختبار.",
+    "higherIsBetter": "القيم الأعلى تعني أداءً أفضل في هذا الاختبار.",
+    "knowledge": {
+      "whatMeasures": "ماذا يقيس هذا الاختبار؟",
+      "whyImportant": "لماذا هو مهم؟",
+      "howPerformed": "كيف يُجرى؟",
+      "whatAffects": "ما الذي يؤثر على النتيجة؟",
+      "commonMistakes": "أخطاء شائعة"
+    },
     "levels": {
       "elite": "نخبة",
       "good": "جيد",
@@ -277,6 +292,27 @@
       }
     }
   },
+  "testingScience": {
+    "age": {
+      "u17": "دون 17",
+      "u20": "17–20 سنة",
+      "senior": "21–30 سنة",
+      "masters": "31+ سنة"
+    },
+    "sport": {
+      "football": "كرة القدم",
+      "basketball": "كرة السلة",
+      "athletics": "ألعاب القوى",
+      "combat": "رياضات قتالية",
+      "general": "عام / متعدد"
+    },
+    "level": {
+      "elite": "نخبة / وطني",
+      "professional": "محترف",
+      "academy": "أكاديمية / تطوير",
+      "recreational": "ترفيهي"
+    }
+  },
   "more": {
     "title": "المزيد",
     "settings": "الإعدادات",
@@ -430,6 +466,11 @@
       "hrZones": { "title": "مناطق نبض القلب", "desc": "مناطق التدريب لنبض القلب" },
       "trainingLoad": { "title": "حمل التدريب", "desc": "حمل الجلسة (المدة × RPE)" },
       "recovery": { "title": "وقت التعافي", "desc": "مدة التعافي المقترحة" },
+      "bodyWater": { "title": "نسبة ماء الجسم", "desc": "حالة الترطيب وماء الجسم" },
+      "leanMass": { "title": "الكتلة النحيلة", "desc": "تقدير الكتلة النحيلة من الوزن ودهون الجسم" },
+      "muscleMass": { "title": "كتلة العضلات", "desc": "تفسير كتلة العضلات الهيكلية" },
+      "acwr": { "title": "ACWR", "desc": "نسبة الحمل الحاد إلى المزمن" },
+      "readiness": { "title": "درجة الجاهزية", "desc": "جاهزية يومية ودعم قرار التدريب" },
       "fields": {
         "distance": "المسافة",
         "age": "العمر",
@@ -442,7 +483,13 @@
         "duration": "المدة",
         "rpe": "RPE",
         "sessionLoad": "حمل الجلسة",
-        "sleep": "ساعات النوم"
+        "sleep": "ساعات النوم",
+        "bodyWater": "ماء الجسم",
+        "bodyFat": "دهون الجسم %",
+        "muscleMass": "كتلة العضلات",
+        "acuteLoad": "الحمل الأسبوعي الحاد",
+        "chronicLoad": "الحمل الأسبوعي المزمن",
+        "readinessScore": "درجة الجاهزية"
       }
     },
     "reports": {

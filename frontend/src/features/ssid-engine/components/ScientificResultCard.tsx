@@ -16,6 +16,7 @@ export interface SsidInputRow {
 interface ScientificResultCardProps {
   interpretation: SsidInterpretation;
   titleKey?: string;
+  titleOverride?: string;
   inputs?: SsidInputRow[];
 }
 
@@ -37,13 +38,13 @@ function SummaryRow({ labelKey, bodyKey }: { labelKey: string; bodyKey: string }
   );
 }
 
-export function ScientificResultCard({ interpretation, titleKey, inputs }: ScientificResultCardProps) {
+export function ScientificResultCard({ interpretation, titleKey, titleOverride, inputs }: ScientificResultCardProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
   const { flexRow, textAlign } = useDirection();
 
-  const heading = titleKey ? t(titleKey) : t(`ssid.metricLabels.${interpretation.metricId}`);
+  const heading = titleOverride ?? (titleKey ? t(titleKey) : t(`ssid.metricLabels.${interpretation.metricId}`));
 
   return (
     <Card variant="elevated" padding="lg" style={{ borderRadius: theme.borderRadius['2xl'], marginBottom: theme.spacing.md }}>

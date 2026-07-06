@@ -1,5 +1,6 @@
 /** SSID English locale content — merged into i18n at boot. */
 import type { SsidCoachingDecisionId, SsidMetricId } from '../types';
+import { testTemplatesEn } from './testTemplates.en';
 
 const decisions: Record<SsidCoachingDecisionId, string> = {
   train_normally: 'Train normally',
@@ -722,6 +723,7 @@ export const ssidEn = {
       })
     ),
   },
+  testTemplates: testTemplatesEn,
 };
 
 export type SsidLocale = typeof ssidEn;

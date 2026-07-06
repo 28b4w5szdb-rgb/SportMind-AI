@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -8,9 +8,11 @@ import { Badge } from '@/src/components/common/Badge';
 import { ANALYTICS_MODULES } from '@/src/analytics/registry/modules';
 import type { AthleteAnalyticsSnapshot } from '@/src/analytics/types';
 import type { MockPerformanceTest } from '@/src/data/mock/types';
+import { SsidInterpretationView } from '@/src/features/ssid-engine';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
-import { getTestDefinition, rateTestResult, PERFORMANCE_LEVEL_COLORS, getTestName, getTestText, useCustomTestDefinitions } from '../index';
+import { getTestDefinition, PERFORMANCE_LEVEL_COLORS, getTestName, useCustomTestDefinitions } from '../index';
+import { interpretTestWithSsid } from '../utils/testInterpretation';
 import type { TestDefinition } from '../types';
 import type { TestAnalyticsImpact } from '../types';
 
@@ -30,9 +32,21 @@ export function TestResultCard({ test, analytics, impact, compact = false, onPre
   const { flexRow, textAlign, isRTL, chevronIcon } = useDirection();
   const customTests = useCustomTestDefinitions();
   const definition = definitionProp ?? getTestDefinition(test.test_type_key, customTests);
-  const level = definition ? rateTestResult(test.value, definition.referenceValues) : 'average';
+
+  const { level, ssid } = useMemo(() => {
+    if (test.ssid && definition) {
+      return {
+        level: test.ssid.performanceLevel ?? interpretTestWithSsid(definition, test.value).level,
+        ssid: test.ssid,
+      };
+    }
+    if (!definition) return { level: 'average' as const, ssid: undefined };
+    return interpretTestWithSsid(definition, test.value);
+  }, [definition, test.ssid, test.value]);
+
   const levelColor = PERFORMANCE_LEVEL_COLORS[level];
   const affected = definition?.affectedModules ?? [];
+  const testTitle = definition ? getTestName(definition, isRTL) : test.test_type;
 
   const content = (
     <Card
@@ -45,9 +59,7 @@ export function TestResultCard({ test, analytics, impact, compact = false, onPre
           <Ionicons name={(definition?.icon ?? 'analytics') as keyof typeof Ionicons.glyphMap} size={22} color={levelColor} />
         </View>
         <View style={{ flex: 1, marginHorizontal: theme.spacing.md }}>
-          <Text style={[type.body, { color: theme.colors.text, textAlign: textAlign('start') }]}>
-            {definition ? getTestName(definition, isRTL) : test.test_type}
-          </Text>
+          <Text style={[type.body, { color: theme.colors.text, textAlign: textAlign('start') }]}>{testTitle}</Text>
           <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 2, textAlign: textAlign('start') }]}>
             {test.athlete_name} · {test.date}
           </Text>
@@ -60,6 +72,12 @@ export function TestResultCard({ test, analytics, impact, compact = false, onPre
         </View>
         {onPress ? <Ionicons name={chevronIcon()} size={18} color={theme.colors.textTertiary} style={{ marginStart: 8 }} /> : null}
       </View>
+
+      {!compact && ssid ? (
+        <View style={{ marginTop: theme.spacing.md }}>
+          <SsidInterpretationView interpretation={ssid} titleOverride={testTitle} compact />
+        </View>
+      ) : null}
 
       {!compact && (
         <View style={{ marginTop: theme.spacing.md, gap: theme.spacing.sm }}>
@@ -78,12 +96,6 @@ export function TestResultCard({ test, analytics, impact, compact = false, onPre
             </Text>
           ) : null}
 
-          {definition ? (
-            <Text style={[type.bodySm, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>
-              {getTestText(definition, 'aiRec', isRTL)}
-            </Text>
-          ) : null}
-
           {analytics ? (
             <View style={{ paddingTop: theme.spacing.sm, borderTopWidth: 1, borderTopColor: theme.colors.border }}>
               <Text style={[type.label, { color: theme.colors.text, textAlign: textAlign('start') }]}>
@@ -92,11 +104,6 @@ export function TestResultCard({ test, analytics, impact, compact = false, onPre
               <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 4, textAlign: textAlign('start') }]}>
                 {t(analytics.decision.titleKey)} — {t(analytics.decision.bodyKey)}
               </Text>
-              {analytics.recommendations[0] ? (
-                <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 4, textAlign: textAlign('start') }]}>
-                  {t(analytics.recommendations[0].bodyKey)}
-                </Text>
-              ) : null}
             </View>
           ) : null}
 

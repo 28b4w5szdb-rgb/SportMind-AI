@@ -71,9 +71,9 @@ export default function TestResultDetailScreen() {
       ) : null}
 
       {definition ? (
-        <FormSection title={t('testingCenter.sections.aiRecommendation')}>
+        <FormSection title={t('testingCenter.sections.scoring')}>
           <Text style={[type.body, { color: theme.colors.text, textAlign: textAlign('start'), lineHeight: 22 }]}>
-            {getTestText(definition, 'aiRec', isRTL)}
+            {getTestText(definition, 'scoring', isRTL)}
           </Text>
         </FormSection>
       ) : null}

@@ -44,6 +44,7 @@ export interface MockPerformanceTest {
   unit: string;
   date: string;
   notes?: string;
+  ssid?: import('@/src/features/ssid-engine').SsidInterpretation;
 }
 
 export type MockReportStatus = 'draft' | 'ready' | 'exported';
@@ -108,8 +109,13 @@ export type CalculatorType =
   | 'vo2max'
   | 'bmi'
   | 'body-fat'
+  | 'body-water'
+  | 'lean-mass'
+  | 'muscle-mass'
   | 'heart-rate-zones'
   | 'training-load'
+  | 'acwr'
+  | 'readiness'
   | 'recovery-time';
 
 export interface MockCalculationRecord {
@@ -117,7 +123,13 @@ export interface MockCalculationRecord {
   calculator_type: CalculatorType;
   title: string;
   inputs: Record<string, number>;
-  result: { value: number; unit: string; interpretation: string; ssid?: import('@/src/features/ssid-engine').SsidInterpretation; hrZoneMeta?: { maxHr: number; zones: import('@/src/features/ssid-engine/utils/hrZoneHelpers').HrZoneRange[] } };
+  result: {
+    value: number;
+    unit: string;
+    interpretation: string;
+    ssid?: import('@/src/features/ssid-engine').SsidInterpretation;
+    hrZoneMeta?: { maxHr: number; zones: import('@/src/features/ssid-engine/utils/hrZoneHelpers').HrZoneRange[] };
+  };
   created_at: string;
 }
 

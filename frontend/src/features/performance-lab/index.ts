@@ -18,6 +18,9 @@ export { CategoryCard } from './components/CategoryCard';
 export { TestResultCard } from './components/TestResultCard';
 export { TestLibraryListItem } from './components/TestLibraryListItem';
 export { TestLibraryFiltersBar } from './components/TestLibraryFiltersBar';
+export { TestKnowledgePanel } from './components/TestKnowledgePanel';
+export { TestReferencePanel } from './components/TestReferencePanel';
+export { interpretTestWithSsid } from './utils/testInterpretation';
 export {
   useTestDefinition,
   useTestLibrary,
@@ -36,4 +39,5 @@ export type {
   CustomTestInput,
   BilingualText,
   TestCopyBundle,
+  TestKnowledgeBundle,
 } from './types';

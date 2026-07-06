@@ -17,6 +17,11 @@ export {
   buildCalculatorSsidEntries,
   interpretCalculatorResult,
 } from './engine/ssidEngine';
+export {
+  interpretPerformanceTest,
+  performanceLevelFromTest,
+} from './engine/testInterpretationEngine';
+export type { TestInterpretationContext } from './engine/testInterpretationEngine';
 export type { SsidDisplayEntry, SsidReportContent } from './engine/ssidEngine';
 export {
   ScientificResultCard,

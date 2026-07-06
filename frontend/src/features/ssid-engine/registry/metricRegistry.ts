@@ -135,6 +135,16 @@ export function mapCalculatorTypeToMetric(type: CalculatorType): SsidMetricId | 
       return 'session_load';
     case 'recovery-time':
       return 'recovery_score';
+    case 'body-water':
+      return 'body_water';
+    case 'lean-mass':
+      return 'lean_mass';
+    case 'muscle-mass':
+      return 'muscle_mass';
+    case 'acwr':
+      return 'acwr';
+    case 'readiness':
+      return 'readiness_score';
     default:
       return undefined;
   }

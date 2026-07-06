@@ -8,9 +8,13 @@ import type {
   TestCategoryId,
   TestCopyBundle,
   TestDefinition,
+  TestKnowledgeBundle,
   TestObjective,
   TestReferenceValues,
 } from '../types';
+import { getCategoryDefaults } from '@/src/features/testing-science';
+import type { SsidMetricId } from '@/src/features/ssid-engine';
+import { TEST_SSID_METRIC_MAP } from './testRegistration';
 
 export interface CatalogRowInput {
   key: string;
@@ -24,13 +28,21 @@ export interface CatalogRowInput {
   objective: TestObjective;
   featured?: boolean;
   defaultRecommendationKey?: string;
+  retestIntervalDays?: number;
+  ssidMetricId?: SsidMetricId;
+  knowledge?: Partial<Omit<TestKnowledgeBundle, 'whatMeasures' | 'howPerformed'>>;
   copy: TestCopyBundle;
   nameKey?: string;
 }
 
 const DEFAULT_WEIGHT = 0.75;
 
+export function defineTests(rows: CatalogRowInput[]): TestDefinition[] {
+  return rows.map(defineTest);
+}
+
 export function defineTest(row: CatalogRowInput): TestDefinition {
+  const defaults = getCategoryDefaults(row.categoryId);
   return {
     key: row.key,
     categoryId: row.categoryId,
@@ -49,11 +61,16 @@ export function defineTest(row: CatalogRowInput): TestDefinition {
     equipmentKey: undefined,
     aiRecommendationKey: undefined,
     copy: row.copy,
+    retestIntervalDays: row.retestIntervalDays ?? defaults.retestIntervalDays,
+    knowledge: {
+      whatMeasures: row.copy.purpose,
+      whyImportant: row.knowledge?.whyImportant ?? defaults.knowledge.whyImportant,
+      howPerformed: row.copy.protocol,
+      whatAffects: row.knowledge?.whatAffects ?? defaults.knowledge.whatAffects,
+      commonMistakes: row.knowledge?.commonMistakes ?? defaults.knowledge.commonMistakes,
+    },
+    ssidMetricId: row.ssidMetricId ?? TEST_SSID_METRIC_MAP[row.key],
   };
-}
-
-export function defineTests(rows: CatalogRowInput[]): TestDefinition[] {
-  return rows.map(defineTest);
 }
 
 export function buildCustomTestDefinition(input: CustomTestInput, key: string): TestDefinition {

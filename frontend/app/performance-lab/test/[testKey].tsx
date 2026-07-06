@@ -20,13 +20,16 @@ import { useFormAction } from '@/src/hooks/useFormAction';
 import {
   computeTestAnalyticsImpact,
   PERFORMANCE_LEVEL_COLORS,
-  rateTestResult,
   getTestName,
   getTestText,
   useTestDefinition,
   useTestLibraryActions,
   getObjectiveLabelKey,
+  TestKnowledgePanel,
+  TestReferencePanel,
+  interpretTestWithSsid,
 } from '@/src/features/performance-lab';
+import { SsidInterpretationView } from '@/src/features/ssid-engine';
 import type { MockPerformanceTest } from '@/src/data/mock/types';
 
 export default function TestDetailScreen() {
@@ -69,9 +72,14 @@ export default function TestDetailScreen() {
     return computeTestAnalyticsImpact(athlete, athleteTests, simulated);
   }, [athlete, athleteTests, value, definition, date, isRTL]);
 
+  const projectedSsid = useMemo(() => {
+    if (!definition || !value.trim() || Number.isNaN(Number(value))) return null;
+    return interpretTestWithSsid(definition, Number(value)).ssid;
+  }, [definition, value]);
+
   const projectedLevel = useMemo(() => {
     if (!definition || !value.trim() || Number.isNaN(Number(value))) return null;
-    return rateTestResult(Number(value), definition.referenceValues);
+    return interpretTestWithSsid(definition, Number(value)).level;
   }, [definition, value]);
 
   if (!definition) {
@@ -82,7 +90,6 @@ export default function TestDetailScreen() {
     );
   }
 
-  const ref = definition.referenceValues;
   const levelColor = projectedLevel ? PERFORMANCE_LEVEL_COLORS[projectedLevel] : theme.colors.primary;
   const isFavorite = favorites.includes(definition.key);
 
@@ -133,38 +140,8 @@ export default function TestDetailScreen() {
         </View>
       </Card>
 
-      <FormSection title={t('testingCenter.sections.purpose')}>
-        <Text style={[type.body, { color: theme.colors.text, textAlign: textAlign('start'), lineHeight: 22 }]}>{getTestText(definition, 'purpose', isRTL)}</Text>
-      </FormSection>
-
-      <FormSection title={t('testingCenter.sections.protocol')} subtitle={t('testingCenter.sections.protocolHint')}>
-        <Text style={[type.body, { color: theme.colors.text, textAlign: textAlign('start'), lineHeight: 22 }]}>{getTestText(definition, 'protocol', isRTL)}</Text>
-      </FormSection>
-
-      <FormSection title={t('testingCenter.sections.equipment')}>
-        <Text style={[type.bodySm, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>{getTestText(definition, 'equipment', isRTL)}</Text>
-      </FormSection>
-
-      <FormSection title={t('testingCenter.sections.scoring')}>
-        <Text style={[type.bodySm, { color: theme.colors.text, textAlign: textAlign('start') }]}>{getTestText(definition, 'scoring', isRTL)}</Text>
-      </FormSection>
-
-      <FormSection title={t('testingCenter.sections.referenceValues')}>
-        <Text style={[type.bodySm, { color: theme.colors.text, textAlign: textAlign('start') }]}>
-          {isRTL
-            ? `نخبة: ${ref.elite} · جيد: ${ref.good} · متوسط: ${ref.average} ${definition.unit}`
-            : `Elite: ${ref.elite} · Good: ${ref.good} · Average: ${ref.average} ${definition.unit}`}
-        </Text>
-        <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 6, textAlign: textAlign('start') }]}>
-          {t('testingCenter.library.analyticsWeight')}: {Math.round(definition.analyticsWeight * 100)}% · {t('testingCenter.library.expectedTrend')}: {definition.expectedTrend}
-        </Text>
-      </FormSection>
-
-      <FormSection title={t('testingCenter.sections.interpretation')}>
-        <Text style={[type.bodySm, { color: theme.colors.textSecondary, textAlign: textAlign('start'), lineHeight: 22 }]}>
-          {getTestText(definition, 'interpretation', isRTL)}
-        </Text>
-      </FormSection>
+      <TestKnowledgePanel definition={definition} />
+      <TestReferencePanel definition={definition} />
 
       <FormSection title={t('testingCenter.sections.analyticsImpact')}>
         <Text style={[type.caption, { color: theme.colors.textTertiary, marginBottom: 8, textAlign: textAlign('start') }]}>
@@ -176,12 +153,6 @@ export default function TestDetailScreen() {
             return mod ? <Badge key={modId} label={t(mod.labelKey)} variant="neutral" /> : null;
           })}
         </View>
-      </FormSection>
-
-      <FormSection title={t('testingCenter.sections.aiRecommendation')}>
-        <Text style={[type.bodySm, { color: theme.colors.text, textAlign: textAlign('start'), lineHeight: 22 }]}>
-          {getTestText(definition, 'aiRec', isRTL)}
-        </Text>
       </FormSection>
 
       {definition.copy.notes ? (
@@ -241,6 +212,12 @@ export default function TestDetailScreen() {
           </Text>
         ) : null}
       </FormSection>
+
+      {projectedSsid ? (
+        <FormSection title={t('ssid.ui.sectionTitle')} subtitle={t('testingCenter.ssidPreviewSubtitle')}>
+          <SsidInterpretationView interpretation={projectedSsid} titleOverride={getTestName(definition, isRTL)} compact />
+        </FormSection>
+      ) : null}
 
       {projectedImpact ? (
         <FormSection title={t('testingCenter.sections.impactPreview')}>

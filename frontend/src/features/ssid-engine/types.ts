@@ -34,6 +34,11 @@ export interface SsidRecommendationSet {
 /** Standard 12-field sports science interpretation output. */
 export interface SsidInterpretation {
   metricId: SsidMetricId;
+  /** When interpretation originates from a performance test. */
+  sourceType?: 'calculator' | 'performance_test';
+  testKey?: string;
+  categoryId?: string;
+  performanceLevel?: 'elite' | 'good' | 'average' | 'below';
   result: number | string;
   unit: string;
   classificationId: string;

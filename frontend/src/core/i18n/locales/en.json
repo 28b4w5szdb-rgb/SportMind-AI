@@ -92,6 +92,21 @@
     "performanceLevel": "Performance level",
     "decisionSupport": "Decision support",
     "kpiSummary": "KPI summary",
+    "knowledgeTitle": "Testing knowledge",
+    "knowledgeSubtitle": "What this test measures and how to use it",
+    "referenceTitle": "Reference values",
+    "referenceSubtitle": "Elite, good, and average norms for this protocol",
+    "retestInterval": "Suggested retest interval: every {{days}} days",
+    "ssidPreviewSubtitle": "Sports science interpretation preview",
+    "lowerIsBetter": "Lower values indicate better performance for this test.",
+    "higherIsBetter": "Higher values indicate better performance for this test.",
+    "knowledge": {
+      "whatMeasures": "What does this test measure?",
+      "whyImportant": "Why is it important?",
+      "howPerformed": "How is it performed?",
+      "whatAffects": "What affects the result?",
+      "commonMistakes": "Common mistakes"
+    },
     "levels": {
       "elite": "Elite",
       "good": "Good",
@@ -273,6 +288,27 @@
       }
     }
   },
+  "testingScience": {
+    "age": {
+      "u17": "Under 17",
+      "u20": "17–20 years",
+      "senior": "21–30 years",
+      "masters": "31+ years"
+    },
+    "sport": {
+      "football": "Football / soccer",
+      "basketball": "Basketball",
+      "athletics": "Athletics",
+      "combat": "Combat sports",
+      "general": "General / multi-sport"
+    },
+    "level": {
+      "elite": "Elite / national",
+      "professional": "Professional",
+      "academy": "Academy / development",
+      "recreational": "Recreational"
+    }
+  },
   "more": {
     "title": "More",
     "settings": "Settings",
@@ -426,6 +462,11 @@
       "hrZones": { "title": "Heart Rate Zones", "desc": "Training heart rate zones" },
       "trainingLoad": { "title": "Training Load", "desc": "Session load (duration × RPE)" },
       "recovery": { "title": "Recovery Time", "desc": "Suggested recovery duration" },
+      "bodyWater": { "title": "Body Water %", "desc": "Hydration and body water status" },
+      "leanMass": { "title": "Lean Mass", "desc": "Estimate lean body mass from weight and body fat" },
+      "muscleMass": { "title": "Muscle Mass", "desc": "Skeletal muscle mass interpretation" },
+      "acwr": { "title": "ACWR", "desc": "Acute:chronic workload ratio" },
+      "readiness": { "title": "Readiness Score", "desc": "Daily readiness and training decision support" },
       "fields": {
         "distance": "Distance",
         "age": "Age",
@@ -438,7 +479,13 @@
         "duration": "Duration",
         "rpe": "RPE",
         "sessionLoad": "Session load",
-        "sleep": "Sleep hours"
+        "sleep": "Sleep hours",
+        "bodyWater": "Body water",
+        "bodyFat": "Body fat %",
+        "muscleMass": "Muscle mass",
+        "acuteLoad": "Acute weekly load",
+        "chronicLoad": "Chronic weekly load",
+        "readinessScore": "Readiness score"
       }
     },
     "reports": {

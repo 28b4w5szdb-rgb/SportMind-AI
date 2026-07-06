@@ -68,6 +68,47 @@ export const CALCULATOR_DEFINITIONS: CalculatorDefinition[] = [
       { key: 'sleep', labelKey: 'features.calculator.fields.sleep', unit: 'hr' },
     ],
   },
+  {
+    id: 'body-water',
+    icon: 'water',
+    titleKey: 'features.calculator.bodyWater.title',
+    descKey: 'features.calculator.bodyWater.desc',
+    fields: [{ key: 'bodyWater', labelKey: 'features.calculator.fields.bodyWater', unit: '%' }],
+  },
+  {
+    id: 'lean-mass',
+    icon: 'body',
+    titleKey: 'features.calculator.leanMass.title',
+    descKey: 'features.calculator.leanMass.desc',
+    fields: [
+      { key: 'weight', labelKey: 'features.calculator.fields.weight', unit: 'kg' },
+      { key: 'bodyFat', labelKey: 'features.calculator.fields.bodyFat', unit: '%' },
+    ],
+  },
+  {
+    id: 'muscle-mass',
+    icon: 'barbell',
+    titleKey: 'features.calculator.muscleMass.title',
+    descKey: 'features.calculator.muscleMass.desc',
+    fields: [{ key: 'muscleMass', labelKey: 'features.calculator.fields.muscleMass', unit: 'kg' }],
+  },
+  {
+    id: 'acwr',
+    icon: 'analytics',
+    titleKey: 'features.calculator.acwr.title',
+    descKey: 'features.calculator.acwr.desc',
+    fields: [
+      { key: 'acuteLoad', labelKey: 'features.calculator.fields.acuteLoad', unit: 'AU' },
+      { key: 'chronicLoad', labelKey: 'features.calculator.fields.chronicLoad', unit: 'AU' },
+    ],
+  },
+  {
+    id: 'readiness',
+    icon: 'pulse',
+    titleKey: 'features.calculator.readiness.title',
+    descKey: 'features.calculator.readiness.desc',
+    fields: [{ key: 'score', labelKey: 'features.calculator.fields.readinessScore', unit: '%' }],
+  },
 ];
 
 export function getCalculatorDefinition(type: string): CalculatorDefinition | undefined {
@@ -148,6 +189,40 @@ export function computeCalculator(
         interpretation: classificationDisplayLabel('recovery_score', ssid.classificationId),
         ssid,
       };
+    }
+    case 'body-water': {
+      const value = inputs.bodyWater ?? 55;
+      const unit = '%';
+      const ssid = interpretMetric('body_water', value, unit, buildCalcContext(inputs));
+      return { value, unit, interpretation: classificationDisplayLabel('body_water', ssid.classificationId), ssid };
+    }
+    case 'lean-mass': {
+      const weight = inputs.weight ?? 75;
+      const bf = inputs.bodyFat ?? 15;
+      const value = Math.round(weight * (1 - bf / 100) * 10) / 10;
+      const unit = 'kg';
+      const ssid = interpretMetric('lean_mass', value, unit, { ...buildCalcContext(inputs), weightKg: weight });
+      return { value, unit, interpretation: classificationDisplayLabel('lean_mass', ssid.classificationId), ssid };
+    }
+    case 'muscle-mass': {
+      const value = inputs.muscleMass ?? 35;
+      const unit = 'kg';
+      const ssid = interpretMetric('muscle_mass', value, unit, buildCalcContext(inputs));
+      return { value, unit, interpretation: classificationDisplayLabel('muscle_mass', ssid.classificationId), ssid };
+    }
+    case 'acwr': {
+      const acute = inputs.acuteLoad ?? 3000;
+      const chronic = inputs.chronicLoad ?? 2800;
+      const value = chronic > 0 ? Math.round((acute / chronic) * 100) / 100 : 0;
+      const unit = 'ratio';
+      const ssid = interpretMetric('acwr', value, unit, { extras: { acuteLoad: acute, chronicLoad: chronic } });
+      return { value, unit, interpretation: classificationDisplayLabel('acwr', ssid.classificationId), ssid };
+    }
+    case 'readiness': {
+      const value = Math.max(0, Math.min(100, inputs.score ?? 70));
+      const unit = '%';
+      const ssid = interpretMetric('readiness_score', value, unit, buildCalcContext(inputs));
+      return { value, unit, interpretation: classificationDisplayLabel('readiness_score', ssid.classificationId), ssid };
     }
     default:
       return { value: 0, unit: '', interpretation: '' };

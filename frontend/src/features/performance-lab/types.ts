@@ -58,6 +58,15 @@ export interface TestCopyBundle {
   notes?: BilingualText;
 }
 
+/** Structured testing knowledge — Part 6 requirements. */
+export interface TestKnowledgeBundle {
+  whatMeasures: BilingualText;
+  whyImportant: BilingualText;
+  howPerformed: BilingualText;
+  whatAffects: BilingualText;
+  commonMistakes: BilingualText;
+}
+
 /** Registry entry — extend catalog rows only to scale to 300+ tests. */
 export interface TestDefinition {
   key: string;
@@ -71,6 +80,12 @@ export interface TestDefinition {
   objective: TestObjective;
   featured: boolean;
   isCustom?: boolean;
+  /** Days until suggested retest (category default if omitted). */
+  retestIntervalDays: number;
+  /** Structured knowledge surfaced in Testing Center UI. */
+  knowledge: TestKnowledgeBundle;
+  /** Optional SSID metric bridge for body-comp tests mapped to calculator metrics. */
+  ssidMetricId?: import('@/src/features/ssid-engine').SsidMetricId;
   /** Legacy i18n keys — optional when copy bundle is present. */
   nameKey?: string;
   descriptionKey?: string;

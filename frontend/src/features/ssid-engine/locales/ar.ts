@@ -1,5 +1,6 @@
 /** SSID Arabic locale overrides — deep-merged with English SSID content at i18n boot. */
 import { arMetrics } from './ar-metrics';
+import { testTemplatesAr } from './testTemplates.ar';
 
 export const ssidArOverrides = {
   confidenceLabel: 'مستوى الثقة',
@@ -64,4 +65,5 @@ export const ssidArOverrides = {
     maintain: 'حافظ على الخطة الحالية',
   },
   metrics: arMetrics,
+  testTemplates: testTemplatesAr,
 };
