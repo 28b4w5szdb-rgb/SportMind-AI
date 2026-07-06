@@ -29,6 +29,7 @@ import type {
 } from '../../repositories/contracts/CatalogRepository';
 import { getCatalogMemoryCache } from '../../cache/memoryCache';
 import { getCatalogSeedIndex } from '../../seed/catalogSeedIndex';
+import { createSeedDefinitionRepository } from '../shared/definitionRepositoryHelpers';
 
 function cacheKey(scope: string, id: string): string {
   return `mock:catalog:${scope}:${id}`;
@@ -72,30 +73,8 @@ function createCategoryRepository(seed = getCatalogSeedIndex()): CatalogAssessme
   };
 }
 
-function createDefinitionRepository(): CatalogAssessmentDefinitionRepository {
-  const emptyDefinitions: CatalogAssessmentDefinition[] = [];
-  const emptyProtocols: AssessmentProtocolVersion[] = [];
-
-  return {
-    async getById() {
-      return null;
-    },
-    async getByKey() {
-      return null;
-    },
-    async listByCategory() {
-      return emptyDefinitions;
-    },
-    async listActive() {
-      return emptyDefinitions;
-    },
-    async getProtocolVersion() {
-      return null;
-    },
-    async listProtocolVersions() {
-      return emptyProtocols;
-    },
-  };
+function createDefinitionRepository(seed = getCatalogSeedIndex()): CatalogAssessmentDefinitionRepository {
+  return createSeedDefinitionRepository(seed);
 }
 
 function createEvidenceTierRepository(seed = getCatalogSeedIndex()): CatalogEvidenceTierRepository {

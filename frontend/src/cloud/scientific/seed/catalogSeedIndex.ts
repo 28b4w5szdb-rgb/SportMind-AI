@@ -3,15 +3,22 @@
  */
 
 import type { CatalogAssessmentCategory } from '../models/catalog/AssessmentCategory';
+import type {
+  AssessmentProtocolVersion,
+  CatalogAssessmentDefinition,
+} from '../models/catalog/AssessmentDefinition';
 import type { CatalogEquipmentModel, CatalogEquipmentType } from '../models/catalog/EquipmentCatalog';
 import type { CatalogEvidenceTier } from '../models/catalog/EvidenceTier';
 import type { CatalogFormula, CatalogFormulaVersion } from '../models/catalog/FormulaRegistry';
 import type { CatalogQuestionnaireTemplate } from '../models/catalog/QuestionnaireTemplate';
 import type { CatalogSport } from '../models/catalog/Sport';
-import type { ScientificCategoryCode } from '../models/common';
-import type { EvidenceTier } from '../models/common';
+import type { EvidenceTier, ScientificCategoryCode } from '../models/common';
 
 import { SEED_ASSESSMENT_CATEGORIES } from './assessmentCategories.seed';
+import {
+  SEED_ASSESSMENT_DEFINITIONS,
+  SEED_ASSESSMENT_PROTOCOL_VERSIONS,
+} from './assessmentDefinitions.seed';
 import { SEED_EQUIPMENT_TYPES } from './equipmentTypes.seed';
 import { SEED_EVIDENCE_TIERS } from './evidenceTiers.seed';
 import { SEED_FORMULAS, SEED_FORMULA_VERSIONS } from './formulas.seed';
@@ -29,6 +36,8 @@ function indexByKey<T extends { key: string }>(items: T[]): Map<string, T> {
 export class CatalogSeedIndex {
   readonly sports = SEED_SPORTS;
   readonly assessmentCategories = SEED_ASSESSMENT_CATEGORIES;
+  readonly assessmentDefinitions = SEED_ASSESSMENT_DEFINITIONS;
+  readonly assessmentProtocolVersions = SEED_ASSESSMENT_PROTOCOL_VERSIONS;
   readonly evidenceTiers = SEED_EVIDENCE_TIERS;
   readonly equipmentTypes = SEED_EQUIPMENT_TYPES;
   readonly equipmentModels: CatalogEquipmentModel[] = [];
@@ -42,6 +51,9 @@ export class CatalogSeedIndex {
   private categoriesByCode = new Map(
     SEED_ASSESSMENT_CATEGORIES.map((c) => [c.code, c] as const)
   );
+  private definitionsById = indexById(SEED_ASSESSMENT_DEFINITIONS);
+  private definitionsByKey = indexByKey(SEED_ASSESSMENT_DEFINITIONS);
+  private protocolVersionsById = indexById(SEED_ASSESSMENT_PROTOCOL_VERSIONS);
   private tiersByTier = new Map(
     SEED_EVIDENCE_TIERS.map((t) => [t.tier, t] as const)
   );
@@ -74,6 +86,39 @@ export class CatalogSeedIndex {
 
   listActiveCategories(): CatalogAssessmentCategory[] {
     return this.assessmentCategories.filter((c) => c.active);
+  }
+
+  getDefinitionById(id: string): CatalogAssessmentDefinition | null {
+    return this.definitionsById.get(id) ?? null;
+  }
+
+  getDefinitionByKey(key: string): CatalogAssessmentDefinition | null {
+    return this.definitionsByKey.get(key) ?? null;
+  }
+
+  listActiveDefinitions(): CatalogAssessmentDefinition[] {
+    return this.assessmentDefinitions.filter((d) => d.active);
+  }
+
+  listDefinitionsByCategory(categoryCode: ScientificCategoryCode): CatalogAssessmentDefinition[] {
+    return this.listActiveDefinitions().filter((d) => d.category_code === categoryCode);
+  }
+
+  listDefinitionsByEvidenceTier(tier: EvidenceTier): CatalogAssessmentDefinition[] {
+    return this.listActiveDefinitions().filter((d) => d.evidence_tier === tier);
+  }
+
+  getProtocolVersion(
+    definitionId: string,
+    protocolVersionId: string
+  ): AssessmentProtocolVersion | null {
+    const version = this.protocolVersionsById.get(protocolVersionId);
+    if (!version || version.definition_id !== definitionId) return null;
+    return version;
+  }
+
+  listProtocolVersions(definitionId: string): AssessmentProtocolVersion[] {
+    return this.assessmentProtocolVersions.filter((v) => v.definition_id === definitionId);
   }
 
   getEvidenceTier(tier: EvidenceTier): CatalogEvidenceTier | null {

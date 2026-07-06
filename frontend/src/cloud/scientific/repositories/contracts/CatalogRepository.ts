@@ -3,7 +3,7 @@
  * Implementations deferred to future phases.
  */
 
-import type { ScientificCategoryCode } from '../../models/common';
+import type { EvidenceTier, ScientificCategoryCode } from '../../models/common';
 import type {
   CatalogAssessmentCategory,
   CatalogAssessmentDefinition,
@@ -31,11 +31,30 @@ export interface CatalogAssessmentCategoryRepository {
   listActive(): Promise<CatalogAssessmentCategory[]>;
 }
 
+export interface AssessmentDefinitionSearchOptions {
+  query?: string;
+  categoryCode?: ScientificCategoryCode;
+  evidenceTier?: EvidenceTier;
+  tags?: string[];
+  limit?: number;
+}
+
 export interface CatalogAssessmentDefinitionRepository {
   getById(definitionId: string): Promise<CatalogAssessmentDefinition | null>;
   getByKey(key: string): Promise<CatalogAssessmentDefinition | null>;
   listByCategory(categoryCode: ScientificCategoryCode): Promise<CatalogAssessmentDefinition[]>;
   listActive(): Promise<CatalogAssessmentDefinition[]>;
+  listAssessmentDefinitions(): Promise<CatalogAssessmentDefinition[]>;
+  getAssessmentDefinitionByKey(key: string): Promise<CatalogAssessmentDefinition | null>;
+  listAssessmentDefinitionsByCategory(
+    categoryCode: ScientificCategoryCode
+  ): Promise<CatalogAssessmentDefinition[]>;
+  listAssessmentDefinitionsByEvidenceTier(
+    tier: EvidenceTier
+  ): Promise<CatalogAssessmentDefinition[]>;
+  searchAssessmentDefinitions(
+    options?: AssessmentDefinitionSearchOptions
+  ): Promise<CatalogAssessmentDefinition[]>;
   getProtocolVersion(
     definitionId: string,
     protocolVersionId: string

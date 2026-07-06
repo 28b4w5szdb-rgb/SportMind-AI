@@ -18,6 +18,7 @@ import type {
   CatalogSport,
 } from '../../models/catalog';
 import type {
+  AssessmentDefinitionSearchOptions,
   CatalogAssessmentCategoryRepository,
   CatalogAssessmentDefinitionRepository,
   CatalogEquipmentCatalogRepository,
@@ -30,6 +31,10 @@ import type {
 } from '../../repositories/contracts/CatalogRepository';
 import { getCatalogMemoryCache } from '../../cache/memoryCache';
 import { getCatalogSeedIndex } from '../../seed/catalogSeedIndex';
+import {
+  mergeDefinitionLists,
+  mergeProtocolLists,
+} from '../shared/definitionRepositoryHelpers';
 import {
   FIRESTORE_CATALOG_COLLECTION_IDS,
 } from './collectionIds';
@@ -112,13 +117,48 @@ function createCategoryRepository(seed = getCatalogSeedIndex()): CatalogAssessme
   };
 }
 
-function createDefinitionRepository(): CatalogAssessmentDefinitionRepository {
+function filterDefinitions(
+  definitions: CatalogAssessmentDefinition[],
+  options: AssessmentDefinitionSearchOptions
+): CatalogAssessmentDefinition[] {
+  let results = definitions;
+
+  if (options.categoryCode) {
+    results = results.filter((d) => d.category_code === options.categoryCode);
+  }
+  if (options.evidenceTier) {
+    results = results.filter((d) => d.evidence_tier === options.evidenceTier);
+  }
+  if (options.tags?.length) {
+    results = results.filter((d) => options.tags!.every((tag) => d.tags.includes(tag)));
+  }
+  if (options.query?.trim()) {
+    const q = options.query.trim().toLowerCase();
+    results = results.filter(
+      (d) =>
+        d.key.includes(q) ||
+        d.subcategory.includes(q) ||
+        d.name.en.toLowerCase().includes(q) ||
+        d.name.ar.includes(q) ||
+        d.tags.some((tag) => tag.toLowerCase().includes(q))
+    );
+  }
+
+  results.sort((a, b) => a.name.en.localeCompare(b.name.en));
+  if (options.limit && options.limit > 0) {
+    return results.slice(0, options.limit);
+  }
+  return results;
+}
+
+function createDefinitionRepository(seed = getCatalogSeedIndex()): CatalogAssessmentDefinitionRepository {
   const collectionId = FIRESTORE_CATALOG_COLLECTION_IDS.assessmentDefinitions;
 
-  return {
+  const repo: CatalogAssessmentDefinitionRepository = {
     async getById(definitionId) {
       return cached('definition:id', definitionId, async () => {
-        return readDocument<CatalogAssessmentDefinition>(collectionId, definitionId);
+        const remote = await readDocument<CatalogAssessmentDefinition>(collectionId, definitionId);
+        return remote ?? seed.getDefinitionById(definitionId);
       });
     },
     async getByKey(key) {
@@ -126,21 +166,49 @@ function createDefinitionRepository(): CatalogAssessmentDefinitionRepository {
         const remote = await readCollection<CatalogAssessmentDefinition>(collectionId, [
           { field: 'key', op: '==', value: key },
         ]);
-        return remote[0] ?? null;
+        return remote[0] ?? seed.getDefinitionByKey(key);
       });
     },
-    async listByCategory(categoryCode: ScientificCategoryCode) {
+    async listByCategory(categoryCode) {
       return cached('definition:category', categoryCode, async () => {
-        return readCollection<CatalogAssessmentDefinition>(collectionId, [
+        const remote = await readCollection<CatalogAssessmentDefinition>(collectionId, [
           { field: 'category_code', op: '==', value: categoryCode },
           { field: 'active', op: '==', value: true },
         ]);
+        return mergeDefinitionLists(
+          remote,
+          seed.listDefinitionsByCategory(categoryCode)
+        );
       });
     },
     async listActive() {
       return cached('definition:list', 'active', () =>
-        loadActive(collectionId, () => [])
+        loadActive(collectionId, () => seed.listActiveDefinitions())
       );
+    },
+    async listAssessmentDefinitions() {
+      return this.listActive();
+    },
+    async getAssessmentDefinitionByKey(key) {
+      return this.getByKey(key);
+    },
+    async listAssessmentDefinitionsByCategory(categoryCode) {
+      return this.listByCategory(categoryCode);
+    },
+    async listAssessmentDefinitionsByEvidenceTier(tier) {
+      return cached('definition:tier', tier, async () => {
+        const remote = await readCollection<CatalogAssessmentDefinition>(collectionId, [
+          { field: 'evidence_tier', op: '==', value: tier },
+          { field: 'active', op: '==', value: true },
+        ]);
+        return mergeDefinitionLists(remote, seed.listDefinitionsByEvidenceTier(tier));
+      });
+    },
+    async searchAssessmentDefinitions(options = {}) {
+      return cached('definition:search', JSON.stringify(options), async () => {
+        const active = await repo.listActive();
+        return filterDefinitions(active, options);
+      });
     },
     async getProtocolVersion(definitionId, protocolVersionId) {
       return cached(`definition:${definitionId}:protocol`, protocolVersionId, async () => {
@@ -149,19 +217,23 @@ function createDefinitionRepository(): CatalogAssessmentDefinitionRepository {
           definitionId,
           'protocol_versions'
         );
-        return versions.find((v) => v.id === protocolVersionId) ?? null;
+        const match = versions.find((v) => v.id === protocolVersionId);
+        return match ?? seed.getProtocolVersion(definitionId, protocolVersionId);
       });
     },
     async listProtocolVersions(definitionId) {
       return cached('definition:protocols', definitionId, async () => {
-        return readSubcollection<AssessmentProtocolVersion>(
+        const remote = await readSubcollection<AssessmentProtocolVersion>(
           collectionId,
           definitionId,
           'protocol_versions'
         );
+        return mergeProtocolLists(remote, [], definitionId, seed);
       });
     },
   };
+
+  return repo;
 }
 
 function createEvidenceTierRepository(seed = getCatalogSeedIndex()): CatalogEvidenceTierRepository {
@@ -333,7 +405,7 @@ export function createCatalogFirestoreRepository(): ScientificCatalogRepository 
   return {
     sports: createSportRepository(seed),
     assessmentCategories: createCategoryRepository(seed),
-    assessmentDefinitions: createDefinitionRepository(),
+    assessmentDefinitions: createDefinitionRepository(seed),
     evidenceTiers: createEvidenceTierRepository(seed),
     formulas: createFormulaRepository(seed),
     equipment: createEquipmentRepository(seed),

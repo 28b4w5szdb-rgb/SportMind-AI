@@ -130,13 +130,41 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6C.3 — Assessment Definition Engine] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Assessment Definition Engine** — `AssessmentDefinitionEngine` with list/get/search/category/tier read API
+- **130 assessment definitions** — 71 mapped from Performance Lab registry + 59 scientific audit additions
+- **Extended catalog model** — purpose, audience, usability modes, inputs/outputs, protocol summary, evidence tier, tags, AI/report compatibility
+- **Seed pipeline** — `definitionBuilder`, Performance Lab mapper, `CatalogSeedIndex` definition lookups
+- **Repository methods** — `listAssessmentDefinitions`, `getAssessmentDefinitionByKey`, `listAssessmentDefinitionsByCategory`, `listAssessmentDefinitionsByEvidenceTier`, `searchAssessmentDefinitions`
+- **Validation** — assessment keys, schemas, source types, usability modes, protocol versions
+
+### Design principles documented
+
+- Scientific Inside, Simple Outside
+- Progressive Disclosure (beginner / professional / research modes)
+- Catalog First — no hardcoded scientific tests in cloud layer
+
+### Unchanged (by design)
+
+- No UI, dashboard, analytics, SSID, or AI Coach changes
+- No assessment sessions, result recording, passport, timeline, or normative engine
+- No Firestore writes or security rules deployment
+- Mock store + Performance Lab registry remain default runtime
+
+---
+
 ## Upcoming
 
-- **Phase 6C.3** — Assessment sessions entity + security rules
-- **Phase 6C.4** — Organization write paths + screen migration
+- **Phase 6C.4** — Assessment sessions entity + security rules
+- **Phase 6C.5** — Organization write paths + Performance Lab bridge
 - **Phase 6D** — Firebase Storage
 - **Phase 6E** — Cloud sync engine
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6C.2*
+*Last updated: Phase 6C.3*

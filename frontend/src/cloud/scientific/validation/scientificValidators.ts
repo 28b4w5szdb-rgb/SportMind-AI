@@ -5,12 +5,17 @@
 
 import type {
   BilingualText,
+  DataSourceType,
   EvidenceTier,
+  SchemaFieldDefinition,
   ScientificCategoryCode,
   ValidationResult,
   VersionMeta,
 } from '../models/common';
-import type { CatalogAssessmentDefinition } from '../models/catalog/AssessmentDefinition';
+import type {
+  AssessmentProtocolVersion,
+  CatalogAssessmentDefinition,
+} from '../models/catalog/AssessmentDefinition';
 import type { OrgAthlete } from '../models/organization/OrgAthlete';
 import type { OrgEquipment } from '../models/organization/Equipment';
 import type { ScientificOrganization } from '../models/organization/OrganizationRoot';
@@ -52,6 +57,53 @@ function ok(errors: string[]): ValidationResult {
   return { valid: errors.length === 0, errors };
 }
 
+const DATA_SOURCE_TYPES: DataSourceType[] = [
+  'manual',
+  'calculated',
+  'wearable',
+  'gps',
+  'force_plate',
+  'dexa',
+  'bia',
+  'blood',
+  'spirometry',
+  'csv',
+  'questionnaire',
+];
+
+const ASSESSMENT_KEY_PATTERN = /^[a-z][a-z0-9_]{1,63}$/;
+
+export function isDataSourceType(value: unknown): value is DataSourceType {
+  return typeof value === 'string' && DATA_SOURCE_TYPES.includes(value as DataSourceType);
+}
+
+export function isAssessmentKey(value: unknown): value is string {
+  return typeof value === 'string' && ASSESSMENT_KEY_PATTERN.test(value);
+}
+
+function validateSchemaFields(fields: unknown, fieldName: string, errors: string[]): string[] {
+  if (!Array.isArray(fields)) return [...errors, `${fieldName} must be an array`];
+  for (const field of fields as SchemaFieldDefinition[]) {
+    if (!field.key?.trim()) errors.push(`${fieldName} field key is required`);
+    if (!field.type) errors.push(`${fieldName} field type is required`);
+    validateBilingualText(field.label, `${fieldName}.${field.key}.label`, errors);
+  }
+  return errors;
+}
+
+function validateUsabilityModes(
+  value: CatalogAssessmentDefinition['usability_modes'] | undefined,
+  errors: string[]
+): string[] {
+  if (!value || typeof value !== 'object') return [...errors, 'usability_modes is required'];
+  for (const mode of ['beginner', 'professional', 'research'] as const) {
+    if (!Array.isArray(value[mode]) || value[mode].length === 0) {
+      errors.push(`usability_modes.${mode} must be a non-empty array`);
+    }
+  }
+  return errors;
+}
+
 export function isEvidenceTier(value: unknown): value is EvidenceTier {
   return typeof value === 'string' && EVIDENCE_TIERS.includes(value as EvidenceTier);
 }
@@ -88,7 +140,9 @@ export function validateCatalogAssessmentDefinition(
   const errors: string[] = [];
 
   if (!input.key?.trim()) errors.push('key is required');
+  else if (!isAssessmentKey(input.key)) errors.push('invalid assessment key format');
   if (!isScientificCategoryCode(input.category_code)) errors.push('invalid category_code');
+  if (!input.subcategory?.trim()) errors.push('subcategory is required');
   if (!isEvidenceTier(input.evidence_tier)) errors.push('invalid evidence_tier');
   if (!input.unit?.trim()) errors.push('unit is required');
   if (!input.current_protocol_version_id?.trim()) {
@@ -96,13 +150,61 @@ export function validateCatalogAssessmentDefinition(
   }
   if (!Array.isArray(input.raw_measurement_schema)) {
     errors.push('raw_measurement_schema must be an array');
+  } else {
+    validateSchemaFields(input.raw_measurement_schema, 'raw_measurement_schema', errors);
+  }
+  if (!Array.isArray(input.required_inputs)) {
+    errors.push('required_inputs must be an array');
+  } else {
+    validateSchemaFields(input.required_inputs, 'required_inputs', errors);
+  }
+  if (input.optional_inputs) {
+    validateSchemaFields(input.optional_inputs, 'optional_inputs', errors);
+  }
+  if (!Array.isArray(input.calculated_outputs) || input.calculated_outputs.length === 0) {
+    errors.push('calculated_outputs must be a non-empty array');
+  }
+  if (!Array.isArray(input.allowed_source_types) || input.allowed_source_types.length === 0) {
+    errors.push('allowed_source_types must be a non-empty array');
+  } else if (!input.allowed_source_types.every(isDataSourceType)) {
+    errors.push('invalid allowed_source_types value');
   }
   if (typeof input.retest_interval_days !== 'number' || input.retest_interval_days < 1) {
     errors.push('retest_interval_days must be >= 1');
   }
+  if (typeof input.ai_compatible !== 'boolean') errors.push('ai_compatible is required');
+  if (typeof input.report_compatible !== 'boolean') errors.push('report_compatible is required');
+  if (!Array.isArray(input.tags) || input.tags.length === 0) errors.push('tags must be a non-empty array');
 
   validateBilingualText(input.name, 'name', errors);
   validateBilingualText(input.description, 'description', errors);
+  validateBilingualText(input.purpose, 'purpose', errors);
+  validateBilingualText(input.audience, 'audience', errors);
+  validateBilingualText(input.protocol_summary, 'protocol_summary', errors);
+  validateBilingualText(input.reliability_notes, 'reliability_notes', errors);
+  validateBilingualText(input.validity_notes, 'validity_notes', errors);
+  validateBilingualText(input.contraindications, 'contraindications', errors);
+  validateBilingualText(input.common_mistakes, 'common_mistakes', errors);
+  validateBilingualText(input.interpretation_scope, 'interpretation_scope', errors);
+  validateUsabilityModes(input.usability_modes, errors);
+
+  const versionCheck = validateVersionMeta(input);
+  errors.push(...versionCheck.errors);
+
+  return ok(errors);
+}
+
+export function validateAssessmentProtocolVersion(
+  input: Partial<AssessmentProtocolVersion>
+): ValidationResult {
+  const errors: string[] = [];
+
+  if (!input.definition_id?.trim()) errors.push('definition_id is required');
+  validateBilingualText(input.protocol_text, 'protocol_text', errors);
+  validateBilingualText(input.equipment_requirements, 'equipment_requirements', errors);
+  if (!input.reliability || typeof input.reliability !== 'object') {
+    errors.push('reliability is required');
+  }
 
   const versionCheck = validateVersionMeta(input);
   errors.push(...versionCheck.errors);

@@ -7,8 +7,8 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.2 — Firestore Catalog Seed & Repository Adapters (complete) |
-| **Next phase** | Phase 6C.3 — Assessment Sessions + Security Rules |
+| **Current phase** | Phase 6C.3 — Assessment Definition Engine (complete) |
+| **Next phase** | Phase 6C.4 — Assessment Sessions + Security Rules |
 
 ---
 
@@ -25,6 +25,7 @@
 | **6C.0.1–6C.0.3** | Scientific audit + data model + elite extensions (design) | ✅ Approved |
 | **6C.1** | Scientific Firestore core foundation (types, paths, contracts) | ✅ Complete |
 | **6C.2** | Catalog seed data + read-only Firestore/mock repository adapters | ✅ Complete |
+| **6C.3** | Assessment Definition Engine — 130 catalog definitions + search API | ✅ Complete |
 
 ---
 
@@ -51,10 +52,26 @@ frontend/src/cloud/
 ├── firebase/       # Lazy-init app, auth, firestore, storage
 ├── auth/           # Firebase + Supabase unified AuthProvider
 ├── firestore/      # Phase 6A entity models + repository interfaces
-├── scientific/     # Phase 6C.1–6C.2 — catalog seed, adapters, org reads
+├── scientific/     # Phase 6C.1–6C.3 — catalog seed, definition engine, adapters
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6C.3 — Assessment Definition Engine
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Scientific Inside, Simple Outside** | Rich catalog documents; UI unchanged — Performance Lab still uses local registry |
+| **Progressive Disclosure** | `beginner` / `professional` / `research` usability mode field groups on every definition |
+| **Catalog First** | 130 assessment definitions seeded; no hardcoded tests in new cloud paths |
+| **Three-Click Rule** | Repository search + category/tier filters ready for future UI wiring |
+
+| Area | Contents |
+|------|----------|
+| **Definitions** | 71 Performance Lab mappings + 59 scientific audit additions = **130** active definitions |
+| **Engine** | `AssessmentDefinitionEngine` with list/get/search/category/tier methods |
+| **Validation** | Keys, category, evidence tier, input/output schema, source types, protocol versions |
+| **Repository** | Seed-backed mock + Firestore fallback for all definition read paths |
 
 #### Phase 6C.2 — `scientific/` catalog layer (read-only)
 
@@ -92,6 +109,7 @@ frontend/src/cloud/
 
 | Commit | Phase | Description |
 |--------|-------|-------------|
+| *(pending)* | 6C.3 | Assessment Definition Engine — 130 definitions |
 | `326b629` | 6C.2 | Catalog seed + read-only Firestore/mock adapters |
 | `e81b8c2` | 6C.1 | Scientific Firestore core foundation |
 | `8ee0f4b` | UX | Calculator Hub entry from More screen |
@@ -101,12 +119,12 @@ frontend/src/cloud/
 
 ---
 
-## Next Planned Phase: 6C.3
+## Next Planned Phase: 6C.4
 
 - Assessment session entity models
-- Firestore write paths (org + sessions)
+- Firestore write paths (sessions + org)
 - Security rules deployment from `scientific/security/collectionPolicy.ts`
-- Optional catalog seed upload tooling
+- Optional catalog upload tooling + Performance Lab bridge
 
 See [ROADMAP.md](./ROADMAP.md).
 
@@ -118,7 +136,7 @@ See [ROADMAP.md](./ROADMAP.md).
 2. **Scientific catalog reads use seed data in mock mode.** Firestore adapters fall back to seed when collections are empty.
 3. **`USE_CLOUD_DATA=false` by default.** Safe for v0.9-alpha demos.
 4. **Do not commit secrets.** Use `frontend/.env.example`.
-5. **SSID, analytics, AI Coach, dashboard unchanged** through Phase 6C.2.
+5. **SSID, analytics, AI Coach, dashboard unchanged** through Phase 6C.3.
 
 ---
 
@@ -131,4 +149,4 @@ See [ROADMAP.md](./ROADMAP.md).
 | Brand guide | [frontend/BRAND_GUIDE.md](./frontend/BRAND_GUIDE.md) |
 | Env template | [frontend/.env.example](./frontend/.env.example) |
 
-*Last updated: Phase 6C.2*
+*Last updated: Phase 6C.3*

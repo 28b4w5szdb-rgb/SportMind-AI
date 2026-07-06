@@ -21,3 +21,4 @@ export * from './repositories';
 export * from './seed';
 export * from './cache';
 export * from './adapters';
+export * from './engine';

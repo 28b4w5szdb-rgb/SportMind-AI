@@ -8,6 +8,9 @@ export type {
   CatalogAssessmentDefinitionInput,
   AssessmentProtocolVersion,
   AssessmentProtocolVersionInput,
+  AssessmentUsabilityModes,
+  CalculatedOutputDefinition,
+  AssessmentDefinitionEngineDocument,
 } from './AssessmentDefinition';
 export type {
   CatalogEvidenceTier,
