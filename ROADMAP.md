@@ -82,8 +82,11 @@
 | **6C.5** | Universal Assessment Session Engine — Raw → Derived → Interpretation pipeline | ✅ Complete |
 | **6C.6** | Scientific Calculation Engine — 14 versioned formulas, sole calculation layer | ✅ Complete |
 | **6C.6.1** | Scientific Calculation Audit — validation hardening, HR zones v1.1, test suite | ✅ Complete |
-| **6C.7** | Firestore session persistence + security rules deployment | 🔜 Next |
-| **6C.8** | Organization write paths + Performance Lab bridge | Planned |
+| **6C.7** | SSID Scientific Sports Intelligence Engine — rule-based bilingual interpretation | ✅ Complete |
+| **6C.8** | Firestore session persistence + security rules deployment | 🔜 Next |
+| **6C.9** | Organization write paths + Performance Lab bridge | Planned |
+
+**6C.7 exit criteria (met):** SSID engine with five interpretation layers, 36 rules covering 130 definitions, bilingual output, session pipeline integration — no UI/Firestore/AI changes.
 
 **6C.6.1 exit criteria (met):** All 14 formulas audited, HR zones Zone 1–5 (%HRmax + Karvonen), strengthened validation, calculation metadata, 24 passing tests — no UI/SSID/Firestore changes.
 

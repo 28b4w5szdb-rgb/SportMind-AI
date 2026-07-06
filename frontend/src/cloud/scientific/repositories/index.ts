@@ -4,5 +4,6 @@ export {
   resetScientificRepositoryRegistry,
   createAssessmentSessionEngineFromRegistry,
   createScientificCalculationEngineFromRegistry,
+  createSsidInterpretationEngineFromRegistry,
 } from './registry';
 export type { ScientificRepositoryRegistry } from './registry';

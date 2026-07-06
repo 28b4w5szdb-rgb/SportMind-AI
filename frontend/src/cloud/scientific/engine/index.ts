@@ -38,3 +38,11 @@ export {
 export { executeFormula, FORMULA_EXECUTORS } from './formulaExecutors';
 export type { FormulaExecutionResult, FormulaExecutor } from './formulaExecutors';
 export { calculateHeartRateZones, estimateMaxHeartRate } from './hrZoneCalculator';
+
+export {
+  SsidInterpretationEngine,
+  createSsidInterpretationEngine,
+  SUPPORTED_SSID_RULE_COUNT,
+  supportedDefinitionCount,
+  listUniqueSsidRuleIds,
+} from './ssidInterpretationEngine';

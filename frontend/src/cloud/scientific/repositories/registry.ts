@@ -10,6 +10,7 @@ import { createAssessmentSessionMockRepository } from '../adapters/mock/assessme
 import { canAccessScientificFirestore } from '../config';
 import { createAssessmentSessionEngine } from '../engine/assessmentSessionEngine';
 import { createScientificCalculationEngine } from '../engine/scientificCalculationEngine';
+import { createSsidInterpretationEngine } from '../engine/ssidInterpretationEngine';
 import type {
   AssessmentSessionRepository,
   ScientificCatalogRepository,
@@ -47,13 +48,15 @@ export function resetScientificRepositoryRegistry(): void {
 }
 
 /** Factory for the Universal Assessment Session Engine from registry dependencies. */
-export function createAssessmentSessionEngineFromRegistry() {
+export function createAssessmentSessionEngineFromRegistry(options?: { includeSsid?: boolean }) {
   const registry = getScientificRepositoryRegistry();
   const calculation = createScientificCalculationEngine(registry.catalog);
+  const ssid = options?.includeSsid ? createSsidInterpretationEngine(registry.catalog) : undefined;
   return createAssessmentSessionEngine({
     catalog: registry.catalog,
     sessions: registry.sessions,
     calculation,
+    ssid,
   });
 }
 
@@ -61,4 +64,10 @@ export function createAssessmentSessionEngineFromRegistry() {
 export function createScientificCalculationEngineFromRegistry() {
   const registry = getScientificRepositoryRegistry();
   return createScientificCalculationEngine(registry.catalog);
+}
+
+/** Factory for the SSID Interpretation Engine from registry dependencies. */
+export function createSsidInterpretationEngineFromRegistry() {
+  const registry = getScientificRepositoryRegistry();
+  return createSsidInterpretationEngine(registry.catalog);
 }

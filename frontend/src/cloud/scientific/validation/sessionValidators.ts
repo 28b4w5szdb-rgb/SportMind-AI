@@ -10,6 +10,7 @@ import type {
 } from '../models/session';
 import type { ValidationResult } from '../models/common';
 import { isDataSourceType, isEvidenceTier } from './scientificValidators';
+import { validateSessionInterpretationState } from './interpretationValidators';
 
 function ok(errors: string[]): ValidationResult {
   return { valid: errors.length === 0, errors };
@@ -61,9 +62,9 @@ export function validateAssessmentSessionMetadata(input: Partial<AssessmentSessi
   }
   if (!input.interpretation || typeof input.interpretation !== 'object') {
     errors.push('interpretation is required');
-  }
-  if (input.interpretation?.generated) {
-    errors.push('interpretation must not be generated in Phase 6C.5');
+  } else {
+    const interpretationResult = validateSessionInterpretationState(input.interpretation);
+    errors.push(...interpretationResult.errors);
   }
   if (!Array.isArray(input.raw_measurements)) errors.push('raw_measurements must be an array');
   if (!Array.isArray(input.calculated_metrics)) errors.push('calculated_metrics must be an array');

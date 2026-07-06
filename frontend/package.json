@@ -10,7 +10,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test:scientific": "tsx --test src/cloud/scientific/engine/__tests__/scientificCalculation.test.ts"
+    "test:scientific": "tsx --test src/cloud/scientific/engine/__tests__/scientificCalculation.test.ts",
+    "test:ssid": "tsx --test src/cloud/scientific/engine/__tests__/ssidInterpretation.test.ts"
   },
   "dependencies": {
     "@expo/metro-runtime": "6.1.2",

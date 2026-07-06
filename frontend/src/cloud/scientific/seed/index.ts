@@ -39,3 +39,12 @@ export {
   getFormulaDefinitionByKey,
   listActiveFormulaDefinitions,
 } from './calculationFormulaRegistry';
+export {
+  SUPPORTED_SSID_RULE_COUNT,
+  SSID_BAND_RULE_COUNT,
+  SSID_CATEGORY_RULE_COUNT,
+  SSID_METRIC_RULE_COUNT,
+  resolveSsidRule,
+  listSupportedSsidRules,
+  supportedDefinitionCount,
+} from './ssid/ssidRuleRegistry';

@@ -7,8 +7,8 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.6.1 — Scientific Calculation Audit & Validation (complete) |
-| **Next phase** | Phase 6C.7 — Firestore Session Persistence + Security Rules |
+| **Current phase** | Phase 6C.7 — SSID Scientific Sports Intelligence Engine (complete) |
+| **Next phase** | Phase 6C.8 — Firestore Session Persistence + Security Rules |
 
 ---
 
@@ -30,6 +30,7 @@
 | **6C.5** | Universal Assessment Session Engine — Raw → Derived → Interpretation pipeline | ✅ Complete |
 | **6C.6** | Scientific Calculation Engine — 14 versioned formulas, sole calculation layer | ✅ Complete |
 | **6C.6.1** | Scientific Calculation Audit — validation hardening, HR zones v1.1, 24 tests | ✅ Complete |
+| **6C.7** | SSID Scientific Sports Intelligence Engine — rule-based bilingual interpretation | ✅ Complete |
 
 ---
 
@@ -56,10 +57,26 @@ frontend/src/cloud/
 ├── firebase/       # Lazy-init app, auth, firestore, storage
 ├── auth/           # Firebase + Supabase unified AuthProvider
 ├── firestore/      # Phase 6A entity models + repository interfaces
-├── scientific/     # Phase 6C.1–6C.6 — catalog, engines, session + calculation pipeline
+├── scientific/     # Phase 6C.1–6C.7 — catalog, engines, session + calculation + SSID pipeline
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6C.7 — SSID Scientific Sports Intelligence Engine
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Scientific Inside, Simple Outside** | Five deterministic interpretation layers — no AI text generation |
+| **Pipeline** | Session → Calculation → Normative → SSID → Standardized Interpretation |
+| **Rule-based** | 36 SSID rules (7 band + 18 category + 11 metric) covering 130 definitions |
+| **Bilingual** | English + Arabic for all five layers |
+
+| Area | Contents |
+|------|----------|
+| **Layers** | Classification, Scientific Meaning, Performance Meaning, Risk Analysis, Action Recommendation |
+| **Engine API** | `generateInterpretation`, `interpret`, `resolveRule`, `listSupportedRules` |
+| **Integration** | `AssessmentSessionEngine.generateScientificInterpretation()` when SSID engine injected |
+| **Metadata** | formulaVersion, referenceVersion, ruleVersion, confidence, generatedAt |
 
 #### Phase 6C.6.1 — Scientific Calculation Audit & Validation
 
@@ -176,7 +193,8 @@ frontend/src/cloud/
 
 | Commit | Phase | Description |
 |--------|-------|-------------|
-| *(pending)* | 6C.6.1 | Scientific Calculation Audit — HR zones, validation, 24 tests |
+| *(pending)* | 6C.7 | SSID Scientific Sports Intelligence Engine — 36 rules, 130 definitions |
+| `a91f98f` | 6C.6.1 | Scientific Calculation Audit — HR zones, validation, 24 tests |
 | `4b9c54f` | 6C.6 | Scientific Calculation Engine — 14 versioned formulas |
 | `96a1133` | 6C.5 | Universal Assessment Session Engine |
 | `2a73393` | 6C.4 | Normative Reference Engine — 34 placeholder profiles |
@@ -188,7 +206,7 @@ frontend/src/cloud/
 
 ---
 
-## Next Planned Phase: 6C.7
+## Next Planned Phase: 6C.8
 
 - Firestore assessment session persistence
 - Security rules deployment from `scientific/security/collectionPolicy.ts`
@@ -204,10 +222,11 @@ See [ROADMAP.md](./ROADMAP.md).
 2. **Scientific catalog reads use seed data in mock mode.** Firestore adapters fall back to seed when collections are empty.
 3. **`USE_CLOUD_DATA=false` by default.** Safe for v0.9-alpha demos.
 4. **Do not commit secrets.** Use `frontend/.env.example`.
-5. **SSID, analytics, AI Coach, dashboard unchanged** through Phase 6C.6.1.
+5. **UI, dashboard, analytics, AI Coach unchanged** through Phase 6C.7 — cloud SSID is engine-only.
 6. **Sessions are in-memory only** — append-only mock store until Firestore persistence phase.
 7. **All derived metrics must flow through `ScientificCalculationEngine`** — no duplicated equations in session or UI paths.
-8. **Scientific Calculation Audit complete** — run `npm run test:scientific` before SSID integration.
+8. **SSID interpretation is rule-based and deterministic** — use `createSsidInterpretationEngineFromRegistry()` in cloud pipeline.
+9. **Scientific Calculation Audit complete** — run `npm run test:scientific` before integration work.
 
 ---
 
@@ -220,4 +239,4 @@ See [ROADMAP.md](./ROADMAP.md).
 | Brand guide | [frontend/BRAND_GUIDE.md](./frontend/BRAND_GUIDE.md) |
 | Env template | [frontend/.env.example](./frontend/.env.example) |
 
-*Last updated: Phase 6C.6.1*
+*Last updated: Phase 6C.7*

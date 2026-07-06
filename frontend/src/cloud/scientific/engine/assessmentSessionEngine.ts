@@ -35,6 +35,11 @@ import {
   createScientificCalculationEngine,
   type ScientificCalculationEngine,
 } from './scientificCalculationEngine';
+import {
+  createSsidInterpretationEngine,
+  type SsidInterpretationEngine,
+} from './ssidInterpretationEngine';
+import { SSID_RULE_VERSION } from '../models/interpretation/ScientificInterpretation';
 import type { CalculationInputValue } from '../models/calculation/ScientificCalculation';
 import { getFormulaDefinitionByKey } from '../seed/calculationFormulaRegistry';
 
@@ -44,6 +49,7 @@ export interface AssessmentSessionEngineDependencies {
   sessions: AssessmentSessionRepository;
   normative?: NormativeReferenceEngine;
   calculation?: ScientificCalculationEngine;
+  ssid?: SsidInterpretationEngine;
 }
 
 export interface CompareSessionParams extends NormativeLookupParams {
@@ -132,11 +138,13 @@ function selectPrimaryMeasurement(
 export class AssessmentSessionEngine {
   private readonly normative: NormativeReferenceEngine;
   private readonly calculation: ScientificCalculationEngine;
+  private readonly ssid?: SsidInterpretationEngine;
 
   constructor(private readonly deps: AssessmentSessionEngineDependencies) {
     this.normative = deps.normative ?? createNormativeReferenceEngine(deps.catalog);
     this.calculation =
       deps.calculation ?? createScientificCalculationEngine(deps.catalog);
+    this.ssid = deps.ssid;
   }
 
   async createAssessmentSession(input: CreateAssessmentSessionInput): Promise<AssessmentSession> {
@@ -220,7 +228,40 @@ export class AssessmentSessionEngine {
     compared.status = withDerived.raw_measurements.length > 0 ? 'validated' : 'draft';
     compared.updated_at = new Date().toISOString();
 
-    return appendAssessmentSession(compared);
+    const withInterpretation = this.ssid
+      ? await this.generateScientificInterpretation(compared, definition)
+      : compared;
+
+    return appendAssessmentSession(withInterpretation);
+  }
+
+  async generateScientificInterpretation(
+    session: AssessmentSession,
+    definition?: CatalogAssessmentDefinition | null
+  ): Promise<AssessmentSession> {
+    if (!this.ssid) return session;
+
+    const resolvedDefinition =
+      definition ??
+      (await this.deps.catalog.assessmentDefinitions.getAssessmentDefinitionByKey(
+        session.assessment_definition_key
+      ));
+    if (!resolvedDefinition) return session;
+
+    const payload = await this.ssid.generateInterpretation(session, resolvedDefinition);
+    if (!payload) return session;
+
+    return {
+      ...session,
+      interpretation: {
+        status: 'ready',
+        interpretation_version: SSID_RULE_VERSION,
+        generated: true,
+        reviewed: false,
+        payload,
+      },
+      updated_at: new Date().toISOString(),
+    };
   }
 
   async validateAssessmentSession(

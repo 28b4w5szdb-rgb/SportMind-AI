@@ -13,5 +13,6 @@ export type {
   RawMeasurementInput,
   RawMeasurementQualityFlag,
   SessionInterpretationPlaceholder,
+  SessionInterpretationState,
   SessionNormativeContext,
 } from './AssessmentSession';

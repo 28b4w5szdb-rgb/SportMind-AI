@@ -10,6 +10,7 @@ import type {
   EvidenceTier,
 } from '../common';
 import type { NormativeSourceQuality } from '../catalog/NormativeReference';
+import type { ScientificInterpretation } from '../interpretation/ScientificInterpretation';
 
 export type AssessmentSessionStatus = 'draft' | 'validated' | 'completed' | 'archived';
 
@@ -55,12 +56,16 @@ export interface NormativeComparisonSnapshot {
   recommendation?: string | null;
 }
 
-export interface SessionInterpretationPlaceholder {
+export interface SessionInterpretationState {
   status: 'pending' | 'ready' | 'reviewed';
   interpretation_version?: string | null;
   generated: boolean;
   reviewed: boolean;
+  payload?: ScientificInterpretation | null;
 }
+
+/** @deprecated alias — use SessionInterpretationState */
+export type SessionInterpretationPlaceholder = SessionInterpretationState;
 
 export interface ProtocolSnapshot {
   protocol_version: string;
@@ -88,7 +93,7 @@ export interface AssessmentSession extends CloudDocumentMeta {
   raw_measurements: RawMeasurement[];
   calculated_metrics: CalculatedMetric[];
   normative_comparison: NormativeComparisonSnapshot;
-  interpretation: SessionInterpretationPlaceholder;
+  interpretation: SessionInterpretationState;
   protocol_snapshot: ProtocolSnapshot;
 }
 
