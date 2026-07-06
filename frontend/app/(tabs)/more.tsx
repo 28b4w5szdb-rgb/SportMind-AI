@@ -27,6 +27,13 @@ import { useAuth } from '@/src/providers/AuthProvider';
 import { AUTH_ROUTES } from '@/src/core/constants/routes';
 import { LOGOUT } from '@/constants/testIds/auth';
 
+const quickAccessItems = [
+  { id: 'settings', icon: 'settings' as const, color: '#64748B', route: '/settings', en: 'Settings', ar: 'الإعدادات' },
+  { id: 'knowledge', icon: 'library' as const, color: '#0EA5E9', route: '/knowledge', en: 'Knowledge', ar: 'الدليل' },
+  { id: 'reports', icon: 'document-text' as const, color: '#10B981', route: '/reports', en: 'Reports', ar: 'التقارير' },
+  { id: 'teams', icon: 'people-circle' as const, color: '#0066FF', route: '/team-management', en: 'Teams', ar: 'الفرق' },
+];
+
 const mainMenuItems = [
   { id: '1', key: 'more.teamManagement', icon: 'people-circle' as const, color: '#0066FF', route: '/team-management' },
   { id: '2', key: 'more.reports', icon: 'document-text' as const, color: '#10B981', route: '/reports' },
@@ -238,6 +245,67 @@ export default function MoreScreen() {
           </Card>
         </View>
 
+        {/* Quick Access Icons */}
+        <View
+          style={{
+            marginTop: theme.spacing[5],
+            maxWidth: isDesktop ? 1400 : undefined,
+            marginHorizontal: isDesktop ? 'auto' : undefined,
+            width: '100%',
+          }}
+        >
+          <View style={[styles.quickAccessRow, { flexDirection: flexRow(true), gap: theme.spacing[2] }]}>
+            {quickAccessItems.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                onPress={() => router.push(item.route as never)}
+                activeOpacity={0.85}
+                style={styles.quickAccessItem}
+              >
+                <Card
+                  variant="elevated"
+                  padding="none"
+                  style={{ borderRadius: theme.borderRadius.xl, overflow: 'hidden' }}
+                >
+                  <LinearGradient
+                    colors={[item.color + '18', item.color + '08']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.quickAccessInner}
+                  >
+                    <View
+                      style={[
+                        styles.quickAccessIcon,
+                        { backgroundColor: item.color + '20', borderRadius: theme.borderRadius.lg },
+                      ]}
+                    >
+                      <Ionicons name={item.icon} size={22} color={item.color} />
+                    </View>
+                    <Text
+                      style={[
+                        type.caption,
+                        {
+                          color: theme.colors.text,
+                          marginTop: theme.spacing[2],
+                          textAlign: 'center',
+                          fontWeight: '600',
+                          lineHeight: isRTL ? 18 : 16,
+                          writingDirection: isRTL ? 'rtl' : 'ltr',
+                        },
+                      ]}
+                      numberOfLines={2}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.85}
+                    >
+                      {isRTL ? item.ar : item.en}
+                    </Text>
+                  </LinearGradient>
+                </Card>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
         {/* Main Menu Items */}
         <View
           style={{
@@ -267,7 +335,10 @@ export default function MoreScreen() {
                   key={item.id}
                   onPress={() => router.push(item.route as never)}
                   activeOpacity={0.85}
-                  style={{ flex: 1, maxWidth: gridConfig.cardWidth }}
+                  style={{
+                    width: isDesktop ? gridConfig.cardWidth : '100%',
+                    maxWidth: gridConfig.cardWidth,
+                  }}
                 >
                   <Card
                     variant="elevated"
@@ -540,6 +611,26 @@ const styles = StyleSheet.create({
   },
   menuGrid: {
     flexWrap: 'wrap',
+  },
+  quickAccessRow: {
+    width: '100%',
+  },
+  quickAccessItem: {
+    flex: 1,
+    minWidth: 0,
+  },
+  quickAccessInner: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 6,
+    minHeight: 96,
+  },
+  quickAccessIcon: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   menuContent: {},
   menuIcon: {

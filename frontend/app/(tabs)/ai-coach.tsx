@@ -142,8 +142,10 @@ export default function AICoachScreen() {
   const [showSidebar, setShowSidebar] = useState(false);
 
   const isDesktop = windowWidth >= 1024;
+  const isTablet = windowWidth >= 768;
   const hasMessages = messages.length > 0 || isTyping;
   const canSend = input.trim().length > 0 && !isTyping;
+  const listBottomPadding = isDesktop ? theme.spacing[6] : isTablet ? theme.spacing[16] : 132;
 
   const scrollToEnd = useCallback(() => {
     setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 100);
@@ -314,7 +316,12 @@ export default function AICoachScreen() {
             )
           }
           ListFooterComponent={isTyping ? <TypingIndicator /> : null}
-          contentContainerStyle={{ paddingVertical: theme.spacing[4], paddingHorizontal: theme.spacing[1] }}
+          contentContainerStyle={{
+            paddingTop: theme.spacing[4],
+            paddingBottom: listBottomPadding,
+            paddingHorizontal: isDesktop ? theme.spacing[2] : theme.spacing[1],
+            flexGrow: 1,
+          }}
           onContentSizeChange={scrollToEnd}
         />
       ) : (
