@@ -66,6 +66,27 @@ function mergeMetricParts(...parts: ReturnType<typeof band>[]) {
 
 export const ssidEn = {
   confidenceLabel: 'Confidence (placeholder)',
+  ui: {
+    sectionTitle: 'Sports Science Interpretation',
+    sectionSubtitle: 'Evidence-based interpretation and coaching decisions',
+    scientificMeaning: 'Scientific meaning',
+    physiologicalInterpretation: 'Physiological interpretation',
+    performanceImpact: 'Performance impact',
+    riskAnalysis: 'Risk analysis',
+    referenceComparison: 'Reference comparison',
+    coachingDecision: 'Coaching decision',
+    aiRecommendation: 'AI recommendation',
+    recommendations: 'Recommendations',
+    immediate: 'Immediate',
+    weekly: 'Weekly',
+    longTerm: 'Long-term',
+    scientificReference: 'Scientific reference',
+    overallScore: 'Overall athlete score',
+    fatigue: 'Fatigue status',
+    injuryRisk: 'Injury risk profile',
+    trainingLoad: 'Training load',
+    recoveryReadiness: 'Recovery readiness',
+  },
   references: {
     placeholder: 'Scientific reference placeholder — curated evidence library pending.',
   },

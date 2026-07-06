@@ -117,7 +117,16 @@ export function computeCalculator(
     case 'recovery-time': {
       const hours = Math.max(12, (inputs.load ?? 300) / 20 - (inputs.sleep ?? 7) * 2);
       const value = Math.round(hours);
-      return { value, unit: 'hr', interpretation: 'Suggested recovery before next hard session' };
+      const recoveryScore = Math.max(0, Math.min(100, 100 - (value - 12) * 1.5));
+      const ssid = interpretMetric('recovery_score', recoveryScore, '%', {
+        extras: { recoveryHours: value, ...inputs },
+      });
+      return {
+        value,
+        unit: 'hr',
+        interpretation: classificationDisplayLabel('recovery_score', ssid.classificationId),
+        ssid,
+      };
     }
     default:
       return { value: 0, unit: '', interpretation: '' };

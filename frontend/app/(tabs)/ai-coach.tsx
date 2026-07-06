@@ -149,7 +149,7 @@ export default function AICoachScreen() {
       scrollToEnd();
 
       setTimeout(() => {
-        const reply = generateMockResponse(selectedAgent, trimmed, isRTL, analyticsContext);
+        const reply = generateMockResponse(selectedAgent, trimmed, isRTL, analyticsContext, (key) => t(key));
         appendActiveMessage(createMessage('assistant', reply, selectedAgent));
         setIsTyping(false);
         scrollToEnd();
@@ -180,7 +180,7 @@ export default function AICoachScreen() {
     setActiveMessages(messages.slice(0, lastAssistantIdx));
     setIsTyping(true);
     setTimeout(() => {
-      const reply = generateMockResponse(selectedAgent, lastUser.content, isRTL, analyticsContext);
+      const reply = generateMockResponse(selectedAgent, lastUser.content, isRTL, analyticsContext, (key) => t(key));
       appendActiveMessage(createMessage('assistant', reply, selectedAgent));
       setIsTyping(false);
       scrollToEnd();

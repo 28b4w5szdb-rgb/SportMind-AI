@@ -8,6 +8,7 @@ import { useMockStore } from '@/src/data/mock/store';
 import { useSportsMedicineSnapshot, attentionRegions, regionsWithHistory } from '@/src/features/sports-medicine';
 import { useTrainingBuilderSnapshot, WorkspaceTrainingSection } from '@/src/features/training-builder';
 import { useNutritionSnapshot, WorkspaceNutritionSection } from '@/src/features/nutrition';
+import { buildWorkspaceSsidEntries, SsidBundleSection } from '@/src/features/ssid-engine';
 import { useAthleteWorkspace } from '../hooks/useAthleteWorkspace';
 import { AthleteHeroCard } from './AthleteHeroCard';
 import { WorkspaceQuickActions } from './WorkspaceQuickActions';
@@ -37,6 +38,11 @@ export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: Athl
   const trainingSnapshot = useTrainingBuilderSnapshot(athlete, tests);
   const nutritionSnapshot = useNutritionSnapshot(athlete);
 
+  const ssidEntries = useMemo(
+    () => buildWorkspaceSsidEntries(analytics, nutritionSnapshot?.bodyCompositionAnalysis?.ssid),
+    [analytics, nutritionSnapshot?.bodyCompositionAnalysis?.ssid]
+  );
+
   const injuryRegions = useMemo(() => regionsWithHistory(injuryRecords, athlete.id), [injuryRecords, athlete.id]);
   const attention = useMemo(
     () => (sportsMedicine ? attentionRegions(sportsMedicine.profile) : []),
@@ -65,6 +71,7 @@ export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: Athl
         attentionRegions={attention}
       />
       <WorkspaceAnalyticsPanel analytics={analytics} />
+      <SsidBundleSection entries={ssidEntries} compact />
       <AthleteTimelineSection events={workspace.timeline} />
       <WorkspaceGoalsSection goals={workspace.goals} />
       <WorkspacePlaceholderSummaries athlete={athlete} />

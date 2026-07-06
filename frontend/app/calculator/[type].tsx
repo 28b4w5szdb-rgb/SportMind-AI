@@ -10,6 +10,7 @@ import { Button } from '@/src/components/common/Button';
 import { getCalculatorDefinition } from '@/src/data/mock/calculators';
 import { useMockStore } from '@/src/data/mock/store';
 import type { CalculatorType } from '@/src/data/mock/types';
+import { SsidInterpretationView } from '@/src/features/ssid-engine';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import { Ionicons } from '@expo/vector-icons';
@@ -83,6 +84,11 @@ export default function CalculatorTypeScreen() {
           <Text style={[typography.body, { color: theme.colors.textSecondary, marginTop: theme.spacing.sm }]}>
             {t('features.calculator.interpretation')}: {result.result.interpretation}
           </Text>
+          {result.result.ssid ? (
+            <View style={{ marginTop: theme.spacing.lg }}>
+              <SsidInterpretationView interpretation={result.result.ssid} />
+            </View>
+          ) : null}
         </Card>
       )}
     </FeatureScrollScreen>

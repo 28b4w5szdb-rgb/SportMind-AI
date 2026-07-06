@@ -133,6 +133,8 @@ export function mapCalculatorTypeToMetric(type: CalculatorType): SsidMetricId | 
       return 'hr_zones';
     case 'training-load':
       return 'session_load';
+    case 'recovery-time':
+      return 'recovery_score';
     default:
       return undefined;
   }

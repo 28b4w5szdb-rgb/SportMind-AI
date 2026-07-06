@@ -6,20 +6,166 @@ import type { MockAthlete } from '@/src/data/mock/types';
 import type { SsidInterpretation, SsidMetricBundle, SsidMetricContext, SsidMetricId } from '../types';
 import { interpretMetric } from '../registry/metricRegistry';
 
+export interface SsidDisplayEntry {
+  id: string;
+  labelKey: string;
+  interpretation: SsidInterpretation;
+}
+
+export interface SsidReportContent {
+  interpretation: string;
+  decision: string;
+  recommendations: string;
+  reference: string;
+}
+
+function collectInterpretations(source: SsidMetricBundle | SsidDisplayEntry[]): SsidInterpretation[] {
+  if (Array.isArray(source)) {
+    return source.map((entry) => entry.interpretation);
+  }
+  return Object.values(source).filter(Boolean) as SsidInterpretation[];
+}
+
 export function formatSsidForAI(interp: SsidInterpretation, translate: (key: string) => string): string {
   return (
     `• ${translate(interp.classificationKey)}: ${interp.result} ${interp.unit}\n` +
-    `${translate(interp.scientificMeaningKey)}\n` +
+    `${translate('ssid.ui.scientificMeaning')}: ${translate(interp.scientificMeaningKey)}\n` +
+    `${translate('ssid.ui.physiologicalInterpretation')}: ${translate(interp.physiologicalInterpretationKey)}\n` +
+    `${translate('ssid.ui.performanceImpact')}: ${translate(interp.performanceImpactKey)}\n` +
+    `${translate('ssid.ui.riskAnalysis')}: ${translate(interp.riskAnalysisKey)}\n` +
     `${translate(interp.coachingDecisionKey)} · ${translate(interp.aiRecommendationKey)}\n` +
+    `${translate('ssid.ui.immediate')}: ${translate(interp.recommendations.immediateKey)}\n` +
     `${translate('ssid.confidenceLabel')}: ${interp.confidence}%`
   );
 }
 
 export function formatSsidBundleForAI(bundle: SsidMetricBundle, translate: (key: string) => string): string {
-  return Object.values(bundle)
-    .filter(Boolean)
-    .map((item) => formatSsidForAI(item!, translate))
+  return collectInterpretations(bundle)
+    .map((item) => formatSsidForAI(item, translate))
     .join('\n\n');
+}
+
+export function formatSsidReportSections(
+  source: SsidMetricBundle | SsidDisplayEntry[],
+  translate: (key: string) => string
+): SsidReportContent {
+  const interps = collectInterpretations(source);
+
+  const interpretation = interps
+    .map(
+      (item) =>
+        `• ${translate(item.classificationKey)} (${item.result} ${item.unit})\n` +
+        `${translate(item.scientificMeaningKey)}\n` +
+        `${translate(item.physiologicalInterpretationKey)}\n` +
+        `${translate(item.performanceImpactKey)}\n` +
+        `${translate(item.riskAnalysisKey)}`
+    )
+    .join('\n\n');
+
+  const decision = interps.map((item) => `• ${translate(item.coachingDecisionKey)} — ${translate(item.aiRecommendationKey)}`).join('\n');
+
+  const recommendations = interps
+    .map(
+      (item) =>
+        `• ${translate(item.classificationKey)}\n` +
+        `  ${translate('ssid.ui.immediate')}: ${translate(item.recommendations.immediateKey)}\n` +
+        `  ${translate('ssid.ui.weekly')}: ${translate(item.recommendations.weeklyKey)}\n` +
+        `  ${translate('ssid.ui.longTerm')}: ${translate(item.recommendations.longTermKey)}`
+    )
+    .join('\n\n');
+
+  const reference = interps
+    .map((item) => `${translate(item.scientificReferenceKey)} · ${translate('ssid.confidenceLabel')}: ${item.confidence}%`)
+    .join('\n');
+
+  return { interpretation, decision, recommendations, reference };
+}
+
+export function buildWorkspaceSsidEntries(
+  analytics: AthleteAnalyticsSnapshot,
+  bodyComp?: SsidMetricBundle
+): SsidDisplayEntry[] {
+  const entries: SsidDisplayEntry[] = [];
+  const modules = analytics.overall.modules;
+  const moduleScore = (id: string) => modules.find((m) => m.id === id)?.score;
+
+  entries.push({
+    id: 'overall',
+    labelKey: 'ssid.ui.overallScore',
+    interpretation: interpretMetric('readiness_score', analytics.overall.score / 10, '%'),
+  });
+
+  if (analytics.ssid?.readinessScore) {
+    entries.push({
+      id: 'readiness',
+      labelKey: 'ssid.metricLabels.readiness_score',
+      interpretation: analytics.ssid.readinessScore,
+    });
+  }
+
+  if (analytics.ssid?.recoveryScore) {
+    entries.push({
+      id: 'recovery',
+      labelKey: 'ssid.metricLabels.recovery_score',
+      interpretation: analytics.ssid.recoveryScore,
+    });
+  }
+
+  const fatigue = moduleScore('fatigue');
+  if (fatigue !== undefined) {
+    entries.push({
+      id: 'fatigue',
+      labelKey: 'ssid.ui.fatigue',
+      interpretation: interpretMetric('recovery_score', fatigue, '%'),
+    });
+  }
+
+  const injuryRisk = moduleScore('injury_risk');
+  if (injuryRisk !== undefined) {
+    entries.push({
+      id: 'injury_risk',
+      labelKey: 'ssid.ui.injuryRisk',
+      interpretation: interpretMetric('readiness_score', injuryRisk, '%'),
+    });
+  }
+
+  if (analytics.ssid?.sessionLoad) {
+    entries.push({
+      id: 'session_load',
+      labelKey: 'ssid.metricLabels.session_load',
+      interpretation: analytics.ssid.sessionLoad,
+    });
+  } else {
+    const load = moduleScore('training_load');
+    if (load !== undefined) {
+      entries.push({
+        id: 'training_load',
+        labelKey: 'ssid.ui.trainingLoad',
+        interpretation: interpretMetric('session_load', load * 4, 'AU'),
+      });
+    }
+  }
+
+  if (analytics.ssid?.acwr) {
+    entries.push({
+      id: 'acwr',
+      labelKey: 'ssid.metricLabels.acwr',
+      interpretation: analytics.ssid.acwr,
+    });
+  }
+
+  if (bodyComp?.bmi) {
+    entries.push({ id: 'bmi', labelKey: 'ssid.metricLabels.bmi', interpretation: bodyComp.bmi });
+  }
+  if (bodyComp?.bodyFat) {
+    entries.push({ id: 'body_fat', labelKey: 'ssid.metricLabels.body_fat', interpretation: bodyComp.bodyFat });
+  }
+
+  return entries;
+}
+
+export function buildCalculatorSsidEntries(interpretation: SsidInterpretation): SsidDisplayEntry[] {
+  return [{ id: interpretation.metricId, labelKey: `ssid.metricLabels.${interpretation.metricId}`, interpretation }];
 }
 
 export function buildBodyCompositionSsidBundle(

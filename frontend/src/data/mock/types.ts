@@ -58,6 +58,10 @@ export interface MockReportSections {
   strengths?: string;
   weaknesses?: string;
   decision_support?: string;
+  ssid_interpretation?: string;
+  ssid_decision?: string;
+  ssid_recommendations?: string;
+  ssid_reference?: string;
   injury_summary?: string;
   rtp_status?: string;
   prevention_recommendations?: string;

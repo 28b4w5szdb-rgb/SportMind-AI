@@ -1,8 +1,29 @@
 /** SSID Arabic locale overrides — deep-merged with English SSID content at i18n boot. */
 export const ssidArOverrides = {
-  confidenceLabel: 'مستوى الثقة (placeholder)',
+  confidenceLabel: 'مستوى الثقة (مؤقت)',
+  ui: {
+    sectionTitle: 'التفسير العلمي الرياضي',
+    sectionSubtitle: 'تفسير قائم على الأدلة ودعم القرار التدريبي',
+    scientificMeaning: 'المعنى العلمي',
+    physiologicalInterpretation: 'التفسير الفسيولوجي',
+    performanceImpact: 'تأثير الأداء',
+    riskAnalysis: 'تحليل المخاطر',
+    referenceComparison: 'مقارنة المرجع',
+    coachingDecision: 'قرار التدريب',
+    aiRecommendation: 'توصية الذكاء الاصطناعي',
+    recommendations: 'التوصيات',
+    immediate: 'فوري',
+    weekly: 'أسبوعي',
+    longTerm: 'طويل المدى',
+    scientificReference: 'المرجع العلمي',
+    overallScore: 'النتيجة الإجمالية للاعب',
+    fatigue: 'حالة الإرهاق',
+    injuryRisk: 'ملف خطر الإصابة',
+    trainingLoad: 'حمل التدريب',
+    recoveryReadiness: 'جاهزية التعافي',
+  },
   references: {
-    placeholder: 'مرجع علمي placeholder — مكتبة الأدلة قيد الإعداد.',
+    placeholder: 'مرجع علمي مؤقت — مكتبة الأدلة العلمية قيد الإعداد.',
   },
   metricLabels: {
     bmi: 'مؤشر كتلة الجسم',
@@ -47,6 +68,20 @@ export const ssidArOverrides = {
     },
     body_fat: {
       classifications: { athlete: 'رياضي', excellent: 'ممتاز', good: 'جيد', average: 'متوسط', high: 'مرتفع' },
+      meanings: {
+        athlete: 'نسبة دهون منخفضة تناسب الرياضيين التنافسيين.',
+        excellent: 'تركيب دهني ممتاز يدعم الأداء.',
+        good: 'دهون ضمن نطاق صحي للرياضي.',
+        average: 'دهون متوسطة — راقب الاتجاهات.',
+        high: 'دهون مرتفعة قد تؤثر على الحركة والصحة.',
+      },
+      ai: {
+        athlete: 'حافظ على التغذية والاستشفاء.',
+        excellent: 'استمر في الخطة الحالية.',
+        good: 'راقب التركيب مع دورة التدريب.',
+        average: 'ركّز على جودة التغذية.',
+        high: 'خفّف العمل عالي التأثير وراجع التغذية.',
+      },
     },
     vo2_max: {
       classifications: {

@@ -10,6 +10,7 @@ import type { NutritionSnapshot } from '@/src/features/nutrition/types';
 import { formatNutritionForAI } from '@/src/features/nutrition/utils/nutritionHelpers';
 import type { TeamIntelligenceSnapshot } from '@/src/features/team-intelligence/types';
 import { formatTeamIntelligenceForAI } from '@/src/features/team-intelligence';
+import { buildWorkspaceSsidEntries, formatSsidForAI } from '@/src/features/ssid-engine';
 
 export type AiAgentId = 'performance' | 'recovery' | 'nutrition' | 'planning';
 
@@ -306,6 +307,49 @@ function buildNutritionTopicResponse(topic: NutritionTopic, ctx: AnalyticsCoachC
   }
 }
 
+function detectScientificQuestion(message: string): boolean {
+  const m = message.toLowerCase();
+  return (
+    /scientific|physiological|physiology|interpret|meaning|why is|explain the|what does|evidence|reference/.test(m) ||
+    /علمي|فسّر|اشرح|لماذا|معنى|تفسير|فسيولوج|مرجع/.test(message)
+  );
+}
+
+function buildSsidFormattedResponse(
+  ctx: AnalyticsCoachContext,
+  translate: (key: string) => string,
+  isRTL: boolean,
+  entryIds?: string[]
+): string {
+  const analytics = ctx.primary!;
+  const entries = buildWorkspaceSsidEntries(analytics, ctx.nutrition?.bodyCompositionAnalysis?.ssid);
+  const filtered = entryIds ? entries.filter((entry) => entryIds.includes(entry.id)) : entries;
+  const body = filtered.map((entry) => formatSsidForAI(entry.interpretation, translate)).join('\n\n');
+  const header = isRTL ? '🧪 التفسير العلمي الرياضي' : '🧪 Sports Science Interpretation';
+  return `${header}\n\n${body}`;
+}
+
+function buildSsidTopicResponse(
+  topic: AnalyticsTopic,
+  ctx: AnalyticsCoachContext,
+  translate: (key: string) => string,
+  isRTL: boolean
+): string | null {
+  switch (topic) {
+    case 'readiness':
+      return buildSsidFormattedResponse(ctx, translate, isRTL, ['readiness', 'recovery', 'overall']);
+    case 'injury':
+      return buildSsidFormattedResponse(ctx, translate, isRTL, ['injury_risk', 'fatigue']);
+    case 'load':
+      return buildSsidFormattedResponse(ctx, translate, isRTL, ['session_load', 'acwr', 'training_load']);
+    case 'performance':
+    case 'trend':
+      return buildSsidFormattedResponse(ctx, translate, isRTL);
+    default:
+      return null;
+  }
+}
+
 function detectAnalyticsTopic(message: string): AnalyticsTopic | null {
   const m = message.toLowerCase();
   if (/most ready|who is ready|أكثر جاهز/.test(message)) return 'team_ready';
@@ -388,8 +432,19 @@ export function generateMockResponse(
   agentId: AiAgentId,
   userMessage: string,
   isRTL: boolean,
-  analyticsContext?: AnalyticsCoachContext
+  analyticsContext?: AnalyticsCoachContext,
+  translate?: (key: string) => string
 ): string {
+  const t = translate ?? ((key: string) => key);
+
+  if (analyticsContext?.primary && detectScientificQuestion(userMessage)) {
+    const body = buildSsidFormattedResponse(analyticsContext, t, isRTL);
+    const confidence = isRTL
+      ? `\n\n✓ ${t('ssid.confidenceLabel')}: ${analyticsContext.primary.decision.confidence}%`
+      : `\n\n✓ ${t('ssid.confidenceLabel')}: ${analyticsContext.primary.decision.confidence}%`;
+    return body + confidence;
+  }
+
   const teamTopic = detectTeamTopic(userMessage);
   if (analyticsContext?.teamIntelligence && teamTopic) {
     const body = buildTeamTopicResponse(teamTopic, analyticsContext, isRTL);
@@ -426,6 +481,15 @@ export function generateMockResponse(
   }
 
   if (analyticsContext?.nutrition && (agentId === 'nutrition' || nutritionTopic)) {
+    if (nutritionTopic === 'body_comp' && analyticsContext.nutrition.bodyCompositionAnalysis?.ssid && translate) {
+      const bundle = analyticsContext.nutrition.bodyCompositionAnalysis.ssid;
+      const entries = Object.entries(bundle)
+        .filter(([, value]) => value)
+        .map(([id, interpretation]) => formatSsidForAI(interpretation!, t));
+      const header = isRTL ? '🧪 تفسير تركيب الجسم' : '🧪 Body composition interpretation';
+      const confidence = isRTL ? `\n\n✓ ${t('ssid.confidenceLabel')}: 89%` : `\n\n✓ ${t('ssid.confidenceLabel')}: 89%`;
+      return header + '\n\n' + entries.join('\n\n') + confidence;
+    }
     const body = nutritionTopic
       ? buildNutritionTopicResponse(nutritionTopic, analyticsContext, isRTL)
       : formatNutritionForAI(
@@ -444,6 +508,13 @@ export function generateMockResponse(
   }
 
   if (analyticsContext?.primary && analyticsRelevant && topic) {
+    const ssidBody = translate ? buildSsidTopicResponse(topic, analyticsContext, t, isRTL) : null;
+    if (ssidBody) {
+      const confidence = isRTL
+        ? `\n\n✓ ${t('ssid.confidenceLabel')}: ${analyticsContext.primary.decision.confidence}%`
+        : `\n\n✓ ${t('ssid.confidenceLabel')}: ${analyticsContext.primary.decision.confidence}%`;
+      return ssidBody + confidence;
+    }
     const body = buildTopicResponse(topic, analyticsContext, isRTL);
     const confidence = isRTL
       ? `\n\n✓ مستوى الثقة: ${analyticsContext.primary.decision.confidence}%`

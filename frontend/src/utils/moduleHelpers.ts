@@ -11,6 +11,7 @@ import { templateLabelKey } from '@/src/features/training-builder/utils/template
 import { buildAthleteNutritionSnapshot } from '@/src/features/nutrition/utils/nutritionHelpers';
 import { NUTRITION_GOALS } from '@/src/features/nutrition/registry/nutritionCatalog';
 import { computeTeamIntelligence } from '@/src/features/team-intelligence';
+import { buildWorkspaceSsidEntries, formatSsidReportSections } from '@/src/features/ssid-engine';
 import type { TrainingPlan } from '@/src/features/training-builder/types';
 
 export function buildPerformanceTestsSummary(tests: MockPerformanceTest[], isRTL: boolean): string {
@@ -281,6 +282,21 @@ export function buildTeamIntelligenceReportSections(
   };
 }
 
+export function buildSsidReportSections(
+  analytics: ReturnType<typeof computeAthleteAnalytics>,
+  t: TFunction,
+  bodyCompSsid?: import('@/src/features/ssid-engine').SsidMetricBundle
+): Pick<MockReportSections, 'ssid_interpretation' | 'ssid_decision' | 'ssid_recommendations' | 'ssid_reference'> {
+  const entries = buildWorkspaceSsidEntries(analytics, bodyCompSsid);
+  const content = formatSsidReportSections(entries, (key) => t(key));
+  return {
+    ssid_interpretation: content.interpretation,
+    ssid_decision: content.decision,
+    ssid_recommendations: content.recommendations,
+    ssid_reference: content.reference,
+  };
+}
+
 export function buildDefaultReportSections(
   athlete: MockAthlete | undefined,
   tests: MockPerformanceTest[],
@@ -345,6 +361,17 @@ export function buildDefaultReportSections(
     t,
     isRTL
   );
+  const nutritionSnapshot = buildAthleteNutritionSnapshot({
+    athlete,
+    analytics,
+    logs: context?.nutritionLogs ?? [],
+    bodyRecords: context?.bodyCompositionRecords ?? [],
+    goalSettings: context?.nutritionGoalSettings ?? [],
+    checkIn: context?.checkIn,
+    trainingPlans: context?.trainingPlans?.filter((p) => p.athlete_id === athlete.id) ?? [],
+    dateKey: new Date().toISOString().slice(0, 10),
+  });
+  const ssidSections = buildSsidReportSections(analytics, t, nutritionSnapshot.bodyCompositionAnalysis?.ssid);
 
   return {
     ...base,
@@ -352,13 +379,14 @@ export function buildDefaultReportSections(
     kpi_summary: enriched.kpi_summary,
     strengths: enriched.strengths,
     weaknesses: enriched.weaknesses,
-    recommendations: enriched.recommendations,
-    decision_support: enriched.decision_support,
-    ai_insights: `${enriched.kpi_summary}\n\n${base.ai_insights}`,
     athlete_summary: `${base.athlete_summary}\n\n${enriched.overall_score}`,
     ...injurySections,
     ...trainingSections,
     ...nutritionSections,
+    ...ssidSections,
+    decision_support: [enriched.decision_support, ssidSections.ssid_decision].filter(Boolean).join('\n\n'),
+    recommendations: [enriched.recommendations, ssidSections.ssid_recommendations].filter(Boolean).join('\n\n'),
+    ai_insights: [enriched.kpi_summary, ssidSections.ssid_interpretation, base.ai_insights].filter(Boolean).join('\n\n'),
   };
 }
 
