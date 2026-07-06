@@ -23,6 +23,14 @@ export { TestReferencePanel } from './components/TestReferencePanel';
 export { DemographicSelector } from './components/DemographicSelector';
 export { DemographicContextCard } from './components/DemographicContextCard';
 export { interpretTestWithSsid } from './utils/testInterpretation';
+export { getTestProtocolMeta, levelToPercentile } from './utils/labPresentation';
+export { useLabDashboardPresentation, buildTestHistoryTrend } from './hooks/useLabDashboardPresentation';
+export { LabDashboard } from './components/lab/LabDashboard';
+export { LabProtocolCard } from './components/lab/LabProtocolCard';
+export { LabResultPremiumView } from './components/lab/LabResultPremiumView';
+export { LabKnowledgePremiumPanel } from './components/lab/LabKnowledgePremiumPanel';
+export { LabBenchmarkComparison } from './components/lab/LabBenchmarkComparison';
+export { LabTimeline } from './components/lab/LabTimeline';
 export {
   useTestDefinition,
   useTestLibrary,

@@ -29,6 +29,7 @@ import {
   TestReferencePanel,
   DemographicSelector,
   interpretTestWithSsid,
+  LabKnowledgePremiumPanel,
 } from '@/src/features/performance-lab';
 import { DEFAULT_DEMOGRAPHIC_CONTEXT, type TestDemographicContext } from '@/src/features/testing-science';
 import { SsidInterpretationView } from '@/src/features/ssid-engine';
@@ -144,7 +145,7 @@ export default function TestDetailScreen() {
         </View>
       </Card>
 
-      <TestKnowledgePanel definition={definition} />
+      <LabKnowledgePremiumPanel definition={definition} />
       <DemographicSelector value={demographicContext} onChange={setDemographicContext} />
       <TestReferencePanel definition={definition} demographicContext={demographicContext} />
 

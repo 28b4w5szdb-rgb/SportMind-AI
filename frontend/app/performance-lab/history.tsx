@@ -1,46 +1,38 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
 import { EmptyState } from '@/src/components/common/EmptyState';
+import { SectionHeader } from '@/src/components/common/SectionHeader';
 import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
-import { useTheme, useTypography } from '@/src/core/theme';
-import { useDirection } from '@/src/providers/DirectionProvider';
-import { TestResultCard } from '@/src/features/performance-lab';
+import { LabTimeline } from '@/src/features/performance-lab/components/lab/LabTimeline';
 
 export default function LabHistoryScreen() {
   const router = useRouter();
   const { t } = useTranslation();
-  const theme = useTheme();
-  const type = useTypography();
-  const { isRTL } = useDirection();
   const tests = useMockStore((s) => s.tests);
+  const sorted = [...tests].sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
 
   return (
     <FeatureScrollScreen
-      title={isRTL ? 'سجل الاختبارات' : 'Test History'}
+      title={t('performanceLab.historyTitle')}
       rightAction={{ icon: 'add', onPress: () => router.push('/(tabs)/performance-lab' as never) }}
     >
-      {tests.length === 0 ? (
+      {sorted.length === 0 ? (
         <EmptyState
           icon="analytics"
-          title={isRTL ? 'لا توجد اختبارات' : 'No tests recorded'}
-          description={isRTL ? 'سجّل أول اختبار من مركز الاختبارات' : 'Record your first test from the Testing Center'}
-          actionLabel={isRTL ? 'مركز الاختبارات' : 'Testing Center'}
+          title={t('performanceLab.noRecentTests')}
+          description={t('performanceLab.noRecentTestsHint')}
+          actionLabel={t('testingCenter.title')}
           onAction={() => router.push('/(tabs)/performance-lab' as never)}
         />
       ) : (
-        tests.map((test) => (
-          <TestResultCard
-            key={test.id}
-            test={test}
-            compact
-            onPress={() => router.push(APP_ROUTES.performanceLabResult(test.id))}
-          />
-        ))
+        <>
+          <SectionHeader title={t('performanceLab.labTimeline')} subtitle={t('performanceLab.historySub')} titleSize="h5" />
+          <LabTimeline tests={sorted} />
+        </>
       )}
     </FeatureScrollScreen>
   );

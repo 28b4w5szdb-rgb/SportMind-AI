@@ -5,19 +5,15 @@ import { useTranslation } from 'react-i18next';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
 import { Button } from '@/src/components/common/Button';
-import { FormSection } from '@/src/components/common/FormSection';
 import { useAthleteById, useTestById } from '@/src/data/mock/hooks';
 import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import { useTheme, useTypography } from '@/src/core/theme';
-import { useDirection } from '@/src/providers/DirectionProvider';
 import {
-  TestResultCard,
   useTestDefinition,
   computeResultAnalyticsSnapshot,
   computeTestAnalyticsImpact,
-  getTestText,
-  DemographicContextCard,
+  LabResultPremiumView,
 } from '@/src/features/performance-lab';
 import type { MockPerformanceTest } from '@/src/data/mock/types';
 
@@ -27,7 +23,6 @@ export default function TestResultDetailScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
-  const { textAlign, isRTL } = useDirection();
   const test = useTestById(id);
   const definition = useTestDefinition(test?.test_type_key);
   const athlete = useAthleteById(test?.athlete_id);
@@ -56,30 +51,7 @@ export default function TestResultDetailScreen() {
 
   return (
     <FeatureScrollScreen title={t('testingCenter.resultTitle')}>
-      <TestResultCard test={test} analytics={analytics} impact={impact} definition={definition} />
-      <DemographicContextCard test={test} />
-
-      {analytics ? (
-        <FormSection title={t('testingCenter.kpiSummary')}>
-          <View style={{ gap: 8 }}>
-            {analytics.kpis.map((kpi) => (
-              <View key={kpi.id} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Text style={[type.bodySm, { color: theme.colors.textSecondary }]}>{t(kpi.labelKey)}</Text>
-                <Text style={[type.bodySm, { color: theme.colors.text }]}>{kpi.displayValue}</Text>
-              </View>
-            ))}
-          </View>
-        </FormSection>
-      ) : null}
-
-      {definition ? (
-        <FormSection title={t('testingCenter.sections.scoring')}>
-          <Text style={[type.body, { color: theme.colors.text, textAlign: textAlign('start'), lineHeight: 22 }]}>
-            {getTestText(definition, 'scoring', isRTL)}
-          </Text>
-        </FormSection>
-      ) : null}
-
+      <LabResultPremiumView test={test} definition={definition} analytics={analytics} impact={impact} allTests={allTests} />
       <View style={{ gap: theme.spacing.sm, marginTop: theme.spacing.md }}>
         <Button title={t('testingCenter.recordAnother')} onPress={() => router.push(APP_ROUTES.performanceLabTest(test.test_type_key))} variant="primary" fullWidth icon="add" />
         <Button title={t('testingCenter.viewHistory')} onPress={() => router.replace(APP_ROUTES.performanceLabHistory)} variant="outline" fullWidth icon="time" />

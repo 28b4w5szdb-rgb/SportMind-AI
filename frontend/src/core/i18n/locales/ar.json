@@ -230,6 +230,96 @@
     "newTest": "اختبار جديد",
     "calculator": "الحاسبة"
   },
+  "performanceLab": {
+    "heroLabel": "مختبر علوم الرياضة",
+    "heroSubtitle": "بروتوكولات اختبار احترافية ومعايير مرجعية وتفسير علمي",
+    "overview": "نظرة عامة على المختبر",
+    "overviewSub": "لقطة تشغيلية لبرنامج الاختبار",
+    "recordTest": "تسجيل اختبار",
+    "testLibrary": "مكتبة الاختبارات",
+    "recentTests": "الاختبارات الأخيرة",
+    "pendingTests": "اختبارات معلّقة",
+    "pendingSub": "لاعبون يحتاجون إعادة تقييم",
+    "todayTesting": "اختبارات اليوم",
+    "scientificInsights": "رؤى علمية",
+    "noTodayTests": "لا توجد اختبارات مسجلة اليوم",
+    "noRecentTests": "لا توجد اختبارات حديثة",
+    "noRecentTestsHint": "سجّل أول اختبار أداء لبدء التتبع",
+    "noPending": "جميع اللاعبين محدّثون",
+    "neverTested": "لم يُختبر من قبل",
+    "daysSinceTest": "{{days}} يوم منذ آخر اختبار",
+    "due": "مستحق",
+    "recorded": "مسجّل",
+    "featured": "مميز",
+    "startFeatured": "بدء {{test}}",
+    "calendarTitle": "تقويم الاختبارات",
+    "calendarHint": "جدولة بطاريات الاختبار وإعادة الاختبار — مزامنة التقويم قريباً.",
+    "comingSoon": "قريباً",
+    "labTimeline": "الخط الزمني للمختبر",
+    "timelineEmpty": "لا يوجد سجل اختبارات بعد",
+    "decisionLogged": "قرار مسجّل",
+    "benchmark": "المعايير",
+    "compare": "مقارنة",
+    "historyTitle": "سجل الاختبارات",
+    "historySub": "سجل كامل لأحداث المختبر",
+    "percentile": "المئين",
+    "percentileShort": "مئين",
+    "scoreImpact": "تأثير النتيجة",
+    "resultTrend": "اتجاه النتيجة",
+    "resultTrendSub": "القيم التاريخية لهذا البروتوكول",
+    "percentileChart": "المئين المرجعي",
+    "comparisonChart": "مقارنة النتيجة",
+    "otherAthletes": "مجموعة مرجعية",
+    "stats": {
+      "results": "النتائج",
+      "today": "اليوم",
+      "pending": "معلّق",
+      "protocols": "البروتوكولات"
+    },
+    "insightMeta": "جاهزية {{readiness}}% · إرهاق {{fatigue}}% · خطر {{risk}}%",
+    "viewHistory": "عرض السجل",
+    "protocol": {
+      "duration": {
+        "short": "5–15 د",
+        "medium": "15–30 د",
+        "long": "30+ د",
+        "variable": "متغير"
+      },
+      "difficulty": {
+        "low": "صعوبة منخفضة",
+        "moderate": "صعوبة متوسطة",
+        "high": "صعوبة عالية",
+        "variable": "متغير"
+      },
+      "validity": {
+        "moderate": "صلاحية متوسطة",
+        "high": "صلاحية عالية",
+        "veryHigh": "صلاحية عالية جداً",
+        "variable": "صلاحية متغيرة"
+      },
+      "reliability": {
+        "moderate": "موثوقية متوسطة",
+        "high": "موثوقية عالية",
+        "variable": "موثوقية متغيرة"
+      }
+    },
+    "knowledge": {
+      "applications": "التطبيقات",
+      "advantages": "المزايا",
+      "limitations": "القيود",
+      "research": "ملاحظات بحثية"
+    },
+    "benchmark": {
+      "title": "مقارنة المعايير",
+      "subtitle": "سياق مرجعي لهذه النتيجة",
+      "athlete": "اللاعب",
+      "team": "الفريق",
+      "teamNorm": "ملف الفريق المرجعي",
+      "age": "الفئة العمرية",
+      "competition": "مستوى المنافسة",
+      "normative": "القيم المعيارية"
+    }
+  },
   "testingCenter": {
     "title": "مركز اختبارات علوم الرياضة",
     "subtitle": "بروتوكولات احترافية ومعايير مرجعية وتحليلات مرتبطة",

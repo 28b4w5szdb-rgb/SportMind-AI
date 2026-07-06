@@ -38,15 +38,15 @@ export function CategoryCard({ category, testCount, index = 0, onPress }: Catego
           <View style={{ flexDirection: flexRow(true), alignItems: 'flex-start' }}>
             <View
               style={{
-                width: 52,
-                height: 52,
-                borderRadius: theme.borderRadius.xl,
+                width: 64,
+                height: 64,
+                borderRadius: theme.borderRadius['2xl'],
                 backgroundColor: category.color + '18',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Ionicons name={category.icon} size={26} color={category.color} />
+              <Ionicons name={category.icon} size={32} color={category.color} />
             </View>
             <View style={{ flex: 1, marginHorizontal: theme.spacing.md }}>
               <View style={{ flexDirection: flexRow(true), alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>

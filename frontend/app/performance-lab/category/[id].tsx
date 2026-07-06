@@ -3,11 +3,11 @@ import { View, Text } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
-import { Card } from '@/src/components/common/Card';
-import { Button } from '@/src/components/common/Button';
 import { Badge } from '@/src/components/common/Badge';
+import { Button } from '@/src/components/common/Button';
 import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import { useTheme, useTypography } from '@/src/core/theme';
@@ -16,9 +16,10 @@ import {
   getCategoryById,
   getTestsByCategory,
   getFeaturedTestForCategory,
+  getTestName,
   TestResultCard,
   useCustomTestDefinitions,
-  getTestName,
+  LabProtocolCard,
 } from '@/src/features/performance-lab';
 
 export default function LabCategoryScreen() {
@@ -46,58 +47,50 @@ export default function LabCategoryScreen() {
 
   return (
     <FeatureScrollScreen title={t(category.nameKey)}>
-      <Card variant="gradient" padding="lg" gradientColors={[category.color, category.color + '99']} style={{ marginBottom: theme.spacing.lg, borderRadius: theme.borderRadius['2xl'] }}>
+      <LinearGradient colors={[category.color, category.color + '99']} style={{ borderRadius: theme.borderRadius['2xl'], padding: theme.spacing.lg, marginBottom: theme.spacing.lg }}>
         <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
-          <Ionicons name={category.icon} size={32} color="#FFF" />
+          <View style={{ width: 72, height: 72, borderRadius: theme.borderRadius['2xl'], backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' }}>
+            <Ionicons name={category.icon} size={36} color="#FFF" />
+          </View>
           <View style={{ flex: 1, marginHorizontal: theme.spacing.md }}>
-            <View style={{ flexDirection: flexRow(true), alignItems: 'center', gap: 8 }}>
-              <Text style={[type.h4, { color: '#FFF', textAlign: textAlign('start') }]}>{t(category.nameKey)}</Text>
+            <View style={{ flexDirection: flexRow(true), alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <Text style={[type.h3, { color: '#FFF', textAlign: textAlign('start') }]}>{t(category.nameKey)}</Text>
               <Badge label={t('testingCenter.analyticsBadge')} variant="info" />
             </View>
-            <Text style={[type.bodySm, { color: 'rgba(255,255,255,0.85)', marginTop: 4, textAlign: textAlign('start') }]}>
+            <Text style={[type.bodySm, { color: 'rgba(255,255,255,0.9)', marginTop: 6, textAlign: textAlign('start') }]}>
               {t(category.descriptionKey)}
             </Text>
             <Text style={[type.caption, { color: 'rgba(255,255,255,0.75)', marginTop: 8, textAlign: textAlign('start') }]}>
-              {categoryTests.length} {t('testingCenter.testsAvailable')} · {recorded.length} {isRTL ? 'نتائج' : 'recorded'}
+              {categoryTests.length} {t('testingCenter.testsAvailable')} · {recorded.length} {t('performanceLab.recorded')}
             </Text>
           </View>
         </View>
-      </Card>
+      </LinearGradient>
 
-      <Text style={[type.label, { color: theme.colors.text, marginBottom: theme.spacing.sm, textAlign: textAlign('start') }]}>
-        {isRTL ? 'البروتوكولات المتاحة' : 'Available protocols'}
-      </Text>
       {categoryTests.map((def) => (
-        <Button
+        <LabProtocolCard
           key={def.key}
-          title={getTestName(def, isRTL)}
+          definition={def}
+          featured={def.featured}
           onPress={() => router.push(APP_ROUTES.performanceLabTest(def.key))}
-          variant={def.featured ? 'primary' : 'outline'}
-          size="small"
-          style={{ marginBottom: theme.spacing.sm }}
-          icon={def.icon}
         />
       ))}
 
       {featured ? (
         <Button
-          title={isRTL ? `بدء ${getTestName(featured, true)}` : `Start ${getTestName(featured, false)}`}
+          title={t('performanceLab.startFeatured', { test: getTestName(featured, isRTL) })}
           onPress={() => router.push(APP_ROUTES.performanceLabTest(featured.key))}
           fullWidth
           icon="play"
-          style={{ marginTop: theme.spacing.md, marginBottom: theme.spacing.lg }}
+          style={{ marginBottom: theme.spacing.lg }}
         />
       ) : null}
 
-      {recorded.length === 0 ? (
-        <Text style={[type.bodySm, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>
-          {isRTL ? 'لا توجد نتائج مسجلة بعد في هذه الفئة.' : 'No recorded results in this category yet.'}
-        </Text>
-      ) : (
-        recorded.map((test) => (
-          <TestResultCard key={test.id} test={test} onPress={() => router.push(APP_ROUTES.performanceLabResult(test.id))} />
-        ))
-      )}
+      {recorded.length > 0
+        ? recorded.map((test) => (
+            <TestResultCard key={test.id} test={test} onPress={() => router.push(APP_ROUTES.performanceLabResult(test.id))} />
+          ))
+        : null}
     </FeatureScrollScreen>
   );
 }

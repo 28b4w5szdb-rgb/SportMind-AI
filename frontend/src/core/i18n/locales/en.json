@@ -226,6 +226,96 @@
     "newTest": "New Test",
     "calculator": "Calculator"
   },
+  "performanceLab": {
+    "heroLabel": "Sports Science Laboratory",
+    "heroSubtitle": "Professional testing protocols, normative benchmarks, and scientific interpretation",
+    "overview": "Laboratory Overview",
+    "overviewSub": "Operational snapshot of your testing program",
+    "recordTest": "Record test",
+    "testLibrary": "Test library",
+    "recentTests": "Recent Tests",
+    "pendingTests": "Pending Tests",
+    "pendingSub": "Athletes due for reassessment",
+    "todayTesting": "Today's Testing",
+    "scientificInsights": "Scientific Insights",
+    "noTodayTests": "No tests recorded today",
+    "noRecentTests": "No recent tests",
+    "noRecentTestsHint": "Record your first performance test to begin tracking",
+    "noPending": "All athletes are up to date",
+    "neverTested": "Never tested",
+    "daysSinceTest": "{{days}} days since last test",
+    "due": "Due",
+    "recorded": "recorded",
+    "featured": "Featured",
+    "startFeatured": "Start {{test}}",
+    "calendarTitle": "Testing Calendar",
+    "calendarHint": "Schedule battery tests, retests, and squad screening days — calendar sync coming soon.",
+    "comingSoon": "Coming soon",
+    "labTimeline": "Laboratory Timeline",
+    "timelineEmpty": "No testing history yet",
+    "decisionLogged": "Decision logged",
+    "benchmark": "Benchmarks",
+    "compare": "Compare",
+    "historyTitle": "Testing History",
+    "historySub": "Complete laboratory event log",
+    "percentile": "Percentile",
+    "percentileShort": "pct",
+    "scoreImpact": "Score impact",
+    "resultTrend": "Result trend",
+    "resultTrendSub": "Historical values for this protocol",
+    "percentileChart": "Normative percentile",
+    "comparisonChart": "Score comparison",
+    "otherAthletes": "Reference pool",
+    "stats": {
+      "results": "Results",
+      "today": "Today",
+      "pending": "Pending",
+      "protocols": "Protocols"
+    },
+    "insightMeta": "Readiness {{readiness}}% · Fatigue {{fatigue}}% · Risk {{risk}}%",
+    "viewHistory": "View history",
+    "protocol": {
+      "duration": {
+        "short": "5–15 min",
+        "medium": "15–30 min",
+        "long": "30+ min",
+        "variable": "Variable"
+      },
+      "difficulty": {
+        "low": "Low difficulty",
+        "moderate": "Moderate difficulty",
+        "high": "High difficulty",
+        "variable": "Variable"
+      },
+      "validity": {
+        "moderate": "Moderate validity",
+        "high": "High validity",
+        "veryHigh": "Very high validity",
+        "variable": "Variable validity"
+      },
+      "reliability": {
+        "moderate": "Moderate reliability",
+        "high": "High reliability",
+        "variable": "Variable reliability"
+      }
+    },
+    "knowledge": {
+      "applications": "Applications",
+      "advantages": "Advantages",
+      "limitations": "Limitations",
+      "research": "Research notes"
+    },
+    "benchmark": {
+      "title": "Benchmark Comparison",
+      "subtitle": "Normative context for this result",
+      "athlete": "Athlete",
+      "team": "Team",
+      "teamNorm": "Squad normative profile",
+      "age": "Age group",
+      "competition": "Competition level",
+      "normative": "Normative values"
+    }
+  },
   "testingCenter": {
     "title": "Sports Science Testing Center",
     "subtitle": "Professional protocols, reference norms, and analytics-linked assessments",
