@@ -148,7 +148,7 @@ export default function AICoachScreen() {
   const isDesktop = windowWidth >= 1024;
   const canSend = input.trim().length > 0 && !isTyping;
   const keyboardVerticalOffset = Platform.OS === 'ios' ? insets.bottom + 49 : 0;
-  const listBottomInset = theme.spacing[3];
+  const listBottomInset = theme.spacing[2];
 
   const scrollToEnd = useCallback((animated = true) => {
     if (!shouldAutoScrollRef.current) return;
@@ -334,7 +334,7 @@ export default function AICoachScreen() {
           backgroundColor: theme.colors.background,
           paddingHorizontal: theme.spacing[3],
           paddingTop: theme.spacing[2],
-          paddingBottom: Math.max(insets.bottom, theme.spacing[2]),
+          paddingBottom: theme.spacing[2],
         },
       ]}
     >
@@ -403,9 +403,6 @@ export default function AICoachScreen() {
           </LinearGradient>
         </TouchableOpacity>
       </View>
-      <Text style={[type.caption, { color: theme.colors.textTertiary, textAlign: 'center', marginTop: 8 }]}>
-        {isRTL ? 'محادثاتك محفوظة محلياً على هذا الجهاز' : 'Conversations are saved locally on this device'}
-      </Text>
     </View>
   );
 
