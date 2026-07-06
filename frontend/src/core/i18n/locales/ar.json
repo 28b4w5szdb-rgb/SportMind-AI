@@ -671,7 +671,8 @@
     "sportsMedicine": "الطب الرياضي",
     "statsTests": "اختبار",
     "statsCalculators": "حاسبة",
-    "statsLanguages": "لغة"
+    "statsLanguages": "لغة",
+    "sportsScienceCalculators": "حاسبات علوم الرياضة"
   },
   "settings": {
     "title": "الإعدادات",
@@ -850,15 +851,19 @@
       "saved": "تم حفظ اللاعب"
     },
     "calculator": {
-      "title": "حاسبة علوم الرياضة",
+      "title": "حاسبات علوم الرياضة",
       "subtitle": "حسابات علمية للأداء الرياضي",
+      "countLabel": "{{count}} حاسبة متاحة",
+      "searchPlaceholder": "ابحث في الحاسبات…",
+      "clearSearch": "مسح البحث",
+      "noResults": "لا توجد حاسبات مطابقة لبحثك.",
       "recent": "الحسابات الأخيرة",
       "calculate": "احسب",
       "result": "النتيجة",
       "interpretation": "التفسير",
       "notFoundTitle": "الحاسبة غير موجودة",
       "notFoundDesc": "نوع الحاسبة هذا غير متاح. ارجع إلى مركز الحاسبات.",
-      "vo2max": { "title": "VO2 Max", "desc": "تقدير أقصى استهلاك للأكسجين" },
+      "vo2max": { "title": "الحد الأقصى لاستهلاك الأوكسجين", "desc": "تقدير أقصى استهلاك للأكسجين" },
       "bmi": { "title": "مؤشر كتلة الجسم", "desc": "حساب مؤشر كتلة الجسم" },
       "bodyFat": { "title": "نسبة الدهون", "desc": "تقدير نسبة دهون الجسم" },
       "hrZones": { "title": "مناطق نبض القلب", "desc": "مناطق التدريب لنبض القلب" },

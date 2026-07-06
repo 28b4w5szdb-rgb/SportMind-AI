@@ -7,16 +7,6 @@ import type { SsidMetricContext } from '@/src/features/ssid-engine';
 
 export const CALCULATOR_DEFINITIONS: CalculatorDefinition[] = [
   {
-    id: 'vo2max',
-    icon: 'fitness',
-    titleKey: 'features.calculator.vo2max.title',
-    descKey: 'features.calculator.vo2max.desc',
-    fields: [
-      { key: 'distance', labelKey: 'features.calculator.fields.distance', unit: 'm' },
-      { key: 'age', labelKey: 'features.calculator.fields.age', unit: 'yr' },
-    ],
-  },
-  {
     id: 'bmi',
     icon: 'body',
     titleKey: 'features.calculator.bmi.title',
@@ -35,6 +25,16 @@ export const CALCULATOR_DEFINITIONS: CalculatorDefinition[] = [
       { key: 'waist', labelKey: 'features.calculator.fields.waist', unit: 'cm' },
       { key: 'neck', labelKey: 'features.calculator.fields.neck', unit: 'cm' },
       { key: 'height', labelKey: 'features.calculator.fields.height', unit: 'cm' },
+    ],
+  },
+  {
+    id: 'vo2max',
+    icon: 'fitness',
+    titleKey: 'features.calculator.vo2max.title',
+    descKey: 'features.calculator.vo2max.desc',
+    fields: [
+      { key: 'distance', labelKey: 'features.calculator.fields.distance', unit: 'm' },
+      { key: 'age', labelKey: 'features.calculator.fields.age', unit: 'yr' },
     ],
   },
   {
@@ -68,6 +68,23 @@ export const CALCULATOR_DEFINITIONS: CalculatorDefinition[] = [
     ],
   },
   {
+    id: 'acwr',
+    icon: 'analytics',
+    titleKey: 'features.calculator.acwr.title',
+    descKey: 'features.calculator.acwr.desc',
+    fields: [
+      { key: 'acuteLoad', labelKey: 'features.calculator.fields.acuteLoad', unit: 'AU' },
+      { key: 'chronicLoad', labelKey: 'features.calculator.fields.chronicLoad', unit: 'AU' },
+    ],
+  },
+  {
+    id: 'readiness',
+    icon: 'pulse',
+    titleKey: 'features.calculator.readiness.title',
+    descKey: 'features.calculator.readiness.desc',
+    fields: [{ key: 'score', labelKey: 'features.calculator.fields.readinessScore', unit: '%' }],
+  },
+  {
     id: 'body-water',
     icon: 'water',
     titleKey: 'features.calculator.bodyWater.title',
@@ -90,23 +107,6 @@ export const CALCULATOR_DEFINITIONS: CalculatorDefinition[] = [
     titleKey: 'features.calculator.muscleMass.title',
     descKey: 'features.calculator.muscleMass.desc',
     fields: [{ key: 'muscleMass', labelKey: 'features.calculator.fields.muscleMass', unit: 'kg' }],
-  },
-  {
-    id: 'acwr',
-    icon: 'analytics',
-    titleKey: 'features.calculator.acwr.title',
-    descKey: 'features.calculator.acwr.desc',
-    fields: [
-      { key: 'acuteLoad', labelKey: 'features.calculator.fields.acuteLoad', unit: 'AU' },
-      { key: 'chronicLoad', labelKey: 'features.calculator.fields.chronicLoad', unit: 'AU' },
-    ],
-  },
-  {
-    id: 'readiness',
-    icon: 'pulse',
-    titleKey: 'features.calculator.readiness.title',
-    descKey: 'features.calculator.readiness.desc',
-    fields: [{ key: 'score', labelKey: 'features.calculator.fields.readinessScore', unit: '%' }],
   },
 ];
 

@@ -36,6 +36,7 @@ const quickAccessItems = [
 ];
 
 const mainMenuItems = [
+  { id: 'calc', key: 'more.sportsScienceCalculators', icon: 'calculator' as const, color: '#8B5CF6', route: '/calculator' },
   { id: '1', key: 'more.teamManagement', icon: 'people-circle' as const, color: '#0066FF', route: '/team-management' },
   { id: '2', key: 'more.reports', icon: 'document-text' as const, color: '#10B981', route: '/reports' },
   { id: '3', key: 'more.research', icon: 'book' as const, color: '#8B5CF6', route: '/research' },
@@ -59,7 +60,7 @@ const supportItems = [
 
 const appFeatures = [
   { id: 'tests', icon: 'analytics', labelKey: 'more.statsTests', value: '14' },
-  { id: 'calc', icon: 'calculator', labelKey: 'more.statsCalculators', value: '8' },
+  { id: 'calc', icon: 'calculator', labelKey: 'more.statsCalculators', value: '11' },
   { id: 'lang', icon: 'language', labelKey: 'more.statsLanguages', value: '2' },
 ];
 

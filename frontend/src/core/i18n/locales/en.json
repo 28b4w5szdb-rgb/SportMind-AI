@@ -667,7 +667,8 @@
     "sportsMedicine": "Sports Medicine",
     "statsTests": "Tests",
     "statsCalculators": "Calculators",
-    "statsLanguages": "Languages"
+    "statsLanguages": "Languages",
+    "sportsScienceCalculators": "Sports Science Calculators"
   },
   "settings": {
     "title": "Settings",
@@ -846,8 +847,12 @@
       "saved": "Athlete saved"
     },
     "calculator": {
-      "title": "Sports Science Calculator",
+      "title": "Sports Science Calculators",
       "subtitle": "Professional sports science calculations",
+      "countLabel": "{{count}} calculators available",
+      "searchPlaceholder": "Search calculators…",
+      "clearSearch": "Clear search",
+      "noResults": "No calculators match your search.",
       "recent": "Recent calculations",
       "calculate": "Calculate",
       "result": "Result",
