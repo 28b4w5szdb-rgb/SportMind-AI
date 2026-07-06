@@ -92,7 +92,7 @@ frontend/src/cloud/
 
 | Commit | Phase | Description |
 |--------|-------|-------------|
-| *(pending)* | 6C.2 | Catalog seed + read-only Firestore/mock adapters |
+| `326b629` | 6C.2 | Catalog seed + read-only Firestore/mock adapters |
 | `e81b8c2` | 6C.1 | Scientific Firestore core foundation |
 | `8ee0f4b` | UX | Calculator Hub entry from More screen |
 | `f9d693e` | 6B.1 | Auth persistence + user profiles |
