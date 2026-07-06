@@ -21,7 +21,7 @@ const MOCK_EXTRAS: Record<
       titleEn: 'Match-day nutrition plan logged',
       titleAr: 'تسجيل خطة تغذية يوم المباراة',
       subtitleEn: 'Carb periodization phase',
-      subtitleAr: 'مرحلة توزيع الكربohydrates',
+      subtitleAr: 'مرحلة توزيع الكربوهيدرات',
       date: '2026-06-30',
     },
   ],

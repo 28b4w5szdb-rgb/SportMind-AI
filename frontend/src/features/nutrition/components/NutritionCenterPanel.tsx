@@ -17,14 +17,16 @@ interface NutritionCenterPanelProps {
 function MacroBar({ label, value, target, unit, color }: { label: string; value: number; target: number; unit: string; color: string }) {
   const theme = useTheme();
   const type = useTypography();
+  const { textAlign, isRTL } = useDirection();
   const pct = target > 0 ? Math.min(100, Math.round((value / target) * 100)) : 0;
+  const displayUnit = isRTL && unit === 'g' ? 'جم' : isRTL && unit === 'kcal' ? 'سعرة' : unit;
 
   return (
     <View style={{ marginBottom: 10 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-        <Text style={[type.caption, { color: theme.colors.textSecondary }]}>{label}</Text>
-        <Text style={[type.caption, { color: theme.colors.text }]}>
-          {value}/{target} {unit}
+        <Text style={[type.caption, { color: theme.colors.textSecondary, textAlign: textAlign('start'), flexShrink: 1 }]}>{label}</Text>
+        <Text style={[type.caption, { color: theme.colors.text, textAlign: textAlign('end'), flexShrink: 0 }]}>
+          {value}/{target} {displayUnit}
         </Text>
       </View>
       <View style={{ height: 8, backgroundColor: theme.colors.border, borderRadius: 4, overflow: 'hidden' }}>
@@ -38,7 +40,7 @@ export function NutritionCenterPanel({ snapshot }: NutritionCenterPanelProps) {
   const { t } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
-  const { flexRow, textAlign } = useDirection();
+  const { flexRow, textAlign, isRTL } = useDirection();
   const { totals, targets, hydration, compliance, compliancePercent, goal, goalProgress, bodyCompositionAnalysis, bodyCompositionTrend, recommendations } =
     snapshot;
 
@@ -102,8 +104,21 @@ export function NutritionCenterPanel({ snapshot }: NutritionCenterPanelProps) {
         ) : (
           recommendations.map((rec) => (
             <Card key={rec.id} variant="outlined" padding="md" style={{ borderRadius: theme.borderRadius.xl, marginBottom: theme.spacing.sm }}>
-              <Text style={[type.bodySm, { color: theme.colors.text, fontWeight: '700', textAlign: textAlign('start') }]}>{t(rec.titleKey)}</Text>
-              <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 4, textAlign: textAlign('start') }]}>{t(rec.bodyKey)}</Text>
+              <Text style={[type.bodySm, { color: theme.colors.text, fontWeight: '700', textAlign: textAlign('start'), writingDirection: isRTL ? 'rtl' : 'ltr' }]}>{t(rec.titleKey)}</Text>
+              <Text
+                style={[
+                  type.caption,
+                  {
+                    color: theme.colors.textSecondary,
+                    marginTop: 4,
+                    textAlign: textAlign('start'),
+                    lineHeight: isRTL ? 20 : undefined,
+                    writingDirection: isRTL ? 'rtl' : 'ltr',
+                  },
+                ]}
+              >
+                {t(rec.bodyKey)}
+              </Text>
             </Card>
           ))
         )}

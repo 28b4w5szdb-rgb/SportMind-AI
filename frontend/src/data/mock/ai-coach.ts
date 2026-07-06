@@ -170,11 +170,11 @@ const MOCK_RESPONSES: Record<AiAgentId, { en: string; ar: string }> = {
   },
   recovery: {
     en: 'For a heavy training week, prioritize 8+ hours sleep, protein within 30 min post-session, and active recovery (20 min low-intensity cardio).',
-    ar: 'في أسبوع تدريب مكثف، أولِ 8+ ساعات نوم، بروtein خلال 30 دقيقة بعد الجلسة، وتعافياً نشطاً (20 دقيقة cardio منخفض).',
+    ar: 'في أسبوع تدريب مكثف، أولِ 8+ ساعات نوم، البروتين خلال 30 دقيقة بعد الجلسة، وتعافياً نشطاً (20 دقيقة cardio خفيف).',
   },
   nutrition: {
     en: 'Match-day nutrition: carb-load 24h prior (6–8 g/kg), hydrate with electrolytes, and avoid high-fiber meals 3h before kickoff.',
-    ar: 'تغذية يوم المباراة: تحميل كربohydrates قبل 24 ساعة (6–8 g/kg)، ترطيب بإلكتروليت، وتجنب وجبات عالية الألياف قبل 3 ساعات من البداية.',
+    ar: 'تغذية يوم المباراة: تحميل كربوهيدرات قبل 24 ساعة (6–8 جم/كغ)، ترطيب بإلكتروليت، وتجنب وجبات عالية الألياف قبل 3 ساعات من البداية.',
   },
   planning: {
     en: 'Suggested 7-day microcycle: Mon HIIT + strength, Tue technical, Wed recovery, Thu small-sided games, Fri activation, Sat match prep, Sun rest.',
@@ -280,8 +280,8 @@ function buildNutritionTopicResponse(topic: NutritionTopic, ctx: AnalyticsCoachC
     }
     case 'protein':
       return isRTL
-        ? `🥩 بروtein ${name}: ${totals.protein_g}/${targets.protein_g}g (${Math.round((totals.protein_g / targets.protein_g) * 100)}%).\n` +
-            (totals.protein_g < targets.protein_g * 0.85 ? 'زِد البروtein في الوجبات التالية.' : 'البروtein ضمن الهدف.')
+        ? `🥩 البروتين لـ ${name}: ${totals.protein_g}/${targets.protein_g} جم (${Math.round((totals.protein_g / targets.protein_g) * 100)}%).\n` +
+            (totals.protein_g < targets.protein_g * 0.85 ? 'زِد البروتين في الوجبات التالية.' : 'البروتين ضمن الهدف.')
         : `🥩 Protein for ${name}: ${totals.protein_g}/${targets.protein_g}g (${Math.round((totals.protein_g / targets.protein_g) * 100)}%).\n` +
             (totals.protein_g < targets.protein_g * 0.85 ? 'Increase protein at upcoming meals.' : 'Protein intake on target.');
 
@@ -292,7 +292,7 @@ function buildNutritionTopicResponse(topic: NutritionTopic, ctx: AnalyticsCoachC
 
     case 'compliance':
       return isRTL
-        ? `📋 امتثال التغذية لـ ${name}: ${compliance.overall}%. بروtein ${compliance.protein}%. ترطيب ${compliance.hydration}%.`
+        ? `📋 امتثال التغذية لـ ${name}: ${compliance.overall}%. البروتين ${compliance.protein}%. الترطيب ${compliance.hydration}%.`
         : `📋 Nutrition compliance for ${name}: ${compliance.overall}%. Protein ${compliance.protein}%. Hydration ${compliance.hydration}%.`;
 
     case 'goal':

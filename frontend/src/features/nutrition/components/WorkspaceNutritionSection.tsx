@@ -21,7 +21,7 @@ export function WorkspaceNutritionSection({ athleteId, snapshot }: WorkspaceNutr
   const { t } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
-  const { flexRow, textAlign } = useDirection();
+  const { flexRow, textAlign, isRTL } = useDirection();
   const { totals, targets, hydration, compliance, goalProgress, primaryRecommendation, bodyCompositionAnalysis } = snapshot;
 
   const body = bodyCompositionAnalysis?.latest;
@@ -48,7 +48,7 @@ export function WorkspaceNutritionSection({ athleteId, snapshot }: WorkspaceNutr
         <Card variant="filled" padding="md" style={{ flex: 1, minWidth: 100, borderRadius: theme.borderRadius.xl }}>
           <Text style={[type.caption, { color: theme.colors.textSecondary }]}>{t('nutrition.protein')}</Text>
           <Text style={[type.h5, { color: theme.colors.text, marginTop: 4 }]}>
-            {totals.protein_g}/{targets.protein_g}g
+            {totals.protein_g}/{targets.protein_g}{isRTL ? ' جم' : 'g'}
           </Text>
         </Card>
         <Card variant="filled" padding="md" style={{ flex: 1, minWidth: 100, borderRadius: theme.borderRadius.xl }}>
@@ -79,8 +79,10 @@ export function WorkspaceNutritionSection({ athleteId, snapshot }: WorkspaceNutr
           <View>
             <Text style={[type.caption, { color: theme.colors.textSecondary }]}>{t('nutrition.complianceLabel')}</Text>
             <Text style={[type.bodySm, { color: theme.colors.text, fontWeight: '700' }]}>{compliance.overall}%</Text>
-            <Text style={[type.caption, { color: theme.colors.textTertiary }]}>
-              P {compliance.protein}% · H {compliance.hydration}%
+            <Text style={[type.caption, { color: theme.colors.textTertiary, textAlign: textAlign('start'), writingDirection: isRTL ? 'rtl' : 'ltr' }]}>
+              {isRTL
+                ? `البروتين ${compliance.protein}% · الترطيب ${compliance.hydration}%`
+                : `P ${compliance.protein}% · H ${compliance.hydration}%`}
             </Text>
           </View>
         </View>

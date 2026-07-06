@@ -907,7 +907,7 @@
     "allGood": "مؤشرات التغذية ضمن الهدف — حافظ على الخطة الحالية.",
     "calories": "السعرات",
     "protein": "البروتين",
-    "carbs": "الكربohydrates",
+    "carbs": "الكربوهيدرات",
     "fat": "الدهون",
     "macrosTitle": "المغذيات الكبرى",
     "hydrationTitle": "ذكاء الترطيب",
@@ -970,8 +970,8 @@
       "postWorkout": "بعد التمرين"
     },
     "supplements": {
-      "whey": "بروtein مصل",
-      "creatine": "كreatine",
+      "whey": "مصل البروتين",
+      "creatine": "كرياتين",
       "electrolytes": "إلكتروليتات",
       "vitaminD": "فيتامين D",
       "omega3": "أوميغا 3",
@@ -996,20 +996,20 @@
       "reminderMid": "اقتربت من هدف الترطيب — أكمل السوائل قبل تمرين المساء."
     },
     "recommendations": {
-      "increaseProteinTitle": "زِد البروtein",
-      "increaseProtein": "البروtein دون الهدف لحمل التدريب — أضف 20–30 g في الوجبة التالية.",
-      "increaseCarbsTitle": "زِد الكربohydrates",
-      "increaseCarbs": "الكربohydrates منخفضة مقارنة بالحمل — ركّز على كربohydrates معقدة قبل/بعد التمرين.",
+      "increaseProteinTitle": "زِد البروتين",
+      "increaseProtein": "البروتين دون الهدف لحمل التدريب — أضف 20–30 جم في الوجبة التالية.",
+      "increaseCarbsTitle": "زِد الكربوهيدرات",
+      "increaseCarbs": "الكربوهيدرات منخفضة مقارنة بالحمل — ركّز على كربوهيدرات معقدة قبل/بعد التمرين.",
       "drinkWaterTitle": "اشرب مزيداً من الماء",
       "drinkWater": "السوائل دون الهدف. وزّع الاستهلاك مع إلكتروليتات عند التعرق الشديد.",
       "recoveryShakeTitle": "مخفوق التعافي",
-      "recoveryShake": "أضف مخفوق تعافٍ (بروtein + كربohydrates) خلال 30 دقيقة بعد الجلسة.",
+      "recoveryShake": "أضف مخفوق تعافٍ (بروتين + كربوهيدرات) خلال 30 دقيقة بعد الجلسة.",
       "reduceCaloriesTitle": "قلّل السعرات",
       "reduceCalories": "فائض سعرات لهدف خسارة الدهون — قلّل الوجبات الخفيفة أو الحصص.",
       "electrolytesTitle": "زِد الإلكتروليتات",
       "electrolytes": "خطر تعرق مرتفع — أضف صوديوم/بوتاسيوم مع السوائل حول الجلسات.",
       "mealTimingTitle": "توقيت الوجبات",
-      "mealTiming": "كربohydrates قبل التمرين 2–3 س وبروtein بعد التمرين خلال 30 د."
+      "mealTiming": "كربوهيدرات قبل التمرين 2–3 ساعات وبروتين بعد التمرين خلال 30 د."
     }
   },
   "sportsMedicine": {

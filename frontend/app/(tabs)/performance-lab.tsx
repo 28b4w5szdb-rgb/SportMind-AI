@@ -38,24 +38,24 @@ import {
 } from '@/src/features/performance-lab';
 
 const labTools = [
-  { id: '1', key: 'lab.newTest', icon: 'analytics' as const, color: '#0066FF', desc: 'Conduct new assessments' },
-  { id: '2', key: 'lab.calculator', icon: 'calculator' as const, color: '#F97316', desc: 'Compute metrics & zones' },
-  { id: '3', key: 'lab.benchmark', icon: 'bar-chart' as const, color: '#10B981', desc: 'Compare against norms' },
-  { id: '4', key: 'lab.comparison', icon: 'git-compare' as const, color: '#8B5CF6', desc: 'Track progress over time' },
+  { id: '1', key: 'lab.newTest', icon: 'analytics' as const, color: '#0066FF', desc: 'Conduct new assessments', descAr: 'قياسات جديدة' },
+  { id: '2', key: 'lab.calculator', icon: 'calculator' as const, color: '#F97316', desc: 'Compute metrics & zones', descAr: 'حساب المؤشرات' },
+  { id: '3', key: 'lab.benchmark', icon: 'bar-chart' as const, color: '#10B981', desc: 'Compare against norms', descAr: 'مقارنة بالمعايير' },
+  { id: '4', key: 'lab.comparison', icon: 'git-compare' as const, color: '#8B5CF6', desc: 'Track progress over time', descAr: 'تتبع التقدم' },
 ];
+
+const labLabels = {
+  'lab.newTest': { en: 'New Test', ar: 'اختبار' },
+  'lab.calculator': { en: 'Calculator', ar: 'حاسبة' },
+  'lab.benchmark': { en: 'Benchmark', ar: 'مقارنة' },
+  'lab.comparison': { en: 'Compare', ar: 'تتبع' },
+};
 
 const recentTestsFallback = [
   { id: '1', title: 'VO2 Max Test', athlete: 'Ahmed Hassan', date: '2h ago', score: '52.4 ml/kg/min', trend: 'up' },
   { id: '2', title: '10m Sprint', athlete: 'Mohammed Ali', date: 'Yesterday', score: '1.82s', trend: 'up' },
   { id: '3', title: 'Vertical Jump', athlete: 'Omar Farouk', date: '3 days ago', score: '45cm', trend: 'down' },
 ];
-
-const labLabels = {
-  'lab.newTest': { en: 'New Test', ar: 'اختبار جديد' },
-  'lab.calculator': { en: 'Calculator', ar: 'الحاسبة' },
-  'lab.benchmark': { en: 'Benchmark', ar: 'المقارنة' },
-  'lab.comparison': { en: 'Compare', ar: 'المقارنة' },
-};
 
 export default function PerformanceLabScreen() {
   const theme = useTheme();
@@ -97,7 +97,7 @@ export default function PerformanceLabScreen() {
   const gridConfig = useMemo(() => {
     if (isDesktop) return { columns: 4, cardWidth: 260, gap: 20 };
     if (isTablet) return { columns: 2, cardWidth: 280, gap: 16 };
-    return { columns: 2, cardWidth: (windowWidth - 48) / 2, gap: 12 };
+    return { columns: 2, cardWidth: Math.max(148, (windowWidth - 48 - 12) / 2), gap: 12 };
   }, [windowWidth, isDesktop, isTablet]);
 
   return (
@@ -296,16 +296,17 @@ export default function PerformanceLabScreen() {
                 <TouchableOpacity
                   key={tool.id}
                   activeOpacity={0.85}
-                  style={{ flex: 1, maxWidth: gridConfig.cardWidth }}
+                  style={{ width: gridConfig.cardWidth, flexGrow: 0, flexShrink: 0 }}
                   onPress={() => handleToolPress(tool.id)}
                 >
                   <Card
                     variant="elevated"
-                    padding="lg"
+                    padding={isDesktop ? 'lg' : 'md'}
                     style={{
                       borderRadius: theme.borderRadius['2xl'],
                       alignItems: 'center',
-                      minHeight: isDesktop ? 180 : 140,
+                      width: '100%',
+                      minHeight: isDesktop ? 180 : 128,
                     }}
                   >
                     <LinearGradient
@@ -314,20 +315,27 @@ export default function PerformanceLabScreen() {
                       end={{ x: 1, y: 1 }}
                       style={[
                         styles.toolIcon,
-                        { borderRadius: theme.borderRadius.xl },
+                        { borderRadius: theme.borderRadius.xl, width: isDesktop ? 64 : 52, height: isDesktop ? 64 : 52 },
                       ]}
                     >
-                      <Ionicons name={tool.icon} size={28} color="#FFFFFF" />
+                      <Ionicons name={tool.icon} size={isDesktop ? 28 : 24} color="#FFFFFF" />
                     </LinearGradient>
                     <Text
                       style={[
-                        type.h5,
+                        isRTL ? type.bodySm : type.h5,
                         {
                           color: theme.colors.text,
-                          marginTop: theme.spacing[4],
+                          marginTop: isDesktop ? theme.spacing[4] : theme.spacing[3],
                           textAlign: 'center',
+                          width: '100%',
+                          lineHeight: isRTL ? 22 : undefined,
+                          writingDirection: isRTL ? 'rtl' : 'ltr',
+                          flexShrink: 1,
                         },
                       ]}
+                      numberOfLines={2}
+                      adjustsFontSizeToFit
+                      minimumFontScale={0.85}
                     >
                       {isRTL ? labels.ar : labels.en}
                     </Text>
@@ -338,10 +346,14 @@ export default function PerformanceLabScreen() {
                           color: theme.colors.textTertiary,
                           marginTop: theme.spacing[1],
                           textAlign: 'center',
+                          width: '100%',
+                          lineHeight: isRTL ? 18 : undefined,
+                          writingDirection: isRTL ? 'rtl' : 'ltr',
                         },
                       ]}
+                      numberOfLines={2}
                     >
-                      {tool.desc}
+                      {isRTL ? tool.descAr : tool.desc}
                     </Text>
                   </Card>
                 </TouchableOpacity>

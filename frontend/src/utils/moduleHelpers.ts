@@ -160,8 +160,8 @@ export function buildNutritionReportSections(
   const goalLabel = t(NUTRITION_GOALS.find((g) => g.id === goal)?.labelKey ?? 'nutrition.goals.performance');
 
   const nutritionSummary = isRTL
-    ? `السعرات ${totals.calories}/${targets.calories} · بروtein ${totals.protein_g}/${targets.protein_g}g · ماء ${totals.water_liters}/${targets.water_liters}L.\n` +
-      `الامتثال ${compliance.overall}%. البروtein ${compliance.protein}%. السعرات ${compliance.calories}%. الهدف: ${goalLabel}.`
+    ? `السعرات ${totals.calories}/${targets.calories} · البروتين ${totals.protein_g}/${targets.protein_g} جم · ماء ${totals.water_liters}/${targets.water_liters} ل.\n` +
+      `الامتثال ${compliance.overall}%. البروتين ${compliance.protein}%. السعرات ${compliance.calories}%. الهدف: ${goalLabel}.`
     : `Calories ${totals.calories}/${targets.calories} · Protein ${totals.protein_g}/${targets.protein_g}g · Water ${totals.water_liters}/${targets.water_liters}L.\n` +
       `Overall compliance ${compliance.overall}%. Protein ${compliance.protein}%. Calories ${compliance.calories}%. Goal: ${goalLabel}.`;
 

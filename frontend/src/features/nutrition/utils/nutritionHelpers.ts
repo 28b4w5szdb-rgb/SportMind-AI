@@ -94,8 +94,8 @@ export function formatNutritionForAI(snapshot: NutritionSnapshot, athleteName: s
 
   if (isRTL) {
     return (
-      `🥗 تغذية ${athleteName}: ${totals.calories}/${targets.calories} kcal، بروtein ${totals.protein_g}/${targets.protein_g}g، ماء ${totals.water_liters}/${targets.water_liters}L.\n` +
-      `الامتثال ${compliance.overall}% (بروtein ${compliance.protein}% · ترطيب ${compliance.hydration}%). الهدف: ${goal}.\n` +
+      `🥗 تغذية ${athleteName}: ${totals.calories}/${targets.calories} سعرة، البروتين ${totals.protein_g}/${targets.protein_g} جم، ماء ${totals.water_liters}/${targets.water_liters} ل.\n` +
+      `الامتثال ${compliance.overall}% (البروتين ${compliance.protein}% · الترطيب ${compliance.hydration}%). الهدف: ${goal}.\n` +
       bodyLine +
       (recText ? `\n💡 ${recText}` : '')
     );
