@@ -45,7 +45,71 @@
     "injuredCount": "مصابون",
     "trainingLoad": "الحمل (AU)",
     "insights": "رؤى الذكاء الاصطناعي",
-    "noInsightsYet": "لا توجد رؤى بعد — أضف لاعبين للبدء"
+    "noInsightsYet": "لا توجد رؤى بعد — أضف لاعبين للبدء",
+    "commandCenter": "مركز قيادة علوم الرياضة",
+    "aiInsight": "رؤية ذكية",
+    "kpiGrid": "مؤشرات الفريق",
+    "analyticsCharts": "نظرة تحليلية",
+    "analyticsChartsSubtitle": "اتجاهات أسبوعية وتوزيع الفريق",
+    "todayCenter": "مركز قيادة اليوم",
+    "todayCenterSub": "الحالة التشغيلية للتدريب والعافية",
+    "teamIntelligence": "ذكاء الفريق",
+    "viewIntel": "عرض الكل",
+    "readinessStrip": "جاهزية اللاعبين",
+    "quickActionsSub": "مهام سريعة للطاقم",
+    "kpi": {
+      "nutritionCompliance": "الالتزام الغذائي",
+      "wearablesSync": "مزامنة الأجهزة اليوم"
+    },
+    "status": {
+      "active": "نشط",
+      "injured": "مصاب",
+      "rest": "راحة"
+    },
+    "risk": {
+      "low": "خطر منخفض",
+      "moderate": "متوسط",
+      "high": "خطر مرتفع"
+    },
+    "chart": {
+      "performanceTrend": "الأداء الأسبوعي",
+      "performanceTrendSub": "اتجاه النتيجة الإجمالية",
+      "readinessTrend": "اتجاه الجاهزية",
+      "readinessTrendSub": "جاهزية الفريق عبر الزمن",
+      "riskDistribution": "توزيع المخاطر",
+      "riskDistributionSub": "فئات الجاهزية والمخاطر",
+      "trainingLoad": "حمل التدريب",
+      "trainingLoadSub": "لقطة حمل لكل لاعب"
+    },
+    "today": {
+      "training": "تدريب اليوم",
+      "trainingValue": "{{logged}}/{{total}} جلسات مسجلة",
+      "noSessions": "لا توجد جلسات مجدولة",
+      "checkIn": "الفحص اليومي",
+      "checkInValue": "{{count}}/{{total}} فحوصات اليوم",
+      "checkInMeta": "مدخلات العافية والجاهزية",
+      "recovery": "حالة التعافي",
+      "recoveryMeta": "متوسط تعافي الفريق",
+      "nutrition": "حالة التغذية",
+      "nutritionValue": "{{logged}}/{{total}} سجلات اليوم",
+      "wearables": "مزامنة الأجهزة",
+      "wearablesValue": "{{synced}} متزامن · {{connected}}/{{total}} متصل"
+    },
+    "intel": {
+      "topPerformer": "أفضل أداء",
+      "atRisk": "لاعب معرض للخطر",
+      "fatigueWatch": "قائمة مراقبة الإجهاد",
+      "weeklyFocus": "تركيز الأسبوع",
+      "noData": "لا توجد بيانات بعد"
+    },
+    "actions": {
+      "addTest": "إضافة اختبار",
+      "dailyCheckIn": "فحص يومي",
+      "logSession": "تسجيل جلسة",
+      "nutritionLog": "سجل التغذية",
+      "connectDevice": "ربط جهاز",
+      "generateReport": "إنشاء تقرير"
+    }
   },
   "actions": {
     "aiCoach": "المدرب الذكي",

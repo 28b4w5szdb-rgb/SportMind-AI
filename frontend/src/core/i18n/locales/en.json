@@ -45,7 +45,71 @@
     "injuredCount": "Injured",
     "trainingLoad": "Load (AU)",
     "insights": "AI Insights",
-    "noInsightsYet": "No insights yet — add athletes to get started"
+    "noInsightsYet": "No insights yet — add athletes to get started",
+    "commandCenter": "Sports Science Command Center",
+    "aiInsight": "AI Insight",
+    "kpiGrid": "Squad KPIs",
+    "analyticsCharts": "Analytics Overview",
+    "analyticsChartsSubtitle": "Weekly trends and team distribution",
+    "todayCenter": "Today Command Center",
+    "todayCenterSub": "Operational status across training and wellness",
+    "teamIntelligence": "Team Intelligence",
+    "viewIntel": "View all",
+    "readinessStrip": "Athlete readiness",
+    "quickActionsSub": "One-tap workflows for staff",
+    "kpi": {
+      "nutritionCompliance": "Nutrition compliance",
+      "wearablesSync": "Wearables synced today"
+    },
+    "status": {
+      "active": "active",
+      "injured": "injured",
+      "rest": "rest"
+    },
+    "risk": {
+      "low": "Low risk",
+      "moderate": "Moderate",
+      "high": "High risk"
+    },
+    "chart": {
+      "performanceTrend": "Weekly performance",
+      "performanceTrendSub": "Squad overall score trend",
+      "readinessTrend": "Readiness trend",
+      "readinessTrendSub": "Team readiness over time",
+      "riskDistribution": "Risk distribution",
+      "riskDistributionSub": "Readiness / risk buckets",
+      "trainingLoad": "Training load",
+      "trainingLoadSub": "Per-athlete load snapshot"
+    },
+    "today": {
+      "training": "Training today",
+      "trainingValue": "{{logged}}/{{total}} sessions logged",
+      "noSessions": "No sessions scheduled",
+      "checkIn": "Daily check-in",
+      "checkInValue": "{{count}}/{{total}} check-ins today",
+      "checkInMeta": "Wellness & readiness inputs",
+      "recovery": "Recovery status",
+      "recoveryMeta": "Team average recovery score",
+      "nutrition": "Nutrition status",
+      "nutritionValue": "{{logged}}/{{total}} logs today",
+      "wearables": "Wearable sync",
+      "wearablesValue": "{{synced}} synced · {{connected}}/{{total}} connected"
+    },
+    "intel": {
+      "topPerformer": "Top performer",
+      "atRisk": "At-risk athlete",
+      "fatigueWatch": "Fatigue watchlist",
+      "weeklyFocus": "Weekly focus",
+      "noData": "No data yet"
+    },
+    "actions": {
+      "addTest": "Add Test",
+      "dailyCheckIn": "Daily Check-in",
+      "logSession": "Log Session",
+      "nutritionLog": "Nutrition Log",
+      "connectDevice": "Connect Device",
+      "generateReport": "Generate Report"
+    }
   },
   "actions": {
     "aiCoach": "AI Coach",
