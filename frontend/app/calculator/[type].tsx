@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
+import { ErrorState } from '@/src/components/common/ErrorState';
 import { Input } from '@/src/components/common/Input';
 import { Card } from '@/src/components/common/Card';
 import { Button } from '@/src/components/common/Button';
@@ -46,6 +47,7 @@ function buildInputRows(
 
 export default function CalculatorTypeScreen() {
   const { type: typeParam } = useLocalSearchParams<{ type: string }>();
+  const router = useRouter();
   const calcType = (typeParam ?? 'bmi') as CalculatorType;
   const def = getCalculatorDefinition(calcType);
   const { t } = useTranslation();
@@ -80,7 +82,12 @@ export default function CalculatorTypeScreen() {
   if (!def) {
     return (
       <FeatureScrollScreen title={t('features.calculator.title')}>
-        <Text>{t('states.error.defaultDescription')}</Text>
+        <ErrorState
+          title={t('features.calculator.notFoundTitle')}
+          description={t('features.calculator.notFoundDesc')}
+          actionLabel={t('common.back')}
+          onAction={() => router.back()}
+        />
       </FeatureScrollScreen>
     );
   }

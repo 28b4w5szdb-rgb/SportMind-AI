@@ -23,7 +23,7 @@ export default function KnowledgeScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
-  const { flexRow, textAlign, chevronIcon, isRTL } = useDirection();
+  const { flexRow, textAlign, chevronIcon } = useDirection();
 
   return (
     <FeatureScrollScreen title={t('features.knowledge.title')}>
@@ -42,30 +42,30 @@ export default function KnowledgeScreen() {
           },
         ]}
       >
-        {(isRTL ? 'الفئات' : 'CATEGORIES').toUpperCase()}
+        {t('features.knowledge.sectionCategories').toUpperCase()}
       </Text>
 
       {CATEGORIES.map((cat) => (
         <TouchableOpacity key={cat.key} activeOpacity={0.85} onPress={() => router.push(APP_ROUTES.knowledgeCategory(cat.key))}>
           <Card variant="elevated" padding="md" style={{ marginBottom: theme.spacing.md, borderRadius: theme.borderRadius['2xl'], ...theme.shadows.md }}>
-          <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
-            <LinearGradient
-              colors={[cat.color, cat.color + 'CC']}
-              style={{ width: 48, height: 48, borderRadius: theme.borderRadius.xl, alignItems: 'center', justifyContent: 'center' }}
-            >
-              <Ionicons name={cat.icon} size={24} color="#FFF" />
-            </LinearGradient>
-            <View style={{ flex: 1, marginHorizontal: theme.spacing.md }}>
-              <Text style={[type.h5, { color: theme.colors.text, textAlign: textAlign('start') }]}>
-                {t(`features.knowledge.categories.${cat.key}`)}
-              </Text>
-              <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 2, textAlign: textAlign('start') }]}>
-                {cat.count} {isRTL ? 'مقالات' : 'articles'}
-              </Text>
+            <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
+              <LinearGradient
+                colors={[cat.color, cat.color + 'CC']}
+                style={{ width: 48, height: 48, borderRadius: theme.borderRadius.xl, alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Ionicons name={cat.icon} size={24} color="#FFF" />
+              </LinearGradient>
+              <View style={{ flex: 1, marginHorizontal: theme.spacing.md }}>
+                <Text style={[type.h5, { color: theme.colors.text, textAlign: textAlign('start') }]}>
+                  {t(`features.knowledge.categories.${cat.key}`)}
+                </Text>
+                <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 2, textAlign: textAlign('start') }]}>
+                  {t('features.knowledge.articlesCount', { count: cat.count })}
+                </Text>
+              </View>
+              <Ionicons name={chevronIcon()} size={20} color={theme.colors.textTertiary} />
             </View>
-            <Ionicons name={chevronIcon()} size={20} color={theme.colors.textTertiary} />
-          </View>
-        </Card>
+          </Card>
         </TouchableOpacity>
       ))}
     </FeatureScrollScreen>

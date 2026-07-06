@@ -3,12 +3,15 @@ import { View, Text, Animated, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import { useTranslation } from 'react-i18next';
+
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 
 export function TypingIndicator() {
   const theme = useTheme();
   const type = useTypography();
+  const { t } = useTranslation();
   const { flexRow, textAlign, isRTL } = useDirection();
   const dot1 = useRef(new Animated.Value(0.3)).current;
   const dot2 = useRef(new Animated.Value(0.3)).current;
@@ -75,7 +78,7 @@ export function TypingIndicator() {
           ))}
         </View>
         <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 6, textAlign: textAlign('start') }]}>
-          {isRTL ? 'المدرب يكتب…' : 'Coach is typing…'}
+          {t('aiCoach.typing')}
         </Text>
       </View>
     </View>

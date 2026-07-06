@@ -12,6 +12,7 @@ import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 
 const RATING_COLORS = { elite: '#10B981', good: '#0066FF', average: '#F97316', below: '#EF4444' };
+type BenchmarkRating = keyof typeof RATING_COLORS;
 
 export default function LabBenchmarkScreen() {
   const { t } = useTranslation();
@@ -21,13 +22,13 @@ export default function LabBenchmarkScreen() {
   const tests = useMockStore((s) => s.tests);
 
   return (
-    <FeatureScrollScreen title={isRTL ? 'المعايير المرجعية' : 'Benchmarks'}>
+    <FeatureScrollScreen title={t('performanceLab.benchmarkScreen.title')}>
       <Text style={[type.body, { color: theme.colors.textSecondary, marginBottom: theme.spacing.lg, textAlign: textAlign('start') }]}>
-        {isRTL ? 'قارن نتائج فريقك بالمعايير العلمية' : 'Compare squad results against sport science norms'}
+        {t('performanceLab.benchmarkScreen.subtitle')}
       </Text>
 
       {BENCHMARK_NORMS.map((norm) => {
-        const latest = tests.find((t) => t.test_type_key === norm.testKey);
+        const latest = tests.find((test) => test.test_type_key === norm.testKey);
         const rating = latest ? benchmarkRating(latest.value, norm) : null;
         const color = rating ? RATING_COLORS[rating] : theme.colors.textTertiary;
         const def = getTestDefinition(norm.testKey);
@@ -44,27 +45,32 @@ export default function LabBenchmarkScreen() {
                   {label}
                 </Text>
                 <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 2, textAlign: textAlign('start') }]}>
-                  {isRTL ? `نخبة: ${norm.elite} · جيد: ${norm.good} · متوسط: ${norm.avg} ${norm.unit}` : `Elite: ${norm.elite} · Good: ${norm.good} · Avg: ${norm.avg} ${norm.unit}`}
+                  {t('performanceLab.benchmarkScreen.normLine', {
+                    elite: norm.elite,
+                    good: norm.good,
+                    avg: norm.avg,
+                    unit: norm.unit,
+                  })}
                 </Text>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
                 <Text style={[type.numberSm, { color }]}>
                   {latest ? `${latest.value} ${norm.unit}` : '—'}
                 </Text>
-                {rating && (
-                  <Text style={[type.caption, { color, marginTop: 2, textTransform: 'capitalize' }]}>
-                    {rating}
+                {rating ? (
+                  <Text style={[type.caption, { color, marginTop: 2 }]}>
+                    {t(`testingCenter.levels.${rating}`)}
                   </Text>
-                )}
+                ) : null}
               </View>
             </View>
             <View style={{ flexDirection: flexRow(true), marginTop: theme.spacing.md, gap: 4, height: 8 }}>
-              {['below', 'average', 'good', 'elite'].map((r) => (
+              {(['below', 'average', 'good', 'elite'] as BenchmarkRating[]).map((r) => (
                 <View
                   key={r}
                   style={{
                     flex: 1,
-                    backgroundColor: RATING_COLORS[r as keyof typeof RATING_COLORS],
+                    backgroundColor: RATING_COLORS[r],
                     borderRadius: 4,
                     opacity: rating === r ? 1 : 0.2,
                   }}

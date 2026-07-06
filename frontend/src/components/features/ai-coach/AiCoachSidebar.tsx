@@ -16,18 +16,18 @@ function agentToModuleLabel(agentId: AiAgentId, t: (key: string) => string): str
   return mod ? t(mod.labelKey) : agentId;
 }
 
-function formatRelativeTime(iso: string, isRTL: boolean): string {
+function formatRelativeTime(iso: string, t: (key: string, opts?: Record<string, unknown>) => string, isRTL: boolean): string {
   const d = new Date(iso);
   const now = new Date();
   const diffMs = now.getTime() - d.getTime();
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
-  if (diffMins < 1) return isRTL ? 'الآن' : 'Just now';
-  if (diffMins < 60) return isRTL ? `منذ ${diffMins} د` : `${diffMins}m ago`;
-  if (diffHours < 24) return isRTL ? `منذ ${diffHours} س` : `${diffHours}h ago`;
-  if (diffDays === 1) return isRTL ? 'أمس' : 'Yesterday';
-  if (diffDays < 7) return isRTL ? `منذ ${diffDays} ي` : `${diffDays}d ago`;
+  if (diffMins < 1) return t('aiCoach.time.justNow');
+  if (diffMins < 60) return t('aiCoach.time.minutesAgo', { count: diffMins });
+  if (diffHours < 24) return t('aiCoach.time.hoursAgo', { count: diffHours });
+  if (diffDays === 1) return t('aiCoach.time.yesterday');
+  if (diffDays < 7) return t('aiCoach.time.daysAgo', { count: diffDays });
   return d.toLocaleDateString(isRTL ? 'ar' : 'en', { month: 'short', day: 'numeric' });
 }
 
@@ -114,7 +114,7 @@ export function AiCoachSidebar({
               <View style={[styles.metaRow, { flexDirection: isRTL ? 'row-reverse' : 'row', marginTop: 6 }]}>
                 <Badge label={agentToModuleLabel(conv.agentId, t)} variant="info" />
                 <Text style={[type.caption, { color: theme.colors.textTertiary, marginStart: isRTL ? 0 : 8, marginEnd: isRTL ? 8 : 0 }]}>
-                  {formatRelativeTime(conv.updatedAt, isRTL)} · {conv.messages.length} {t('aiCoach.sidebar.messages')}
+                  {formatRelativeTime(conv.updatedAt, t, isRTL)} · {conv.messages.length} {t('aiCoach.sidebar.messages')}
                 </Text>
               </View>
               <View style={[styles.actions, { flexDirection: isRTL ? 'row-reverse' : 'row', marginTop: 8 }]}>

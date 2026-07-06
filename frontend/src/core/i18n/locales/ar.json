@@ -166,6 +166,14 @@
     "suggestedPrompts": "أسئلة مقترحة",
     "roleExamples": "أمثلة حسب الدور",
     "referencePlaceholder": "تكامل المكتبة المرجعية قريباً — ستظهر المصادر العلمية هنا.",
+    "typing": "المدرب يكتب…",
+    "time": {
+      "justNow": "الآن",
+      "yesterday": "أمس",
+      "minutesAgo": "منذ {{count}} د",
+      "hoursAgo": "منذ {{count}} س",
+      "daysAgo": "منذ {{count}} ي"
+    },
     "context": {
       "team": "الفريق",
       "athlete": "اللاعب"
@@ -284,7 +292,12 @@
     "labTimeline": "الخط الزمني للمختبر",
     "timelineEmpty": "لا يوجد سجل اختبارات بعد",
     "decisionLogged": "قرار مسجّل",
-    "benchmark": "المعايير",
+    "benchmarkNav": "المعايير",
+    "benchmarkScreen": {
+      "title": "المعايير المرجعية",
+      "subtitle": "قارن نتائج فريقك بالمعايير العلمية",
+      "normLine": "نخبة: {{elite}} · جيد: {{good}} · متوسط: {{avg}} {{unit}}"
+    },
     "compare": "مقارنة",
     "historyTitle": "سجل الاختبارات",
     "historySub": "سجل كامل لأحداث المختبر",
@@ -351,6 +364,7 @@
     "subtitle": "بروتوكولات احترافية ومعايير مرجعية وتحليلات مرتبطة",
     "categoriesTitle": "فئات الاختبار",
     "analyticsBadge": "مرتبط بالتحليلات",
+    "analyticsLinked": "تحليلات",
     "testsAvailable": "اختبار متاح",
     "testNotFound": "الاختبار غير موجود",
     "testNotFoundDesc": "تعذر العثور على بروتوكول الاختبار. ارجع إلى مكتبة الاختبارات وحاول مرة أخرى.",
@@ -600,6 +614,8 @@
   },
   "more": {
     "title": "المزيد",
+    "menuLabel": "القائمة",
+    "subtitle": "أدوات وإعدادات إضافية",
     "settings": "الإعدادات",
     "reports": "التقارير",
     "research": "البحث",
@@ -608,7 +624,27 @@
     "helpSupport": "المساعدة والدعم",
     "wearables": "الأجهزة الذكية",
     "signOut": "تسجيل الخروج",
-    "version": "الإصدار"
+    "version": "الإصدار",
+    "versionAlpha": "0.9 Alpha",
+    "defaultTeam": "فريق رياضي",
+    "notificationsTitle": "الإشعارات",
+    "notificationsEmpty": "لا توجد إشعارات جديدة.",
+    "sectionMain": "الرئيسية",
+    "sectionWellness": "العافية والتدريب",
+    "sectionSupport": "الدعم",
+    "menuHint": "إدارة متقدمة",
+    "quickSettings": "الإعدادات",
+    "quickKnowledge": "الدليل",
+    "quickReports": "التقارير",
+    "quickTeams": "الفرق",
+    "trainingBuilder": "منشئ التدريب",
+    "nutritionCenter": "مركز التغذية",
+    "dailyCheckIn": "التسجيل اليومي",
+    "recoveryCenter": "مركز التعافي",
+    "sportsMedicine": "الطب الرياضي",
+    "statsTests": "اختبار",
+    "statsCalculators": "حاسبة",
+    "statsLanguages": "لغة"
   },
   "settings": {
     "title": "الإعدادات",
@@ -753,6 +789,8 @@
       "calculate": "احسب",
       "result": "النتيجة",
       "interpretation": "التفسير",
+      "notFoundTitle": "الحاسبة غير موجودة",
+      "notFoundDesc": "نوع الحاسبة هذا غير متاح. ارجع إلى مركز الحاسبات.",
       "vo2max": { "title": "VO2 Max", "desc": "تقدير أقصى استهلاك للأكسجين" },
       "bmi": { "title": "مؤشر كتلة الجسم", "desc": "حساب مؤشر كتلة الجسم" },
       "bodyFat": { "title": "نسبة الدهون", "desc": "تقدير نسبة دهون الجسم" },
@@ -888,6 +926,7 @@
       "referencesPlaceholder": "المؤلف (السنة). العنوان. المجلة…",
       "referencesEmpty": "لم تُضف مراجع بعد.",
       "importReferences": "استيراد المراجع",
+      "importComingSoon": "استيراد المراجع من PubMed/Zotero سيتوفر في الإصدار الإنتاجي.",
       "analysisTitle": "تحليل تجريبي",
       "analysisSubtitle": "رؤى أولية من بيانات mock محلية",
       "analysisPlaceholder": "يظهر التحليل عند جمع البيانات.",
@@ -906,6 +945,10 @@
       "nameRequired": "اسم الفريق مطلوب",
       "sport": "الرياضة",
       "headCoach": "المدرب الرئيسي",
+      "assistantCoach": "مدرب مساعد",
+      "physio": "أخصائي علاج",
+      "analyst": "محلل أداء",
+      "staffRoleComingSoon": "تعيين الأدوار سيتوفر في الإصدار الإنتاجي.",
       "selectAthletes": "اختر اللاعبين",
       "selectAthletesHint": "اضغط على اللاعبين لإضافتهم للتشكيلة",
       "members": "{{count}} لاعب",
@@ -950,16 +993,47 @@
       "faq": "الأسئلة الشائعة",
       "contact": "تواصل مع الدعم",
       "docs": "التوثيق",
-      "email": "support@sportmind.ai"
+      "email": "support@sportmind.ai",
+      "sectionResources": "الموارد",
+      "sectionContact": "التواصل",
+      "docsAlertTitle": "التوثيق",
+      "docsAlertBody": "التوثيق الكامل سيتوفر على docs.sportmind.ai",
+      "faqItems": {
+        "addAthlete": {
+          "question": "كيف أضيف لاعبًا؟",
+          "answer": "انتقل إلى تبويب اللاعبين واضغط إضافة لاعب."
+        },
+        "recordTest": {
+          "question": "كيف أسجل اختبارًا؟",
+          "answer": "افتح مختبر الأداء واختر بروتوكولاً لتسجيل النتائج."
+        },
+        "dataSync": {
+          "question": "هل بياناتي متزامنة؟",
+          "answer": "تُحفظ البيانات محلياً على هذا الجهاز. ستُفعّل المزامنة السحابية في الإصدار الإنتاجي."
+        }
+      }
     },
     "knowledge": {
       "title": "مركز المعرفة",
       "subtitle": "أدلة وبروتوكولات وأفضل الممارسات",
+      "sectionCategories": "الفئات",
+      "articlesCount": "{{count}} مقالات",
+      "minRead": "{{count}} دقائق قراءة",
       "categories": {
         "testing": "بروتوكولات الاختبار",
         "training": "حمل التدريب",
         "recovery": "علوم التعافي",
         "nutrition": "التغذية الرياضية"
+      },
+      "articles": {
+        "t1": "بروتوكول Yo-Yo IR1",
+        "t2": "معايير اختبار السرعة",
+        "tr1": "حمل الجلسة (RPE × المدة)",
+        "tr2": "تخطيط الدورة التدريبية",
+        "r1": "التعافي الموجّه بـ HRV",
+        "r2": "النوم والأداء",
+        "n1": "التغذية يوم المباراة",
+        "n2": "استراتيجيات الترطيب"
       }
     },
     "settings": {
@@ -994,6 +1068,7 @@
     "recommendations": "التوصيات",
     "recommendationsHint": "إرشادات قائمة على القواعد — قابلة للاستبدال بالمدرب الذكي",
     "trendChange": "تغير الفترة",
+    "trendLabel": "الاتجاه",
     "benchmarkTitle": "المعايير",
     "benchmarkSubtitle": "بنية المقارنة (مراجع mock)",
     "benchmark": {

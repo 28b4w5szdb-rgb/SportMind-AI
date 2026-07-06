@@ -165,7 +165,7 @@ export function LabDashboard() {
       <LabTimeline tests={recentTests} compact />
 
       <View style={{ flexDirection: flexRow(true), flexWrap: 'wrap', gap: theme.spacing.sm, marginTop: theme.spacing.lg }}>
-        <Button title={t('performanceLab.benchmark')} onPress={() => router.push(APP_ROUTES.performanceLabBenchmark)} variant="outline" icon="bar-chart" style={{ flex: 1, minWidth: 140 }} />
+        <Button title={t('performanceLab.benchmarkNav')} onPress={() => router.push(APP_ROUTES.performanceLabBenchmark)} variant="outline" icon="bar-chart" style={{ flex: 1, minWidth: 140 }} />
         <Button title={t('performanceLab.compare')} onPress={() => router.push(APP_ROUTES.performanceLabCompare)} variant="outline" icon="git-compare" style={{ flex: 1, minWidth: 140 }} />
       </View>
     </View>

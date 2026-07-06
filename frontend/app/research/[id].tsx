@@ -97,10 +97,7 @@ export default function ResearchDetailScreen() {
           icon="library-outline"
           style={{ marginTop: theme.spacing.md }}
           onPress={() =>
-            Alert.alert(
-              t('features.research.referencesTitle'),
-              isRTL ? 'استيراد المراجع من PubMed/Zotero قريباً.' : 'Import references from PubMed/Zotero coming soon.'
-            )
+            Alert.alert(t('features.research.referencesTitle'), t('features.research.importComingSoon'))
           }
         />
       </FormSection>

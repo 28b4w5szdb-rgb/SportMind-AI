@@ -162,6 +162,14 @@
     "suggestedPrompts": "Suggested prompts",
     "roleExamples": "Examples by role",
     "referencePlaceholder": "Reference library integration coming soon — peer-reviewed sources will appear here.",
+    "typing": "Coach is typing…",
+    "time": {
+      "justNow": "Just now",
+      "yesterday": "Yesterday",
+      "minutesAgo": "{{count}}m ago",
+      "hoursAgo": "{{count}}h ago",
+      "daysAgo": "{{count}}d ago"
+    },
     "context": {
       "team": "Team",
       "athlete": "Athlete"
@@ -280,7 +288,12 @@
     "labTimeline": "Laboratory Timeline",
     "timelineEmpty": "No testing history yet",
     "decisionLogged": "Decision logged",
-    "benchmark": "Benchmarks",
+    "benchmarkNav": "Benchmarks",
+    "benchmarkScreen": {
+      "title": "Benchmarks",
+      "subtitle": "Compare squad results against sport science norms",
+      "normLine": "Elite: {{elite}} · Good: {{good}} · Avg: {{avg}} {{unit}}"
+    },
     "compare": "Compare",
     "historyTitle": "Testing History",
     "historySub": "Complete laboratory event log",
@@ -347,6 +360,7 @@
     "subtitle": "Professional protocols, reference norms, and analytics-linked assessments",
     "categoriesTitle": "Test Categories",
     "analyticsBadge": "Analytics linked",
+    "analyticsLinked": "Analytics",
     "testsAvailable": "tests available",
     "testNotFound": "Test not found",
     "testNotFoundDesc": "This test protocol could not be found. Return to the test library and try again.",
@@ -596,6 +610,8 @@
   },
   "more": {
     "title": "More",
+    "menuLabel": "Menu",
+    "subtitle": "Additional tools and settings",
     "settings": "Settings",
     "reports": "Reports",
     "research": "Research",
@@ -604,7 +620,27 @@
     "helpSupport": "Help & Support",
     "wearables": "Wearables",
     "signOut": "Sign Out",
-    "version": "Version"
+    "version": "Version",
+    "versionAlpha": "0.9 Alpha",
+    "defaultTeam": "Sports Team",
+    "notificationsTitle": "Notifications",
+    "notificationsEmpty": "No new notifications.",
+    "sectionMain": "Main",
+    "sectionWellness": "Wellness & Training",
+    "sectionSupport": "Support",
+    "menuHint": "Manage & configure",
+    "quickSettings": "Settings",
+    "quickKnowledge": "Knowledge",
+    "quickReports": "Reports",
+    "quickTeams": "Teams",
+    "trainingBuilder": "Training Builder",
+    "nutritionCenter": "Nutrition Center",
+    "dailyCheckIn": "Daily Check-in",
+    "recoveryCenter": "Recovery Center",
+    "sportsMedicine": "Sports Medicine",
+    "statsTests": "Tests",
+    "statsCalculators": "Calculators",
+    "statsLanguages": "Languages"
   },
   "settings": {
     "title": "Settings",
@@ -749,6 +785,8 @@
       "calculate": "Calculate",
       "result": "Result",
       "interpretation": "Interpretation",
+      "notFoundTitle": "Calculator not found",
+      "notFoundDesc": "This calculator type is not available. Return to the calculator hub.",
       "vo2max": { "title": "VO2 Max", "desc": "Estimate maximum oxygen uptake" },
       "bmi": { "title": "BMI", "desc": "Body Mass Index calculation" },
       "bodyFat": { "title": "Body Fat %", "desc": "Estimate body fat percentage" },
@@ -884,6 +922,7 @@
       "referencesPlaceholder": "Author (Year). Title. Journal…",
       "referencesEmpty": "No references added yet.",
       "importReferences": "Import references",
+      "importComingSoon": "Import references from PubMed/Zotero will be available in the production release.",
       "analysisTitle": "Mock analysis",
       "analysisSubtitle": "Preliminary insights from local mock data",
       "analysisPlaceholder": "Analysis will appear when data is collected.",
@@ -902,6 +941,10 @@
       "nameRequired": "Team name is required",
       "sport": "Sport",
       "headCoach": "Head coach",
+      "assistantCoach": "Assistant coach",
+      "physio": "Physiotherapist",
+      "analyst": "Performance analyst",
+      "staffRoleComingSoon": "Staff role assignment will be available in the production release.",
       "selectAthletes": "Select athletes",
       "selectAthletesHint": "Tap athletes to add them to the roster",
       "members": "{{count}} athletes",
@@ -946,16 +989,47 @@
       "faq": "Frequently asked questions",
       "contact": "Contact support",
       "docs": "Documentation",
-      "email": "support@sportmind.ai"
+      "email": "support@sportmind.ai",
+      "sectionResources": "Resources",
+      "sectionContact": "Contact",
+      "docsAlertTitle": "Documentation",
+      "docsAlertBody": "Full documentation will be available at docs.sportmind.ai",
+      "faqItems": {
+        "addAthlete": {
+          "question": "How do I add an athlete?",
+          "answer": "Go to the Athletes tab and tap Add Athlete."
+        },
+        "recordTest": {
+          "question": "How do I record a test?",
+          "answer": "Open Performance Lab and select a protocol to record results."
+        },
+        "dataSync": {
+          "question": "Is my data synced?",
+          "answer": "Data is saved locally on this device. Cloud sync will activate in the production release."
+        }
+      }
     },
     "knowledge": {
       "title": "Knowledge Center",
       "subtitle": "Guides, protocols, and best practices",
+      "sectionCategories": "Categories",
+      "articlesCount": "{{count}} articles",
+      "minRead": "{{count}} min read",
       "categories": {
         "testing": "Testing protocols",
         "training": "Training load",
         "recovery": "Recovery science",
         "nutrition": "Sports nutrition"
+      },
+      "articles": {
+        "t1": "Yo-Yo IR1 Protocol",
+        "t2": "Sprint Testing Standards",
+        "tr1": "Session Load (RPE × Duration)",
+        "tr2": "Microcycle Planning",
+        "r1": "HRV-Guided Recovery",
+        "r2": "Sleep & Performance",
+        "n1": "Match-Day Fueling",
+        "n2": "Hydration Strategies"
       }
     },
     "settings": {
@@ -990,6 +1064,7 @@
     "recommendations": "Recommendations",
     "recommendationsHint": "Rule-based guidance — replaceable by AI Coach",
     "trendChange": "period change",
+    "trendLabel": "Trend",
     "benchmarkTitle": "Benchmarks",
     "benchmarkSubtitle": "Comparison architecture (mock references)",
     "benchmark": {

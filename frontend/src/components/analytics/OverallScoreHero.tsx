@@ -35,7 +35,7 @@ export function OverallScoreHero({ overall }: OverallScoreHeroProps) {
               {t(`analytics.status.${overall.percentileLabel}`)}
             </Text>
             <Text style={[type.bodySm, { color: theme.colors.textSecondary, marginTop: 4, textAlign: textAlign('start') }]}>
-              {isRTL ? 'اتجاه' : 'Trend'}: {overall.trendDelta > 0 ? '+' : ''}{overall.trendDelta}
+              {t('analytics.trendLabel')}: {overall.trendDelta > 0 ? '+' : ''}{overall.trendDelta}
             </Text>
           </View>
         </View>

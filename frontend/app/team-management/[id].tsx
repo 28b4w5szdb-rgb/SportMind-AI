@@ -21,9 +21,9 @@ import { computeTeamLoadSummary } from '@/src/utils/teamMetrics';
 import { TeamIntelligencePanel, useTeamIntelligence } from '@/src/features/team-intelligence';
 
 const DEFAULT_STAFF = [
-  { role: 'Assistant coach', roleAr: 'مدرب مساعد', name: '—' },
-  { role: 'Physio', roleAr: 'أخصائي علاج', name: '—' },
-  { role: 'Analyst', roleAr: 'محلل أداء', name: '—' },
+  { roleKey: 'features.team.assistantCoach', name: '—' },
+  { roleKey: 'features.team.physio', name: '—' },
+  { roleKey: 'features.team.analyst', name: '—' },
 ];
 
 export default function TeamDetailScreen() {
@@ -40,15 +40,22 @@ export default function TeamDetailScreen() {
   const teamIntel = useTeamIntelligence(id);
 
   const staff = useMemo(() => {
-    if (!team) return DEFAULT_STAFF;
+    if (!team) {
+      return DEFAULT_STAFF.map((p) => ({ role: t(p.roleKey), name: p.name }));
+    }
+
     const base = team.staff?.length
-      ? team.staff
+      ? team.staff.map((member) => ({ role: member.role, name: member.name }))
       : team.head_coach
-        ? [{ role: isRTL ? 'مدرب رئيسي' : 'Head coach', name: team.head_coach }]
+        ? [{ role: t('features.team.headCoach'), name: team.head_coach }]
         : [];
-    const placeholders = DEFAULT_STAFF.filter((p) => !base.some((s) => s.role.toLowerCase().includes(p.role.split(' ')[0].toLowerCase())));
-    return [...base, ...placeholders.map((p) => ({ role: isRTL ? p.roleAr : p.role, name: p.name }))];
-  }, [team, isRTL]);
+
+    const placeholders = DEFAULT_STAFF.filter(
+      (p) => !base.some((s) => s.role.toLowerCase().includes(t(p.roleKey).split(' ')[0].toLowerCase()))
+    ).map((p) => ({ role: t(p.roleKey), name: p.name }));
+
+    return [...base, ...placeholders];
+  }, [team, t]);
 
   if (!team) {
     return (
@@ -145,12 +152,9 @@ export default function TeamDetailScreen() {
               <Text style={[type.caption, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>{member.name}</Text>
             </View>
             <TouchableOpacity
-              onPress={() =>
-                Alert.alert(
-                  member.role,
-                  isRTL ? 'تعيين الأدوار سيتوفر عند ربط قاعدة البيانات.' : 'Staff role assignment coming when database is connected.'
-                )
-              }
+              accessibilityRole="button"
+              accessibilityLabel={member.role}
+              onPress={() => Alert.alert(member.role, t('features.team.staffRoleComingSoon'))}
             >
               <Ionicons name="create-outline" size={18} color={theme.colors.primary} />
             </TouchableOpacity>

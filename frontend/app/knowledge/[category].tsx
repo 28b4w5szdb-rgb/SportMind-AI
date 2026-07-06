@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
 import { Card } from '@/src/components/common/Card';
+import { EmptyState } from '@/src/components/common/EmptyState';
 import { KNOWLEDGE_ARTICLES } from '@/src/data/mock/lab';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
@@ -23,9 +24,17 @@ export default function KnowledgeCategoryScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
-  const { flexRow, textAlign, isRTL } = useDirection();
+  const { flexRow, textAlign } = useDirection();
   const meta = CATEGORY_META[category ?? ''] ?? CATEGORY_META.testing;
   const articles = KNOWLEDGE_ARTICLES[category ?? ''] ?? [];
+
+  if (!CATEGORY_META[category ?? '']) {
+    return (
+      <FeatureScrollScreen title={t('features.knowledge.title')}>
+        <EmptyState icon="library-outline" title={t('states.notFound.title')} description={t('states.notFound.description')} />
+      </FeatureScrollScreen>
+    );
+  }
 
   return (
     <FeatureScrollScreen title={t(`features.knowledge.categories.${category ?? 'testing'}`)}>
@@ -33,7 +42,7 @@ export default function KnowledgeCategoryScreen() {
         <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
           <Ionicons name={meta.icon} size={28} color="#FFF" />
           <Text style={[type.body, { color: 'rgba(255,255,255,0.9)', flex: 1, marginHorizontal: theme.spacing.md, textAlign: textAlign('start') }]}>
-            {articles.length} {isRTL ? 'مقالات' : 'articles'}
+            {t('features.knowledge.articlesCount', { count: articles.length })}
           </Text>
         </View>
       </Card>
@@ -42,10 +51,10 @@ export default function KnowledgeCategoryScreen() {
         <TouchableOpacity key={article.id} activeOpacity={0.85}>
           <Card variant="elevated" padding="md" style={{ marginBottom: theme.spacing.sm, borderRadius: theme.borderRadius.xl, ...theme.shadows.sm }}>
             <Text style={[type.h5, { color: theme.colors.text, textAlign: textAlign('start') }]}>
-              {isRTL ? article.titleAr : article.titleEn}
+              {t(`features.knowledge.articles.${article.id}`)}
             </Text>
             <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 4, textAlign: textAlign('start') }]}>
-              {article.readMin} {isRTL ? 'دقائق قراءة' : 'min read'}
+              {t('features.knowledge.minRead', { count: article.readMin })}
             </Text>
           </Card>
         </TouchableOpacity>

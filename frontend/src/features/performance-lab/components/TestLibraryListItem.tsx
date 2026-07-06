@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+import { useTranslation } from 'react-i18next';
+
 import { Card } from '@/src/components/common/Card';
 import { Badge } from '@/src/components/common/Badge';
 import { useTheme, useTypography } from '@/src/core/theme';
@@ -20,6 +22,7 @@ interface TestLibraryListItemProps {
 export function TestLibraryListItem({ test, isFavorite, onPress, onToggleFavorite }: TestLibraryListItemProps) {
   const theme = useTheme();
   const type = useTypography();
+  const { t } = useTranslation();
   const { flexRow, textAlign, isRTL } = useDirection();
 
   return (
@@ -47,7 +50,7 @@ export function TestLibraryListItem({ test, isFavorite, onPress, onToggleFavorit
             </Text>
             <View style={{ flexDirection: flexRow(true), gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
               <Badge label={test.unit} variant="neutral" />
-              <Badge label={isRTL ? 'تحليلات' : 'Analytics'} variant="info" />
+              <Badge label={t('testingCenter.analyticsLinked')} variant="info" />
             </View>
           </View>
           <TouchableOpacity onPress={onToggleFavorite} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>

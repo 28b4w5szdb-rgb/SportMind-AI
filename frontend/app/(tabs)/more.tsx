@@ -29,10 +29,10 @@ import { AUTH_ROUTES } from '@/src/core/constants/routes';
 import { LOGOUT } from '@/constants/testIds/auth';
 
 const quickAccessItems = [
-  { id: 'settings', icon: 'settings' as const, color: '#64748B', route: '/settings', en: 'Settings', ar: 'الإعدادات' },
-  { id: 'knowledge', icon: 'library' as const, color: '#0EA5E9', route: '/knowledge', en: 'Knowledge', ar: 'الدليل' },
-  { id: 'reports', icon: 'document-text' as const, color: '#10B981', route: '/reports', en: 'Reports', ar: 'التقارير' },
-  { id: 'teams', icon: 'people-circle' as const, color: '#0066FF', route: '/team-management', en: 'Teams', ar: 'الفرق' },
+  { id: 'settings', icon: 'settings' as const, color: '#64748B', route: '/settings', labelKey: 'more.quickSettings' },
+  { id: 'knowledge', icon: 'library' as const, color: '#0EA5E9', route: '/knowledge', labelKey: 'more.quickKnowledge' },
+  { id: 'reports', icon: 'document-text' as const, color: '#10B981', route: '/reports', labelKey: 'more.quickReports' },
+  { id: 'teams', icon: 'people-circle' as const, color: '#0066FF', route: '/team-management', labelKey: 'more.quickTeams' },
 ];
 
 const mainMenuItems = [
@@ -56,25 +56,11 @@ const supportItems = [
   { id: 'knowledge', key: 'more.knowledgeCenter', icon: 'library' as const, color: '#0EA5E9', route: '/knowledge' },
 ];
 
-const menuItemLabels: Record<string, { en: string; ar: string }> = {
-  'more.teamManagement': { en: 'Team Management', ar: 'إدارة الفريق' },
-  'more.reports': { en: 'Reports Center', ar: 'مركز التقارير' },
-  'more.research': { en: 'Research Assistant', ar: 'مساعد البحث' },
-  'more.settings': { en: 'Settings', ar: 'الإعدادات' },
-  'more.helpSupport': { en: 'Help & Support', ar: 'المساعدة والدعم' },
-  'more.knowledgeCenter': { en: 'Knowledge Center', ar: 'مركز المعرفة' },
-  'more.trainingBuilder': { en: 'Training Builder', ar: 'منشئ التدريب' },
-  'more.nutritionCenter': { en: 'Nutrition Center', ar: 'مركز التغذية' },
-  'more.dailyCheckIn': { en: 'Daily Check-in', ar: 'التسجيل اليومي' },
-  'more.recoveryCenter': { en: 'Recovery Center', ar: 'مركز التعافي' },
-  'more.wearables': { en: 'Wearables', ar: 'الأجهزة الذكية' },
-  'more.sportsMedicine': { en: 'Sports Medicine', ar: 'الطب الرياضي' },
-};
 
 const appFeatures = [
-  { id: 'tests', icon: 'analytics', label: 'Tests', labelAr: 'اختبار', value: '14' },
-  { id: 'calc', icon: 'calculator', label: 'Calculators', labelAr: 'حاسبة', value: '8' },
-  { id: 'lang', icon: 'language', label: 'Languages', labelAr: 'لغة', value: '2' },
+  { id: 'tests', icon: 'analytics', labelKey: 'more.statsTests', value: '14' },
+  { id: 'calc', icon: 'calculator', labelKey: 'more.statsCalculators', value: '8' },
+  { id: 'lang', icon: 'language', labelKey: 'more.statsLanguages', value: '2' },
 ];
 
 export default function MoreScreen() {
@@ -82,7 +68,7 @@ export default function MoreScreen() {
   const type = useTypography();
   const router = useRouter();
   const { t } = useTranslation();
-  const { flexRow, textAlign, isRTL } = useDirection();
+  const { flexRow, textAlign, chevronIcon, isRTL } = useDirection();
   const { user, profile, signOut, actionLoading } = useAuth();
   const { width: windowWidth } = useWindowDimensions();
 
@@ -142,7 +128,7 @@ export default function MoreScreen() {
               },
             ]}
           >
-            {(isRTL ? 'القائمة' : 'MENU').toUpperCase()}
+            {t('more.menuLabel').toUpperCase()}
           </Text>
           <Text
             style={[
@@ -166,7 +152,7 @@ export default function MoreScreen() {
               },
             ]}
           >
-            {isRTL ? 'أدوات وإعدادات إضافية' : 'Additional tools and settings'}
+            {t('more.subtitle')}
           </Text>
         </View>
 
@@ -227,16 +213,15 @@ export default function MoreScreen() {
                   <Text
                     style={[type.caption, { color: theme.colors.textSecondary, marginTop: 4 }]}
                   >
-                    {user?.email ?? (isRTL ? 'فريق رياضي' : 'Sports Team')}
+                    {user?.email ?? t('more.defaultTeam')}
                   </Text>
                 </View>
                 <TouchableOpacity
                   activeOpacity={0.7}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('more.notificationsTitle')}
                   onPress={() =>
-                    Alert.alert(
-                      isRTL ? 'الإشعارات' : 'Notifications',
-                      isRTL ? 'لا توجد إشعارات جديدة.' : 'No new notifications.'
-                    )
+                    Alert.alert(t('more.notificationsTitle'), t('more.notificationsEmpty'))
                   }
                 >
                   <Ionicons name="notifications-outline" size={24} color={theme.colors.textTertiary} />
@@ -261,6 +246,8 @@ export default function MoreScreen() {
                 key={item.id}
                 onPress={() => router.push(item.route as never)}
                 activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel={t(item.labelKey)}
                 style={styles.quickAccessItem}
               >
                 <Card
@@ -298,7 +285,7 @@ export default function MoreScreen() {
                       adjustsFontSizeToFit
                       minimumFontScale={0.85}
                     >
-                      {isRTL ? item.ar : item.en}
+                      {t(item.labelKey)}
                     </Text>
                   </LinearGradient>
                 </Card>
@@ -317,18 +304,18 @@ export default function MoreScreen() {
           }}
         >
           <SectionHeader
-            title={isRTL ? 'الرئيسية' : 'MAIN'}
+            title={t('more.sectionMain').toUpperCase()}
             titleSize="label"
             style={{ marginBottom: theme.spacing[3], marginTop: 0 }}
           />
           <View style={[styles.menuGrid, { flexDirection: flexRow(true), gap: gridConfig.gap }]}>
-            {mainMenuItems.map((item) => {
-              const labels = menuItemLabels[item.key];
-              return (
+            {mainMenuItems.map((item) => (
                 <TouchableOpacity
                   key={item.id}
                   onPress={() => router.push(item.route as never)}
                   activeOpacity={0.85}
+                  accessibilityRole="button"
+                  accessibilityLabel={t(item.key)}
                   style={{
                     width: isDesktop ? gridConfig.cardWidth : '100%',
                     maxWidth: gridConfig.cardWidth,
@@ -358,22 +345,21 @@ export default function MoreScreen() {
                       </LinearGradient>
                       <View style={{ flex: 1, marginHorizontal: theme.spacing[4], marginLeft: isRTL ? 0 : theme.spacing[4], marginRight: isRTL ? theme.spacing[4] : 0 }}>
                         <Text style={[type.h5, { color: theme.colors.text }]}>
-                          {isRTL ? labels.ar : labels.en}
+                          {t(item.key)}
                         </Text>
                         <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 2 }]}>
-                          {isRTL ? 'إدارة متقدمة' : 'Manage & configure'}
+                          {t('more.menuHint')}
                         </Text>
                       </View>
                       <Ionicons
-                        name={isRTL ? 'chevron-back' : 'chevron-forward'}
+                        name={chevronIcon()}
                         size={20}
                         color={theme.colors.textTertiary}
                       />
                     </View>
                   </Card>
                 </TouchableOpacity>
-              );
-            })}
+              ))}
           </View>
         </View>
 
@@ -387,28 +373,31 @@ export default function MoreScreen() {
           }}
         >
           <SectionHeader
-            title={isRTL ? 'العافية والتدريب' : 'WELLNESS & TRAINING'}
+            title={t('more.sectionWellness').toUpperCase()}
             titleSize="label"
             style={{ marginBottom: theme.spacing[3], marginTop: 0 }}
           />
-          {wellnessItems.map((item) => {
-            const labels = menuItemLabels[item.key];
-            return (
-              <TouchableOpacity key={item.id} onPress={() => router.push(item.route as never)} activeOpacity={0.85}>
+          {wellnessItems.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                onPress={() => router.push(item.route as never)}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel={t(item.key)}
+              >
                 <Card variant="outlined" padding="md" style={{ borderRadius: theme.borderRadius.xl, marginBottom: theme.spacing[2] }}>
                   <View style={[styles.menuContent, { flexDirection: flexRow(true), alignItems: 'center' }]}>
                     <View style={[styles.menuIconOutline, { backgroundColor: item.color + '15', borderRadius: theme.borderRadius.xl }]}>
                       <Ionicons name={item.icon} size={24} color={item.color} />
                     </View>
                     <Text style={[type.body, { color: theme.colors.text, flex: 1, marginHorizontal: theme.spacing[4] }]}>
-                      {isRTL ? labels.ar : labels.en}
+                      {t(item.key)}
                     </Text>
-                    <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color={theme.colors.textTertiary} />
+                    <Ionicons name={chevronIcon()} size={20} color={theme.colors.textTertiary} />
                   </View>
                 </Card>
               </TouchableOpacity>
-            );
-          })}
+            ))}
         </View>
 
         {/* Support Section */}
@@ -421,17 +410,17 @@ export default function MoreScreen() {
           }}
         >
           <SectionHeader
-            title={isRTL ? 'الدعم' : 'SUPPORT'}
+            title={t('more.sectionSupport').toUpperCase()}
             titleSize="label"
             style={{ marginBottom: theme.spacing[3], marginTop: 0 }}
           />
-          {supportItems.map((item) => {
-            const labels = menuItemLabels[item.key];
-            return (
+          {supportItems.map((item) => (
               <TouchableOpacity
                 key={item.id}
                 onPress={() => router.push(item.route as never)}
                 activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel={t(item.key)}
               >
                 <Card
                   variant="outlined"
@@ -459,18 +448,17 @@ export default function MoreScreen() {
                       <Ionicons name={item.icon} size={24} color={item.color} />
                     </View>
                     <Text style={[type.body, { color: theme.colors.text, flex: 1, marginHorizontal: theme.spacing[4] }]}>
-                      {isRTL ? labels.ar : labels.en}
+                      {t(item.key)}
                     </Text>
                     <Ionicons
-                      name={isRTL ? 'chevron-back' : 'chevron-forward'}
+                      name={chevronIcon()}
                       size={20}
                       color={theme.colors.textTertiary}
                     />
                   </View>
                 </Card>
               </TouchableOpacity>
-            );
-          })}
+            ))}
         </View>
 
         {/* App Info Card */}
@@ -510,7 +498,7 @@ export default function MoreScreen() {
                     SportMind AI
                   </Text>
                   <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 2 }]}>
-                    {t('more.version')} 1.0.0
+                    {t('more.version')} {t('more.versionAlpha')}
                   </Text>
                 </View>
                 <TouchableOpacity
@@ -556,7 +544,7 @@ export default function MoreScreen() {
                     {feature.value}
                   </Text>
                   <Text style={[type.caption, { color: theme.colors.textTertiary }]}>
-                    {isRTL ? feature.labelAr : feature.label}
+                    {t(feature.labelKey)}
                   </Text>
                 </View>
               ))}

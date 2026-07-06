@@ -8,6 +8,7 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { useTheme, useTypography } from '@/src/core/theme';
+import { useDirection } from '@/src/providers/DirectionProvider';
 import { Button } from './Button';
 
 interface ErrorStateProps {
@@ -27,6 +28,7 @@ export function ErrorState({
 }: ErrorStateProps) {
   const theme = useTheme();
   const type = useTypography();
+  const { textAlign } = useDirection();
   const { tokens } = theme;
 
   return (
@@ -51,7 +53,7 @@ export function ErrorState({
           type.h3,
           {
             color: theme.colors.text,
-            textAlign: 'center',
+            textAlign: textAlign('center'),
             marginTop: theme.spacing[6],
           },
         ]}
@@ -64,7 +66,7 @@ export function ErrorState({
             type.body,
             {
               color: theme.colors.textSecondary,
-              textAlign: 'center',
+              textAlign: textAlign('center'),
               marginTop: theme.spacing[2],
             },
           ]}
