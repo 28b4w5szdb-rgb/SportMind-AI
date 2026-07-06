@@ -695,7 +695,15 @@
     "envKeys": "Environment keys",
     "envHint": "Copy frontend/.env.example to .env and fill in your Firebase project credentials. Never commit real secrets.",
     "statusReady": "Configured",
-    "statusPending": "Not configured"
+    "statusPending": "Not configured",
+    "authStatus": "Authentication",
+    "authConnected": "Connected",
+    "authDisconnected": "Disconnected",
+    "currentUser": "Current user",
+    "noUser": "Not signed in",
+    "verificationStatus": "Email verification",
+    "verified": "Verified",
+    "notVerified": "Not verified"
   },
   "states": {
     "empty": {
@@ -741,14 +749,19 @@
     "errors": {
       "generic": "Something went wrong. Please try again.",
       "notConfigured": "Supabase is not configured. Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to your environment.",
+      "firebaseNotConfigured": "Firebase is not configured. Add Firebase keys from .env.example to your environment.",
       "invalidCredentials": "Invalid email or password.",
       "emailNotConfirmed": "Please verify your email before signing in.",
       "userAlreadyExists": "An account with this email already exists.",
+      "userNotFound": "No account found with this email.",
       "weakPassword": "Password is too weak. Use at least 8 characters.",
       "samePassword": "New password must be different from the old one.",
       "rateLimited": "Too many attempts. Please wait and try again.",
       "linkExpired": "This link has expired. Request a new one.",
-      "sessionExpired": "Your session has expired. Please sign in again."
+      "sessionExpired": "Your session has expired. Please sign in again.",
+      "networkFailure": "Network error. Check your connection and try again.",
+      "accountDisabled": "This account has been disabled. Contact support.",
+      "emailInvalid": "Enter a valid email address."
     },
     "signIn": {
       "title": "Sign in",

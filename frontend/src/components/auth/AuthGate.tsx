@@ -1,5 +1,6 @@
 /**
  * Redirects unauthenticated users to auth and authenticated users away from auth.
+ * Onboarding routes are never blocked.
  */
 
 import React, { useEffect } from 'react';
@@ -9,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { LoadingSpinner } from '@/src/components/common/LoadingSpinner';
 import { AUTH_ROUTES, APP_ROUTES } from '@/src/core/constants/routes';
 import { DEV_BYPASS_AUTH } from '@/src/core/config/dev';
-import { useAuth } from '@/src/providers/AuthProvider';
+import { useAuth } from '@/src/cloud/auth/useAuth';
 
 export interface AuthGateProps {
   children: React.ReactNode;
@@ -26,8 +27,9 @@ export function AuthGate({ children }: AuthGateProps) {
 
     const segmentRoot = segments[0] as string | undefined;
     const inAuthGroup = segmentRoot === '(auth)';
+    const inOnboarding = segmentRoot === 'onboarding';
 
-    if (!isAuthenticated && !inAuthGroup) {
+    if (!isAuthenticated && !inAuthGroup && !inOnboarding) {
       router.replace(AUTH_ROUTES.signIn);
       return;
     }

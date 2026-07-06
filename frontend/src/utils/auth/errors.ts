@@ -1,5 +1,7 @@
 import type { AuthError } from '@supabase/supabase-js';
 
+import { getFirebaseAuthErrorKey } from '@/src/cloud/auth/errors';
+
 const AUTH_ERROR_MAP: Record<string, string> = {
   invalid_credentials: 'auth.errors.invalidCredentials',
   invalid_login_credentials: 'auth.errors.invalidCredentials',
@@ -12,8 +14,15 @@ const AUTH_ERROR_MAP: Record<string, string> = {
   session_not_found: 'auth.errors.sessionExpired',
 };
 
-/** Maps Supabase AuthError to an i18n key under `auth.errors.*`. */
+/** Maps Supabase or Firebase auth errors to an i18n key under `auth.errors.*`. */
 export function getAuthErrorKey(error: unknown): string {
+  if (error && typeof error === 'object' && 'code' in error) {
+    const code = String((error as { code: string }).code);
+    if (code.startsWith('auth/')) {
+      return getFirebaseAuthErrorKey(error);
+    }
+  }
+
   if (!error || typeof error !== 'object') {
     return 'auth.errors.generic';
   }

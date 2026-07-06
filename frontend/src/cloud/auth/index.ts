@@ -1,1 +1,14 @@
-export type { AuthRepository, AuthCredentials } from './AuthRepository';
+export { shouldUseFirebaseAuth, resolveAuthBackend } from './config';
+export type { AuthBackend } from './config';
+export type { ProductionUserProfile, ProductionUserProfileInput } from './UserProfile';
+export type { AuthUser, AuthCredentials, SignUpPayload } from './types';
+export type { AuthRepository } from './AuthRepository';
+export type { AuthContextValue } from './AuthContext';
+export { AuthContext, useAuth } from './useAuth';
+export { AuthProvider } from './AuthProvider';
+export { FirebaseAuthProvider, useFirebaseAuthContext } from './FirebaseAuthProvider';
+export { FirebaseAuthBridge } from './FirebaseAuthBridge';
+export { FirebaseAuthRepository, createFirebaseAuthRepository } from './FirebaseAuthRepository';
+export { SessionManager } from './SessionManager';
+export { AuthStateListener } from './AuthStateListener';
+export { getFirebaseAuthErrorKey } from './errors';

@@ -699,7 +699,15 @@
     "envKeys": "مفاتيح البيئة",
     "envHint": "انسخ frontend/.env.example إلى .env وأدخل بيانات مشروع Firebase. لا ترفع الأسرار الحقيقية.",
     "statusReady": "جاهز",
-    "statusPending": "غير مُعد"
+    "statusPending": "غير مُعد",
+    "authStatus": "المصادقة",
+    "authConnected": "متصل",
+    "authDisconnected": "غير متصل",
+    "currentUser": "المستخدم الحالي",
+    "noUser": "غير مسجل",
+    "verificationStatus": "تأكيد البريد",
+    "verified": "مؤكد",
+    "notVerified": "غير مؤكد"
   },
   "states": {
     "empty": {
@@ -745,14 +753,19 @@
     "errors": {
       "generic": "حدث خطأ. يرجى المحاولة مرة أخرى.",
       "notConfigured": "لم يتم إعداد Supabase. أضف EXPO_PUBLIC_SUPABASE_URL و EXPO_PUBLIC_SUPABASE_ANON_KEY إلى البيئة.",
+      "firebaseNotConfigured": "Firebase غير مُعد. أضف مفاتيح Firebase من .env.example إلى البيئة.",
       "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
       "emailNotConfirmed": "يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول.",
       "userAlreadyExists": "يوجد حساب مسجل بهذا البريد الإلكتروني.",
+      "userNotFound": "لا يوجد حساب بهذا البريد الإلكتروني.",
       "weakPassword": "كلمة المرور ضعيفة. استخدم 8 أحرف على الأقل.",
       "samePassword": "يجب أن تكون كلمة المرور الجديدة مختلفة عن السابقة.",
       "rateLimited": "محاولات كثيرة. يرجى الانتظار والمحاولة مجددًا.",
       "linkExpired": "انتهت صلاحية هذا الرابط. اطلب رابطًا جديدًا.",
-      "sessionExpired": "انتهت جلستك. يرجى تسجيل الدخول مجددًا."
+      "sessionExpired": "انتهت جلستك. يرجى تسجيل الدخول مجددًا.",
+      "networkFailure": "خطأ في الشبكة. تحقق من الاتصال وحاول مجددًا.",
+      "accountDisabled": "تم تعطيل هذا الحساب. تواصل مع الدعم.",
+      "emailInvalid": "أدخل بريدًا إلكترونيًا صالحًا."
     },
     "signIn": {
       "title": "تسجيل الدخول",

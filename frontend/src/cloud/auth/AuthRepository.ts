@@ -1,28 +1,12 @@
-import type { UserProfile, UserProfileInput } from '@/src/cloud/firestore/models';
-
-export interface AuthCredentials {
-  email: string;
-  password: string;
-}
+import type { AuthUser } from './types';
 
 export interface AuthRepository {
-  /** Returns current authenticated user id, or null. */
-  getCurrentUserId(): Promise<string | null>;
-
-  /** Email/password sign-in (Firebase Auth). */
-  signInWithEmail(credentials: AuthCredentials): Promise<string>;
-
-  /** Create account with email/password. */
-  signUpWithEmail(credentials: AuthCredentials, profile: Pick<UserProfileInput, 'full_name'>): Promise<string>;
-
+  signIn(email: string, password: string): Promise<AuthUser>;
+  signUp(email: string, password: string, displayName: string): Promise<AuthUser>;
   signOut(): Promise<void>;
-
-  /** Fetch Firestore user profile for uid. */
-  getUserProfile(uid: string): Promise<UserProfile | null>;
-
-  /** Upsert user profile document. */
-  upsertUserProfile(uid: string, patch: Partial<UserProfileInput>): Promise<UserProfile>;
-
-  /** Subscribe to auth state; returns unsubscribe. */
-  onAuthStateChanged(callback: (uid: string | null) => void): () => void;
+  resetPassword(email: string): Promise<void>;
+  sendVerificationEmail(): Promise<void>;
+  getCurrentUser(): Promise<AuthUser | null>;
+  refreshSession(): Promise<AuthUser | null>;
+  onAuthStateChanged(callback: (user: AuthUser | null) => void): () => void;
 }

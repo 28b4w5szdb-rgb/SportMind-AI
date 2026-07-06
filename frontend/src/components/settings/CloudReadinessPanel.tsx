@@ -11,6 +11,7 @@ import { Card } from '@/src/components/common/Card';
 import { Badge } from '@/src/components/common/Badge';
 import { useTheme } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
+import { useAuth } from '@/src/cloud/auth/useAuth';
 import { getCloudReadinessSnapshot, getFirebaseEnvChecks } from '@/src/cloud/sync/cloudReadiness';
 
 export function CloudReadinessPanel() {
@@ -19,7 +20,9 @@ export function CloudReadinessPanel() {
   const { flexRow, textAlign } = useDirection();
   const snapshot = getCloudReadinessSnapshot();
   const envChecks = getFirebaseEnvChecks();
+  const auth = useAuth();
 
+  const authConnected = auth.isAuthenticated;
   const dataModeVariant = snapshot.dataMode === 'cloud' ? 'success' : 'info';
 
   return (
@@ -48,6 +51,35 @@ export function CloudReadinessPanel() {
 
       <Card style={{ borderRadius: theme.borderRadius['2xl'], marginBottom: theme.spacing.md }}>
         <Text style={[theme.typography.label, { color: theme.colors.textTertiary, marginBottom: theme.spacing.sm, textAlign: textAlign('start') }]}>
+          {t('cloud.authStatus')}
+        </Text>
+        <View style={[styles.row, { flexDirection: flexRow(true), marginBottom: theme.spacing.sm }]}>
+          <Ionicons
+            name={authConnected ? 'shield-checkmark' : 'shield-outline'}
+            size={22}
+            color={authConnected ? theme.colors.success : theme.colors.textTertiary}
+          />
+          <Text style={[theme.typography.body, { color: theme.colors.text, flex: 1, marginStart: theme.spacing.sm, textAlign: textAlign('start') }]}>
+            {authConnected ? t('cloud.authConnected') : t('cloud.authDisconnected')}
+          </Text>
+          <Badge
+            label={authConnected ? t('cloud.authConnected') : t('cloud.authDisconnected')}
+            variant={authConnected ? 'success' : 'neutral'}
+          />
+        </View>
+        <View style={{ marginTop: theme.spacing.xs }}>
+          <Text style={[theme.typography.caption, { color: theme.colors.textTertiary, textAlign: textAlign('start') }]}>
+            {t('cloud.currentUser')}: {auth.user?.email ?? t('cloud.noUser')}
+          </Text>
+          <Text style={[theme.typography.caption, { color: theme.colors.textTertiary, marginTop: 4, textAlign: textAlign('start') }]}>
+            {t('cloud.verificationStatus')}:{' '}
+            {auth.isEmailVerified ? t('cloud.verified') : t('cloud.notVerified')}
+          </Text>
+        </View>
+      </Card>
+
+      <Card style={{ borderRadius: theme.borderRadius['2xl'], marginBottom: theme.spacing.md }}>
+        <Text style={[theme.typography.label, { color: theme.colors.textTertiary, marginBottom: theme.spacing.sm, textAlign: textAlign('start') }]}>
           {t('cloud.dataMode')}
         </Text>
         <View style={[styles.row, { flexDirection: flexRow(true) }]}>
@@ -55,7 +87,10 @@ export function CloudReadinessPanel() {
           <Text style={[theme.typography.h5, { color: theme.colors.text, flex: 1, marginStart: theme.spacing.sm, textAlign: textAlign('start') }]}>
             {snapshot.dataMode === 'cloud' ? t('cloud.modeCloud') : t('cloud.modeMock')}
           </Text>
-          <Badge label={snapshot.dataMode === 'cloud' ? 'Cloud' : 'Mock'} variant={dataModeVariant} />
+          <Badge
+            label={snapshot.dataMode === 'cloud' ? t('cloud.modeCloud') : t('cloud.modeMock')}
+            variant={dataModeVariant}
+          />
         </View>
         <Text style={[theme.typography.caption, { color: theme.colors.textTertiary, marginTop: theme.spacing.sm, textAlign: textAlign('start') }]}>
           {t('cloud.dataModeHint')}

@@ -1,8 +1,8 @@
 /**
- * Firebase Auth accessor — returns null when not configured.
+ * Firebase Auth with lazy initialization (web persistence via SDK defaults).
  */
 
-import { getAuth, type Auth } from 'firebase/auth';
+import { getAuth, initializeAuth, type Auth } from 'firebase/auth';
 
 import { getFirebaseApp } from './firebaseApp';
 
@@ -17,6 +17,11 @@ export function getFirebaseAuth(): Auth | null {
     return null;
   }
 
-  cachedAuth = getAuth(app);
+  try {
+    cachedAuth = getAuth(app);
+  } catch {
+    cachedAuth = initializeAuth(app);
+  }
+
   return cachedAuth;
 }
