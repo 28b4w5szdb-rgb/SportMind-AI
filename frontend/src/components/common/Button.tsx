@@ -120,34 +120,35 @@ export function Button({
 
   // Get size dimensions
   const getSizeStyles = (): ViewStyle => {
+    const { tokens, layout: l, borderRadius: br } = theme;
     switch (size) {
       case 'small':
         return {
-          paddingHorizontal: 16,
-          paddingVertical: 8,
-          minHeight: 32,
-          borderRadius: theme.borderRadius.md,
+          paddingHorizontal: theme.spacing[4],
+          paddingVertical: theme.spacing[2],
+          minHeight: l.buttonHeightSm,
+          borderRadius: br[tokens.radius.buttonSm],
         };
       case 'large':
         return {
-          paddingHorizontal: 32,
-          paddingVertical: 16,
-          minHeight: 52,
-          borderRadius: theme.borderRadius.xl,
+          paddingHorizontal: theme.spacing[8],
+          paddingVertical: theme.spacing[4],
+          minHeight: l.buttonHeightLg,
+          borderRadius: br[tokens.radius.button],
         };
       case 'xlarge':
         return {
-          paddingHorizontal: 40,
-          paddingVertical: 20,
-          minHeight: 60,
-          borderRadius: theme.borderRadius['2xl'],
+          paddingHorizontal: theme.spacing[10],
+          paddingVertical: theme.spacing[5],
+          minHeight: l.buttonHeightXl,
+          borderRadius: br[tokens.radius.card],
         };
       default:
         return {
-          paddingHorizontal: 24,
-          paddingVertical: 12,
-          minHeight: 44,
-          borderRadius: theme.borderRadius.lg,
+          paddingHorizontal: theme.spacing[6],
+          paddingVertical: theme.spacing[3],
+          minHeight: l.buttonHeightMd,
+          borderRadius: br[tokens.radius.button],
         };
     }
   };
@@ -194,7 +195,7 @@ export function Button({
   }
 
   if (disabled || loading) {
-    containerStyles.push({ opacity: 0.5 });
+    containerStyles.push({ opacity: theme.tokens.interaction.disabledOpacity });
   }
 
   const renderContent = () => {
@@ -241,9 +242,11 @@ export function Button({
       style={[containerStyles, style]}
       onPress={onPress}
       disabled={disabled || loading}
-      activeOpacity={0.7}
+      activeOpacity={theme.tokens.interaction.activeOpacity}
+      hitSlop={size === 'small' ? theme.tokens.interaction.hitSlop : undefined}
       accessibilityRole="button"
-      accessibilityState={{ disabled: disabled || loading }}
+      accessibilityLabel={title}
+      accessibilityState={{ disabled: disabled || loading, busy: loading }}
     >
       {renderContent()}
     </TouchableOpacity>

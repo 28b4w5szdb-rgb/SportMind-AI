@@ -3,6 +3,8 @@
  * 8pt grid system with comprehensive layout values
  */
 
+import type { ViewStyle } from 'react-native';
+
 // Core spacing values following 8pt grid
 const spacingScale = {
   '0': 0,
@@ -177,9 +179,9 @@ export const layout = {
   icon3xl: 40,
   icon4xl: 48,
 
-  // Button heights
-  buttonHeightSm: 32,
-  buttonHeightMd: 40,
+  // Button heights — minimum 44pt touch target on medium+
+  buttonHeightSm: 36,
+  buttonHeightMd: 44,
   buttonHeightLg: 48,
   buttonHeightXl: 56,
 
@@ -212,13 +214,13 @@ export const layout = {
   breakpoint2xl: 1536,
 } as const;
 
-// Animation/transition timing
+// Animation/transition timing — aligned with designTokens.motion
 export const timing = {
   instant: 0,
-  fast: 100,
-  normal: 200,
-  slow: 300,
-  slower: 500,
+  fast: 120,
+  normal: 220,
+  slow: 320,
+  slower: 480,
   slowest: 700,
 } as const;
 
@@ -241,9 +243,27 @@ export type Spacing = typeof spacing;
 export type SpacingKey = keyof typeof spacing;
 export type BorderRadius = typeof borderRadius;
 export type BorderRadiusKey = keyof typeof borderRadius;
-export type Shadows = typeof shadows;
+export type ShadowStyle = Pick<
+  ViewStyle,
+  'shadowColor' | 'shadowOffset' | 'shadowOpacity' | 'shadowRadius' | 'elevation'
+>;
 export type ShadowsKey = keyof typeof shadows;
+export type Shadows = Record<ShadowsKey, ShadowStyle>;
 export type Layout = typeof layout;
+
+/** Theme-aware shadow presets — stronger elevation in dark mode for legibility */
+export function getShadows(isDark: boolean): Shadows {
+  if (!isDark) return shadows as Shadows;
+  return {
+    ...shadows,
+    xs: { ...shadows.xs, shadowOpacity: 0.2, shadowRadius: 3 },
+    sm: { ...shadows.sm, shadowOpacity: 0.28, shadowRadius: 6, elevation: 3 },
+    md: { ...shadows.md, shadowOpacity: 0.36, shadowRadius: 10, elevation: 4 },
+    lg: { ...shadows.lg, shadowOpacity: 0.44, shadowRadius: 16, elevation: 6 },
+    xl: { ...shadows.xl, shadowOpacity: 0.5, shadowRadius: 24, elevation: 10 },
+    '2xl': { ...shadows['2xl'], shadowOpacity: 0.55, shadowRadius: 32, elevation: 14 },
+  };
+}
 
 // Helper to get spacing value
 export function getSpacing(key: SpacingKey): number {

@@ -3,7 +3,7 @@
  * Reusable text input with label and error states
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, TextInputProps, ViewStyle } from 'react-native';
 import { useTheme } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
@@ -16,14 +16,29 @@ interface InputProps extends TextInputProps {
   containerStyle?: ViewStyle;
 }
 
-export function Input({ label, error, icon, containerStyle, style, ...props }: InputProps) {
+export function Input({ label, error, icon, containerStyle, style, onFocus, onBlur, ...props }: InputProps) {
   const theme = useTheme();
   const { flexRow, textAlign, isRTL } = useDirection();
+  const [focused, setFocused] = useState(false);
+  const { tokens, layout } = theme;
+
+  const borderColor = error
+    ? theme.colors.error
+    : focused
+      ? theme.colors.primary
+      : theme.colors.border;
+  const borderWidth = error || focused ? tokens.border.focus : tokens.border.hairline;
 
   return (
     <View style={[styles.container, containerStyle]}>
       {label && (
-        <Text style={[theme.typography.label, { color: theme.colors.textSecondary, marginBottom: theme.spacing.xs }]}>
+        <Text
+          style={[
+            theme.typography.label,
+            { color: theme.colors.textSecondary, marginBottom: theme.spacing.xs },
+          ]}
+          accessibilityRole="text"
+        >
           {label}
         </Text>
       )}
@@ -33,8 +48,11 @@ export function Input({ label, error, icon, containerStyle, style, ...props }: I
           {
             flexDirection: flexRow(true),
             backgroundColor: theme.colors.surface,
-            borderColor: error ? theme.colors.error : theme.colors.border,
-            borderRadius: theme.borderRadius.lg,
+            borderColor,
+            borderWidth,
+            borderRadius: theme.borderRadius[tokens.radius.input],
+            minHeight: layout.inputHeightMd,
+            paddingHorizontal: theme.spacing[4],
           },
         ]}
       >
@@ -42,7 +60,7 @@ export function Input({ label, error, icon, containerStyle, style, ...props }: I
           <Ionicons
             name={icon}
             size={20}
-            color={theme.colors.textTertiary}
+            color={focused ? theme.colors.primary : theme.colors.textTertiary}
             style={{ marginEnd: theme.spacing.sm }}
           />
         )}
@@ -55,15 +73,27 @@ export function Input({ label, error, icon, containerStyle, style, ...props }: I
               flex: 1,
               textAlign: textAlign('start'),
               writingDirection: isRTL ? 'rtl' : 'ltr',
+              minHeight: layout.inputHeightMd,
             },
             style,
           ]}
           placeholderTextColor={theme.colors.textTertiary}
+          onFocus={(e) => {
+            setFocused(true);
+            onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setFocused(false);
+            onBlur?.(e);
+          }}
           {...props}
         />
       </View>
       {error && (
-        <Text style={[theme.typography.caption, { color: theme.colors.error, marginTop: theme.spacing.xs }]}>
+        <Text
+          style={[theme.typography.caption, { color: theme.colors.error, marginTop: theme.spacing.xs }]}
+          accessibilityRole="alert"
+        >
           {error}
         </Text>
       )}
@@ -77,11 +107,8 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     alignItems: 'center',
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    minHeight: 48,
   },
   input: {
-    minHeight: 48,
+    paddingVertical: 0,
   },
 });

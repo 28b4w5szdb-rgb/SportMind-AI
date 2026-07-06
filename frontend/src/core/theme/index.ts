@@ -7,7 +7,8 @@ import { useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import { colors, gradients, chartColors, ColorScheme, Colors } from './colors';
 import { typography, Typography, fontSizes, fontWeights, lineHeights, letterSpacing } from './typography';
-import { spacing, borderRadius, shadows, layout, timing, zIndex, Spacing, Shadows } from './spacing';
+import { spacing, borderRadius, shadows, layout, timing, zIndex, getShadows, Spacing, Shadows } from './spacing';
+import { designTokens } from './designTokens';
 
 export interface Theme {
   colors: Colors;
@@ -20,6 +21,7 @@ export interface Theme {
   zIndex: typeof zIndex;
   gradients: typeof gradients;
   chartColors: (typeof chartColors)['light'] | (typeof chartColors)['dark'];
+  tokens: typeof designTokens;
   isDark: boolean;
 }
 
@@ -36,12 +38,13 @@ export function useTheme(): Theme {
       typography,
       spacing,
       borderRadius,
-      shadows,
+      shadows: getShadows(isDark),
       layout,
       timing,
       zIndex,
       gradients,
       chartColors: isDark ? chartColors.dark : chartColors.light,
+      tokens: designTokens,
       isDark,
     }),
     [isDark]
@@ -64,6 +67,8 @@ export {
   fontWeights,
   lineHeights,
   letterSpacing,
+  designTokens,
+  getShadows,
 };
 
 // Bilingual typography hook (Latin vs Arabic)

@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
-import { useTheme } from '@/src/core/theme';
+import { useTheme, useTypography } from '@/src/core/theme';
 
 interface LoadingSpinnerProps {
   message?: string;
@@ -13,32 +13,49 @@ interface LoadingSpinnerProps {
 
 export function LoadingSpinner({ message, fullScreen = false }: LoadingSpinnerProps) {
   const theme = useTheme();
-  
+  const type = useTypography();
+
   const content = (
     <>
-      <ActivityIndicator size="large" color={theme.colors.primary} />
+      <ActivityIndicator
+        size="large"
+        color={theme.colors.primary}
+        accessibilityLabel={message ?? 'Loading'}
+      />
       {message && (
-        <Text style={[theme.typography.body, { color: theme.colors.textSecondary, marginTop: theme.spacing.md }]}>
+        <Text
+          style={[
+            type.body,
+            { color: theme.colors.textSecondary, marginTop: theme.spacing[4], textAlign: 'center' },
+          ]}
+        >
           {message}
         </Text>
       )}
     </>
   );
-  
+
   if (fullScreen) {
     return (
-      <View style={[styles.fullScreen, { backgroundColor: theme.colors.background }]}>
+      <View
+        style={[styles.fullScreen, { backgroundColor: theme.colors.background }]}
+        accessibilityRole="progressbar"
+        accessibilityLiveRegion="polite"
+      >
         {content}
       </View>
     );
   }
-  
-  return <View style={styles.container}>{content}</View>;
+
+  return (
+    <View style={[styles.container, { padding: theme.spacing[6] }]} accessibilityRole="progressbar">
+      {content}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 24,
     alignItems: 'center',
     justifyContent: 'center',
   },

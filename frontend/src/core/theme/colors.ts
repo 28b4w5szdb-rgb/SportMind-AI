@@ -201,15 +201,15 @@ export const colors = {
 
     // Text
     text: '#F8FAFC',
-    textSecondary: '#CBD5E1',
-    textTertiary: '#64748B',
-    textDisabled: '#475569',
+    textSecondary: '#E2E8F0',
+    textTertiary: '#94A3B8',
+    textDisabled: '#64748B',
     textInverse: '#0F172A',
 
     // Borders
-    border: '#334155',
-    borderLight: '#1E293B',
-    borderDark: '#475569',
+    border: '#475569',
+    borderLight: '#334155',
+    borderDark: '#64748B',
 
     // Divider
     divider: '#334155',

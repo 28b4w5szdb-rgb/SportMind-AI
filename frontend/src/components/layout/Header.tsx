@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useTheme } from '@/src/core/theme';
+import { useTheme, useTypography } from '@/src/core/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useDirection } from '@/src/providers/DirectionProvider';
@@ -22,22 +22,41 @@ interface HeaderProps {
 
 export function Header({ title, subtitle, showBack = false, rightAction }: HeaderProps) {
   const theme = useTheme();
+  const type = useTypography();
   const router = useRouter();
   const { flexRow, backIcon } = useDirection();
+  const { tokens, layout } = theme;
+
+  const iconButtonStyle = {
+    width: layout.minTouchTarget,
+    height: layout.minTouchTarget,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  };
 
   return (
     <View
       style={[
         styles.container,
-        { height: theme.layout.headerHeight, flexDirection: flexRow(true) },
+        {
+          minHeight: layout.headerHeight,
+          flexDirection: flexRow(true),
+          paddingHorizontal: theme.spacing[4],
+          borderBottomWidth: tokens.border.hairline,
+          borderBottomColor: theme.colors.border,
+          backgroundColor: theme.colors.background,
+        },
       ]}
     >
-      <View style={styles.left}>
+      <View style={[styles.side, { width: layout.minTouchTarget }]}>
         {showBack && (
           <TouchableOpacity
             onPress={() => router.back()}
-            style={styles.iconButton}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            style={iconButtonStyle}
+            hitSlop={tokens.interaction.hitSlop}
+            activeOpacity={tokens.interaction.activeOpacity}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
           >
             <Ionicons name={backIcon()} size={24} color={theme.colors.text} />
           </TouchableOpacity>
@@ -45,12 +64,16 @@ export function Header({ title, subtitle, showBack = false, rightAction }: Heade
       </View>
 
       <View style={styles.center}>
-        <Text style={[theme.typography.h3, { color: theme.colors.text }]} numberOfLines={1}>
+        <Text
+          style={[type.h3, { color: theme.colors.text }]}
+          numberOfLines={1}
+          accessibilityRole="header"
+        >
           {title}
         </Text>
         {subtitle && (
           <Text
-            style={[theme.typography.caption, { color: theme.colors.textSecondary }]}
+            style={[type.caption, { color: theme.colors.textSecondary }]}
             numberOfLines={1}
           >
             {subtitle}
@@ -58,12 +81,14 @@ export function Header({ title, subtitle, showBack = false, rightAction }: Heade
         )}
       </View>
 
-      <View style={styles.right}>
+      <View style={[styles.side, { width: layout.minTouchTarget, alignItems: 'flex-end' }]}>
         {rightAction && (
           <TouchableOpacity
             onPress={rightAction.onPress}
-            style={styles.iconButton}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            style={iconButtonStyle}
+            hitSlop={tokens.interaction.hitSlop}
+            activeOpacity={tokens.interaction.activeOpacity}
+            accessibilityRole="button"
           >
             <Ionicons name={rightAction.icon} size={24} color={theme.colors.text} />
           </TouchableOpacity>
@@ -77,24 +102,12 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
   },
-  left: {
-    width: 40,
+  side: {
     alignItems: 'flex-start',
   },
   center: {
     flex: 1,
     alignItems: 'center',
-  },
-  right: {
-    width: 40,
-    alignItems: 'flex-end',
-  },
-  iconButton: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
-import { useTheme } from '@/src/core/theme';
+import { useTheme, useTypography } from '@/src/core/theme';
 
 type BadgeVariant = 'success' | 'warning' | 'error' | 'info' | 'neutral';
 
@@ -17,40 +17,43 @@ interface BadgeProps {
 
 export function Badge({ label, variant = 'neutral', style }: BadgeProps) {
   const theme = useTheme();
-  
+  const type = useTypography();
+  const bgAlpha = theme.isDark ? '30' : '20';
+
   const getColors = () => {
     switch (variant) {
       case 'success':
-        return { bg: theme.colors.success + '20', text: theme.colors.success };
+        return { bg: theme.colors.success + bgAlpha, text: theme.colors.success };
       case 'warning':
-        return { bg: theme.colors.warning + '20', text: theme.colors.warning };
+        return { bg: theme.colors.warning + bgAlpha, text: theme.colors.warning };
       case 'error':
-        return { bg: theme.colors.error + '20', text: theme.colors.error };
+        return { bg: theme.colors.error + bgAlpha, text: theme.colors.error };
       case 'info':
-        return { bg: theme.colors.info + '20', text: theme.colors.info };
+        return { bg: theme.colors.info + bgAlpha, text: theme.colors.info };
       default:
         return { bg: theme.colors.backgroundTertiary, text: theme.colors.textSecondary };
     }
   };
-  
+
   const colors = getColors();
-  
+
   return (
     <View
+      accessibilityRole="text"
       style={[
         styles.container,
         {
           backgroundColor: colors.bg,
-          borderRadius: theme.borderRadius.md,
-          paddingHorizontal: theme.spacing.sm,
-          paddingVertical: theme.spacing.xs,
+          borderRadius: theme.borderRadius[theme.tokens.radius.badge],
+          paddingHorizontal: theme.spacing[3],
+          paddingVertical: theme.spacing[1],
+          minHeight: theme.layout.buttonHeightSm,
+          justifyContent: 'center',
         },
         style,
       ]}
     >
-      <Text style={[theme.typography.caption, { color: colors.text, fontWeight: '600' }]}>
-        {label}
-      </Text>
+      <Text style={[type.captionBold, { color: colors.text }]}>{label}</Text>
     </View>
   );
 }

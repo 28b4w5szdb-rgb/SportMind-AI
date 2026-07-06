@@ -40,24 +40,26 @@ export function Card({
   children,
   variant = 'elevated',
   padding = 'md',
-  borderRadius = 'xl',
+  borderRadius: borderRadiusKey,
   style,
   gradientColors,
   gradientHorizontal = false,
 }: CardProps) {
   const theme = useTheme();
+  const radiusKey = borderRadiusKey ?? theme.tokens.radius.card;
+  const radius = theme.borderRadius[radiusKey];
 
   const getVariantStyles = (): ViewStyle => {
     switch (variant) {
       case 'elevated':
         return {
           backgroundColor: theme.colors.surface,
-          ...theme.shadows.md,
+          ...theme.shadows[theme.tokens.elevation.card],
         };
       case 'outlined':
         return {
           backgroundColor: theme.colors.surface,
-          borderWidth: 1,
+          borderWidth: theme.tokens.border.hairline,
           borderColor: theme.colors.border,
         };
       case 'filled':
@@ -74,10 +76,10 @@ export function Card({
         };
       case 'glass':
         return {
-          backgroundColor: theme.colors.surface + 'CC',
-          borderWidth: 1,
-          borderColor: theme.colors.border + '40',
-          ...theme.shadows.sm,
+          backgroundColor: theme.colors.surface + (theme.isDark ? 'E6' : 'CC'),
+          borderWidth: theme.tokens.border.hairline,
+          borderColor: theme.colors.border + (theme.isDark ? '66' : '40'),
+          ...theme.shadows[theme.tokens.elevation.card],
         };
       default:
         return {
@@ -89,7 +91,7 @@ export function Card({
   const containerStyles: ViewStyle[] = [
     styles.base,
     {
-      borderRadius: theme.borderRadius[borderRadius],
+      borderRadius: radius,
       padding: paddingMap[padding],
     },
     getVariantStyles(),
@@ -108,7 +110,7 @@ export function Card({
           colors={colors}
           start={gradientHorizontal ? { x: 0, y: 0.5 } : { x: 0, y: 0 }}
           end={gradientHorizontal ? { x: 1, y: 0.5 } : { x: 0, y: 1 }}
-          style={{ padding: paddingMap[padding], borderRadius: theme.borderRadius[borderRadius] }}
+          style={{ padding: paddingMap[padding], borderRadius: radius }}
         >
           {children}
         </LinearGradient>
@@ -133,7 +135,8 @@ export function CardHeader({
   children: React.ReactNode;
   style?: ViewStyle;
 }) {
-  return <View style={[{ marginBottom: 12 }, style]}>{children}</View>;
+  const theme = useTheme();
+  return <View style={[{ marginBottom: theme.spacing[3] }, style]}>{children}</View>;
 }
 
 export function CardContent({
@@ -153,7 +156,8 @@ export function CardFooter({
   children: React.ReactNode;
   style?: ViewStyle;
 }) {
-  return <View style={[{ marginTop: 12 }, style]}>{children}</View>;
+  const theme = useTheme();
+  return <View style={[{ marginTop: theme.spacing[3] }, style]}>{children}</View>;
 }
 
 export function CardDivider({ style }: { style?: ViewStyle }) {
@@ -162,9 +166,9 @@ export function CardDivider({ style }: { style?: ViewStyle }) {
     <View
       style={[
         {
-          height: 1,
+          height: theme.tokens.border.hairline,
           backgroundColor: theme.colors.border,
-          marginVertical: 12,
+          marginVertical: theme.spacing[3],
         },
         style,
       ]}

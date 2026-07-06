@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useTheme } from '@/src/core/theme';
+import { useTheme, useTypography } from '@/src/core/theme';
 import { Ionicons } from '@expo/vector-icons';
 import { Button } from './Button';
 
@@ -18,9 +18,13 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon, title, description, actionLabel, onAction }: EmptyStateProps) {
   const theme = useTheme();
-  
+  const type = useTypography();
+
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, { padding: theme.spacing[8] }]}
+      accessibilityRole="summary"
+    >
       {icon && (
         <View
           style={[
@@ -31,24 +35,29 @@ export function EmptyState({ icon, title, description, actionLabel, onAction }: 
             },
           ]}
         >
-          <Ionicons name={icon} size={48} color={theme.colors.textTertiary} />
+          <Ionicons name={icon} size={44} color={theme.colors.textTertiary} />
         </View>
       )}
-      <Text style={[theme.typography.h3, { color: theme.colors.text, textAlign: 'center', marginTop: theme.spacing.lg }]}>
+      <Text
+        style={[
+          type.h3,
+          { color: theme.colors.text, textAlign: 'center', marginTop: theme.spacing[6] },
+        ]}
+      >
         {title}
       </Text>
       {description && (
         <Text
           style={[
-            theme.typography.body,
-            { color: theme.colors.textSecondary, textAlign: 'center', marginTop: theme.spacing.sm },
+            type.body,
+            { color: theme.colors.textSecondary, textAlign: 'center', marginTop: theme.spacing[2] },
           ]}
         >
           {description}
         </Text>
       )}
       {actionLabel && onAction && (
-        <Button title={actionLabel} onPress={onAction} style={{ marginTop: theme.spacing.lg }} />
+        <Button title={actionLabel} onPress={onAction} style={{ marginTop: theme.spacing[6] }} />
       )}
     </View>
   );
@@ -59,7 +68,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 32,
   },
   iconContainer: {
     width: 96,
