@@ -1,5 +1,7 @@
 /** Core analytics domain types — mock-backed, structured for future real data wiring. */
 
+import type { SsidMetricBundle } from '@/src/features/ssid-engine';
+
 export type AnalyticsModuleId =
   | 'physical_fitness'
   | 'strength'
@@ -115,6 +117,7 @@ export interface AthleteAnalyticsSnapshot {
   strengths: AnalyticsModuleResult[];
   weaknesses: AnalyticsModuleResult[];
   radarAxes: { labelKey: string; value: number; max: number }[];
+  ssid?: SsidMetricBundle;
 }
 
 export interface AnalyticsEngineContext {

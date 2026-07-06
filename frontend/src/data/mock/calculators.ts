@@ -1,4 +1,9 @@
 import type { CalculatorDefinition, CalculatorType } from './types';
+import {
+  classificationDisplayLabel,
+  interpretMetric,
+} from '@/src/features/ssid-engine';
+import type { SsidMetricContext } from '@/src/features/ssid-engine';
 
 export const CALCULATOR_DEFINITIONS: CalculatorDefinition[] = [
   {
@@ -68,41 +73,62 @@ export function getCalculatorDefinition(type: string): CalculatorDefinition | un
 export function computeCalculator(
   type: CalculatorType,
   inputs: Record<string, number>
-): { value: number; unit: string; interpretation: string } {
+): { value: number; unit: string; interpretation: string; ssid?: ReturnType<typeof interpretMetric> } {
   switch (type) {
     case 'bmi': {
       const h = (inputs.height ?? 170) / 100;
       const w = inputs.weight ?? 70;
       const bmi = w / (h * h);
-      let interpretation = 'Normal weight';
-      if (bmi < 18.5) interpretation = 'Underweight';
-      else if (bmi >= 25 && bmi < 30) interpretation = 'Overweight';
-      else if (bmi >= 30) interpretation = 'Obese';
-      return { value: Math.round(bmi * 10) / 10, unit: 'kg/m²', interpretation };
+      const value = Math.round(bmi * 10) / 10;
+      const unit = 'kg/m²';
+      const ssid = interpretMetric('bmi', value, unit, buildCalcContext(inputs));
+      return { value, unit, interpretation: classificationDisplayLabel('bmi', ssid.classificationId), ssid };
     }
     case 'vo2max': {
       const d = inputs.distance ?? 800;
       const age = inputs.age ?? 22;
       const vo2 = d * 0.0225 - 11.3 - age * 0.04;
-      return { value: Math.round(vo2 * 10) / 10, unit: 'ml/kg/min', interpretation: 'Aerobic capacity estimate' };
+      const value = Math.round(vo2 * 10) / 10;
+      const unit = 'ml/kg/min';
+      const ssid = interpretMetric('vo2_max', value, unit, buildCalcContext(inputs));
+      return { value, unit, interpretation: classificationDisplayLabel('vo2_max', ssid.classificationId), ssid };
     }
     case 'body-fat': {
       const bf = 495 / (1.0324 - 0.19077 * Math.log10((inputs.waist ?? 80) - (inputs.neck ?? 38))) - 450;
-      return { value: Math.round(bf * 10) / 10, unit: '%', interpretation: 'Navy method estimate' };
+      const value = Math.round(bf * 10) / 10;
+      const unit = '%';
+      const ssid = interpretMetric('body_fat', value, unit, buildCalcContext(inputs));
+      return { value, unit, interpretation: classificationDisplayLabel('body_fat', ssid.classificationId), ssid };
     }
     case 'heart-rate-zones': {
       const max = inputs.maxHr ?? 190;
-      return { value: Math.round(max * 0.85), unit: 'bpm', interpretation: 'Zone 4 threshold (~85% max HR)' };
+      const value = Math.round(max * 0.85);
+      const unit = 'bpm';
+      const ssid = interpretMetric('hr_zones', value, unit, { extras: { maxHr: max, ...inputs } });
+      return { value, unit, interpretation: classificationDisplayLabel('hr_zones', ssid.classificationId), ssid };
     }
     case 'training-load': {
       const load = (inputs.duration ?? 60) * (inputs.rpe ?? 6);
-      return { value: load, unit: 'AU', interpretation: 'Session load (duration × RPE)' };
+      const value = load;
+      const unit = 'AU';
+      const ssid = interpretMetric('session_load', value, unit, buildCalcContext(inputs));
+      return { value, unit, interpretation: classificationDisplayLabel('session_load', ssid.classificationId), ssid };
     }
     case 'recovery-time': {
       const hours = Math.max(12, (inputs.load ?? 300) / 20 - (inputs.sleep ?? 7) * 2);
-      return { value: Math.round(hours), unit: 'hr', interpretation: 'Suggested recovery before next hard session' };
+      const value = Math.round(hours);
+      return { value, unit: 'hr', interpretation: 'Suggested recovery before next hard session' };
     }
     default:
       return { value: 0, unit: '', interpretation: '' };
   }
+}
+
+function buildCalcContext(inputs: Record<string, number>): SsidMetricContext {
+  return {
+    ageYears: inputs.age,
+    weightKg: inputs.weight,
+    heightCm: inputs.height,
+    extras: inputs,
+  };
 }

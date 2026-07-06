@@ -1,5 +1,4 @@
 import type { MockAthlete, MockPerformanceTest, DailyCheckIn, InjuryRecord, TrainingPlan, DailyNutritionLog, BodyCompositionRecord, NutritionGoalSetting } from '@/src/data/mock/types';
-import type { AnalyticsEngineContext, AthleteAnalyticsSnapshot } from '../types';
 import { buildRawSignals, ageFromDob } from '../input/buildSignals';
 import { computeInjuryPreventionProfile } from '@/src/features/sports-medicine/engine/injuryPreventionEngine';
 import { scoreAllModules, computeOverallScore } from '../scoring/moduleScorer';
@@ -9,6 +8,8 @@ import { generateDecision } from '../decisions/decisionEngine';
 import { generateBenchmarks } from '../benchmarks/benchmarkEngine';
 import { generateTrends } from '../trends/trendEngine';
 import { ANALYTICS_MODULES } from '../registry/modules';
+import { buildAnalyticsSsidBundle } from '@/src/features/ssid-engine';
+import type { AnalyticsEngineContext, AthleteAnalyticsSnapshot } from '../types';
 
 export interface PerformanceAnalyticsInput {
   athlete: MockAthlete;
@@ -67,6 +68,7 @@ export function computeAthleteAnalytics(input: PerformanceAnalyticsInput): Athle
     strengths,
     weaknesses,
     radarAxes,
+    ssid: buildAnalyticsSsidBundle(modules, signals.training),
   };
 }
 

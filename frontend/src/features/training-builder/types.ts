@@ -1,5 +1,7 @@
 /** Training Builder domain types — structured for future Supabase wiring. */
 
+import type { SsidMetricBundle } from '@/src/features/ssid-engine';
+
 export type TrainingTemplateId =
   | 'strength'
   | 'hypertrophy'
@@ -151,6 +153,7 @@ export interface TrainingBuilderSnapshot {
   progressPercent: number;
   recommendations: TrainingRecommendation[];
   weeklyOverview: Array<{ weekday: WeekdayId; templateId: TrainingTemplateId; load: number; actualLoad: number; status: SessionStatus }>;
+  ssid?: SsidMetricBundle;
 }
 
 export interface TrainingEngineInput {

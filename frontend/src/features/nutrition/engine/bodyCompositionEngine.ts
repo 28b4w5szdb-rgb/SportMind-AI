@@ -1,3 +1,4 @@
+import { buildBodyCompositionSsidBundle } from '@/src/features/ssid-engine';
 import type {
   BodyCompositionAnalysis,
   BodyCompositionRecord,
@@ -58,7 +59,8 @@ export function computeBodyCompositionTrendScore(
 export function analyzeBodyComposition(
   records: BodyCompositionRecord[],
   heightCm: number,
-  goal: NutritionGoalId = 'performance'
+  goal: NutritionGoalId = 'performance',
+  athlete?: { gender?: 'male' | 'female' | 'other'; height_cm?: number; weight_kg?: number }
 ): BodyCompositionAnalysis {
   const sorted = [...records].sort((a, b) => b.date.localeCompare(a.date));
   const latest = sorted[0];
@@ -71,7 +73,6 @@ export function analyzeBodyComposition(
       statusKey: 'nutrition.bodyComp.statusMonitor',
     };
   }
-
   const weightChange = previous ? clamp(latest.weight_kg - previous.weight_kg, -20, 20) : undefined;
   const bodyFatChange =
     previous && latest.body_fat_percent !== undefined && previous.body_fat_percent !== undefined
@@ -107,7 +108,7 @@ export function analyzeBodyComposition(
     statusKey = 'nutrition.bodyComp.statusMonitor';
   }
 
-  return {
+  const analysis: BodyCompositionAnalysis = {
     latest,
     previous,
     weightChange,
@@ -119,4 +120,8 @@ export function analyzeBodyComposition(
     status,
     statusKey,
   };
+
+  analysis.ssid = buildBodyCompositionSsidBundle(analysis, athlete);
+
+  return analysis;
 }

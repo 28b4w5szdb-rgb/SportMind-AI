@@ -3,6 +3,7 @@ import type { MockAthlete, InjuryRecord } from '@/src/data/mock/types';
 import type { TrainingPlan } from '../types';
 
 import type { TrainingBuilderSnapshot } from '../types';
+import { buildTrainingLoadSsidBundle } from '@/src/features/ssid-engine';
 import {
   buildTrainingRecommendations,
   computeCompliance,
@@ -84,6 +85,7 @@ export function buildTrainingBuilderSnapshot(
     progressPercent: activePlan ? computePlanProgress(activePlan) : 0,
     recommendations,
     weeklyOverview,
+    ssid: buildTrainingLoadSsidBundle(load),
   };
 }
 

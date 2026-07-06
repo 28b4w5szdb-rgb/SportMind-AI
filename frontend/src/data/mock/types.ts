@@ -113,7 +113,7 @@ export interface MockCalculationRecord {
   calculator_type: CalculatorType;
   title: string;
   inputs: Record<string, number>;
-  result: { value: number; unit: string; interpretation: string };
+  result: { value: number; unit: string; interpretation: string; ssid?: import('@/src/features/ssid-engine').SsidInterpretation };
   created_at: string;
 }
 

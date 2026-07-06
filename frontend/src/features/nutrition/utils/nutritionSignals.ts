@@ -85,7 +85,7 @@ export function buildNutritionSignals(params: {
   const calorieCompliance = targets.calories > 0 ? clampPct((totals.calories / targets.calories) * 100) : 0;
   const hydrationCompliance = snapshot.hydration.hydrationPercent;
   const compliancePercent = computeCompliancePercent(totals, targets);
-  const bodyAnalysis = analyzeBodyComposition(bodyTrend, athlete.height_cm ?? 175, goal);
+  const bodyAnalysis = analyzeBodyComposition(bodyTrend, athlete.height_cm ?? 175, goal, athlete);
   const bodyCompositionTrendScore = computeBodyCompositionTrendScore(bodyAnalysis, goal);
 
   return {

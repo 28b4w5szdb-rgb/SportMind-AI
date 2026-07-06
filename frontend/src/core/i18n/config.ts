@@ -17,6 +17,9 @@ import { getLocales } from 'expo-localization';
 
 import en from './locales/en.json';
 import ar from './locales/ar.json';
+import { ssidEn } from '@/src/features/ssid-engine/locales/en';
+import { ssidArOverrides } from '@/src/features/ssid-engine/locales/ar';
+import { deepMergeLocale } from '@/src/features/ssid-engine/locales/mergeLocale';
 
 export type SupportedLanguage = 'en' | 'ar';
 export const SUPPORTED_LANGUAGES: readonly SupportedLanguage[] = ['en', 'ar'] as const;
@@ -57,8 +60,8 @@ export async function initI18n(initialLanguage?: SupportedLanguage): Promise<typ
 
   await i18n.use(initReactI18next).init({
     resources: {
-      en: { translation: en },
-      ar: { translation: ar },
+      en: { translation: { ...en, ssid: ssidEn } },
+      ar: { translation: { ...ar, ssid: deepMergeLocale(ssidEn, ssidArOverrides as unknown as Partial<typeof ssidEn>) } },
     },
     lng: initialLanguage ?? detectDeviceLanguage(),
     fallbackLng: DEFAULT_LANGUAGE,

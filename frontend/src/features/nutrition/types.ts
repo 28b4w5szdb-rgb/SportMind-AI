@@ -1,4 +1,4 @@
-/** Sports Nutrition domain types — structured for future Supabase + meal DB wiring. */
+import type { SsidMetricBundle } from '@/src/features/ssid-engine';
 
 export type MealSlotId =
   | 'breakfast'
@@ -78,6 +78,7 @@ export interface BodyCompositionAnalysis {
   waistHipRatio?: number;
   status: BodyCompositionStatusId;
   statusKey: string;
+  ssid?: SsidMetricBundle;
 }
 
 export interface NutritionComplianceBreakdown {

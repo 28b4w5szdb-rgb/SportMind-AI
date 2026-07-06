@@ -238,7 +238,10 @@ export function buildNutritionSnapshot(params: {
   const goalProgress = computeGoalProgress(goal, totals, targets, bodyTrend);
   const recommendations = buildNutritionRecommendations(totals, targets, hydration, input, compliancePercent);
   const bodyComposition = bodyTrend[0];
-  const bodyCompositionAnalysis = analyzeBodyComposition(bodyTrend, heightCm, goal);
+  const bodyCompositionAnalysis = analyzeBodyComposition(bodyTrend, heightCm, goal, {
+    height_cm: heightCm,
+    weight_kg: weightKg,
+  });
   const bmi = bodyCompositionAnalysis.bmi ?? (heightCm > 0 ? computeBmi(bodyComposition?.weight_kg ?? weightKg, heightCm) : undefined);
 
   return {
