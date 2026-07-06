@@ -10,6 +10,11 @@ import type {
 import type { CatalogEquipmentModel, CatalogEquipmentType } from '../models/catalog/EquipmentCatalog';
 import type { CatalogEvidenceTier } from '../models/catalog/EvidenceTier';
 import type { CatalogFormula, CatalogFormulaVersion } from '../models/catalog/FormulaRegistry';
+import type {
+  CatalogNormativeReference,
+  CatalogNormativeReferenceVersion,
+  NormativeReferenceProfile,
+} from '../models/catalog/NormativeReference';
 import type { CatalogQuestionnaireTemplate } from '../models/catalog/QuestionnaireTemplate';
 import type { CatalogSport } from '../models/catalog/Sport';
 import type { EvidenceTier, ScientificCategoryCode } from '../models/common';
@@ -22,6 +27,11 @@ import {
 import { SEED_EQUIPMENT_TYPES } from './equipmentTypes.seed';
 import { SEED_EVIDENCE_TIERS } from './evidenceTiers.seed';
 import { SEED_FORMULAS, SEED_FORMULA_VERSIONS } from './formulas.seed';
+import {
+  SEED_NORMATIVE_REFERENCES,
+  SEED_NORMATIVE_REFERENCE_VERSIONS,
+} from './normativeReferences.seed';
+import { resolveNormativeProfile } from './normativeReferenceBuilder';
 import { SEED_QUESTIONNAIRE_TEMPLATES } from './questionnaireTemplates.seed';
 import { SEED_SPORTS } from './sports.seed';
 
@@ -44,6 +54,8 @@ export class CatalogSeedIndex {
   readonly formulas = SEED_FORMULAS;
   readonly formulaVersions = SEED_FORMULA_VERSIONS;
   readonly questionnaireTemplates = SEED_QUESTIONNAIRE_TEMPLATES;
+  readonly normativeReferences = SEED_NORMATIVE_REFERENCES;
+  readonly normativeReferenceVersions = SEED_NORMATIVE_REFERENCE_VERSIONS;
 
   private sportsById = indexById(SEED_SPORTS);
   private sportsByKey = indexByKey(SEED_SPORTS);
@@ -63,6 +75,9 @@ export class CatalogSeedIndex {
   private formulaVersionsById = indexById(SEED_FORMULA_VERSIONS);
   private questionnairesById = indexById(SEED_QUESTIONNAIRE_TEMPLATES);
   private questionnairesByKey = indexByKey(SEED_QUESTIONNAIRE_TEMPLATES);
+  private normativeById = indexById(SEED_NORMATIVE_REFERENCES);
+  private normativeByKey = indexByKey(SEED_NORMATIVE_REFERENCES);
+  private normativeVersionsById = indexById(SEED_NORMATIVE_REFERENCE_VERSIONS);
 
   getSportById(id: string): CatalogSport | null {
     return this.sportsById.get(id) ?? null;
@@ -173,6 +188,48 @@ export class CatalogSeedIndex {
 
   listActiveQuestionnaires(): CatalogQuestionnaireTemplate[] {
     return this.questionnaireTemplates.filter((q) => q.active);
+  }
+
+  getNormativeReferenceById(id: string): CatalogNormativeReference | null {
+    return this.normativeById.get(id) ?? null;
+  }
+
+  getNormativeReferenceByKey(key: string): CatalogNormativeReference | null {
+    return this.normativeByKey.get(key) ?? null;
+  }
+
+  listActiveNormativeReferences(): CatalogNormativeReference[] {
+    return this.normativeReferences.filter((r) => r.active);
+  }
+
+  listNormativeReferencesForAssessment(
+    assessmentDefinitionKey: string
+  ): CatalogNormativeReference[] {
+    return this.listActiveNormativeReferences().filter(
+      (r) => r.assessment_definition_key === assessmentDefinitionKey
+    );
+  }
+
+  getNormativeVersion(
+    referenceId: string,
+    versionId: string
+  ): CatalogNormativeReferenceVersion | null {
+    const version = this.normativeVersionsById.get(versionId);
+    if (!version || version.reference_id !== referenceId) return null;
+    return version;
+  }
+
+  listNormativeVersions(referenceId: string): CatalogNormativeReferenceVersion[] {
+    return this.normativeReferenceVersions.filter((v) => v.reference_id === referenceId);
+  }
+
+  listNormativeProfiles(): NormativeReferenceProfile[] {
+    return this.listActiveNormativeReferences()
+      .map((reference) => {
+        const version = this.getNormativeVersion(reference.id, reference.current_version_id);
+        return version ? resolveNormativeProfile(reference, version) : null;
+      })
+      .filter((profile): profile is NormativeReferenceProfile => profile !== null);
   }
 }
 

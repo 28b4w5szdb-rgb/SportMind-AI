@@ -33,6 +33,12 @@ export type {
   CatalogNormativeReferenceInput,
   CatalogNormativeReferenceVersion,
   CatalogNormativeReferenceVersionInput,
+  NormativeReferenceProfile,
+  NormativeReferenceEngineDocument,
+  NormativePerformanceBands,
+  NormativePerformanceBandLabel,
+  NormativeSourceQuality,
+  NormativePopulationFilter,
 } from './NormativeReference';
 export type {
   CatalogQuestionnaireTemplate,

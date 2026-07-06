@@ -17,6 +17,7 @@ import type {
   CatalogQuestionnaireTemplate,
   CatalogSport,
   AssessmentProtocolVersion,
+  NormativeReferenceProfile,
 } from '../../models/catalog';
 
 export interface CatalogSportRepository {
@@ -84,6 +85,12 @@ export interface CatalogEquipmentCatalogRepository {
 export interface CatalogNormativeReferenceRepository {
   getById(referenceId: string): Promise<CatalogNormativeReference | null>;
   getByKey(key: string): Promise<CatalogNormativeReference | null>;
+  getNormativeReferenceByKey(key: string): Promise<CatalogNormativeReference | null>;
+  listNormativeReferences(): Promise<CatalogNormativeReference[]>;
+  listReferencesForAssessment(
+    assessmentDefinitionKey: string
+  ): Promise<CatalogNormativeReference[]>;
+  listNormativeProfiles(): Promise<NormativeReferenceProfile[]>;
   getVersion(referenceId: string, versionId: string): Promise<CatalogNormativeReferenceVersion | null>;
   listVersions(referenceId: string): Promise<CatalogNormativeReferenceVersion[]>;
 }

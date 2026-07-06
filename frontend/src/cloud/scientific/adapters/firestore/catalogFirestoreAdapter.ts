@@ -36,6 +36,10 @@ import {
   mergeProtocolLists,
 } from '../shared/definitionRepositoryHelpers';
 import {
+  mergeNormativeLists,
+  resolveProfilesFromReferences,
+} from '../shared/normativeRepositoryHelpers';
+import {
   FIRESTORE_CATALOG_COLLECTION_IDS,
 } from './collectionIds';
 import { readCollection, readDocument, readSubcollection } from './firestoreReadHelper';
@@ -332,13 +336,14 @@ function createEquipmentRepository(seed = getCatalogSeedIndex()): CatalogEquipme
   };
 }
 
-function createNormativeRepository(): CatalogNormativeReferenceRepository {
+function createNormativeRepository(seed = getCatalogSeedIndex()): CatalogNormativeReferenceRepository {
   const collectionId = FIRESTORE_CATALOG_COLLECTION_IDS.normativeReferences;
 
-  return {
+  const repo: CatalogNormativeReferenceRepository = {
     async getById(referenceId) {
       return cached('normative:id', referenceId, async () => {
-        return readDocument<CatalogNormativeReference>(collectionId, referenceId);
+        const remote = await readDocument<CatalogNormativeReference>(collectionId, referenceId);
+        return remote ?? seed.getNormativeReferenceById(referenceId);
       });
     },
     async getByKey(key) {
@@ -346,7 +351,36 @@ function createNormativeRepository(): CatalogNormativeReferenceRepository {
         const remote = await readCollection<CatalogNormativeReference>(collectionId, [
           { field: 'key', op: '==', value: key },
         ]);
-        return remote[0] ?? null;
+        return remote[0] ?? seed.getNormativeReferenceByKey(key);
+      });
+    },
+    async getNormativeReferenceByKey(key) {
+      return repo.getByKey(key);
+    },
+    async listNormativeReferences() {
+      return cached('normative:list', 'active', () =>
+        loadActive(collectionId, () => seed.listActiveNormativeReferences())
+      );
+    },
+    async listReferencesForAssessment(assessmentDefinitionKey) {
+      return cached('normative:assessment', assessmentDefinitionKey, async () => {
+        const remote = await readCollection<CatalogNormativeReference>(collectionId, [
+          { field: 'assessment_definition_key', op: '==', value: assessmentDefinitionKey },
+          { field: 'active', op: '==', value: true },
+        ]);
+        return mergeNormativeLists(
+          remote,
+          seed.listNormativeReferencesForAssessment(assessmentDefinitionKey)
+        );
+      });
+    },
+    async listNormativeProfiles() {
+      return cached('normative:profiles', 'all', async () => {
+        const references = await repo.listNormativeReferences();
+        return resolveProfilesFromReferences(references, async (reference) => {
+          const version = await repo.getVersion(reference.id, reference.current_version_id);
+          return version;
+        });
       });
     },
     async getVersion(referenceId, versionId) {
@@ -356,19 +390,23 @@ function createNormativeRepository(): CatalogNormativeReferenceRepository {
           referenceId,
           'versions'
         );
-        return versions.find((v) => v.id === versionId) ?? null;
+        const match = versions.find((v) => v.id === versionId);
+        return match ?? seed.getNormativeVersion(referenceId, versionId);
       });
     },
     async listVersions(referenceId) {
       return cached('normative:versions', referenceId, async () => {
-        return readSubcollection<CatalogNormativeReferenceVersion>(
+        const remote = await readSubcollection<CatalogNormativeReferenceVersion>(
           collectionId,
           referenceId,
           'versions'
         );
+        return remote.length > 0 ? remote : seed.listNormativeVersions(referenceId);
       });
     },
   };
+
+  return repo;
 }
 
 function createQuestionnaireRepository(
@@ -409,7 +447,7 @@ export function createCatalogFirestoreRepository(): ScientificCatalogRepository 
     evidenceTiers: createEvidenceTierRepository(seed),
     formulas: createFormulaRepository(seed),
     equipment: createEquipmentRepository(seed),
-    normativeReferences: createNormativeRepository(),
+    normativeReferences: createNormativeRepository(seed),
     questionnaireTemplates: createQuestionnaireRepository(seed),
   };
 }

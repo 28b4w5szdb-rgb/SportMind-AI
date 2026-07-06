@@ -19,4 +19,17 @@ export {
   definitionId,
   protocolVersionId,
 } from './definitionBuilder';
-export type { CompactAssessmentSpec, BuildAssessmentDefinitionInput } from './definitionBuilder';
+export {
+  SEED_NORMATIVE_REFERENCES,
+  SEED_NORMATIVE_REFERENCE_VERSIONS,
+  NORMATIVE_REFERENCE_PROFILE_COUNT,
+} from './normativeReferences.seed';
+export { PRIORITY_NORMATIVE_SPECS } from './priorityNormativeSpecs';
+export {
+  buildNormativeReferenceFromSpec,
+  buildPerformanceBands,
+  resolveNormativeProfile,
+  normativeReferenceId,
+  normativeVersionId,
+} from './normativeReferenceBuilder';
+export type { NormativeSeedSpec } from './normativeReferenceBuilder';

@@ -30,6 +30,7 @@ import type {
 import { getCatalogMemoryCache } from '../../cache/memoryCache';
 import { getCatalogSeedIndex } from '../../seed/catalogSeedIndex';
 import { createSeedDefinitionRepository } from '../shared/definitionRepositoryHelpers';
+import { createSeedNormativeRepository } from '../shared/normativeRepositoryHelpers';
 
 function cacheKey(scope: string, id: string): string {
   return `mock:catalog:${scope}:${id}`;
@@ -124,23 +125,8 @@ function createEquipmentRepository(seed = getCatalogSeedIndex()): CatalogEquipme
   };
 }
 
-function createNormativeRepository(): CatalogNormativeReferenceRepository {
-  const emptyVersions: CatalogNormativeReferenceVersion[] = [];
-
-  return {
-    async getById() {
-      return null;
-    },
-    async getByKey() {
-      return null;
-    },
-    async getVersion() {
-      return null;
-    },
-    async listVersions() {
-      return emptyVersions;
-    },
-  };
+function createNormativeRepository(seed = getCatalogSeedIndex()): CatalogNormativeReferenceRepository {
+  return createSeedNormativeRepository(seed);
 }
 
 function createQuestionnaireRepository(
@@ -169,7 +155,7 @@ export function createCatalogMockRepository(): ScientificCatalogRepository {
     evidenceTiers: createEvidenceTierRepository(seed),
     formulas: createFormulaRepository(seed),
     equipment: createEquipmentRepository(seed),
-    normativeReferences: createNormativeRepository(),
+    normativeReferences: createNormativeRepository(seed),
     questionnaireTemplates: createQuestionnaireRepository(seed),
   };
 }

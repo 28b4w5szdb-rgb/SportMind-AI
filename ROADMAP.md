@@ -78,10 +78,11 @@
 | **6C.1** | Scientific Firestore core foundation — types, paths, validation, repository contracts | ✅ Complete |
 | **6C.2** | Catalog seed data + read-only Firestore/mock repository adapters | ✅ Complete |
 | **6C.3** | Assessment Definition Engine — 130 definitions, search API, validation | ✅ Complete |
-| **6C.4** | Assessment sessions entity + security rules deployment | 🔜 Next |
-| **6C.5** | Organization write paths + screen migration (Performance Lab bridge) | Planned |
+| **6C.4** | Normative Reference Engine — 34 profiles, classification API, validation | ✅ Complete |
+| **6C.5** | Assessment sessions entity + security rules deployment | 🔜 Next |
+| **6C.6** | Organization write paths + Performance Lab bridge | Planned |
 
-**6C.3 exit criteria (met):** 130 assessment definitions (71 Performance Lab + 59 audit additions), evidence tiering, usability modes, repository search/list API, seed + Firestore fallback — no UI/session/writes.
+**6C.4 exit criteria (met):** 34 priority normative profiles with placeholder bands, classification/z-score/band API, missing-reference graceful fallback, seed + Firestore read adapters — no UI/SSID/analytics changes.
 
 **6C overall exit criteria:** Assessment sessions, scientific catalog seeded in Firestore, org-scoped reads/writes when cloud mode enabled.
 
@@ -188,4 +189,4 @@
 - **SSID and analytics logic unchanged** unless explicitly scoped.
 - **EN + AR** maintained for all user-facing strings.
 
-*Last updated: Phase 6C.3*
+*Last updated: Phase 6C.4*

@@ -7,8 +7,8 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.3 — Assessment Definition Engine (complete) |
-| **Next phase** | Phase 6C.4 — Assessment Sessions + Security Rules |
+| **Current phase** | Phase 6C.4 — Normative Reference Engine (complete) |
+| **Next phase** | Phase 6C.5 — Assessment Sessions + Security Rules |
 
 ---
 
@@ -26,6 +26,7 @@
 | **6C.1** | Scientific Firestore core foundation (types, paths, contracts) | ✅ Complete |
 | **6C.2** | Catalog seed data + read-only Firestore/mock repository adapters | ✅ Complete |
 | **6C.3** | Assessment Definition Engine — 130 catalog definitions + search API | ✅ Complete |
+| **6C.4** | Normative Reference Engine — 34 placeholder profiles + classification API | ✅ Complete |
 
 ---
 
@@ -52,10 +53,25 @@ frontend/src/cloud/
 ├── firebase/       # Lazy-init app, auth, firestore, storage
 ├── auth/           # Firebase + Supabase unified AuthProvider
 ├── firestore/      # Phase 6A entity models + repository interfaces
-├── scientific/     # Phase 6C.1–6C.3 — catalog seed, definition engine, adapters
+├── scientific/     # Phase 6C.1–6C.4 — catalog, definition + normative engines
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6C.4 — Normative Reference Engine
+
+| Principle | Implementation |
+|-----------|----------------|
+| **No overclaiming** | Default `sourceQuality: placeholder` with explicit citation placeholders |
+| **Missing reference behavior** | Returns `classification: unknown`, `reason: no_reference_available`, recommends raw value + trend |
+| **Raw / Derived / Interpretation** | Engine classifies raw metric values against catalog bands only — no SSID/analytics changes |
+
+| Area | Contents |
+|------|----------|
+| **Profiles** | 34 priority placeholder reference profiles for key assessments |
+| **Engine** | `findBestReferenceProfile`, `classifyMetricValue`, `calculateZScore`, `getPerformanceBand` |
+| **Bands** | Six-level bands: poor → elite with population filters |
+| **Repository** | Seed-backed mock + Firestore fallback read paths |
 
 #### Phase 6C.3 — Assessment Definition Engine
 
@@ -109,8 +125,8 @@ frontend/src/cloud/
 
 | Commit | Phase | Description |
 |--------|-------|-------------|
-| *(pending)* | 6C.3 | Assessment Definition Engine — 130 definitions |
-| `326b629` | 6C.2 | Catalog seed + read-only Firestore/mock adapters |
+| *(pending)* | 6C.4 | Normative Reference Engine — 34 placeholder profiles |
+| `2aea767` | 6C.3 | Assessment Definition Engine — 130 definitions |
 | `e81b8c2` | 6C.1 | Scientific Firestore core foundation |
 | `8ee0f4b` | UX | Calculator Hub entry from More screen |
 | `f9d693e` | 6B.1 | Auth persistence + user profiles |
@@ -119,12 +135,11 @@ frontend/src/cloud/
 
 ---
 
-## Next Planned Phase: 6C.4
+## Next Planned Phase: 6C.5
 
 - Assessment session entity models
 - Firestore write paths (sessions + org)
 - Security rules deployment from `scientific/security/collectionPolicy.ts`
-- Optional catalog upload tooling + Performance Lab bridge
 
 See [ROADMAP.md](./ROADMAP.md).
 
@@ -136,7 +151,8 @@ See [ROADMAP.md](./ROADMAP.md).
 2. **Scientific catalog reads use seed data in mock mode.** Firestore adapters fall back to seed when collections are empty.
 3. **`USE_CLOUD_DATA=false` by default.** Safe for v0.9-alpha demos.
 4. **Do not commit secrets.** Use `frontend/.env.example`.
-5. **SSID, analytics, AI Coach, dashboard unchanged** through Phase 6C.3.
+5. **SSID, analytics, AI Coach, dashboard unchanged** through Phase 6C.4.
+6. **Normative profiles are placeholders** — not for clinical claims until published citations are added.
 
 ---
 
@@ -149,4 +165,4 @@ See [ROADMAP.md](./ROADMAP.md).
 | Brand guide | [frontend/BRAND_GUIDE.md](./frontend/BRAND_GUIDE.md) |
 | Env template | [frontend/.env.example](./frontend/.env.example) |
 
-*Last updated: Phase 6C.3*
+*Last updated: Phase 6C.4*

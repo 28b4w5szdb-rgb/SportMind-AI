@@ -16,6 +16,13 @@ import type {
   AssessmentProtocolVersion,
   CatalogAssessmentDefinition,
 } from '../models/catalog/AssessmentDefinition';
+import type {
+  CatalogNormativeReference,
+  CatalogNormativeReferenceVersion,
+  NormativePerformanceBandLabel,
+  NormativePerformanceBands,
+  NormativeSourceQuality,
+} from '../models/catalog/NormativeReference';
 import type { OrgAthlete } from '../models/organization/OrgAthlete';
 import type { OrgEquipment } from '../models/organization/Equipment';
 import type { ScientificOrganization } from '../models/organization/OrganizationRoot';
@@ -208,6 +215,85 @@ export function validateAssessmentProtocolVersion(
 
   const versionCheck = validateVersionMeta(input);
   errors.push(...versionCheck.errors);
+
+  return ok(errors);
+}
+
+const NORMATIVE_BAND_LABELS: NormativePerformanceBandLabel[] = [
+  'poor',
+  'below_average',
+  'average',
+  'good',
+  'excellent',
+  'elite',
+];
+
+const SOURCE_QUALITIES: NormativeSourceQuality[] = ['placeholder', 'internal', 'published'];
+
+export function isNormativeSourceQuality(value: unknown): value is NormativeSourceQuality {
+  return typeof value === 'string' && SOURCE_QUALITIES.includes(value as NormativeSourceQuality);
+}
+
+export function validateNormativeBands(bands: NormativePerformanceBands | undefined, errors: string[]): string[] {
+  if (!bands || typeof bands !== 'object') return [...errors, 'bands is required'];
+  for (const label of NORMATIVE_BAND_LABELS) {
+    const range = bands[label];
+    if (!range || typeof range !== 'object') {
+      errors.push(`bands.${label} is required`);
+      continue;
+    }
+    if (range.min_value != null && range.max_value != null && range.min_value > range.max_value) {
+      errors.push(`bands.${label} min_value cannot exceed max_value`);
+    }
+  }
+  return errors;
+}
+
+export function validateCatalogNormativeReference(
+  reference: Partial<CatalogNormativeReference>,
+  version: Partial<CatalogNormativeReferenceVersion>
+): ValidationResult {
+  const errors: string[] = [];
+
+  if (!reference.key?.trim()) errors.push('reference.key is required');
+  if (!reference.assessment_definition_key?.trim()) {
+    errors.push('reference.assessment_definition_key is required');
+  }
+  if (!reference.metric_key?.trim()) errors.push('reference.metric_key is required');
+  if (!reference.current_version_id?.trim()) errors.push('reference.current_version_id is required');
+  validateBilingualText(reference.name, 'reference.name', errors);
+
+  if (!version.reference_id?.trim()) errors.push('version.reference_id is required');
+  if (!version.assessment_definition_key?.trim()) {
+    errors.push('version.assessment_definition_key is required');
+  } else if (
+    reference.assessment_definition_key &&
+    version.assessment_definition_key !== reference.assessment_definition_key
+  ) {
+    errors.push('assessment_definition_key mismatch between reference and version');
+  }
+  if (!version.metric_key?.trim()) errors.push('version.metric_key is required');
+  else if (reference.metric_key && version.metric_key !== reference.metric_key) {
+    errors.push('metric_key mismatch between reference and version');
+  }
+  if (!version.unit?.trim()) errors.push('version.unit is required');
+  if (!isEvidenceTier(version.evidence_tier)) errors.push('invalid version.evidence_tier');
+  if (!isNormativeSourceQuality(version.source_quality)) {
+    errors.push('invalid version.source_quality');
+  }
+  if (typeof version.lower_is_better !== 'boolean') errors.push('version.lower_is_better is required');
+  validateNormativeBands(version.bands, errors);
+
+  if (version.population && typeof version.population === 'object') {
+    const pop = version.population;
+    if (pop.age_min != null && pop.age_max != null && pop.age_min > pop.age_max) {
+      errors.push('population.age_min cannot exceed age_max');
+    }
+  }
+
+  const refVersionCheck = validateVersionMeta(reference);
+  const versionMetaCheck = validateVersionMeta(version);
+  errors.push(...refVersionCheck.errors, ...versionMetaCheck.errors);
 
   return ok(errors);
 }

@@ -158,13 +158,40 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6C.4 — Normative Reference Engine] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Normative Reference Engine** — `NormativeReferenceEngine` with list/get/classify/z-score/band methods
+- **34 priority reference profiles** — conservative placeholder bands for key assessments (BMI, sprints, CMJ, Yo-Yo, FMS, ACWR, etc.)
+- **Extended normative model** — six-level bands, population filters, source quality, z-score support, citation placeholders
+- **Seed pipeline** — `normativeReferenceBuilder`, `priorityNormativeSpecs`, validated at load
+- **Repository methods** — `listNormativeReferences`, `getNormativeReferenceByKey`, `listReferencesForAssessment`, `listNormativeProfiles`
+- **Missing reference policy** — returns `unknown` classification with recommendation to use raw value + longitudinal trend
+
+### Design principles documented
+
+- No overclaiming — placeholder source quality by default
+- Raw / Derived / Interpretation separation
+- Catalog First — references linked to assessment definition keys
+
+### Unchanged (by design)
+
+- No UI, dashboard, analytics, SSID, AI Coach, or report changes
+- No assessment sessions, athlete migration, or Firestore writes
+- Mock store + Performance Lab registry remain default runtime
+
+---
+
 ## Upcoming
 
-- **Phase 6C.4** — Assessment sessions entity + security rules
-- **Phase 6C.5** — Organization write paths + Performance Lab bridge
+- **Phase 6C.5** — Assessment sessions entity + security rules
+- **Phase 6C.6** — Organization write paths + Performance Lab bridge
 - **Phase 6D** — Firebase Storage
 - **Phase 6E** — Cloud sync engine
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6C.3*
+*Last updated: Phase 6C.4*
