@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
 import { AthleteSelectorChips } from '@/src/features/daily-checkin';
 import { RecoveryCenterPanel } from '@/src/features/recovery';
+import { useWearablesSnapshot } from '@/src/features/wearables';
 import { useLatestCheckInForAthlete } from '@/src/data/mock/hooks';
 import { useMockStore } from '@/src/data/mock/store';
 import { useTheme, useTypography } from '@/src/core/theme';
@@ -20,6 +21,8 @@ export default function RecoveryCenterScreen() {
   const initialAthleteId = useMemo(() => athleteIdParam ?? athletes[0]?.id ?? '', [athleteIdParam, athletes]);
   const [selectedAthleteId, setSelectedAthleteId] = useState(initialAthleteId);
   const latestCheckIn = useLatestCheckInForAthlete(selectedAthleteId || undefined);
+  const selectedAthlete = athletes.find((a) => a.id === selectedAthleteId);
+  const wearableSnapshot = useWearablesSnapshot(selectedAthlete);
 
   if (athletes.length === 0) {
     return (
@@ -35,7 +38,7 @@ export default function RecoveryCenterScreen() {
         <Text style={[type.label, { color: theme.colors.textSecondary, marginBottom: theme.spacing.sm }]}>{t('dailyCheckIn.selectAthlete')}</Text>
         <AthleteSelectorChips athletes={athletes} selectedId={selectedAthleteId} onSelect={setSelectedAthleteId} />
       </View>
-      <RecoveryCenterPanel checkIn={latestCheckIn} />
+      <RecoveryCenterPanel checkIn={latestCheckIn} wearableSnapshot={wearableSnapshot} />
     </FeatureScrollScreen>
   );
 }

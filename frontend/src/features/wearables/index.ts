@@ -1,0 +1,12 @@
+export * from './types';
+export { WEARABLE_PROVIDERS, getProviderById } from './registry/providerRegistry';
+export type { WearableProviderAdapter } from './adapters/baseAdapter';
+export { getWearableAdapter, isPlaceholderProvider } from './adapters/placeholderAdapters';
+export { createMockAdapter, generateMockSyncRecord } from './adapters/mockAdapter';
+export { buildWearableDailySnapshot, mergeWearableRecord, hasWearableData } from './engine/wearablesEngine';
+export { buildWearableSignals } from './utils/wearableSignals';
+export { formatWearablesForAI, buildWearableReportSummary } from './utils/wearableHelpers';
+export { useWearablesSnapshot, useWearablesDashboardSummary } from './hooks/useWearablesSnapshot';
+export { ProviderCard } from './components/ProviderCard';
+export { ConnectDevicesPanel } from './components/ConnectDevicesPanel';
+export { WorkspaceWearablesSection } from './components/WorkspaceWearablesSection';

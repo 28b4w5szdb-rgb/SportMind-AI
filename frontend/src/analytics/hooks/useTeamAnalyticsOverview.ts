@@ -12,6 +12,8 @@ export function useTeamAnalyticsOverview(): TeamAnalyticsOverview {
   const nutritionLogs = useMockStore((s) => s.nutritionLogs);
   const bodyCompositionRecords = useMockStore((s) => s.bodyCompositionRecords);
   const nutritionGoalSettings = useMockStore((s) => s.nutritionGoalSettings);
+  const wearableConnections = useMockStore((s) => s.wearableConnections);
+  const wearableRecords = useMockStore((s) => s.wearableRecords);
 
   return useMemo(
     () =>
@@ -23,8 +25,10 @@ export function useTeamAnalyticsOverview(): TeamAnalyticsOverview {
         trainingPlans,
         nutritionLogs,
         bodyCompositionRecords,
-        nutritionGoalSettings
+        nutritionGoalSettings,
+        wearableConnections,
+        wearableRecords
       ),
-    [athletes, tests, dailyCheckIns, injuryRecords, trainingPlans, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings]
+    [athletes, tests, dailyCheckIns, injuryRecords, trainingPlans, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings, wearableConnections, wearableRecords]
   );
 }

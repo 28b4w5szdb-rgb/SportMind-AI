@@ -3,12 +3,18 @@ import { resolveSignalKey } from '@/src/features/performance-lab/registry/signal
 import { computeRecoveryScoreFromCheckIn } from '@/src/features/recovery/recoveryEngine';
 import { buildTrainingSignals } from '@/src/features/training-builder/utils/trainingSignals';
 import { buildNutritionSignals } from '@/src/features/nutrition/utils/nutritionSignals';
+import { buildWearableSignals } from '@/src/features/wearables/utils/wearableSignals';
+import type { WearableDataRecord, WearableProviderConnection } from '@/src/features/wearables/types';
+import { todayDateKey } from '@/src/features/daily-checkin/validation';
 import type { AnalyticsRawSignals } from '../types';
 
 export interface BuildRawSignalsOptions {
   nutritionLogs?: DailyNutritionLog[];
   bodyCompositionRecords?: BodyCompositionRecord[];
   nutritionGoalSettings?: NutritionGoalSetting[];
+  wearableConnections?: WearableProviderConnection[];
+  wearableRecords?: WearableDataRecord[];
+  wearableDateKey?: string;
 }
 
 function ageFromDob(dob?: string): number | undefined {
@@ -66,7 +72,11 @@ export function buildRawSignals(
     signals.training = buildTrainingSignals(trainingPlans, athlete.id);
   }
 
-  if (nutritionOptions) {
+  if (
+    nutritionOptions?.nutritionLogs ||
+    nutritionOptions?.bodyCompositionRecords ||
+    nutritionOptions?.nutritionGoalSettings
+  ) {
     signals.nutrition = buildNutritionSignals({
       athlete,
       logs: nutritionOptions.nutritionLogs ?? [],
@@ -74,6 +84,15 @@ export function buildRawSignals(
       goalSettings: nutritionOptions.nutritionGoalSettings ?? [],
       checkIn,
       trainingPlans,
+    });
+  }
+
+  if (nutritionOptions?.wearableConnections && nutritionOptions?.wearableRecords) {
+    signals.wearables = buildWearableSignals({
+      athleteId: athlete.id,
+      dateKey: nutritionOptions.wearableDateKey ?? todayDateKey(),
+      connections: nutritionOptions.wearableConnections,
+      records: nutritionOptions.wearableRecords,
     });
   }
 

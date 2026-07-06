@@ -39,6 +39,7 @@ import { useActiveConversationMessages } from '@/src/data/mock/hooks';
 import { useMockStore } from '@/src/data/mock/store';
 import { computeAthleteAnalytics } from '@/src/analytics';
 import { buildAthleteNutritionSnapshot } from '@/src/features/nutrition/utils/nutritionHelpers';
+import { buildWearableDailySnapshot } from '@/src/features/wearables';
 import { useSquadIntelligence } from '@/src/features/team-intelligence';
 import { copyToClipboard, exportTextPlaceholder } from '@/src/utils/clipboard';
 
@@ -88,6 +89,8 @@ export default function AICoachScreen() {
   const nutritionLogs = useMockStore((s) => s.nutritionLogs);
   const bodyCompositionRecords = useMockStore((s) => s.bodyCompositionRecords);
   const nutritionGoalSettings = useMockStore((s) => s.nutritionGoalSettings);
+  const wearableConnections = useMockStore((s) => s.wearableConnections);
+  const wearableRecords = useMockStore((s) => s.wearableRecords);
   const teamIntelligence = useSquadIntelligence();
 
   const analyticsContext = useMemo(() => {
@@ -106,6 +109,8 @@ export default function AICoachScreen() {
       nutritionLogs,
       bodyCompositionRecords,
       nutritionGoalSettings,
+      wearableConnections,
+      wearableRecords,
     });
     const nutrition = buildAthleteNutritionSnapshot({
       athlete,
@@ -117,13 +122,20 @@ export default function AICoachScreen() {
       trainingPlans: trainingPlans.filter((p) => p.athlete_id === athlete.id),
       dateKey: new Date().toISOString().slice(0, 10),
     });
+    const wearables = buildWearableDailySnapshot(
+      athlete.id,
+      new Date().toISOString().slice(0, 10),
+      wearableConnections,
+      wearableRecords
+    );
     return {
       primary,
       athleteName: `${athlete.first_name} ${athlete.last_name}`,
       nutrition,
+      wearables,
       teamIntelligence,
     };
-  }, [athletes, tests, dailyCheckIns, injuryRecords, trainingPlans, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings, teamIntelligence]);
+  }, [athletes, tests, dailyCheckIns, injuryRecords, trainingPlans, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings, wearableConnections, wearableRecords, teamIntelligence]);
 
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);

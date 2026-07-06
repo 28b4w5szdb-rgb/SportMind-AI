@@ -9,6 +9,7 @@ import { RTP_PHASES } from '@/src/features/sports-medicine/registry/rtpPhases';
 import { buildTrainingBuilderSnapshot } from '@/src/features/training-builder/utils/trainingHelpers';
 import { templateLabelKey } from '@/src/features/training-builder/utils/templateLabelKey';
 import { buildAthleteNutritionSnapshot } from '@/src/features/nutrition/utils/nutritionHelpers';
+import { buildWearableDailySnapshot, buildWearableReportSummary } from '@/src/features/wearables';
 import { NUTRITION_GOALS } from '@/src/features/nutrition/registry/nutritionCatalog';
 import { computeTeamIntelligence } from '@/src/features/team-intelligence';
 import { buildWorkspaceSsidEntries, formatSsidReportSections } from '@/src/features/ssid-engine';
@@ -201,6 +202,20 @@ export function buildNutritionReportSections(
   };
 }
 
+export function buildWearableReportSections(
+  athlete: MockAthlete,
+  connections: import('@/src/features/wearables').WearableProviderConnection[],
+  records: import('@/src/features/wearables').WearableDataRecord[],
+  t: TFunction,
+  isRTL: boolean,
+  dateKey: string = new Date().toISOString().slice(0, 10)
+): Pick<MockReportSections, 'wearable_summary'> {
+  const snapshot = buildWearableDailySnapshot(athlete.id, dateKey, connections, records);
+  return {
+    wearable_summary: buildWearableReportSummary(snapshot, isRTL, (key) => t(key)),
+  };
+}
+
 export function buildTeamIntelligenceReportSections(
   athletes: MockAthlete[],
   tests: MockPerformanceTest[],
@@ -310,6 +325,8 @@ export function buildDefaultReportSections(
     nutritionLogs?: DailyNutritionLog[];
     bodyCompositionRecords?: BodyCompositionRecord[];
     nutritionGoalSettings?: NutritionGoalSetting[];
+    wearableConnections?: import('@/src/features/wearables').WearableProviderConnection[];
+    wearableRecords?: import('@/src/features/wearables').WearableDataRecord[];
   }
 ): MockReportSections {
   const base: MockReportSections = {
@@ -330,6 +347,8 @@ export function buildDefaultReportSections(
     nutritionLogs: context?.nutritionLogs,
     bodyCompositionRecords: context?.bodyCompositionRecords,
     nutritionGoalSettings: context?.nutritionGoalSettings,
+    wearableConnections: context?.wearableConnections,
+    wearableRecords: context?.wearableRecords,
   });
   const enriched = buildAnalyticsReportSections(analytics, t);
   const injurySections = buildInjuryReportSections(
@@ -372,6 +391,10 @@ export function buildDefaultReportSections(
     dateKey: new Date().toISOString().slice(0, 10),
   });
   const ssidSections = buildSsidReportSections(analytics, t, nutritionSnapshot.bodyCompositionAnalysis?.ssid);
+  const wearableSections =
+    athlete && context?.wearableConnections && context?.wearableRecords
+      ? buildWearableReportSections(athlete, context.wearableConnections, context.wearableRecords, t, isRTL)
+      : { wearable_summary: isRTL ? 'لا توجد بيانات أجهزة.' : 'No wearable data recorded.' };
 
   return {
     ...base,
@@ -383,6 +406,7 @@ export function buildDefaultReportSections(
     ...injurySections,
     ...trainingSections,
     ...nutritionSections,
+    ...wearableSections,
     ...ssidSections,
     decision_support: [enriched.decision_support, ssidSections.ssid_decision].filter(Boolean).join('\n\n'),
     recommendations: [enriched.recommendations, ssidSections.ssid_recommendations].filter(Boolean).join('\n\n'),

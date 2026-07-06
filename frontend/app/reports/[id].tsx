@@ -89,6 +89,7 @@ export default function ReportDetailScreen() {
     { key: 'nutrition_hydration_status', title: t('features.reports.sectionNutritionHydration'), body: sections.nutrition_hydration_status, icon: 'water' as const },
     { key: 'nutrition_body_comp_trend', title: t('features.reports.sectionNutritionBodyComp'), body: sections.nutrition_body_comp_trend, icon: 'body' as const },
     { key: 'nutrition_recommendations', title: t('features.reports.sectionNutritionRecommendations'), body: sections.nutrition_recommendations, icon: 'bulb' as const },
+    { key: 'wearable_summary', title: t('features.reports.sectionWearableSummary'), body: sections.wearable_summary, icon: 'watch' as const },
     { key: 'team_overview', title: t('features.reports.sectionTeamOverview'), body: sections.team_overview, icon: 'people' as const },
     { key: 'team_rankings', title: t('features.reports.sectionTeamRankings'), body: sections.team_rankings, icon: 'podium' as const },
     { key: 'team_risk_players', title: t('features.reports.sectionTeamRiskPlayers'), body: sections.team_risk_players, icon: 'warning' as const },

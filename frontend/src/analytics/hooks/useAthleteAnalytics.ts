@@ -17,6 +17,8 @@ export function useAthleteAnalytics(
   const nutritionLogs = useMockStore((s) => s.nutritionLogs);
   const bodyCompositionRecords = useMockStore((s) => s.bodyCompositionRecords);
   const nutritionGoalSettings = useMockStore((s) => s.nutritionGoalSettings);
+  const wearableConnections = useMockStore((s) => s.wearableConnections);
+  const wearableRecords = useMockStore((s) => s.wearableRecords);
 
   return useMemo(() => {
     if (!athlete) return null;
@@ -31,6 +33,8 @@ export function useAthleteAnalytics(
       nutritionLogs,
       bodyCompositionRecords,
       nutritionGoalSettings,
+      wearableConnections,
+      wearableRecords,
       context: { teamAvgOverall, athleteId: athlete.id },
     });
   }, [
@@ -43,5 +47,7 @@ export function useAthleteAnalytics(
     nutritionLogs,
     bodyCompositionRecords,
     nutritionGoalSettings,
+    wearableConnections,
+    wearableRecords,
   ]);
 }

@@ -20,6 +20,8 @@ export interface PerformanceAnalyticsInput {
   nutritionLogs?: DailyNutritionLog[];
   bodyCompositionRecords?: BodyCompositionRecord[];
   nutritionGoalSettings?: NutritionGoalSetting[];
+  wearableConnections?: import('@/src/features/wearables').WearableProviderConnection[];
+  wearableRecords?: import('@/src/features/wearables').WearableDataRecord[];
   context?: Partial<AnalyticsEngineContext>;
 }
 
@@ -28,6 +30,8 @@ export function computeAthleteAnalytics(input: PerformanceAnalyticsInput): Athle
     nutritionLogs: input.nutritionLogs,
     bodyCompositionRecords: input.bodyCompositionRecords,
     nutritionGoalSettings: input.nutritionGoalSettings,
+    wearableConnections: input.wearableConnections,
+    wearableRecords: input.wearableRecords,
   });
   const injuries = input.injuries ?? [];
   const injuryProfile = computeInjuryPreventionProfile({

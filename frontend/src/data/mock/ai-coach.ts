@@ -8,6 +8,8 @@ import type { TeamAnalyticsOverview } from '@/src/analytics/summary/teamOverview
 import { formatAthleteAnalyticsForAI } from '@/src/analytics/summary/teamOverview';
 import type { NutritionSnapshot } from '@/src/features/nutrition/types';
 import { formatNutritionForAI } from '@/src/features/nutrition/utils/nutritionHelpers';
+import type { WearableDailySnapshot } from '@/src/features/wearables/types';
+import { formatWearablesForAI } from '@/src/features/wearables/utils/wearableHelpers';
 import type { TeamIntelligenceSnapshot } from '@/src/features/team-intelligence/types';
 import { formatTeamIntelligenceForAI } from '@/src/features/team-intelligence';
 import { buildWorkspaceSsidEntries, formatSsidForAI } from '@/src/features/ssid-engine';
@@ -45,6 +47,7 @@ export interface AnalyticsCoachContext {
   teamIntelligence?: TeamIntelligenceSnapshot;
   athleteName?: string;
   nutrition?: NutritionSnapshot;
+  wearables?: WearableDailySnapshot;
 }
 
 export const AI_AGENTS: AiAgent[] = [
@@ -197,6 +200,71 @@ function detectTeamTopic(message: string): TeamTopic | null {
   if (/focus this week|team focus|what should the team|التركيز|هذا الأسبوع|يركز الفريق/.test(message)) return 'weekly_focus';
   if (/team|squad|roster|فريق|ال squad|قائمة/.test(m)) return 'squad';
   return null;
+}
+
+type WearableTopic = 'sleep' | 'hrv' | 'resting_hr' | 'activity' | 'recovery';
+
+function detectWearableTopic(message: string): WearableTopic | null {
+  const m = message.toLowerCase();
+  if (/sleep|نوم/.test(m)) return 'sleep';
+  if (/hrv|heart rate variability|تقلب/.test(m)) return 'hrv';
+  if (/resting hr|resting heart|morning heart|نبض الراحة|نبض صباح/.test(m)) return 'resting_hr';
+  if (/steps|activity|calories|خطوات|نشاط|سعرات/.test(m)) return 'activity';
+  if (/wearable|device|watch|oura|whoop|garmin|ساعة|جهاز|حلقة/.test(m)) return 'recovery';
+  return null;
+}
+
+function buildWearableTopicResponse(
+  topic: WearableTopic,
+  ctx: AnalyticsCoachContext,
+  isRTL: boolean,
+  t: (key: string) => string
+): string {
+  const w = ctx.wearables;
+  const name = ctx.athleteName ?? (isRTL ? 'اللاعب' : 'the athlete');
+  if (!w || (!w.sleepDurationHours && !w.hrv && !w.restingHeartRate && !w.steps)) {
+    return isRTL ? `⌚ لا توجد بيانات أجهزة محفوظة لـ ${name}.` : `⌚ No saved wearable data for ${name}.`;
+  }
+
+  switch (topic) {
+    case 'sleep':
+      if (w.sleepDurationHours !== undefined && w.sleepDurationHours < 6.5) {
+        return isRTL
+          ? `😴 النوم منخفض (${w.sleepDurationHours}h) — خفّض الحمل وادعم جودة النوم الليلة.`
+          : `😴 Sleep is low (${w.sleepDurationHours}h) — reduce load and prioritize sleep hygiene tonight.`;
+      }
+      return isRTL
+        ? `😴 النوم ${w.sleepDurationHours ?? '—'}h · جودة ${w.sleepQuality ?? '—'}/10 — ضمن النطاق الم acceptable للتدريب.`
+        : `😴 Sleep ${w.sleepDurationHours ?? '—'}h · quality ${w.sleepQuality ?? '—'}/10 — acceptable for planned training.`;
+    case 'hrv':
+      if (w.hrv !== undefined && w.hrv < 40) {
+        return isRTL
+          ? `📉 HRV منخفض (${w.hrv} ms) — قد يشير لإجهاد أو نوم غير كافٍ.`
+          : `📉 HRV is decreased (${w.hrv} ms) — may indicate stress or insufficient recovery.`;
+      }
+      return isRTL ? `📈 HRV ${w.hrv ?? '—'} ms — ضمن النطاق المتوقع.` : `📈 HRV ${w.hrv ?? '—'} ms — within expected range.`;
+    case 'resting_hr':
+      if (w.restingHeartRate !== undefined && w.restingHeartRate > 68) {
+        return isRTL
+          ? `❤️ نبض الراحة مرتفع (${w.restingHeartRate} bpm) — راقب التعافي قبل الحمل العالي.`
+          : `❤️ Resting HR is elevated (${w.restingHeartRate} bpm) — monitor recovery before high load.`;
+      }
+      return isRTL
+        ? `❤️ نبض الراحة ${w.restingHeartRate ?? '—'} bpm — لا يوجد إشارة إجهاد واضحة.`
+        : `❤️ Resting HR ${w.restingHeartRate ?? '—'} bpm — no clear stress signal.`;
+    case 'activity':
+      if (w.steps !== undefined && w.steps > 11000) {
+        return isRTL
+          ? `🚶 نشاط مرتفع (${w.steps} خطوة) — ادمج ذلك في حساب الإجهاد اليومي.`
+          : `🚶 Activity is high (${w.steps} steps) — factor into daily fatigue.`;
+      }
+      return isRTL
+        ? `🚶 الخطوات ${w.steps ?? '—'} · السعرات ${w.calories ?? '—'} — نشاط يومي معتدل.`
+        : `🚶 Steps ${w.steps ?? '—'} · calories ${w.calories ?? '—'} — moderate daily activity.`;
+    case 'recovery':
+    default:
+      return formatWearablesForAI(w, name, isRTL, t);
+  }
 }
 
 function buildTeamTopicResponse(topic: TeamTopic, ctx: AnalyticsCoachContext, isRTL: boolean): string {
@@ -454,6 +522,7 @@ export function generateMockResponse(
 
   const topic = detectAnalyticsTopic(userMessage);
   const nutritionTopic = detectNutritionTopic(userMessage);
+  const wearableTopic = detectWearableTopic(userMessage);
   const analyticsRelevant =
     topic !== null ||
     agentId === 'performance' ||
@@ -473,6 +542,16 @@ export function generateMockResponse(
             : topic === 'team_squad'
               ? 'squad'
               : null;
+
+  if (
+    analyticsContext?.wearables &&
+    wearableTopic &&
+    (agentId === 'recovery' || agentId === 'performance' || agentId === 'planning')
+  ) {
+    const body = buildWearableTopicResponse(wearableTopic, analyticsContext, isRTL, t);
+    const confidence = isRTL ? '\n\n✓ مستوى الثقة: 88%' : '\n\n✓ Confidence: 88%';
+    return body + confidence;
+  }
 
   if (analyticsContext?.teamIntelligence && teamTopicFromAnalytics) {
     const body = buildTeamTopicResponse(teamTopicFromAnalytics, analyticsContext, isRTL);
@@ -539,7 +618,16 @@ export function generateMockResponse(
             isRTL
           )
         : '';
-    return prefix + '\n\n' + summary + nutritionBlock;
+    const wearableBlock =
+      analyticsContext.wearables && agentId === 'recovery'
+        ? '\n\n' + formatWearablesForAI(
+            analyticsContext.wearables,
+            analyticsContext.athleteName ?? (isRTL ? 'اللاعب' : 'the athlete'),
+            isRTL,
+            t
+          )
+        : '';
+    return prefix + '\n\n' + summary + nutritionBlock + wearableBlock;
   }
 
   if (agentId === 'nutrition' && analyticsContext?.nutrition) {

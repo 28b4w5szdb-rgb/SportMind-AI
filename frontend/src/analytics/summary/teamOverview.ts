@@ -32,7 +32,9 @@ export function computeTeamOverview(
   trainingPlans: TrainingPlan[] = [],
   nutritionLogs: DailyNutritionLog[] = [],
   bodyCompositionRecords: BodyCompositionRecord[] = [],
-  nutritionGoalSettings: NutritionGoalSetting[] = []
+  nutritionGoalSettings: NutritionGoalSetting[] = [],
+  wearableConnections: import('@/src/features/wearables').WearableProviderConnection[] = [],
+  wearableRecords: import('@/src/features/wearables').WearableDataRecord[] = []
 ): TeamAnalyticsOverview {
   const snapshots = athletes.map((athlete) => {
     const checkIn = dailyCheckIns
@@ -49,6 +51,8 @@ export function computeTeamOverview(
         nutritionLogs,
         bodyCompositionRecords,
         nutritionGoalSettings,
+        wearableConnections,
+        wearableRecords,
       }),
     };
   });

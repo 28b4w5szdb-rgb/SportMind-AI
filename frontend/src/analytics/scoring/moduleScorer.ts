@@ -26,7 +26,7 @@ function nutritionAdjustment(s: AnalyticsRawSignals, kind: 'recovery' | 'fatigue
   if (!n) return 0;
   switch (kind) {
     case 'recovery':
-      return clamp((n.compliancePercent - 55) * 0.12 + (n.hydrationCompliance - 60) * 0.08 + (n.bodyCompositionTrendScore - 50) * 0.05);
+      return clamp((n.compliancePercent - 55) * 0.12 + (n.hydrationCompliance - 60) * 0.08 + (n.bodyCompositionTrendScore - 50) * 0.05 + wearableAdjustment(s, 'hydration'));
     case 'fatigue':
       return clamp((n.proteinCompliance - 70) * 0.08 + (n.hydrationCompliance - 65) * 0.06 + (n.calorieCompliance - 90 > 15 ? -6 : 0));
     case 'readiness':
@@ -37,6 +37,38 @@ function nutritionAdjustment(s: AnalyticsRawSignals, kind: 'recovery' | 'fatigue
       return 0;
   }
 }
+
+function wearableAdjustment(
+  s: AnalyticsRawSignals,
+  kind: 'recovery' | 'fatigue' | 'readiness' | 'injury' | 'load' | 'hydration'
+): number {
+  const w = s.wearables;
+  if (!w?.hasData) return 0;
+  switch (kind) {
+    case 'recovery':
+      return clamp(
+        (w.recoveryScore ? (w.recoveryScore - 55) * 0.18 : 0) +
+          (w.sleepDurationHours ? (w.sleepDurationHours - 7) * 2.5 : 0) +
+          w.readinessAdjustment * 0.35
+      );
+    case 'fatigue':
+      return -w.fatigueAdjustment;
+    case 'readiness':
+      return w.readinessAdjustment;
+    case 'injury':
+      if (w.restingHeartRate && w.restingHeartRate > 72) return -4;
+      if (w.hrv && w.hrv < 35) return -5;
+      if (w.trainingLoad && w.trainingLoad > 500) return -6;
+      return 0;
+    case 'load':
+      return w.trainingLoad ? clamp(w.trainingLoad * 0.015 - 6) : 0;
+    case 'hydration':
+      return w.hydrationAdjustment;
+    default:
+      return 0;
+  }
+}
+
 function signal(s: AnalyticsRawSignals, ...keys: string[]): number | undefined {
   for (const key of keys) {
     const v = s.testSignals[key];
@@ -105,7 +137,7 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
     const base = clamp(s.status === 'rest' ? 78 : s.status === 'injured' ? 42 : 68 + s.trendPercent * 0.5);
     const checkInScore = s.checkIn?.recoveryScore;
     let score = checkInScore !== undefined ? clamp(base * 0.45 + checkInScore * 0.55) : base;
-    score = clamp(score + nutritionAdjustment(s, 'recovery'));
+    score = clamp(score + nutritionAdjustment(s, 'recovery') + wearableAdjustment(s, 'recovery'));
     return {
       score,
       trendDelta: s.trendPercent * 0.4 + (checkInScore !== undefined ? (checkInScore - 50) * 0.08 : 0),
@@ -120,6 +152,7 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
       if (tr.acwr > 1.5) score -= 15;
       else if (tr.acwr > 1.3) score -= 8;
       else if (tr.acwr < 0.8) score -= 5;
+      score = clamp(score + wearableAdjustment(s, 'load'));
       return { score, trendDelta: (tr.weeklyActualLoad - tr.weeklyPlannedLoad) * 0.01 };
     }
     return {
@@ -141,7 +174,7 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
     if (s.training?.avgSessionRpe !== undefined && s.training.avgSessionRpe >= 8) {
       fatigueScore = clamp(fatigueScore - (s.training.avgSessionRpe - 7) * 5);
     }
-    fatigueScore = clamp(fatigueScore + nutritionAdjustment(s, 'fatigue'));
+    fatigueScore = clamp(fatigueScore + nutritionAdjustment(s, 'fatigue') + wearableAdjustment(s, 'fatigue'));
     return {
       score: fatigueScore,
       trendDelta: -s.trendPercent * 0.25 + (s.checkIn ? -(s.checkIn.fatigue - 5) * 0.4 : 0),
@@ -169,6 +202,7 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
     if (s.training?.acwr !== undefined && s.training.acwr > 1.4) {
       risk -= (s.training.acwr - 1.3) * 12;
     }
+    risk = clamp(risk + wearableAdjustment(s, 'injury'));
     return {
       score: clamp(risk),
       trendDelta: s.trendPercent * 0.5,
@@ -191,7 +225,7 @@ const MODULE_SCORERS: Record<AnalyticsModuleId, ModuleScorer> = {
           (s.checkIn.fatigue - 5) * 2.5
       );
     }
-    score = clamp(score + nutritionAdjustment(s, 'readiness'));
+    score = clamp(score + nutritionAdjustment(s, 'readiness') + wearableAdjustment(s, 'readiness'));
     return {
       score,
       trendDelta: s.trendPercent * 0.45 + (s.checkIn ? (s.checkIn.recoveryScore - 50) * 0.06 : 0),

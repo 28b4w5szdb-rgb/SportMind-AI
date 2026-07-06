@@ -8,6 +8,8 @@ import { buildCustomTestDefinition } from '@/src/features/performance-lab/regist
 import { getTestDefinition } from '@/src/features/performance-lab/registry/tests';
 import { interpretTestWithSsid } from '@/src/features/performance-lab/utils/testInterpretation';
 import { buildStoredReferenceProfile } from '@/src/features/testing-science';
+import { getProviderById, generateMockSyncRecord, mergeWearableRecord } from '@/src/features/wearables';
+import type { MockSyncType, WearableProviderConnection, WearableProviderId } from '@/src/features/wearables';
 import type { TestDefinition } from '@/src/features/performance-lab/types';
 import type {
   MockAthlete,
@@ -87,6 +89,8 @@ export interface MockStore {
   nutritionLogs: DailyNutritionLog[];
   bodyCompositionRecords: BodyCompositionRecord[];
   nutritionGoalSettings: NutritionGoalSetting[];
+  wearableConnections: WearableProviderConnection[];
+  wearableRecords: import('@/src/features/wearables').WearableDataRecord[];
 
   addAthlete: (input: Omit<MockAthlete, 'id' | 'created_at' | 'tests_count' | 'trend_percent'>) => MockAthlete;
   updateAthlete: (id: string, patch: Partial<MockAthlete>) => void;
@@ -122,6 +126,9 @@ export interface MockStore {
   addNutritionLog: (input: DailyNutritionLogInput) => DailyNutritionLog;
   addBodyCompositionRecord: (input: BodyCompositionInput) => BodyCompositionRecord;
   setNutritionGoal: (athleteId: string, goal: NutritionGoalSetting['goal']) => NutritionGoalSetting;
+  connectWearableProvider: (athleteId: string, providerId: WearableProviderId) => WearableProviderConnection;
+  disconnectWearableProvider: (athleteId: string, providerId: WearableProviderId) => void;
+  mockSyncWearable: (athleteId: string, providerId: WearableProviderId, syncType: MockSyncType) => import('@/src/features/wearables').WearableDataRecord;
 }
 
 function ensureActiveConversation(get: () => MockStore, set: (partial: Partial<MockStore>) => void): string {
@@ -169,6 +176,8 @@ export const useMockStore = create<MockStore>()(
       nutritionLogs: SEED_NUTRITION_LOGS,
       bodyCompositionRecords: SEED_BODY_COMPOSITION,
       nutritionGoalSettings: SEED_NUTRITION_GOALS,
+      wearableConnections: [],
+      wearableRecords: [],
 
       addAthlete: (input) => {
         const athlete: MockAthlete = {
@@ -533,6 +542,62 @@ export const useMockStore = create<MockStore>()(
         }));
         return record;
       },
+
+      connectWearableProvider: (athleteId, providerId) => {
+        const permissions = getProviderById(providerId).defaultPermissions;
+        const now = new Date().toISOString();
+        const existingIdx = get().wearableConnections.findIndex(
+          (c) => c.athlete_id === athleteId && c.provider_id === providerId
+        );
+        const connection: WearableProviderConnection = {
+          athlete_id: athleteId,
+          provider_id: providerId,
+          status: 'mock_sync',
+          permissions,
+          connected_at: now,
+          last_sync_at: now,
+        };
+        set((s) => ({
+          wearableConnections:
+            existingIdx >= 0
+              ? s.wearableConnections.map((c, i) => (i === existingIdx ? connection : c))
+              : [connection, ...s.wearableConnections],
+        }));
+        return connection;
+      },
+
+      disconnectWearableProvider: (athleteId, providerId) => {
+        set((s) => ({
+          wearableConnections: s.wearableConnections.filter(
+            (c) => !(c.athlete_id === athleteId && c.provider_id === providerId)
+          ),
+        }));
+      },
+
+      mockSyncWearable: (athleteId, providerId, syncType) => {
+        const dateKey = todayDateKey();
+        const incoming = generateMockSyncRecord(athleteId, providerId, syncType, dateKey);
+        const existingIdx = get().wearableRecords.findIndex(
+          (r) => r.athlete_id === athleteId && r.provider_id === providerId && r.date === dateKey
+        );
+        const merged = mergeWearableRecord(
+          existingIdx >= 0 ? get().wearableRecords[existingIdx] : undefined,
+          incoming
+        );
+        const now = new Date().toISOString();
+        set((s) => ({
+          wearableRecords:
+            existingIdx >= 0
+              ? s.wearableRecords.map((r, i) => (i === existingIdx ? merged : r))
+              : [merged, ...s.wearableRecords],
+          wearableConnections: s.wearableConnections.map((c) =>
+            c.athlete_id === athleteId && c.provider_id === providerId
+              ? { ...c, status: 'mock_sync' as const, last_sync_at: now }
+              : c
+          ),
+        }));
+        return merged;
+      },
     }),
     {
       name: STORAGE_KEY,
@@ -555,6 +620,8 @@ export const useMockStore = create<MockStore>()(
         nutritionLogs: state.nutritionLogs,
         bodyCompositionRecords: state.bodyCompositionRecords,
         nutritionGoalSettings: state.nutritionGoalSettings,
+        wearableConnections: state.wearableConnections,
+        wearableRecords: state.wearableRecords,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

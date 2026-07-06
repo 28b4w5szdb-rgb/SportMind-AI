@@ -8,6 +8,7 @@ import { useMockStore } from '@/src/data/mock/store';
 import { useSportsMedicineSnapshot, attentionRegions, regionsWithHistory } from '@/src/features/sports-medicine';
 import { useTrainingBuilderSnapshot, WorkspaceTrainingSection } from '@/src/features/training-builder';
 import { useNutritionSnapshot, WorkspaceNutritionSection } from '@/src/features/nutrition';
+import { useWearablesSnapshot, WorkspaceWearablesSection } from '@/src/features/wearables';
 import { buildWorkspaceSsidEntries, SsidBundleSection } from '@/src/features/ssid-engine';
 import { useAthleteWorkspace } from '../hooks/useAthleteWorkspace';
 import { AthleteHeroCard } from './AthleteHeroCard';
@@ -37,6 +38,7 @@ export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: Athl
   const sportsMedicine = useSportsMedicineSnapshot(athlete, tests, latestCheckIn);
   const trainingSnapshot = useTrainingBuilderSnapshot(athlete, tests);
   const nutritionSnapshot = useNutritionSnapshot(athlete);
+  const wearableSnapshot = useWearablesSnapshot(athlete);
 
   const ssidEntries = useMemo(
     () => buildWorkspaceSsidEntries(analytics, nutritionSnapshot?.bodyCompositionAnalysis?.ssid),
@@ -64,6 +66,7 @@ export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: Athl
       {sportsMedicine ? <WorkspaceSportsMedicineSection athleteId={athlete.id} snapshot={sportsMedicine} /> : null}
       {trainingSnapshot ? <WorkspaceTrainingSection athleteId={athlete.id} snapshot={trainingSnapshot} /> : null}
       {nutritionSnapshot ? <WorkspaceNutritionSection athleteId={athlete.id} snapshot={nutritionSnapshot} /> : null}
+      {wearableSnapshot ? <WorkspaceWearablesSection athleteId={athlete.id} snapshot={wearableSnapshot} /> : null}
       <BodyMuscleMapPlaceholder
         modules={analytics.overall.modules}
         regionRisks={sportsMedicine?.profile.regional}

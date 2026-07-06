@@ -31,6 +31,7 @@ import { computeReadinessScore, readinessLabel } from '@/src/utils/athleteMetric
 import { useTeamAnalyticsOverview, buildAiSummaryFromAnalytics } from '@/src/analytics';
 import { computeCompliance, findTodaySession, todayDateKey } from '@/src/features/training-builder';
 import { buildAthleteNutritionSnapshot } from '@/src/features/nutrition/utils/nutritionHelpers';
+import { useWearablesDashboardSummary } from '@/src/features/wearables';
 import { computeAthleteAnalytics } from '@/src/analytics';
 import { ProgressRingChart } from '@/src/components/charts';
 import { useSquadIntelligence } from '@/src/features/team-intelligence';
@@ -170,6 +171,7 @@ export default function DashboardScreen() {
   }, [athletes, tests, trainingPlans, dailyCheckIns, injuryRecords, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings, t]);
 
   const squadIntelligence = useSquadIntelligence();
+  const wearablesDashboard = useWearablesDashboardSummary();
 
   const statsData = useMemo(
     () =>
@@ -490,6 +492,39 @@ export default function DashboardScreen() {
                         {nutritionDashboard.recommendationPreview}
                       </Text>
                     ) : null}
+                  </View>
+                  <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color={theme.colors.textTertiary} />
+                </View>
+              </Card>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Wearables overview */}
+        {athletes.length > 0 && (
+          <View style={[styles.section, { maxWidth: isDesktop ? 1400 : undefined, marginHorizontal: isDesktop ? 'auto' : undefined, width: '100%' }]}>
+            <TouchableOpacity activeOpacity={0.85} onPress={() => router.push(APP_ROUTES.wearables() as never)}>
+              <Card variant="elevated" padding="lg" style={{ borderRadius: theme.borderRadius['2xl'] }}>
+                <View style={{ flexDirection: flexRow(true), alignItems: 'center', gap: theme.spacing.md }}>
+                  <View style={[styles.statIcon, { backgroundColor: '#0EA5E920', borderRadius: theme.borderRadius.lg }]}>
+                    <Ionicons name="watch" size={22} color="#0EA5E9" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[type.label, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>
+                      {t('wearables.dashboardTitle')}
+                    </Text>
+                    <Text style={[type.h4, { color: theme.colors.text, marginTop: 4, textAlign: textAlign('start') }]}>
+                      {isRTL
+                        ? `${wearablesDashboard.connectedAthletes}/${wearablesDashboard.totalAthletes} لاعبين متصلين`
+                        : `${wearablesDashboard.connectedAthletes}/${wearablesDashboard.totalAthletes} athletes connected`}
+                    </Text>
+                    <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 4, textAlign: textAlign('start') }]}>
+                      {t('wearables.dashboardMeta', {
+                        synced: wearablesDashboard.syncedToday,
+                        hrv: wearablesDashboard.avgHrv || '—',
+                        sleep: wearablesDashboard.avgSleep || '—',
+                      })}
+                    </Text>
                   </View>
                   <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color={theme.colors.textTertiary} />
                 </View>

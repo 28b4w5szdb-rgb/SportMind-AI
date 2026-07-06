@@ -173,4 +173,20 @@ export interface AnalyticsRawSignals {
     hasLogToday: boolean;
     hasBodyComposition: boolean;
   };
+  wearables?: {
+    hasData: boolean;
+    recoveryScore?: number;
+    hrv?: number;
+    restingHeartRate?: number;
+    sleepDurationHours?: number;
+    sleepQuality?: number;
+    steps?: number;
+    calories?: number;
+    trainingLoad?: number;
+    readinessAdjustment: number;
+    fatigueAdjustment: number;
+    hydrationAdjustment: number;
+    connectedProviders: number;
+    lastSyncAt?: string;
+  };
 }

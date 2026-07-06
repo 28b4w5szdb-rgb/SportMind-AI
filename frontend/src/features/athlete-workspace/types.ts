@@ -39,6 +39,8 @@ export type QuickActionId =
   | 'nutrition_log'
   | 'nutrition_center'
   | 'log_body_composition'
+  | 'connect_device'
+  | 'sync_wearable'
   | 'edit_athlete'
   | 'create_report'
   | 'compare'
