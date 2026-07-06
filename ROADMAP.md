@@ -79,12 +79,13 @@
 | **6C.2** | Catalog seed data + read-only Firestore/mock repository adapters | ✅ Complete |
 | **6C.3** | Assessment Definition Engine — 130 definitions, search API, validation | ✅ Complete |
 | **6C.4** | Normative Reference Engine — 34 profiles, classification API, validation | ✅ Complete |
-| **6C.5** | Assessment sessions entity + security rules deployment | 🔜 Next |
-| **6C.6** | Organization write paths + Performance Lab bridge | Planned |
+| **6C.5** | Universal Assessment Session Engine — Raw → Derived → Interpretation pipeline | ✅ Complete |
+| **6C.6** | Firestore session persistence + security rules deployment | 🔜 Next |
+| **6C.7** | Organization write paths + Performance Lab bridge | Planned |
 
-**6C.4 exit criteria (met):** 34 priority normative profiles with placeholder bands, classification/z-score/band API, missing-reference graceful fallback, seed + Firestore read adapters — no UI/SSID/analytics changes.
+**6C.5 exit criteria (met):** Session model + engine API, definition-gated creation, normative comparison snapshot, mock read-only repository, append-only memory store — no UI/Firestore writes/SSID/AI.
 
-**6C overall exit criteria:** Assessment sessions, scientific catalog seeded in Firestore, org-scoped reads/writes when cloud mode enabled.
+**6C overall exit criteria:** Assessment sessions operational in cloud, scientific catalog seeded in Firestore, org-scoped reads/writes when cloud mode enabled.
 
 ---
 
@@ -189,4 +190,4 @@
 - **SSID and analytics logic unchanged** unless explicitly scoped.
 - **EN + AR** maintained for all user-facing strings.
 
-*Last updated: Phase 6C.4*
+*Last updated: Phase 6C.5*

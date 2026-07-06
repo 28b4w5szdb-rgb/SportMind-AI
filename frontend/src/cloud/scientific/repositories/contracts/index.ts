@@ -1,3 +1,5 @@
+export type { AssessmentSessionRepository } from './AssessmentSessionRepository';
+
 export type {
   CatalogSportRepository,
   CatalogAssessmentCategoryRepository,

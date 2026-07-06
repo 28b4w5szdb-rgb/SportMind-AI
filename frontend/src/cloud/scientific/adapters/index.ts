@@ -11,6 +11,7 @@ import { createCatalogFirestoreRepository } from './firestore/catalogFirestoreAd
 import { createOrganizationFirestoreRepository } from './firestore/organizationFirestoreAdapter';
 import { createCatalogMockRepository } from './mock/catalogMockAdapter';
 import { createOrganizationMockRepository } from './mock/organizationMockAdapter';
+import { createAssessmentSessionMockRepository } from './mock/assessmentSessionMockAdapter';
 
 export { ScientificReadOnlyError } from './errors';
 
@@ -31,4 +32,5 @@ export {
   createOrganizationFirestoreRepository,
   createCatalogMockRepository,
   createOrganizationMockRepository,
+  createAssessmentSessionMockRepository,
 };

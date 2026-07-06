@@ -1,10 +1,9 @@
 /**
- * SportMind AI — Scientific Firestore Core Foundation (Phase 6C.1–6C.2)
+ * SportMind AI — Scientific Firestore Core (Phase 6C.1–6C.5)
  *
- * Infrastructure-only module aligned with Phase 6C.0.1–6C.0.3 architecture.
- * No assessment sessions, passport, timeline, or business logic.
- *
- * Activation: USE_CLOUD_DATA=true AND Firebase configured.
+ * Catalog, definition, normative, and assessment session engines.
+ * Activation: USE_CLOUD_DATA=true AND Firebase configured (catalog/org).
+ * Sessions: in-memory mock store only in Phase 6C.5.
  */
 
 export {
@@ -22,3 +21,4 @@ export * from './seed';
 export * from './cache';
 export * from './adapters';
 export * from './engine';
+export * from './session';

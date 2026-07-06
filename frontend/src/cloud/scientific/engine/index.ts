@@ -20,3 +20,12 @@ export type {
   NormativeClassificationResult,
   NormativeZScoreResult,
 } from './normativeReferenceEngine';
+
+export {
+  AssessmentSessionEngine,
+  createAssessmentSessionEngine,
+} from './assessmentSessionEngine';
+export type {
+  AssessmentSessionEngineDependencies,
+  CompareSessionParams,
+} from './assessmentSessionEngine';

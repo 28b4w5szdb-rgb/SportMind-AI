@@ -15,3 +15,12 @@ export {
   validateOrgEquipment,
   mergeValidation,
 } from './scientificValidators';
+
+export {
+  validateAssessmentSession,
+  validateAssessmentSessionMetadata,
+  validateCalculatedMetric,
+  validateRawMeasurement,
+  validateRequiredInputsCompleted,
+  validateSessionSnapshotIntegrity,
+} from './sessionValidators';

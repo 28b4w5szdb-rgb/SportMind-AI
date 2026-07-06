@@ -185,13 +185,42 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6C.5 — Universal Assessment Session Engine] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Universal Assessment Session Engine** — sole future pathway for recording scientific assessments
+- **Session model** — identity, multi-trial raw measurements, calculated metrics, normative comparison snapshot, protocol snapshot, interpretation placeholder
+- **Engine API** — `createAssessmentSession`, `validateAssessmentSession`, `calculateDerivedMetrics`, `compareWithNormativeReference`, `buildSessionSnapshot`, `getAssessmentSummary`
+- **Mock session repository** — read-only contract + append-only in-memory store
+- **Session validators** — raw measurements, calculated metrics, metadata, required inputs, snapshot integrity
+- **Registry integration** — `registry.sessions` + `createAssessmentSessionEngineFromRegistry()`
+
+### Design principles documented
+
+- Scientific Inside, Simple Outside
+- Catalog First — no session without Assessment Definition
+- Raw → Derived → Interpretation separation
+- Append-only scientific events
+- Missing normative reference returns `classification: unknown`
+
+### Unchanged (by design)
+
+- No UI, dashboard, analytics, SSID, AI Coach, reports, passport, or timeline
+- No Firestore session writes or security rules deployment
+- Mock store + Performance Lab registry remain default runtime
+
+---
+
 ## Upcoming
 
-- **Phase 6C.5** — Assessment sessions entity + security rules
-- **Phase 6C.6** — Organization write paths + Performance Lab bridge
+- **Phase 6C.6** — Firestore session persistence + security rules
+- **Phase 6C.7** — Organization write paths + Performance Lab bridge
 - **Phase 6D** — Firebase Storage
 - **Phase 6E** — Cloud sync engine
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6C.4*
+*Last updated: Phase 6C.5*

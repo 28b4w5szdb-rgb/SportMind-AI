@@ -7,8 +7,8 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.4 — Normative Reference Engine (complete) |
-| **Next phase** | Phase 6C.5 — Assessment Sessions + Security Rules |
+| **Current phase** | Phase 6C.5 — Universal Assessment Session Engine (complete) |
+| **Next phase** | Phase 6C.6 — Firestore Session Persistence + Security Rules |
 
 ---
 
@@ -27,6 +27,7 @@
 | **6C.2** | Catalog seed data + read-only Firestore/mock repository adapters | ✅ Complete |
 | **6C.3** | Assessment Definition Engine — 130 catalog definitions + search API | ✅ Complete |
 | **6C.4** | Normative Reference Engine — 34 placeholder profiles + classification API | ✅ Complete |
+| **6C.5** | Universal Assessment Session Engine — Raw → Derived → Interpretation pipeline | ✅ Complete |
 
 ---
 
@@ -53,10 +54,26 @@ frontend/src/cloud/
 ├── firebase/       # Lazy-init app, auth, firestore, storage
 ├── auth/           # Firebase + Supabase unified AuthProvider
 ├── firestore/      # Phase 6A entity models + repository interfaces
-├── scientific/     # Phase 6C.1–6C.4 — catalog, definition + normative engines
+├── scientific/     # Phase 6C.1–6C.5 — catalog, engines, session pipeline
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6C.5 — Universal Assessment Session Engine
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Catalog First** | No session without a catalog Assessment Definition + protocol version |
+| **Raw → Derived → Interpretation** | Trials → calculated metrics → normative snapshot only (no reference tables stored) |
+| **Append-only events** | In-memory mock store; no Firestore writes in this phase |
+| **No interpretation generation** | Interpretation placeholder only (`generated: false`) |
+
+| Area | Contents |
+|------|----------|
+| **Session model** | Identity, raw measurements, calculated metrics, normative snapshot, protocol snapshot, interpretation placeholder |
+| **Engine API** | `createAssessmentSession`, `validateAssessmentSession`, `calculateDerivedMetrics`, `compareWithNormativeReference`, `buildSessionSnapshot`, `getAssessmentSummary` |
+| **Repository** | Read-only `AssessmentSessionRepository` + mock memory store |
+| **Validation** | Definition/protocol existence, required inputs, units, source types, snapshot integrity |
 
 #### Phase 6C.4 — Normative Reference Engine
 
@@ -110,7 +127,7 @@ frontend/src/cloud/
 | **Security** | Collection policy metadata for future Firestore rules |
 | **Repositories** | Interface contracts + registry with mock/Firestore adapter factories |
 
-**Not implemented (by design):** assessment sessions, passport, timeline, equipment business logic, environmental records, migrations, Firestore writes, security rules deployment.
+**Not implemented (by design):** passport, timeline, equipment business logic, environmental records, Firestore session persistence, security rules deployment, SSID/AI/report generation from sessions.
 
 ### Authentication (Phase 6B / 6B.1)
 
@@ -125,8 +142,8 @@ frontend/src/cloud/
 
 | Commit | Phase | Description |
 |--------|-------|-------------|
-| *(pending)* | 6C.4 | Normative Reference Engine — 34 placeholder profiles |
-| `2aea767` | 6C.3 | Assessment Definition Engine — 130 definitions |
+| *(pending)* | 6C.5 | Universal Assessment Session Engine |
+| `2a73393` | 6C.4 | Normative Reference Engine — 34 placeholder profiles |
 | `e81b8c2` | 6C.1 | Scientific Firestore core foundation |
 | `8ee0f4b` | UX | Calculator Hub entry from More screen |
 | `f9d693e` | 6B.1 | Auth persistence + user profiles |
@@ -135,11 +152,11 @@ frontend/src/cloud/
 
 ---
 
-## Next Planned Phase: 6C.5
+## Next Planned Phase: 6C.6
 
-- Assessment session entity models
-- Firestore write paths (sessions + org)
+- Firestore assessment session persistence
 - Security rules deployment from `scientific/security/collectionPolicy.ts`
+- Performance Lab bridge (optional)
 
 See [ROADMAP.md](./ROADMAP.md).
 
@@ -151,8 +168,8 @@ See [ROADMAP.md](./ROADMAP.md).
 2. **Scientific catalog reads use seed data in mock mode.** Firestore adapters fall back to seed when collections are empty.
 3. **`USE_CLOUD_DATA=false` by default.** Safe for v0.9-alpha demos.
 4. **Do not commit secrets.** Use `frontend/.env.example`.
-5. **SSID, analytics, AI Coach, dashboard unchanged** through Phase 6C.4.
-6. **Normative profiles are placeholders** — not for clinical claims until published citations are added.
+5. **SSID, analytics, AI Coach, dashboard unchanged** through Phase 6C.5.
+6. **Sessions are in-memory only** — append-only mock store until Firestore persistence phase.
 
 ---
 
@@ -165,4 +182,4 @@ See [ROADMAP.md](./ROADMAP.md).
 | Brand guide | [frontend/BRAND_GUIDE.md](./frontend/BRAND_GUIDE.md) |
 | Env template | [frontend/.env.example](./frontend/.env.example) |
 
-*Last updated: Phase 6C.4*
+*Last updated: Phase 6C.5*
