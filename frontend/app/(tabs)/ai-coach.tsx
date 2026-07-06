@@ -20,7 +20,6 @@ import {
   Modal,
   Pressable,
   InteractionManager,
-  LayoutChangeEvent,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -145,15 +144,11 @@ export default function AICoachScreen() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
-  const [composerHeight, setComposerHeight] = useState(0);
 
   const isDesktop = windowWidth >= 1024;
-  const isMobileChat = !isDesktop;
   const canSend = input.trim().length > 0 && !isTyping;
   const keyboardVerticalOffset = Platform.OS === 'ios' ? insets.bottom + 49 : 0;
-  const listBottomInset = isMobileChat
-    ? composerHeight + theme.spacing[3]
-    : theme.spacing[4];
+  const listBottomInset = theme.spacing[3];
 
   const scrollToEnd = useCallback((animated = true) => {
     if (!shouldAutoScrollRef.current) return;
@@ -162,11 +157,6 @@ export default function AICoachScreen() {
         listRef.current?.scrollToEnd({ animated });
       });
     });
-  }, []);
-
-  const handleComposerLayout = useCallback((event: LayoutChangeEvent) => {
-    const nextHeight = Math.ceil(event.nativeEvent.layout.height);
-    setComposerHeight((prev) => (prev === nextHeight ? prev : nextHeight));
   }, []);
 
   useEffect(() => {
@@ -192,7 +182,7 @@ export default function AICoachScreen() {
       shouldAutoScrollRef.current = true;
       scrollToEnd(true);
     }
-  }, [messages.length, isTyping, composerHeight, scrollToEnd]);
+  }, [messages.length, isTyping, scrollToEnd]);
 
   const sendMessage = useCallback(
     (text: string) => {
@@ -214,7 +204,7 @@ export default function AICoachScreen() {
         scrollToEnd(true);
       }, 1400 + Math.random() * 800);
     },
-    [analyticsContext, appendActiveMessage, isTyping, isRTL, scrollToEnd, selectedAgent]
+    [analyticsContext, appendActiveMessage, isTyping, isRTL, scrollToEnd, selectedAgent, t]
   );
 
   const handleNewChat = () => {
@@ -281,8 +271,8 @@ export default function AICoachScreen() {
   }, [messages]);
 
   const renderEmptyState = () => (
-    <View style={{ paddingBottom: isMobileChat ? composerHeight + theme.spacing[4] : theme.spacing[8] }}>
-      <View style={[styles.emptyHero, { alignItems: 'center', paddingVertical: theme.spacing[8] }]}>
+    <View style={{ paddingBottom: theme.spacing[4] }}>
+      <View style={[styles.emptyHero, { alignItems: 'center', paddingVertical: theme.spacing[4] }]}>
         <LinearGradient colors={['#0066FF', '#0D9488']} style={[styles.emptyIcon, { borderRadius: theme.borderRadius['3xl'] }]}>
           <Ionicons name="sparkles" size={36} color="#FFF" />
         </LinearGradient>
@@ -337,15 +327,13 @@ export default function AICoachScreen() {
 
   const composerBlock = (
     <View
-      onLayout={handleComposerLayout}
       style={[
         styles.composer,
-        isMobileChat ? styles.composerDock : undefined,
         {
           borderTopColor: theme.colors.border,
           backgroundColor: theme.colors.background,
           paddingHorizontal: theme.spacing[3],
-          paddingTop: theme.spacing[3],
+          paddingTop: theme.spacing[2],
           paddingBottom: Math.max(insets.bottom, theme.spacing[2]),
         },
       ]}
@@ -450,14 +438,18 @@ export default function AICoachScreen() {
       }
       ListFooterComponent={isTyping ? <TypingIndicator /> : null}
       contentContainerStyle={{
-        paddingTop: theme.spacing[3],
+        paddingTop: theme.spacing[2],
         paddingBottom: listBottomInset,
         paddingHorizontal: isDesktop ? theme.spacing[2] : theme.spacing[1],
       }}
       keyboardShouldPersistTaps="handled"
       keyboardDismissMode="interactive"
       showsVerticalScrollIndicator={false}
-      onContentSizeChange={() => scrollToEnd(false)}
+      onContentSizeChange={() => {
+        if (groupedItems.length > 0 || isTyping) {
+          scrollToEnd(false);
+        }
+      }}
       onScrollBeginDrag={() => {
         shouldAutoScrollRef.current = false;
       }}
@@ -567,7 +559,8 @@ export default function AICoachScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: theme.spacing[4], paddingVertical: theme.spacing[3], gap: theme.spacing[2] }}
+          style={styles.chipsRow}
+          contentContainerStyle={styles.chipsContent}
         >
           {AI_AGENTS.map((agent) => {
             const active = selectedAgent === agent.id;
@@ -584,8 +577,8 @@ export default function AICoachScreen() {
                     },
                   ]}
                 >
-                  <Ionicons name={agent.icon as keyof typeof Ionicons.glyphMap} size={16} color={active ? '#FFF' : agent.color} />
-                  <Text style={[type.label, { color: active ? '#FFF' : theme.colors.text, marginStart: 6 }]}>
+                  <Ionicons name={agent.icon as keyof typeof Ionicons.glyphMap} size={14} color={active ? '#FFF' : agent.color} />
+                  <Text style={[type.caption, { color: active ? '#FFF' : theme.colors.text, marginStart: 4, fontWeight: '600' }]}>
                     {isRTL ? agent.labelAr : agent.labelEn}
                   </Text>
                 </View>
@@ -594,16 +587,20 @@ export default function AICoachScreen() {
           })}
         </ScrollView>
 
-        <View style={[styles.main, { flexDirection: isDesktop ? flexRow(true) : 'column' }]}>
-          {isDesktop && sidebar}
-          <View style={[styles.chatColumn, { paddingHorizontal: isDesktop ? theme.spacing[6] : theme.spacing[3] }]}>
-            <View style={styles.chatHost}>
-              {chatList}
-              {isMobileChat && composerBlock}
+        {isDesktop ? (
+          <View style={[styles.messagesArea, { flexDirection: flexRow(true) }]}>
+            {sidebar}
+            <View style={styles.desktopChatStack}>
+              <View style={styles.messagesListHost}>{chatList}</View>
+              {composerBlock}
             </View>
-            {!isMobileChat && composerBlock}
           </View>
-        </View>
+        ) : (
+          <>
+            <View style={styles.messagesListHost}>{chatList}</View>
+            {composerBlock}
+          </>
+        )}
       </KeyboardAvoidingView>
 
       {!isDesktop && (
@@ -645,7 +642,7 @@ const styles = StyleSheet.create({
   keyboardRoot: { flex: 1 },
   header: {
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   iconBtn: {
@@ -654,21 +651,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  chipsRow: {
+    flexGrow: 0,
+    flexShrink: 0,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: 'transparent',
+  },
+  chipsContent: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    gap: 8,
+    alignItems: 'center',
+  },
   agentChip: {
     alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderWidth: 1,
   },
-  main: { flex: 1, minHeight: 0 },
-  chatColumn: {
+  messagesArea: {
     flex: 1,
     minHeight: 0,
   },
-  chatHost: {
+  desktopChatStack: {
     flex: 1,
     minHeight: 0,
-    position: 'relative',
+    paddingHorizontal: 24,
+  },
+  messagesListHost: {
+    flex: 1,
+    minHeight: 0,
+    paddingHorizontal: 12,
   },
   messageList: {
     flex: 1,
@@ -688,14 +701,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   composer: {
+    flexShrink: 0,
     borderTopWidth: StyleSheet.hairlineWidth,
-  },
-  composerDock: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 2,
   },
   composerInner: {
     alignItems: 'flex-end',
