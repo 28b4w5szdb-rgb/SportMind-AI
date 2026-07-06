@@ -117,7 +117,7 @@ export interface MockCalculationRecord {
   calculator_type: CalculatorType;
   title: string;
   inputs: Record<string, number>;
-  result: { value: number; unit: string; interpretation: string; ssid?: import('@/src/features/ssid-engine').SsidInterpretation };
+  result: { value: number; unit: string; interpretation: string; ssid?: import('@/src/features/ssid-engine').SsidInterpretation; hrZoneMeta?: { maxHr: number; zones: import('@/src/features/ssid-engine/utils/hrZoneHelpers').HrZoneRange[] } };
   created_at: string;
 }
 

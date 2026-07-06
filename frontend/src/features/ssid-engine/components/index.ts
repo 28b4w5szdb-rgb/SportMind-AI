@@ -5,3 +5,4 @@ export { RecommendationStack } from './RecommendationStack';
 export { ReferenceConfidenceFooter } from './ReferenceConfidenceFooter';
 export { SsidInterpretationView } from './SsidInterpretationView';
 export { SsidBundleSection } from './SsidBundleSection';
+export { HrZonesGuide } from './HrZonesGuide';

@@ -1,6 +1,8 @@
 /** SSID Arabic locale overrides — deep-merged with English SSID content at i18n boot. */
+import { arMetrics } from './ar-metrics';
+
 export const ssidArOverrides = {
-  confidenceLabel: 'مستوى الثقة (مؤقت)',
+  confidenceLabel: 'مستوى الثقة',
   ui: {
     sectionTitle: 'التفسير العلمي الرياضي',
     sectionSubtitle: 'تفسير قائم على الأدلة ودعم القرار التدريبي',
@@ -21,9 +23,20 @@ export const ssidArOverrides = {
     injuryRisk: 'ملف خطر الإصابة',
     trainingLoad: 'حمل التدريب',
     recoveryReadiness: 'جاهزية التعافي',
+    inputs: 'المدخلات',
+    result: 'النتيجة',
+    classification: 'التصنيف',
+    whatItMeans: 'ماذا يعني ذلك',
+    coachAction: 'ما يجب على المدرب فعله',
+    recommendation: 'التوصية',
+    hrZonesTableTitle: 'مناطق تدريب نبض القلب',
+    hrZonesTableSubtitle: 'بناءً على أقصى نبض تقديري {{maxHr}} نبضة/د',
+    bpm: 'نبضة/د',
+    sessionLoadFormula: 'حمل الجلسة (AU) = المدة (د) × RPE (1–10)',
+    hrDefaultHint: '70% من أقصى نبض افتراضياً إذا لم يُدخل',
   },
   references: {
-    placeholder: 'مرجع علمي مؤقت — مكتبة الأدلة العلمية قيد الإعداد.',
+    placeholder: 'مرجع علمي — مكتبة الأدلة العلمية المعتمدة قيد الإعداد.',
   },
   metricLabels: {
     bmi: 'مؤشر كتلة الجسم',
@@ -34,94 +47,21 @@ export const ssidArOverrides = {
     vo2_max: 'VO₂ Max',
     hr_zones: 'منطقة نبض القلب',
     session_load: 'حمل الجلسة',
-    acwr: 'نسبة الحمل الحاد/المزمن',
+    acwr: 'ACWR',
     recovery_score: 'درجة التعافي',
     readiness_score: 'درجة الجاهزية',
   },
   decisions: {
-    train_normally: 'تدريب طبيعي',
-    reduce_load: 'خفّض الحمل',
-    recovery_session: 'جدولة جلسة تعافٍ',
-    mobility_session: 'أضف جلسة حركية',
-    medical_evaluation: 'تقييم طبي',
-    increase_calories: 'زِد السعرات',
-    increase_protein: 'زِد البروتين',
-    increase_hydration: 'زِد الترطيب',
-    retest: 'أعد الاختبار وتحقق من القياس',
+    train_normally: 'تدريب طبيعي حسب الخطة',
+    reduce_load: 'خفّض الحمل 20–30%',
+    recovery_session: 'جدولة جلسة تعافٍ نشط',
+    mobility_session: 'أضف جلسة حركية وتمدد',
+    medical_evaluation: 'تقييم طبي قبل التحميل العالي',
+    increase_calories: 'زِد السعرات اليومية',
+    increase_protein: 'زِد البروتين بعد الجلسة',
+    increase_hydration: 'زِد الترطيب والإلكتروليتات',
+    retest: 'أعد القياس بظروف موحّدة',
     maintain: 'حافظ على الخطة الحالية',
   },
-  metrics: {
-    bmi: {
-      classifications: { underweight: 'نقص وزن', normal: 'طبيعي', overweight: 'زيادة وزن', obesity: 'سمنة' },
-      meanings: {
-        underweight: 'مؤشر كتلة الجسم أقل من 18.5 يدل على كتلة جسدية غير كافية بالنسبة للطول.',
-        normal: 'مؤشر 18.5–24.9 يعكس توازناً صحياً بين الوزن والطول.',
-        overweight: 'مؤشر 25–29.9 يشير إلى كتلة أعلى قد تتضمن دهوناً زائدة.',
-        obesity: 'مؤشر ≥30 يدل على فائض كبير في الكتلة بالنسبة للطول.',
-      },
-      ai: {
-        underweight: 'أولِ توفر الطاقة قبل زيادة كثافة التدريب.',
-        normal: 'حافظ على الحمل وراقب اتجاهات التركيب.',
-        overweight: 'خفّف العمل عالي التأثير وركّز على جودة الحركة.',
-        obesity: 'فحص طبي قبل التحميل عالي الشدة.',
-      },
-    },
-    body_fat: {
-      classifications: { athlete: 'رياضي', excellent: 'ممتاز', good: 'جيد', average: 'متوسط', high: 'مرتفع' },
-      meanings: {
-        athlete: 'نسبة دهون منخفضة تناسب الرياضيين التنافسيين.',
-        excellent: 'تركيب دهني ممتاز يدعم الأداء.',
-        good: 'دهون ضمن نطاق صحي للرياضي.',
-        average: 'دهون متوسطة — راقب الاتجاهات.',
-        high: 'دهون مرتفعة قد تؤثر على الحركة والصحة.',
-      },
-      ai: {
-        athlete: 'حافظ على التغذية والاستشفاء.',
-        excellent: 'استمر في الخطة الحالية.',
-        good: 'راقب التركيب مع دورة التدريب.',
-        average: 'ركّز على جودة التغذية.',
-        high: 'خفّف العمل عالي التأثير وراجع التغذية.',
-      },
-    },
-    vo2_max: {
-      classifications: {
-        poor: 'ضعيف',
-        fair: 'مقبول',
-        good: 'جيد',
-        very_good: 'جيد جداً',
-        excellent: 'ممتاز',
-        elite: 'نخبة',
-      },
-    },
-    recovery_score: {
-      classifications: {
-        poor: 'ضعيف',
-        needs_recovery: 'يحتاج تعافياً',
-        moderate: 'متوسط',
-        good: 'جيد',
-        excellent: 'ممتاز',
-      },
-    },
-    readiness_score: {
-      classifications: {
-        poor: 'ضعيف',
-        needs_recovery: 'يحتاج تعافياً',
-        moderate: 'متوسط',
-        good: 'جيد',
-        excellent: 'ممتاز',
-      },
-    },
-    acwr: {
-      classifications: { undertraining: 'تحميل منخفض', optimal: 'مثالي', elevated: 'مرتفع', spike: 'خطر spike' },
-    },
-    session_load: {
-      classifications: { low: 'منخفض', moderate: 'متوسط', high: 'مرتفع', very_high: 'مرتفع جداً' },
-    },
-    hr_zones: {
-      classifications: { zone1: 'المنطقة 1', zone2: 'المنطقة 2', zone3: 'المنطقة 3', zone4: 'المنطقة 4', zone5: 'المنطقة 5' },
-    },
-    body_water: { classifications: { low: 'منخفض', optimal: 'مثالي', elevated: 'مرتفع' } },
-    muscle_mass: { classifications: { low: 'منخفض', optimal: 'مثالي', high: 'مرتفع' } },
-    lean_mass: { classifications: { low: 'منخفض', optimal: 'مثالي', high: 'مرتفع' } },
-  },
+  metrics: arMetrics,
 };

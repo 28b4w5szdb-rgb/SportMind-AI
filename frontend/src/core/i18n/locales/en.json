@@ -434,6 +434,7 @@
         "waist": "Waist",
         "neck": "Neck",
         "maxHr": "Max heart rate",
+        "targetHr": "Session heart rate (optional)",
         "duration": "Duration",
         "rpe": "RPE",
         "sessionLoad": "Session load",

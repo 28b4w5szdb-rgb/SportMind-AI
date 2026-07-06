@@ -3,6 +3,7 @@ import {
   classificationDisplayLabel,
   interpretMetric,
 } from '@/src/features/ssid-engine';
+import { buildHrZoneRanges } from '@/src/features/ssid-engine/utils/hrZoneHelpers';
 import type { SsidMetricContext } from '@/src/features/ssid-engine';
 
 export const CALCULATOR_DEFINITIONS: CalculatorDefinition[] = [
@@ -42,7 +43,10 @@ export const CALCULATOR_DEFINITIONS: CalculatorDefinition[] = [
     icon: 'heart',
     titleKey: 'features.calculator.hrZones.title',
     descKey: 'features.calculator.hrZones.desc',
-    fields: [{ key: 'maxHr', labelKey: 'features.calculator.fields.maxHr', unit: 'bpm' }],
+    fields: [
+      { key: 'maxHr', labelKey: 'features.calculator.fields.maxHr', unit: 'bpm' },
+      { key: 'targetHr', labelKey: 'features.calculator.fields.targetHr', unit: 'bpm', defaultValue: 0 },
+    ],
   },
   {
     id: 'training-load',
@@ -73,7 +77,13 @@ export function getCalculatorDefinition(type: string): CalculatorDefinition | un
 export function computeCalculator(
   type: CalculatorType,
   inputs: Record<string, number>
-): { value: number; unit: string; interpretation: string; ssid?: ReturnType<typeof interpretMetric> } {
+): {
+  value: number;
+  unit: string;
+  interpretation: string;
+  ssid?: ReturnType<typeof interpretMetric>;
+  hrZoneMeta?: { maxHr: number; zones: ReturnType<typeof buildHrZoneRanges> };
+} {
   switch (type) {
     case 'bmi': {
       const h = (inputs.height ?? 170) / 100;
@@ -102,16 +112,27 @@ export function computeCalculator(
     }
     case 'heart-rate-zones': {
       const max = inputs.maxHr ?? 190;
-      const value = Math.round(max * 0.85);
+      const targetHr = inputs.targetHr && inputs.targetHr > 0 ? inputs.targetHr : Math.round(max * 0.7);
       const unit = 'bpm';
-      const ssid = interpretMetric('hr_zones', value, unit, { extras: { maxHr: max, ...inputs } });
-      return { value, unit, interpretation: classificationDisplayLabel('hr_zones', ssid.classificationId), ssid };
+      const ssid = interpretMetric('hr_zones', targetHr, unit, { extras: { maxHr: max, targetHr } });
+      return {
+        value: targetHr,
+        unit,
+        interpretation: classificationDisplayLabel('hr_zones', ssid.classificationId),
+        ssid,
+        hrZoneMeta: { maxHr: max, zones: buildHrZoneRanges(max) },
+      };
     }
     case 'training-load': {
-      const load = (inputs.duration ?? 60) * (inputs.rpe ?? 6);
+      const duration = inputs.duration ?? 60;
+      const rpe = inputs.rpe ?? 6;
+      const load = duration * rpe;
       const value = load;
       const unit = 'AU';
-      const ssid = interpretMetric('session_load', value, unit, buildCalcContext(inputs));
+      const ssid = interpretMetric('session_load', value, unit, {
+        ...buildCalcContext(inputs),
+        extras: { duration, rpe, ...inputs },
+      });
       return { value, unit, interpretation: classificationDisplayLabel('session_load', ssid.classificationId), ssid };
     }
     case 'recovery-time': {

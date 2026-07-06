@@ -147,7 +147,7 @@ export const CLASSIFICATION_LABELS_EN: Record<string, Record<string, string>> = 
   body_water: { low: 'Low', optimal: 'Optimal', elevated: 'Elevated' },
   muscle_mass: { low: 'Low', optimal: 'Optimal', high: 'High' },
   lean_mass: { low: 'Low', optimal: 'Optimal', high: 'High' },
-  hr_zones: { zone1: 'Zone 1', zone2: 'Zone 2', zone3: 'Zone 3', zone4: 'Zone 4', zone5: 'Zone 5' },
+  hr_zones: { zone1: 'Zone 1 — Recovery', zone2: 'Zone 2 — Aerobic Base', zone3: 'Zone 3 — Moderate Aerobic', zone4: 'Zone 4 — Anaerobic Threshold', zone5: 'Zone 5 — Maximal Effort' },
   session_load: { low: 'Low', moderate: 'Moderate', high: 'High', very_high: 'Very High' },
   acwr: { undertraining: 'Under-training', optimal: 'Optimal', elevated: 'Elevated', spike: 'Spike Risk' },
   recovery_score: { poor: 'Poor', needs_recovery: 'Needs Recovery', moderate: 'Moderate', good: 'Good', excellent: 'Excellent' },
