@@ -1081,8 +1081,9 @@
     }
   },
   "wearables": {
-    "title": "Connect Devices",
+    "title": "Device Center",
     "subtitle": "Wearables and fitness platforms — mock sync for now",
+    "subtitlePremium": "Sports science device hub — connect, sync, and monitor athlete biometrics",
     "dashboardTitle": "Wearables & device sync",
     "dashboardMeta": "{{synced}} synced today · HRV {{hrv}} ms · Sleep {{sleep}}h",
     "workspaceTitle": "Wearables summary",
@@ -1096,6 +1097,17 @@
     "connectFirst": "Connect a provider to enable mock sync.",
     "connect": "Connect",
     "disconnect": "Disconnect",
+    "syncNow": "Sync",
+    "syncing": "Syncing…",
+    "syncComplete": "Full sync",
+    "lastSync": "Last sync",
+    "neverSynced": "Never synced",
+    "battery": "Battery",
+    "signalStrength": "Signal strength",
+    "liveIndicator": "Live",
+    "statusSummary": "{{connected}} of {{total}} devices connected",
+    "liveMetricsSubtitle": "Synchronized biometrics from connected devices",
+    "availableSubtitle": "Tap connect to link a new data source",
     "permissions": "Data permissions",
     "metrics": "metrics",
     "supportedMetrics": "Supported metrics",
@@ -1105,6 +1117,61 @@
     "syncSuccess": "Mock sync complete: {{type}}",
     "readinessImpact": "Readiness impact: {{value}} pts",
     "recoveryWearableTitle": "Wearable recovery signal",
+    "sections": {
+      "deviceStatus": "Device Status",
+      "liveMetrics": "Live Metrics",
+      "connectedDevices": "Connected Devices",
+      "availableDevices": "Available Devices",
+      "recentSync": "Recent Sync"
+    },
+    "live": {
+      "heartRate": "Heart Rate",
+      "hrv": "HRV",
+      "sleep": "Sleep",
+      "recovery": "Recovery",
+      "readiness": "Readiness",
+      "stress": "Stress",
+      "respiratoryRate": "Respiratory Rate",
+      "steps": "Steps",
+      "calories": "Calories",
+      "spo2": "SpO₂",
+      "skinTemp": "Skin Temperature",
+      "trainingLoad": "Training Load",
+      "distance": "Distance",
+      "gpsActivity": "GPS Activity"
+    },
+    "dataQuality": {
+      "excellent": "Excellent quality",
+      "good": "Good quality",
+      "fair": "Fair quality",
+      "none": "No data"
+    },
+    "connectionQuality": {
+      "excellent": "Excellent",
+      "good": "Good",
+      "weak": "Weak",
+      "offline": "Offline"
+    },
+    "syncHistory": {
+      "empty": "No sync events yet — connect a device and run sync.",
+      "heartRateSynced": "Heart Rate synced",
+      "sleepUpdated": "Sleep updated",
+      "recoveryRecalculated": "Recovery recalculated",
+      "trainingLoadUpdated": "Training Load updated",
+      "stepsSynced": "Steps synced",
+      "dataSynced": "Device data synced"
+    },
+    "deviceHealth": {
+      "title": "Device Health",
+      "connectionQuality": "Connection Quality",
+      "lastSuccessfulSync": "Last successful sync",
+      "missingMetrics": "Missing metrics",
+      "warnings": "Warnings",
+      "weakSignal": "Weak Bluetooth / cloud signal detected",
+      "lowBattery": "Device battery below 20%",
+      "missingData": "Some expected metrics have not synced today",
+      "allGood": "All diagnostics nominal"
+    },
     "status": {
       "not_connected": "Not connected",
       "connected": "Connected",
@@ -1136,7 +1203,8 @@
       "recovery_score": "Recovery score"
     },
     "providers": {
-      "apple_health": "Apple Health / Apple Watch",
+      "apple_health": "Apple Health",
+      "apple_watch": "Apple Watch",
       "garmin": "Garmin Connect",
       "polar": "Polar Flow",
       "fitbit": "Fitbit",
@@ -1147,6 +1215,7 @@
       "google_health_connect": "Google Health Connect",
       "whoop": "WHOOP",
       "oura": "Oura Ring",
+      "amazfit": "Amazfit",
       "strava": "Strava",
       "trainingpeaks": "TrainingPeaks"
     }

@@ -2,6 +2,7 @@
 
 export type WearableProviderId =
   | 'apple_health'
+  | 'apple_watch'
   | 'garmin'
   | 'polar'
   | 'fitbit'
@@ -12,6 +13,7 @@ export type WearableProviderId =
   | 'google_health_connect'
   | 'whoop'
   | 'oura'
+  | 'amazfit'
   | 'strava'
   | 'trainingpeaks';
 
@@ -40,6 +42,7 @@ export interface WearableProviderDefinition {
   id: WearableProviderId;
   labelKey: string;
   icon: string;
+  brandColor: string;
   supportedMetrics: WearableMetricType[];
   defaultPermissions: WearableMetricType[];
 }

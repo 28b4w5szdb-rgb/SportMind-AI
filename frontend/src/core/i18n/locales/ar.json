@@ -1085,8 +1085,9 @@
     }
   },
   "wearables": {
-    "title": "ربط الأجهزة",
+    "title": "مركز الأجهزة",
     "subtitle": "الأجهزة القابلة للارتداء ومنصات اللياقة — مزامنة تجريبية حالياً",
+    "subtitlePremium": "مركز علوم رياضية للأجهزة — الربط والمزامنة ومراقبة القياسات الحيوية",
     "dashboardTitle": "مزامنة الأجهزة",
     "dashboardMeta": "{{synced}} مزامنة اليوم · HRV {{hrv}} ms · نوم {{sleep}}h",
     "workspaceTitle": "ملخص الأجهزة",
@@ -1100,6 +1101,17 @@
     "connectFirst": "اربط مزوداً لتفعيل المزامنة التجريبية.",
     "connect": "ربط",
     "disconnect": "قطع الاتصال",
+    "syncNow": "مزامنة",
+    "syncing": "جارٍ المزامنة…",
+    "syncComplete": "مزامنة كاملة",
+    "lastSync": "آخر مزامنة",
+    "neverSynced": "لم تتم المزامنة",
+    "battery": "البطارية",
+    "signalStrength": "قوة الإشارة",
+    "liveIndicator": "مباشر",
+    "statusSummary": "{{connected}} من {{total}} أجهزة متصلة",
+    "liveMetricsSubtitle": "قياسات حيوية متزامنة من الأجهزة المتصلة",
+    "availableSubtitle": "اضغط ربط لإضافة مصدر بيانات جديد",
     "permissions": "صلاحيات البيانات",
     "metrics": "مقاييس",
     "supportedMetrics": "المقاييس المدعومة",
@@ -1109,6 +1121,61 @@
     "syncSuccess": "اكتملت المزامنة التجريبية: {{type}}",
     "readinessImpact": "تأثير الجاهزية: {{value}} نقطة",
     "recoveryWearableTitle": "إشارة تعافٍ من الجهاز",
+    "sections": {
+      "deviceStatus": "حالة الجهاز",
+      "liveMetrics": "المقاييس المباشرة",
+      "connectedDevices": "الأجهزة المتصلة",
+      "availableDevices": "الأجهزة المتاحة",
+      "recentSync": "المزامنة الأخيرة"
+    },
+    "live": {
+      "heartRate": "نبض القلب",
+      "hrv": "HRV",
+      "sleep": "النوم",
+      "recovery": "التعافي",
+      "readiness": "الجاهزية",
+      "stress": "الإجهاد",
+      "respiratoryRate": "معدل التنفس",
+      "steps": "الخطوات",
+      "calories": "السعرات",
+      "spo2": "SpO₂",
+      "skinTemp": "درجة حرارة الجلد",
+      "trainingLoad": "حمل التدريب",
+      "distance": "المسافة",
+      "gpsActivity": "نشاط GPS"
+    },
+    "dataQuality": {
+      "excellent": "جودة ممتازة",
+      "good": "جودة جيدة",
+      "fair": "جودة مقبولة",
+      "none": "لا بيانات"
+    },
+    "connectionQuality": {
+      "excellent": "ممتاز",
+      "good": "جيد",
+      "weak": "ضعيف",
+      "offline": "غير متصل"
+    },
+    "syncHistory": {
+      "empty": "لا أحداث مزامنة بعد — اربط جهازاً ونفّذ المزامنة.",
+      "heartRateSynced": "تمت مزامنة نبض القلب",
+      "sleepUpdated": "تم تحديث النوم",
+      "recoveryRecalculated": "تم إعادة حساب التعافي",
+      "trainingLoadUpdated": "تم تحديث حمل التدريب",
+      "stepsSynced": "تمت مزامنة الخطوات",
+      "dataSynced": "تمت مزامنة بيانات الجهاز"
+    },
+    "deviceHealth": {
+      "title": "صحة الجهاز",
+      "connectionQuality": "جودة الاتصال",
+      "lastSuccessfulSync": "آخر مزامنة ناجحة",
+      "missingMetrics": "مقاييس مفقودة",
+      "warnings": "تحذيرات",
+      "weakSignal": "إشارة Bluetooth / سحابة ضعيفة",
+      "lowBattery": "بطارية الجهاز أقل من 20%",
+      "missingData": "بعض المقاييس المتوقعة لم تتزامن اليوم",
+      "allGood": "جميع الفحوصات طبيعية"
+    },
     "status": {
       "not_connected": "غير متصل",
       "connected": "متصل",
@@ -1140,7 +1207,8 @@
       "recovery_score": "درجة التعافي"
     },
     "providers": {
-      "apple_health": "Apple Health / Apple Watch",
+      "apple_health": "Apple Health",
+      "apple_watch": "Apple Watch",
       "garmin": "Garmin Connect",
       "polar": "Polar Flow",
       "fitbit": "Fitbit",
@@ -1151,6 +1219,7 @@
       "google_health_connect": "Google Health Connect",
       "whoop": "WHOOP",
       "oura": "Oura Ring",
+      "amazfit": "Amazfit",
       "strava": "Strava",
       "trainingpeaks": "TrainingPeaks"
     }

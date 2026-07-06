@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
 import { SuccessBanner } from '@/src/components/common/SuccessBanner';
 import { AthleteSelectorChips } from '@/src/features/daily-checkin';
-import { ConnectDevicesPanel } from '@/src/features/wearables';
+import { WearablesDeviceCenter, useWearablesSnapshot } from '@/src/features/wearables';
 import type { MockSyncType, WearableProviderId } from '@/src/features/wearables';
 import { useMockStore } from '@/src/data/mock/store';
 import { useTheme, useTypography } from '@/src/core/theme';
@@ -18,16 +18,22 @@ export default function WearablesScreen() {
   const type = useTypography();
   const athletes = useMockStore((s) => s.athletes);
   const connections = useMockStore((s) => s.wearableConnections);
+  const records = useMockStore((s) => s.wearableRecords);
   const connectWearableProvider = useMockStore((s) => s.connectWearableProvider);
   const disconnectWearableProvider = useMockStore((s) => s.disconnectWearableProvider);
   const mockSyncWearable = useMockStore((s) => s.mockSyncWearable);
 
   const initialAthleteId = useMemo(() => athleteIdParam ?? athletes[0]?.id ?? '', [athleteIdParam, athletes]);
   const [selectedAthleteId, setSelectedAthleteId] = useState(initialAthleteId);
-  const [selectedProviderId, setSelectedProviderId] = useState<WearableProviderId | undefined>();
   const [success, setSuccess] = useState('');
 
-  if (athletes.length === 0) {
+  const selectedAthlete = useMemo(
+    () => athletes.find((a) => a.id === selectedAthleteId) ?? athletes[0],
+    [athletes, selectedAthleteId]
+  );
+  const snapshot = useWearablesSnapshot(selectedAthlete);
+
+  if (athletes.length === 0 || !snapshot) {
     return (
       <FeatureScrollScreen title={t('wearables.title')}>
         <Text style={[type.body, { color: theme.colors.textSecondary, textAlign: 'center' }]}>{t('states.empty.defaultDescription')}</Text>
@@ -36,7 +42,7 @@ export default function WearablesScreen() {
   }
 
   return (
-    <FeatureScrollScreen title={t('wearables.title')} subtitle={t('wearables.subtitle')}>
+    <FeatureScrollScreen title={t('wearables.title')} subtitle={t('wearables.subtitlePremium')}>
       <SuccessBanner message={success} visible={Boolean(success)} />
 
       <View style={{ marginBottom: theme.spacing.lg }}>
@@ -44,11 +50,11 @@ export default function WearablesScreen() {
         <AthleteSelectorChips athletes={athletes} selectedId={selectedAthleteId} onSelect={setSelectedAthleteId} />
       </View>
 
-      <ConnectDevicesPanel
+      <WearablesDeviceCenter
         athleteId={selectedAthleteId}
+        snapshot={snapshot}
         connections={connections}
-        selectedProviderId={selectedProviderId}
-        onSelectProvider={setSelectedProviderId}
+        records={records}
         onConnect={(providerId) => {
           connectWearableProvider(selectedAthleteId, providerId);
           setSuccess(t('wearables.connectedSuccess'));
@@ -59,10 +65,12 @@ export default function WearablesScreen() {
           setSuccess(t('wearables.disconnectedSuccess'));
           setTimeout(() => setSuccess(''), 2000);
         }}
-        onMockSync={(providerId, syncType: MockSyncType) => {
+        onMockSync={(providerId: WearableProviderId, syncType: MockSyncType) => {
           mockSyncWearable(selectedAthleteId, providerId, syncType);
-          setSuccess(t('wearables.syncSuccess', { type: t(`wearables.sync.${syncType}`) }));
-          setTimeout(() => setSuccess(''), 2500);
+          if (syncType === 'training_load') {
+            setSuccess(t('wearables.syncSuccess', { type: t('wearables.syncComplete') }));
+            setTimeout(() => setSuccess(''), 2500);
+          }
         }}
       />
     </FeatureScrollScreen>
