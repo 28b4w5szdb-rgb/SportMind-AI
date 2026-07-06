@@ -19,6 +19,7 @@ export const ssidArOverrides = {
     weekly: 'أسبوعي',
     longTerm: 'طويل المدى',
     scientificReference: 'المرجع العلمي',
+    evidenceLevel: 'مستوى الأدلة',
     overallScore: 'النتيجة الإجمالية للاعب',
     fatigue: 'حالة الإرهاق',
     injuryRisk: 'ملف خطر الإصابة',
@@ -38,6 +39,16 @@ export const ssidArOverrides = {
   },
   references: {
     placeholder: 'مرجع علمي — مكتبة الأدلة العلمية المعتمدة قيد الإعداد.',
+    acsm: 'إرشادات ACSM للاختبار والوصفة التمرينية',
+    nsca: 'NSCA — أساسيات تدريب القوة والتكييف البدني',
+    fifa: 'إرشادات FIFA لاختبارات اللياقة',
+    ioc: 'بيانات توافق اللجنة الأولمبية الدولية حول الحمل والإصابة والتعافي',
+    sports_medicine: 'أدبيات طب الرياضة واختبارات الأداء',
+  },
+  evidenceLevel: {
+    high: 'مرتفع — إجماع علمي راسخ',
+    moderate: 'متوسط — معايير مطبقة على نطاق واسع',
+    emerging: 'ناشئ — قاعدة أدلة متطورة',
   },
   metricLabels: {
     bmi: 'مؤشر كتلة الجسم',

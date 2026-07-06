@@ -17,6 +17,7 @@ import {
   computeResultAnalyticsSnapshot,
   computeTestAnalyticsImpact,
   getTestText,
+  DemographicContextCard,
 } from '@/src/features/performance-lab';
 import type { MockPerformanceTest } from '@/src/data/mock/types';
 
@@ -56,6 +57,7 @@ export default function TestResultDetailScreen() {
   return (
     <FeatureScrollScreen title={t('testingCenter.resultTitle')}>
       <TestResultCard test={test} analytics={analytics} impact={impact} definition={definition} />
+      <DemographicContextCard test={test} />
 
       {analytics ? (
         <FormSection title={t('testingCenter.kpiSummary')}>

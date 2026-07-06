@@ -4,7 +4,7 @@ import type { TestInterpretationContext } from '../engine/testInterpretationEngi
 
 import type { SsidCoachingDecisionId, SsidInterpretation } from '../types';
 
-const DEFAULT_REFERENCE_KEY = 'ssid.references.placeholder';
+import { resolveScientificReferenceForCategory } from '../references/scientificReferences';
 
 function testKey(categoryId: TestCategoryId, section: string, level: PerformanceLevel): string {
   return `ssid.testTemplates.${categoryId}.${section}.${level}`;
@@ -22,6 +22,7 @@ export function buildTestInterpretation(input: {
 }): SsidInterpretation {
   const { categoryId, level, decision, value, unit, testKey: key, referenceValues } = input;
   const band = level;
+  const reference = resolveScientificReferenceForCategory(categoryId);
 
   return {
     metricId: 'readiness_score',
@@ -46,7 +47,8 @@ export function buildTestInterpretation(input: {
       weeklyKey: `ssid.testTemplates.${categoryId}.recs.${band}.weekly`,
       longTermKey: `ssid.testTemplates.${categoryId}.recs.${band}.longTerm`,
     },
-    scientificReferenceKey: DEFAULT_REFERENCE_KEY,
+    scientificReferenceKey: reference.scientificReferenceKey,
+    evidenceLevelKey: reference.evidenceLevelKey,
     confidence: level === 'elite' || level === 'good' ? 88 : level === 'average' ? 84 : 80,
     referenceValue: referenceValues.good,
     referenceLabelKey: `ssid.testTemplates.${categoryId}.referenceLabel`,

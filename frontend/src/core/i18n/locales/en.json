@@ -96,6 +96,18 @@
     "knowledgeSubtitle": "What this test measures and how to use it",
     "referenceTitle": "Reference values",
     "referenceSubtitle": "Elite, good, and average norms for this protocol",
+    "demographic": {
+      "title": "Athlete profile",
+      "subtitle": "Adjust reference norms by age, gender, sport, and competition level",
+      "ageGroup": "Age group",
+      "gender": "Gender",
+      "sport": "Sport",
+      "competitionLevel": "Competition level",
+      "contextTitle": "Demographic context",
+      "contextSubtitle": "Profile used when interpreting this result",
+      "referenceProfileUsed": "Reference profile: {{age}} · {{gender}} · {{sport}} · {{level}}",
+      "adjustedReferenceNote": "Reference values adjusted for selected athlete profile"
+    },
     "retestInterval": "Suggested retest interval: every {{days}} days",
     "ssidPreviewSubtitle": "Sports science interpretation preview",
     "lowerIsBetter": "Lower values indicate better performance for this test.",
@@ -289,6 +301,10 @@
     }
   },
   "testingScience": {
+    "gender": {
+      "male": "Male",
+      "female": "Female"
+    },
     "age": {
       "u17": "Under 17",
       "u20": "17–20 years",

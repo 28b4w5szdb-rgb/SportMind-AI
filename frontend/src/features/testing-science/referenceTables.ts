@@ -2,16 +2,37 @@
 
 import type { TestReferenceValues } from '@/src/features/performance-lab/types';
 
+export type AgeBandId = 'u17' | 'u20' | 'senior' | 'masters';
 export type GenderProfile = 'male' | 'female';
 export type SportProfile = 'football' | 'basketball' | 'athletics' | 'combat' | 'general';
 export type CompetitionLevel = 'elite' | 'professional' | 'academy' | 'recreational';
 
+export interface TestDemographicContext {
+  ageBandId: AgeBandId;
+  gender: GenderProfile;
+  sport: SportProfile;
+  level: CompetitionLevel;
+}
+
 export interface ReferenceContext {
+  ageBandId?: AgeBandId;
   ageYears?: number;
   gender?: GenderProfile;
   sport?: SportProfile;
   level?: CompetitionLevel;
 }
+
+export interface StoredReferenceProfile {
+  profileSummaryKey: string;
+  adjustedReferenceValues: TestReferenceValues;
+}
+
+export const DEFAULT_DEMOGRAPHIC_CONTEXT: TestDemographicContext = {
+  ageBandId: 'senior',
+  gender: 'male',
+  sport: 'general',
+  level: 'professional',
+};
 
 export interface AgeBand {
   id: string;
@@ -50,13 +71,31 @@ export const COMPETITION_LEVELS: Record<CompetitionLevel, { labelKey: string; st
   recreational: { labelKey: 'testingScience.level.recreational', strictness: 1.12 },
 };
 
-function resolveAgeBand(ageYears?: number): AgeBand {
-  if (ageYears === undefined) return AGE_BANDS.find((b) => b.id === 'senior')!;
+function resolveAgeBandFromYears(ageYears: number): AgeBand {
   return AGE_BANDS.find((b) => ageYears >= b.min && ageYears <= b.max) ?? AGE_BANDS[2];
 }
 
+export function resolveAgeBand(ctx: ReferenceContext = {}): AgeBand {
+  if (ctx.ageBandId) {
+    return AGE_BANDS.find((b) => b.id === ctx.ageBandId) ?? AGE_BANDS[2];
+  }
+  if (ctx.ageYears !== undefined) return resolveAgeBandFromYears(ctx.ageYears);
+  return AGE_BANDS.find((b) => b.id === 'senior')!;
+}
+
+export function buildStoredReferenceProfile(
+  context: TestDemographicContext,
+  baseRef: TestReferenceValues,
+  categoryId: string
+): StoredReferenceProfile {
+  return {
+    profileSummaryKey: 'testingCenter.demographic.referenceProfileUsed',
+    adjustedReferenceValues: adjustReferenceValues(baseRef, categoryId, context),
+  };
+}
+
 function categoryFactor(categoryId: string, ctx: ReferenceContext): number {
-  const age = resolveAgeBand(ctx.ageYears);
+  const age = resolveAgeBand(ctx);
   const sport = SPORT_PROFILES[ctx.sport ?? 'general'];
   const level = COMPETITION_LEVELS[ctx.level ?? 'professional'];
   const gender = GENDER_FACTORS[ctx.gender ?? 'male'];

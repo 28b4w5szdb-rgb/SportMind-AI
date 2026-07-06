@@ -53,6 +53,7 @@ export interface SsidInterpretation {
   aiRecommendationKey: string;
   recommendations: SsidRecommendationSet;
   scientificReferenceKey: string;
+  evidenceLevelKey: string;
   confidence: number;
   referenceValue?: number;
   referenceLabelKey?: string;

@@ -1,6 +1,7 @@
 import type { SsidCoachingDecisionId, SsidInterpretation, SsidMetricContext, SsidMetricId } from '../types';
 
-const DEFAULT_REFERENCE_KEY = 'ssid.references.placeholder';
+import { resolveScientificReferenceForMetric } from '../references/scientificReferences';
+
 const DEFAULT_CONFIDENCE = 82;
 
 export function metricBandKey(metricId: SsidMetricId, section: string, band: string): string {
@@ -16,6 +17,8 @@ export function buildInterpretation(
   context?: SsidMetricContext,
   confidence = DEFAULT_CONFIDENCE
 ): SsidInterpretation {
+  const reference = resolveScientificReferenceForMetric(metricId);
+
   return {
     metricId,
     result: value,
@@ -35,7 +38,8 @@ export function buildInterpretation(
       weeklyKey: metricBandKey(metricId, 'recs', `${band}.weekly`),
       longTermKey: metricBandKey(metricId, 'recs', `${band}.longTerm`),
     },
-    scientificReferenceKey: DEFAULT_REFERENCE_KEY,
+    scientificReferenceKey: reference.scientificReferenceKey,
+    evidenceLevelKey: reference.evidenceLevelKey,
     confidence: context?.referenceValue !== undefined ? Math.min(95, confidence + 5) : confidence,
     referenceValue: context?.referenceValue,
     referenceLabelKey: context?.referenceValue !== undefined ? `ssid.metrics.${metricId}.referenceLabel` : undefined,

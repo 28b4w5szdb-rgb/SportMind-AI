@@ -100,6 +100,18 @@
     "knowledgeSubtitle": "ماذا يقيس هذا الاختبار وكيف تستخدمه",
     "referenceTitle": "القيم المرجعية",
     "referenceSubtitle": "معايير النخبة والجيد والمتوسط لهذا البروتوكول",
+    "demographic": {
+      "title": "ملف اللاعب",
+      "subtitle": "اضبط المعايير المرجعية حسب العمر والجنس والرياضة ومستوى المنافسة",
+      "ageGroup": "الفئة العمرية",
+      "gender": "الجنس",
+      "sport": "الرياضة",
+      "competitionLevel": "مستوى المنافسة",
+      "contextTitle": "السياق الديموغرافي",
+      "contextSubtitle": "الملف المستخدم عند تفسير هذه النتيجة",
+      "referenceProfileUsed": "الملف المرجعي: {{age}} · {{gender}} · {{sport}} · {{level}}",
+      "adjustedReferenceNote": "تم تعديل القيم المرجعية وفق ملف اللاعب المحدد"
+    },
     "retestInterval": "فترة إعادة الاختبار المقترحة: كل {{days}} يوم",
     "ssidPreviewSubtitle": "معاينة التفسير العلمي الرياضي",
     "lowerIsBetter": "القيم الأقل تعني أداءً أفضل في هذا الاختبار.",
@@ -293,6 +305,10 @@
     }
   },
   "testingScience": {
+    "gender": {
+      "male": "ذكر",
+      "female": "أنثى"
+    },
     "age": {
       "u17": "دون 17",
       "u20": "17–20 سنة",

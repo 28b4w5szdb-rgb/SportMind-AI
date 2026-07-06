@@ -20,6 +20,8 @@ export { TestLibraryListItem } from './components/TestLibraryListItem';
 export { TestLibraryFiltersBar } from './components/TestLibraryFiltersBar';
 export { TestKnowledgePanel } from './components/TestKnowledgePanel';
 export { TestReferencePanel } from './components/TestReferencePanel';
+export { DemographicSelector } from './components/DemographicSelector';
+export { DemographicContextCard } from './components/DemographicContextCard';
 export { interpretTestWithSsid } from './utils/testInterpretation';
 export {
   useTestDefinition,

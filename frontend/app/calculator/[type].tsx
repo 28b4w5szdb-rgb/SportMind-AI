@@ -139,7 +139,7 @@ export default function CalculatorTypeScreen() {
                 {result.result.value} {result.result.unit}
               </Text>
               <Text style={[typography.body, { color: theme.colors.textSecondary, marginTop: theme.spacing.sm }]}>
-                {t('features.calculator.interpretation')}: {result.result.interpretation}
+                {t('features.calculator.interpretation')}: {t(result.result.interpretation)}
               </Text>
             </>
           )}

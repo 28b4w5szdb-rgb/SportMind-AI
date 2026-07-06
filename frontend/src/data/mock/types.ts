@@ -45,6 +45,8 @@ export interface MockPerformanceTest {
   date: string;
   notes?: string;
   ssid?: import('@/src/features/ssid-engine').SsidInterpretation;
+  demographicContext?: import('@/src/features/testing-science').TestDemographicContext;
+  referenceProfile?: import('@/src/features/testing-science').StoredReferenceProfile;
 }
 
 export type MockReportStatus = 'draft' | 'ready' | 'exported';

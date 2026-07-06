@@ -29,11 +29,14 @@ export function ReferenceConfidenceFooter({ interpretation }: ReferenceConfidenc
       }}
     >
       <Ionicons name="document-text-outline" size={16} color={theme.colors.textTertiary} style={{ marginTop: 2 }} />
-      <View style={{ flex: 1, marginStart: theme.spacing.sm }}>
+      <View style={{ flex: 1, marginStart: theme.spacing.sm, gap: 4 }}>
         <Text style={[type.caption, { color: theme.colors.textTertiary, textAlign: textAlign('start') }]}>
           {t('ssid.ui.scientificReference')}: {t(interpretation.scientificReferenceKey)}
         </Text>
-        <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 4, textAlign: textAlign('start') }]}>
+        <Text style={[type.caption, { color: theme.colors.textTertiary, textAlign: textAlign('start') }]}>
+          {t('ssid.ui.evidenceLevel')}: {t(interpretation.evidenceLevelKey)}
+        </Text>
+        <Text style={[type.caption, { color: theme.colors.textTertiary, textAlign: textAlign('start') }]}>
           {t('ssid.confidenceLabel')}: {interpretation.confidence}%
         </Text>
       </View>

@@ -7,6 +7,7 @@ import type { CustomTestInput } from '@/src/features/performance-lab/types';
 import { buildCustomTestDefinition } from '@/src/features/performance-lab/registry/factory';
 import { getTestDefinition } from '@/src/features/performance-lab/registry/tests';
 import { interpretTestWithSsid } from '@/src/features/performance-lab/utils/testInterpretation';
+import { buildStoredReferenceProfile } from '@/src/features/testing-science';
 import type { TestDefinition } from '@/src/features/performance-lab/types';
 import type {
   MockAthlete,
@@ -204,8 +205,15 @@ export const useMockStore = create<MockStore>()(
       addTest: (input) => {
         const customDefs = get().customTestDefinitions ?? [];
         const definition = getTestDefinition(input.test_type_key, customDefs);
-        const ssid = definition ? interpretTestWithSsid(definition, input.value).ssid : undefined;
-        const test: MockPerformanceTest = { ...input, id: uid('test'), ssid };
+        const context = input.demographicContext;
+        const ssid = definition
+          ? interpretTestWithSsid(definition, input.value, context ?? {}).ssid
+          : undefined;
+        const referenceProfile =
+          definition && context
+            ? buildStoredReferenceProfile(context, definition.referenceValues, definition.categoryId)
+            : input.referenceProfile;
+        const test: MockPerformanceTest = { ...input, id: uid('test'), ssid, referenceProfile };
         set((s) => ({
           tests: [test, ...s.tests],
           athletes: s.athletes.map((a) =>

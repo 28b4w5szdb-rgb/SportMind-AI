@@ -27,8 +27,10 @@ import {
   getObjectiveLabelKey,
   TestKnowledgePanel,
   TestReferencePanel,
+  DemographicSelector,
   interpretTestWithSsid,
 } from '@/src/features/performance-lab';
+import { DEFAULT_DEMOGRAPHIC_CONTEXT, type TestDemographicContext } from '@/src/features/testing-science';
 import { SsidInterpretationView } from '@/src/features/ssid-engine';
 import type { MockPerformanceTest } from '@/src/data/mock/types';
 
@@ -52,6 +54,7 @@ export default function TestDetailScreen() {
   const [value, setValue] = useState('');
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [notes, setNotes] = useState('');
+  const [demographicContext, setDemographicContext] = useState<TestDemographicContext>(DEFAULT_DEMOGRAPHIC_CONTEXT);
   const [errors, setErrors] = useState<{ athlete?: string; value?: string; date?: string }>({});
 
   const athlete = athletes.find((a) => a.id === athleteId);
@@ -74,13 +77,13 @@ export default function TestDetailScreen() {
 
   const projectedSsid = useMemo(() => {
     if (!definition || !value.trim() || Number.isNaN(Number(value))) return null;
-    return interpretTestWithSsid(definition, Number(value)).ssid;
-  }, [definition, value]);
+    return interpretTestWithSsid(definition, Number(value), demographicContext).ssid;
+  }, [definition, value, demographicContext]);
 
   const projectedLevel = useMemo(() => {
     if (!definition || !value.trim() || Number.isNaN(Number(value))) return null;
-    return interpretTestWithSsid(definition, Number(value)).level;
-  }, [definition, value]);
+    return interpretTestWithSsid(definition, Number(value), demographicContext).level;
+  }, [definition, value, demographicContext]);
 
   if (!definition) {
     return (
@@ -115,6 +118,7 @@ export default function TestDetailScreen() {
         unit: definition.unit,
         date,
         notes: notes.trim() || undefined,
+        demographicContext,
       });
       setTimeout(() => router.replace(APP_ROUTES.performanceLabResult(saved.id)), 800);
     });
@@ -141,7 +145,8 @@ export default function TestDetailScreen() {
       </Card>
 
       <TestKnowledgePanel definition={definition} />
-      <TestReferencePanel definition={definition} />
+      <DemographicSelector value={demographicContext} onChange={setDemographicContext} />
+      <TestReferencePanel definition={definition} demographicContext={demographicContext} />
 
       <FormSection title={t('testingCenter.sections.analyticsImpact')}>
         <Text style={[type.caption, { color: theme.colors.textTertiary, marginBottom: 8, textAlign: textAlign('start') }]}>

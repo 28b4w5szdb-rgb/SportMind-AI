@@ -82,6 +82,7 @@ export const ssidEn = {
     weekly: 'Weekly',
     longTerm: 'Long-term',
     scientificReference: 'Scientific reference',
+    evidenceLevel: 'Evidence level',
     overallScore: 'Overall athlete score',
     fatigue: 'Fatigue status',
     injuryRisk: 'Injury risk profile',
@@ -101,6 +102,16 @@ export const ssidEn = {
   },
   references: {
     placeholder: 'Evidence-based sports science reference library — curated citations pending integration.',
+    acsm: 'ACSM Guidelines for Exercise Testing and Prescription',
+    nsca: 'NSCA Essentials of Strength Training and Conditioning',
+    fifa: 'FIFA fitness testing guidance',
+    ioc: 'IOC consensus statements on load, injury, and recovery',
+    sports_medicine: 'Sports medicine and performance testing literature',
+  },
+  evidenceLevel: {
+    high: 'High — established consensus',
+    moderate: 'Moderate — widely applied norms',
+    emerging: 'Emerging — evolving evidence base',
   },
   metricLabels: {
     bmi: 'Body Mass Index',
