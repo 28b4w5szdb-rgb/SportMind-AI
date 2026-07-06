@@ -1827,5 +1827,99 @@
       "save": "Save session log",
       "logToday": "Log today's session"
     }
+  },
+  "reportBuilder": {
+    "title": "Scientific Report Builder",
+    "subtitle": "Configure, preview, and export premium sports science reports",
+    "typeSubtitle": "Choose the report template that matches your scientific workflow",
+    "scopeSubtitle": "Select athlete or team scope and name your report",
+    "dateRangeSubtitle": "Filter performance data to the analysis window",
+    "sectionsSubtitle": "Toggle modules and define the narrative structure",
+    "themeSubtitle": "Apply a visual identity for stakeholders and export",
+    "sectionOrder": "Section order",
+    "sectionOrderHint": "Reorder modules for your report narrative",
+    "dateFrom": "From date",
+    "dateTo": "To date",
+    "livePreview": "Live preview",
+    "livePreviewHint": "Review the assembled report before saving or exporting",
+    "steps": {
+      "type": "Report type",
+      "scope": "Athlete / Team",
+      "dateRange": "Date range",
+      "sections": "Report sections",
+      "theme": "Report theme",
+      "preview": "Live preview"
+    },
+    "scope": {
+      "athlete": "Athlete",
+      "team": "Team",
+      "teamHint": "Team reports aggregate squad intelligence across all athletes in the mock roster."
+    },
+    "types": {
+      "athlete": "Athlete Report",
+      "athleteDesc": "Individual performance profile with KPIs and recommendations",
+      "team": "Team Report",
+      "teamDesc": "Squad overview, rankings, and staff recommendations",
+      "performance": "Performance Report",
+      "performanceDesc": "Testing analytics, benchmarks, and performance trends",
+      "recovery": "Recovery Report",
+      "recoveryDesc": "Readiness, load balance, and recovery interventions",
+      "nutrition": "Nutrition Report",
+      "nutritionDesc": "Fuel, hydration, and body composition insights",
+      "wearables": "Wearables Report",
+      "wearablesDesc": "Device sync summary and biometric trends",
+      "sportsMedicine": "Sports Medicine Report",
+      "sportsMedicineDesc": "Injury status, RTP, and clinical decision support",
+      "laboratory": "Laboratory Report",
+      "laboratoryDesc": "Lab protocol results and scientific validity notes",
+      "comparison": "Comparison Report",
+      "comparisonDesc": "Side-by-side athlete or cohort comparisons",
+      "research": "Research Report",
+      "researchDesc": "Evidence synthesis with references and SSID framing"
+    },
+    "sections": {
+      "athleteProfile": "Athlete Profile",
+      "kpi": "KPI",
+      "charts": "Charts",
+      "performanceAnalytics": "Performance Analytics",
+      "recovery": "Recovery",
+      "nutrition": "Nutrition",
+      "trainingLoad": "Training Load",
+      "wearables": "Wearables",
+      "laboratory": "Laboratory",
+      "injury": "Injury",
+      "aiInterpretation": "AI Interpretation",
+      "ssid": "SSID",
+      "recommendations": "Recommendations",
+      "trainingDecision": "Training Decision",
+      "references": "References"
+    },
+    "themes": {
+      "professional": "Professional",
+      "professionalDesc": "Clean corporate styling for clubs and federations",
+      "university": "University",
+      "universityDesc": "Academic layout for student-athlete programs",
+      "medical": "Medical",
+      "medicalDesc": "Clinical tone for sports medicine departments",
+      "club": "Club",
+      "clubDesc": "Bold club branding for performance staff",
+      "research": "Research",
+      "researchDesc": "Neutral scholarly format for publications"
+    },
+    "preview": {
+      "label": "Report preview",
+      "noContent": "No content available for this section in the selected date range.",
+      "empty": "Select at least one section to preview your report.",
+      "chartPlaceholder": "Chart visualization placeholder",
+      "sectionsCount": "{{count}} sections",
+      "saveDraft": "Save as draft",
+      "athleteScope": "{{name}} · {{from}} → {{to}}",
+      "teamScope": "Full squad · {{from}} → {{to}}",
+      "dateScope": "{{from}} → {{to}}"
+    },
+    "export": {
+      "subtitle": "Export placeholders — real PDF/Word/Excel generation in a future phase",
+      "placeholder": "Export is not connected yet. This is a mock placeholder."
+    }
   }
 }

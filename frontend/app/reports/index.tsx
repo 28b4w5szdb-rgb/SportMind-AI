@@ -43,7 +43,7 @@ export default function ReportsScreen() {
       }}
     >
       <Text style={[type.body, { color: theme.colors.textSecondary, marginBottom: theme.spacing.lg, textAlign: textAlign('start') }]}>
-        {t('features.reports.subtitle')}
+        {t('reportBuilder.subtitle')}
       </Text>
 
       {reports.length > 0 && (
@@ -69,7 +69,7 @@ export default function ReportsScreen() {
           icon="document-text"
           title={t('features.reports.emptyTitle')}
           description={t('features.reports.emptyDesc')}
-          actionLabel={t('features.reports.createReport')}
+          actionLabel={t('reportBuilder.title')}
           onAction={() => router.push(APP_ROUTES.reportBuilder)}
         />
       ) : (
