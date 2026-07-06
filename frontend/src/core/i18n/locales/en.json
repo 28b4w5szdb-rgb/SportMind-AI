@@ -20,6 +20,33 @@
     "error": "Something went wrong",
     "tryAgain": "Please try again"
   },
+  "brand": {
+    "tagline": "AI-Powered Sports Science Platform"
+  },
+  "onboarding": {
+    "getStarted": "Get started",
+    "skip": "Skip for now",
+    "welcome": {
+      "eyebrow": "Welcome",
+      "title": "Your sports science command center",
+      "body": "SportMind AI brings testing, analytics, and intelligent guidance into one professional workspace for elite teams."
+    },
+    "audience": {
+      "eyebrow": "Built for staff",
+      "title": "Designed for performance professionals",
+      "body": "Head coaches, sport scientists, physios, and analysts use SportMind AI to make faster, evidence-based decisions."
+    },
+    "features": {
+      "eyebrow": "Core capabilities",
+      "title": "Testing, insights, and daily workflows",
+      "body": "Run lab protocols, track athlete readiness, consult the AI coach, and build reports — all from one unified platform."
+    },
+    "start": {
+      "eyebrow": "Ready to begin",
+      "title": "Sign in and set up your squad",
+      "body": "Create your account, add athletes, and start recording tests. Your workspace is ready in minutes."
+    }
+  },
   "language": {
     "english": "English",
     "arabic": "العربية",
@@ -708,7 +735,7 @@
     },
     "signIn": {
       "title": "Sign in",
-      "subtitle": "Access your SportMind AI workspace",
+      "subtitle": "Sign in to your professional sports science workspace",
       "submit": "Sign in",
       "forgotPassword": "Forgot password?",
       "noAccount": "Don't have an account?",

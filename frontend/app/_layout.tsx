@@ -1,10 +1,11 @@
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { LogBox, View } from 'react-native';
+import { LogBox } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AuthGate } from '@/src/components/auth';
+import { SplashExperience } from '@/src/components/brand';
 import { useIconFonts } from '@/src/hooks/use-icon-fonts';
 import { useAppFonts } from '@/src/hooks/use-app-fonts';
 import { AuthProvider } from '@/src/providers/AuthProvider';
@@ -41,14 +42,14 @@ function AppShell() {
   }, [ready]);
 
   if (!ready) {
-    // Splash is still visible native-side; render nothing to avoid flash.
-    return <View style={{ flex: 1 }} />;
+    return <SplashExperience />;
   }
 
   return (
     <AuthGate>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
+        <Stack.Screen name="onboarding" />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="calculator" />

@@ -14,11 +14,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
+import { BrandLogo } from '@/src/components/brand';
 import { LanguageToggle } from '@/src/components/common/LanguageToggle';
 import { useTheme, useTypography } from '@/src/core/theme';
+import { brandGradients } from '@/src/core/theme/brand';
 import { useDirection } from '@/src/providers/DirectionProvider';
 
 export interface AuthScreenLayoutProps {
@@ -35,9 +36,11 @@ export function AuthScreenLayout({ title, subtitle, children, footer }: AuthScre
   const { t } = useTranslation();
   const { width } = useWindowDimensions();
   const isWide = width >= 768;
+  const gradient = theme.isDark ? brandGradients.splashDark : brandGradients.splashLight;
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.colors.background }]}>
+      <LinearGradient colors={[...gradient]} style={StyleSheet.absoluteFill} />
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -58,18 +61,7 @@ export function AuthScreenLayout({ title, subtitle, children, footer }: AuthScre
           </View>
 
           <View style={[styles.content, { maxWidth: isWide ? 440 : undefined, alignSelf: 'center', width: '100%' }]}>
-            <LinearGradient
-              colors={[theme.colors.primary, theme.colors.secondary]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={[styles.logo, { borderRadius: theme.borderRadius['2xl'] }]}
-            >
-              <Ionicons name="fitness" size={36} color="#FFFFFF" />
-            </LinearGradient>
-
-            <Text style={[type.caption, { color: theme.colors.textSecondary, textAlign: textAlign('center'), marginTop: theme.spacing.md }]}>
-              {t('common.appName')}
-            </Text>
+            <BrandLogo size="lg" showTagline tagline={t('brand.tagline')} />
 
             <Text
               style={[
@@ -77,7 +69,7 @@ export function AuthScreenLayout({ title, subtitle, children, footer }: AuthScre
                 {
                   color: theme.colors.text,
                   textAlign: textAlign('center'),
-                  marginTop: theme.spacing.sm,
+                  marginTop: theme.spacing.xl,
                 },
               ]}
             >
@@ -102,7 +94,20 @@ export function AuthScreenLayout({ title, subtitle, children, footer }: AuthScre
               <View style={{ height: theme.spacing.lg }} />
             )}
 
-            {children}
+            <View
+              style={[
+                styles.formCard,
+                {
+                  backgroundColor: theme.colors.surface,
+                  borderRadius: theme.borderRadius['2xl'],
+                  borderColor: theme.colors.border,
+                  padding: theme.spacing.lg,
+                  ...theme.shadows.md,
+                },
+              ]}
+            >
+              {children}
+            </View>
 
             {footer ? <View style={{ marginTop: theme.spacing.lg }}>{footer}</View> : null}
           </View>
@@ -118,11 +123,8 @@ const styles = StyleSheet.create({
   scroll: { flexGrow: 1, justifyContent: 'center' },
   topBar: { width: '100%', alignItems: 'flex-end' },
   content: { alignItems: 'center' },
-  logo: {
-    width: 72,
-    height: 72,
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
+  formCard: {
+    width: '100%',
+    borderWidth: 1,
   },
 });

@@ -71,6 +71,8 @@ export {
   getShadows,
 };
 
+export { brandIdentity, brandColors, brandGradients, brandMotion, ONBOARDING_STORAGE_KEY } from './brand';
+
 // Bilingual typography hook (Latin vs Arabic)
 export { useTypography } from './useTypography';
 export type { AppTypography } from './useTypography';

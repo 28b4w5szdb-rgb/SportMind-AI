@@ -1,5 +1,10 @@
 import type { Href } from 'expo-router';
 
+/** First-launch onboarding. */
+export const ONBOARDING_ROUTES = {
+  index: '/onboarding' as Href,
+};
+
 /** Typed auth stack routes (Expo Router). */
 export const AUTH_ROUTES = {
   signIn: '/(auth)/sign-in' as Href,
