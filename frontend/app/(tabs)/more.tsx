@@ -39,6 +39,7 @@ const wellnessItems = [
   { id: 'nutrition', key: 'more.nutritionCenter', icon: 'nutrition' as const, color: '#F97316', route: '/nutrition' },
   { id: 'checkin', key: 'more.dailyCheckIn', icon: 'heart-circle' as const, color: '#10B981', route: '/check-in' },
   { id: 'recovery', key: 'more.recoveryCenter', icon: 'pulse' as const, color: '#0D9488', route: '/recovery' },
+  { id: 'wearables', key: 'more.wearables', icon: 'watch' as const, color: '#0EA5E9', route: '/wearables' },
   { id: 'medicine', key: 'more.sportsMedicine', icon: 'medkit' as const, color: '#EF4444', route: '/sports-medicine' },
 ];
 
@@ -58,6 +59,7 @@ const menuItemLabels: Record<string, { en: string; ar: string }> = {
   'more.nutritionCenter': { en: 'Nutrition Center', ar: 'مركز التغذية' },
   'more.dailyCheckIn': { en: 'Daily Check-in', ar: 'التسجيل اليومي' },
   'more.recoveryCenter': { en: 'Recovery Center', ar: 'مركز التعافي' },
+  'more.wearables': { en: 'Wearables', ar: 'الأجهزة الذكية' },
   'more.sportsMedicine': { en: 'Sports Medicine', ar: 'الطب الرياضي' },
 };
 
