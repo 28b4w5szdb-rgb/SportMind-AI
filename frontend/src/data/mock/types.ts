@@ -67,6 +67,11 @@ export interface MockReportSections {
   nutrition_hydration_status?: string;
   nutrition_body_comp_trend?: string;
   nutrition_recommendations?: string;
+  team_overview?: string;
+  team_rankings?: string;
+  team_risk_players?: string;
+  team_position_analysis?: string;
+  team_recommendations?: string;
 }
 
 export interface MockReport {

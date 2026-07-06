@@ -30,6 +30,8 @@ export const APP_ROUTES = {
   teamManagement: '/team-management' as Href,
   teamNew: '/team-management/new' as Href,
   teamDetail: (id: string): Href => `/team-management/${id}` as Href,
+  teamIntelligence: (teamId?: string): Href =>
+    (teamId ? `/team-intelligence?teamId=${encodeURIComponent(teamId)}` : '/team-intelligence') as Href,
   performanceLabEntry: '/performance-lab/entry' as Href,
   performanceLabCompare: '/performance-lab/compare' as Href,
   performanceLabBenchmark: '/performance-lab/benchmark' as Href,

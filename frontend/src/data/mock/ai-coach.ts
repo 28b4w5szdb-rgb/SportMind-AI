@@ -8,6 +8,8 @@ import type { TeamAnalyticsOverview } from '@/src/analytics/summary/teamOverview
 import { formatAthleteAnalyticsForAI } from '@/src/analytics/summary/teamOverview';
 import type { NutritionSnapshot } from '@/src/features/nutrition/types';
 import { formatNutritionForAI } from '@/src/features/nutrition/utils/nutritionHelpers';
+import type { TeamIntelligenceSnapshot } from '@/src/features/team-intelligence/types';
+import { formatTeamIntelligenceForAI } from '@/src/features/team-intelligence';
 
 export type AiAgentId = 'performance' | 'recovery' | 'nutrition' | 'planning';
 
@@ -39,6 +41,7 @@ export interface AiMessage {
 export interface AnalyticsCoachContext {
   primary?: AthleteAnalyticsSnapshot;
   team?: TeamAnalyticsOverview;
+  teamIntelligence?: TeamIntelligenceSnapshot;
   athleteName?: string;
   nutrition?: NutritionSnapshot;
 }
@@ -78,6 +81,34 @@ export const SUGGESTED_PROMPTS = [
     textAr: 'اوصِ بحمل تدريبي',
     agentId: 'planning' as AiAgentId,
     analyticsTopic: 'load' as const,
+  },
+  {
+    id: 't1',
+    textEn: 'Who is most ready on the squad?',
+    textAr: 'من الأكثر جاهزية في الفريق؟',
+    agentId: 'performance' as AiAgentId,
+    analyticsTopic: 'team_ready' as const,
+  },
+  {
+    id: 't2',
+    textEn: 'Who is at injury risk?',
+    textAr: 'من معرض لخطر الإصابة؟',
+    agentId: 'performance' as AiAgentId,
+    analyticsTopic: 'team_injury' as const,
+  },
+  {
+    id: 't3',
+    textEn: 'Which position needs improvement?',
+    textAr: 'أي مركز يحتاج تحسين؟',
+    agentId: 'planning' as AiAgentId,
+    analyticsTopic: 'team_position' as const,
+  },
+  {
+    id: 't4',
+    textEn: 'What should the team focus on this week?',
+    textAr: 'على ماذا يركز الفريق هذا الأسبوع؟',
+    agentId: 'planning' as AiAgentId,
+    analyticsTopic: 'team_focus' as const,
   },
   {
     id: 'p1',
@@ -151,8 +182,72 @@ const MOCK_RESPONSES: Record<AiAgentId, { en: string; ar: string }> = {
   },
 };
 
-type AnalyticsTopic = 'readiness' | 'injury' | 'load' | 'trend' | 'performance';
+type AnalyticsTopic = 'readiness' | 'injury' | 'load' | 'trend' | 'performance' | 'team_ready' | 'team_injury' | 'team_position' | 'team_focus' | 'team_squad';
 type NutritionTopic = 'macros' | 'hydration' | 'protein' | 'compliance' | 'goal' | 'body_comp';
+type TeamTopic = 'most_ready' | 'injury_risk' | 'position_weakness' | 'weekly_focus' | 'squad';
+
+function detectTeamTopic(message: string): TeamTopic | null {
+  const m = message.toLowerCase();
+  if (/most ready|who is ready|أكثر جاهز|من جاهز/.test(message)) return 'most_ready';
+  if (/injury risk|at risk|who is injured|خطر إصاب|معرض/.test(message)) return 'injury_risk';
+  if (/position|midfield|defender|forward|goalkeeper|مركز|وسط|مدافع|حارس/.test(m) && /improve|weak|needs|تحسين|ضعف/.test(m)) {
+    return 'position_weakness';
+  }
+  if (/focus this week|team focus|what should the team|التركيز|هذا الأسبوع|يركز الفريق/.test(message)) return 'weekly_focus';
+  if (/team|squad|roster|فريق|ال squad|قائمة/.test(m)) return 'squad';
+  return null;
+}
+
+function buildTeamTopicResponse(topic: TeamTopic, ctx: AnalyticsCoachContext, isRTL: boolean): string {
+  const snap = ctx.teamIntelligence!;
+  const m = snap.metrics;
+  const ready = snap.rankings.find((r) => r.category === 'readiness')?.entries[0];
+  const risk = snap.rankings.find((r) => r.category === 'injury_risk')?.entries[0];
+  const weakPos = [...snap.positionAnalysis].sort((a, b) => a.avgOverallScore - b.avgOverallScore)[0];
+  const topRec = snap.staffRecommendations[0];
+
+  switch (topic) {
+    case 'most_ready':
+      return isRTL
+        ? `✅ الأكثر جاهزية: ${ready?.athleteName ?? '—'} (${ready?.displayValue ?? '—'}).\nمتوسط جاهزية الفريق ${m.readiness}%.`
+        : `✅ Most ready: ${ready?.athleteName ?? '—'} (${ready?.displayValue ?? '—'}).\nSquad average readiness ${m.readiness}%.`;
+
+    case 'injury_risk':
+      return isRTL
+        ? `⚠️ أعلى خطر إصابة: ${risk?.athleteName ?? '—'} (${risk?.displayValue ?? '—'}).\n` +
+            (snap.playersAtRisk.length > 0
+              ? `تحت المراقبة: ${snap.playersAtRisk.map((p) => p.athleteName).join(', ')}.`
+              : 'لا يوجد لاعبون في نطاق الخطر العالي.')
+        : `⚠️ Highest injury risk: ${risk?.athleteName ?? '—'} (${risk?.displayValue ?? '—'}).\n` +
+            (snap.playersAtRisk.length > 0
+              ? `Watch list: ${snap.playersAtRisk.map((p) => p.athleteName).join(', ')}.`
+              : 'No players currently in high-risk band.');
+
+    case 'position_weakness':
+      return isRTL
+        ? weakPos
+          ? `📍 المركز الأضعف: ${weakPos.id} (${weakPos.avgOverallScore}/1000). متوسط الجاهزية ${weakPos.avgReadiness}%.`
+          : 'لا توجد بيانات كافية لمقارنة المراكز.'
+        : weakPos
+          ? `📍 Weakest position group: ${weakPos.id} (${weakPos.avgOverallScore}/1000). Avg readiness ${weakPos.avgReadiness}%.`
+          : 'Insufficient data for position comparison.';
+
+    case 'weekly_focus':
+      return isRTL
+        ? `🎯 تركيز الأسبوع:\n` +
+            (topRec ? `• ${topRec.titleKey}\n` : '') +
+            `• امتثال تدريب ${m.trainingCompliance}% · تغذية ${m.nutritionCompliance}%\n` +
+            `• إرهاق ${m.fatigue}% · تعافي ${m.recovery}%`
+        : `🎯 Weekly team focus:\n` +
+            (topRec ? `• ${topRec.titleKey}\n` : '') +
+            `• Training compliance ${m.trainingCompliance}% · Nutrition ${m.nutritionCompliance}%\n` +
+            `• Fatigue ${m.fatigue}% · Recovery ${m.recovery}%`;
+
+    case 'squad':
+    default:
+      return formatTeamIntelligenceForAI(snap, isRTL);
+  }
+}
 
 function detectNutritionTopic(message: string): NutritionTopic | null {
   const m = message.toLowerCase();
@@ -213,6 +308,11 @@ function buildNutritionTopicResponse(topic: NutritionTopic, ctx: AnalyticsCoachC
 
 function detectAnalyticsTopic(message: string): AnalyticsTopic | null {
   const m = message.toLowerCase();
+  if (/most ready|who is ready|أكثر جاهز/.test(message)) return 'team_ready';
+  if (/injury risk|at risk|خطر إصاب/.test(message) && /team|squad|who|من|فريق/.test(message)) return 'team_injury';
+  if (/position|midfield|defender|forward|goalkeeper|مركز/.test(m) && /improve|weak|needs|تحسين/.test(m)) return 'team_position';
+  if (/focus this week|team focus|التركيز|هذا الأسبوع/.test(message)) return 'team_focus';
+  if (/team intelligence|squad analytics|ذكاء الفريق|تحليل الفريق/.test(message)) return 'team_squad';
   if (/readiness|ready|جاهز|جاهزية/.test(message)) return 'readiness';
   if (/injury|injured|risk|إصاب|خطر/.test(message)) return 'injury';
   if (/load|volume|intensity|حمل|شدة/.test(message)) return 'load';
@@ -290,6 +390,13 @@ export function generateMockResponse(
   isRTL: boolean,
   analyticsContext?: AnalyticsCoachContext
 ): string {
+  const teamTopic = detectTeamTopic(userMessage);
+  if (analyticsContext?.teamIntelligence && teamTopic) {
+    const body = buildTeamTopicResponse(teamTopic, analyticsContext, isRTL);
+    const confidence = isRTL ? '\n\n✓ مستوى الثقة: 91%' : '\n\n✓ Confidence: 91%';
+    return body + confidence;
+  }
+
   const topic = detectAnalyticsTopic(userMessage);
   const nutritionTopic = detectNutritionTopic(userMessage);
   const analyticsRelevant =
@@ -298,6 +405,25 @@ export function generateMockResponse(
     agentId === 'recovery' ||
     agentId === 'planning' ||
     agentId === 'nutrition';
+
+  const teamTopicFromAnalytics =
+    topic === 'team_ready'
+      ? 'most_ready'
+      : topic === 'team_injury'
+        ? 'injury_risk'
+        : topic === 'team_position'
+          ? 'position_weakness'
+          : topic === 'team_focus'
+            ? 'weekly_focus'
+            : topic === 'team_squad'
+              ? 'squad'
+              : null;
+
+  if (analyticsContext?.teamIntelligence && teamTopicFromAnalytics) {
+    const body = buildTeamTopicResponse(teamTopicFromAnalytics, analyticsContext, isRTL);
+    const confidence = isRTL ? '\n\n✓ مستوى الثقة: 91%' : '\n\n✓ Confidence: 91%';
+    return body + confidence;
+  }
 
   if (analyticsContext?.nutrition && (agentId === 'nutrition' || nutritionTopic)) {
     const body = nutritionTopic

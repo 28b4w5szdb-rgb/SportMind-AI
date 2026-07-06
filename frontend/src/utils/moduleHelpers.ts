@@ -10,6 +10,7 @@ import { buildTrainingBuilderSnapshot } from '@/src/features/training-builder/ut
 import { templateLabelKey } from '@/src/features/training-builder/utils/templateLabelKey';
 import { buildAthleteNutritionSnapshot } from '@/src/features/nutrition/utils/nutritionHelpers';
 import { NUTRITION_GOALS } from '@/src/features/nutrition/registry/nutritionCatalog';
+import { computeTeamIntelligence } from '@/src/features/team-intelligence';
 import type { TrainingPlan } from '@/src/features/training-builder/types';
 
 export function buildPerformanceTestsSummary(tests: MockPerformanceTest[], isRTL: boolean): string {
@@ -196,6 +197,87 @@ export function buildNutritionReportSections(
     nutrition_hydration_status: nutritionHydrationStatus,
     nutrition_body_comp_trend: nutritionBodyCompTrend,
     nutrition_recommendations: nutritionRecommendations,
+  };
+}
+
+export function buildTeamIntelligenceReportSections(
+  athletes: MockAthlete[],
+  tests: MockPerformanceTest[],
+  injuries: InjuryRecord[],
+  dailyCheckIns: DailyCheckIn[],
+  trainingPlans: TrainingPlan[],
+  nutritionLogs: DailyNutritionLog[],
+  bodyCompositionRecords: BodyCompositionRecord[],
+  nutritionGoalSettings: NutritionGoalSetting[],
+  t: TFunction,
+  isRTL: boolean
+): Pick<
+  MockReportSections,
+  'team_overview' | 'team_rankings' | 'team_risk_players' | 'team_position_analysis' | 'team_recommendations'
+> {
+  const snapshot = computeTeamIntelligence(
+    {
+      athletes,
+      tests,
+      dailyCheckIns,
+      injuries,
+      trainingPlans,
+      nutritionLogs,
+      bodyCompositionRecords,
+      nutritionGoalSettings,
+    },
+    isRTL
+  );
+  const m = snapshot.metrics;
+
+  const teamOverview = isRTL
+    ? `صحة الفريق: ${m.overallScore}/1000 · جاهزية ${m.readiness}% · تعافي ${m.recovery}% · إرهاق ${m.fatigue}%.\n` +
+      `امتثال تدريب ${m.trainingCompliance}% · تغذية ${m.nutritionCompliance}% · خطر إصابة ${m.injuryRisk}%.\n` +
+      `القائمة: ${m.activeCount} نشط · ${m.injuredCount} مصاب · ${m.restCount} راحة.`
+    : `Squad health: ${m.overallScore}/1000 · Readiness ${m.readiness}% · Recovery ${m.recovery}% · Fatigue ${m.fatigue}%.\n` +
+      `Training compliance ${m.trainingCompliance}% · Nutrition ${m.nutritionCompliance}% · Injury risk ${m.injuryRisk}%.\n` +
+      `Roster: ${m.activeCount} active · ${m.injuredCount} injured · ${m.restCount} rest.`;
+
+  const teamRankings = snapshot.rankings
+    .map((ranking) => {
+      const label = t(`teamIntelligence.rankings.${ranking.category === 'injury_risk' ? 'injuryRisk' : ranking.category === 'training_compliance' ? 'trainingCompliance' : ranking.category === 'nutrition_compliance' ? 'nutritionCompliance' : ranking.category}`);
+      const top = ranking.entries
+        .slice(0, 3)
+        .map((e) => `#${e.rank} ${e.athleteName ?? e.athleteId} (${e.displayValue})`)
+        .join(', ');
+      return `${label}: ${top || '—'}`;
+    })
+    .join('\n');
+
+  const teamRiskPlayers =
+    snapshot.playersAtRisk.length > 0
+      ? snapshot.playersAtRisk
+          .map((p) => `• ${p.athleteName} — ${p.injuryRisk}% ${t('analytics.kpi.injuryRisk')} (${p.position})`)
+          .join('\n')
+      : isRTL
+        ? 'لا يوجد لاعبون في نطاق الخطر حالياً.'
+        : 'No players currently flagged at elevated risk.';
+
+  const teamPositionAnalysis = snapshot.positionAnalysis
+    .map((pos) => {
+      const weakness = pos.keyWeaknessLabelKey ? t(pos.keyWeaknessLabelKey) : '—';
+      return isRTL
+        ? `${t(pos.labelKey)} (${pos.playerCount}): ${pos.avgOverallScore}/1000 · جاهزية ${pos.avgReadiness}% · خطر ${pos.avgInjuryRisk}%. ضعف: ${weakness}.`
+        : `${t(pos.labelKey)} (${pos.playerCount}): ${pos.avgOverallScore}/1000 · Readiness ${pos.avgReadiness}% · Risk ${pos.avgInjuryRisk}%. Weakness: ${weakness}.`;
+    })
+    .join('\n');
+
+  const teamRecommendations =
+    snapshot.staffRecommendations.length > 0
+      ? snapshot.staffRecommendations.map((rec) => `• ${t(rec.titleKey)}: ${t(rec.bodyKey)}`).join('\n')
+      : snapshot.aiSummary;
+
+  return {
+    team_overview: teamOverview,
+    team_rankings: teamRankings,
+    team_risk_players: teamRiskPlayers,
+    team_position_analysis: teamPositionAnalysis || (isRTL ? 'لا توجد مجموعات مراكز.' : 'No position groups available.'),
+    team_recommendations: teamRecommendations,
   };
 }
 

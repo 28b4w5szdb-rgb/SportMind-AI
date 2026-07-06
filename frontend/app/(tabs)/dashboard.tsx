@@ -33,6 +33,7 @@ import { computeCompliance, findTodaySession, todayDateKey } from '@/src/feature
 import { buildAthleteNutritionSnapshot } from '@/src/features/nutrition/utils/nutritionHelpers';
 import { computeAthleteAnalytics } from '@/src/analytics';
 import { ProgressRingChart } from '@/src/components/charts';
+import { useSquadIntelligence } from '@/src/features/team-intelligence';
 
 function getGreetingKey(): string {
   const h = new Date().getHours();
@@ -167,6 +168,8 @@ export default function DashboardScreen() {
       recommendationPreview,
     };
   }, [athletes, tests, trainingPlans, dailyCheckIns, injuryRecords, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings, t]);
+
+  const squadIntelligence = useSquadIntelligence();
 
   const statsData = useMemo(
     () =>
@@ -485,6 +488,38 @@ export default function DashboardScreen() {
                     {nutritionDashboard.recommendationPreview ? (
                       <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 4, textAlign: textAlign('start') }]} numberOfLines={1}>
                         {nutritionDashboard.recommendationPreview}
+                      </Text>
+                    ) : null}
+                  </View>
+                  <Ionicons name={isRTL ? 'chevron-back' : 'chevron-forward'} size={20} color={theme.colors.textTertiary} />
+                </View>
+              </Card>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Team intelligence overview */}
+        {athletes.length > 0 && (
+          <View style={[styles.section, { maxWidth: isDesktop ? 1400 : undefined, marginHorizontal: isDesktop ? 'auto' : undefined, width: '100%' }]}>
+            <TouchableOpacity activeOpacity={0.85} onPress={() => router.push(APP_ROUTES.teamIntelligence() as never)}>
+              <Card variant="elevated" padding="lg" style={{ borderRadius: theme.borderRadius['2xl'] }}>
+                <View style={{ flexDirection: flexRow(true), alignItems: 'center', gap: theme.spacing.md }}>
+                  <View style={[styles.statIcon, { backgroundColor: '#8B5CF620', borderRadius: theme.borderRadius.lg }]}>
+                    <Ionicons name="people" size={22} color="#8B5CF6" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[type.label, { color: theme.colors.textSecondary, textAlign: textAlign('start') }]}>
+                      {t('teamIntelligence.dashboardTitle')}
+                    </Text>
+                    <Text style={[type.h4, { color: theme.colors.text, marginTop: 4, textAlign: textAlign('start') }]}>
+                      {squadIntelligence.metrics.overallScore}/1000 · {t('analytics.kpi.readiness')} {squadIntelligence.metrics.readiness}%
+                    </Text>
+                    <Text style={[type.caption, { color: theme.colors.textTertiary, marginTop: 4, textAlign: textAlign('start') }]}>
+                      {t('teamIntelligence.trainingCompliance')}: {squadIntelligence.metrics.trainingCompliance}% · {t('teamIntelligence.nutritionCompliance')}: {squadIntelligence.metrics.nutritionCompliance}% · {t('teamIntelligence.alertsTitle')}: {squadIntelligence.alerts.length}
+                    </Text>
+                    {squadIntelligence.topPerformers[0] ? (
+                      <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 4, textAlign: textAlign('start') }]} numberOfLines={1}>
+                        {t('teamIntelligence.topPerformers')}: {squadIntelligence.topPerformers[0].athleteName}
                       </Text>
                     ) : null}
                   </View>

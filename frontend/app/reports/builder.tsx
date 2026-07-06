@@ -14,7 +14,7 @@ import { APP_ROUTES } from '@/src/core/constants/routes';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import { useFormAction } from '@/src/hooks/useFormAction';
-import { buildDefaultReportSections } from '@/src/utils/moduleHelpers';
+import { buildDefaultReportSections, buildTeamIntelligenceReportSections } from '@/src/utils/moduleHelpers';
 import type { MockReport } from '@/src/data/mock/types';
 
 const REPORT_TYPES: MockReport['type'][] = ['athlete', 'team', 'session', 'custom'];
@@ -43,6 +43,11 @@ export default function ReportBuilderScreen() {
   const [strengths, setStrengths] = useState('');
   const [weaknesses, setWeaknesses] = useState('');
   const [decisionSupport, setDecisionSupport] = useState('');
+  const [teamOverview, setTeamOverview] = useState('');
+  const [teamRankings, setTeamRankings] = useState('');
+  const [teamRiskPlayers, setTeamRiskPlayers] = useState('');
+  const [teamPositionAnalysis, setTeamPositionAnalysis] = useState('');
+  const [teamRecommendations, setTeamRecommendations] = useState('');
   const [titleError, setTitleError] = useState<string | undefined>();
 
   const selectedAthlete = useAthleteById(athleteId);
@@ -51,7 +56,7 @@ export default function ReportBuilderScreen() {
     return tests.filter((tst) => tst.athlete_id === athleteId);
   }, [tests, athleteId]);
 
-  const applySections = (sections: ReturnType<typeof buildDefaultReportSections>) => {
+  const applySections = (sections: ReturnType<typeof buildDefaultReportSections> & Partial<ReturnType<typeof buildTeamIntelligenceReportSections>>) => {
     setAthleteSummary(sections.athlete_summary);
     setPerformanceTests(sections.performance_tests);
     setAiInsights(sections.ai_insights);
@@ -61,6 +66,11 @@ export default function ReportBuilderScreen() {
     setStrengths(sections.strengths ?? '');
     setWeaknesses(sections.weaknesses ?? '');
     setDecisionSupport(sections.decision_support ?? '');
+    setTeamOverview(sections.team_overview ?? '');
+    setTeamRankings(sections.team_rankings ?? '');
+    setTeamRiskPlayers(sections.team_risk_players ?? '');
+    setTeamPositionAnalysis(sections.team_position_analysis ?? '');
+    setTeamRecommendations(sections.team_recommendations ?? '');
   };
 
   const injuryRecords = useMockStore((s) => s.injuryRecords);
@@ -77,8 +87,33 @@ export default function ReportBuilderScreen() {
     return { injuries: injuryRecords, checkIn, trainingPlans, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings };
   }, [athleteId, injuryRecords, dailyCheckIns, trainingPlans, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings]);
 
+  const buildSections = () => {
+    if (reportType === 'team') {
+      const teamSections = buildTeamIntelligenceReportSections(
+        athletes,
+        tests,
+        injuryRecords,
+        dailyCheckIns,
+        trainingPlans,
+        nutritionLogs,
+        bodyCompositionRecords,
+        nutritionGoalSettings,
+        t,
+        isRTL
+      );
+      return {
+        athlete_summary: summary.trim() || teamSections.team_overview?.slice(0, 120) || '',
+        performance_tests: '',
+        ai_insights: teamSections.team_overview ?? '',
+        recommendations: teamSections.team_recommendations ?? '',
+        ...teamSections,
+      };
+    }
+    return buildDefaultReportSections(selectedAthlete, athleteTests, summary, isRTL, t, reportContext);
+  };
+
   const autoFillSections = () => {
-    applySections(buildDefaultReportSections(selectedAthlete, athleteTests, summary, isRTL, t, reportContext));
+    applySections(buildSections());
   };
 
   const handleSave = () => {
@@ -87,7 +122,7 @@ export default function ReportBuilderScreen() {
       return;
     }
     run(() => {
-      const sections = buildDefaultReportSections(selectedAthlete, athleteTests, summary, isRTL, t, reportContext);
+      const sections = buildSections();
       const report = addReport({
         title: title.trim(),
         type: reportType,
@@ -103,6 +138,11 @@ export default function ReportBuilderScreen() {
           strengths: strengths.trim() || sections.strengths,
           weaknesses: weaknesses.trim() || sections.weaknesses,
           decision_support: decisionSupport.trim() || sections.decision_support,
+          team_overview: teamOverview.trim() || sections.team_overview,
+          team_rankings: teamRankings.trim() || sections.team_rankings,
+          team_risk_players: teamRiskPlayers.trim() || sections.team_risk_players,
+          team_position_analysis: teamPositionAnalysis.trim() || sections.team_position_analysis,
+          team_recommendations: teamRecommendations.trim() || sections.team_recommendations,
         },
       });
       setTimeout(() => router.replace(APP_ROUTES.reportDetail(report.id)), 600);
@@ -174,6 +214,15 @@ export default function ReportBuilderScreen() {
         <Input label={t('features.reports.sectionAiInsights')} value={aiInsights} onChangeText={setAiInsights} multiline containerStyle={{ marginTop: 12 }} style={{ minHeight: 88, textAlignVertical: 'top' }} />
         <Input label={t('features.reports.sectionRecommendations')} value={recommendations} onChangeText={setRecommendations} multiline containerStyle={{ marginTop: 12 }} style={{ minHeight: 88, textAlignVertical: 'top' }} />
         <Input label={t('features.reports.sectionDecisionSupport')} value={decisionSupport} onChangeText={setDecisionSupport} multiline containerStyle={{ marginTop: 12 }} style={{ minHeight: 72, textAlignVertical: 'top' }} />
+        {reportType === 'team' ? (
+          <>
+            <Input label={t('features.reports.sectionTeamOverview')} value={teamOverview} onChangeText={setTeamOverview} multiline containerStyle={{ marginTop: 12 }} style={{ minHeight: 88, textAlignVertical: 'top' }} />
+            <Input label={t('features.reports.sectionTeamRankings')} value={teamRankings} onChangeText={setTeamRankings} multiline containerStyle={{ marginTop: 12 }} style={{ minHeight: 88, textAlignVertical: 'top' }} />
+            <Input label={t('features.reports.sectionTeamRiskPlayers')} value={teamRiskPlayers} onChangeText={setTeamRiskPlayers} multiline containerStyle={{ marginTop: 12 }} style={{ minHeight: 72, textAlignVertical: 'top' }} />
+            <Input label={t('features.reports.sectionTeamPositionAnalysis')} value={teamPositionAnalysis} onChangeText={setTeamPositionAnalysis} multiline containerStyle={{ marginTop: 12 }} style={{ minHeight: 88, textAlignVertical: 'top' }} />
+            <Input label={t('features.reports.sectionTeamRecommendations')} value={teamRecommendations} onChangeText={setTeamRecommendations} multiline containerStyle={{ marginTop: 12 }} style={{ minHeight: 88, textAlignVertical: 'top' }} />
+          </>
+        ) : null}
       </FormSection>
 
       <Button

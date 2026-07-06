@@ -39,6 +39,7 @@ import { useActiveConversationMessages } from '@/src/data/mock/hooks';
 import { useMockStore } from '@/src/data/mock/store';
 import { computeAthleteAnalytics } from '@/src/analytics';
 import { buildAthleteNutritionSnapshot } from '@/src/features/nutrition/utils/nutritionHelpers';
+import { useSquadIntelligence } from '@/src/features/team-intelligence';
 import { copyToClipboard, exportTextPlaceholder } from '@/src/utils/clipboard';
 
 function createMessage(role: AiMessage['role'], content: string, agentId?: AiAgentId): AiMessage {
@@ -87,6 +88,7 @@ export default function AICoachScreen() {
   const nutritionLogs = useMockStore((s) => s.nutritionLogs);
   const bodyCompositionRecords = useMockStore((s) => s.bodyCompositionRecords);
   const nutritionGoalSettings = useMockStore((s) => s.nutritionGoalSettings);
+  const teamIntelligence = useSquadIntelligence();
 
   const analyticsContext = useMemo(() => {
     const athlete = athletes[0];
@@ -119,8 +121,9 @@ export default function AICoachScreen() {
       primary,
       athleteName: `${athlete.first_name} ${athlete.last_name}`,
       nutrition,
+      teamIntelligence,
     };
-  }, [athletes, tests, dailyCheckIns, injuryRecords, trainingPlans, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings]);
+  }, [athletes, tests, dailyCheckIns, injuryRecords, trainingPlans, nutritionLogs, bodyCompositionRecords, nutritionGoalSettings, teamIntelligence]);
 
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);

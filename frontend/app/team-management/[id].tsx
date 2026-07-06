@@ -17,6 +17,7 @@ import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import { computeReadinessScore, readinessLabel } from '@/src/utils/athleteMetrics';
 import { computeTeamLoadSummary } from '@/src/utils/teamMetrics';
+import { TeamIntelligencePanel, useTeamIntelligence } from '@/src/features/team-intelligence';
 
 const DEFAULT_STAFF = [
   { role: 'Assistant coach', roleAr: 'مدرب مساعد', name: '—' },
@@ -35,6 +36,7 @@ export default function TeamDetailScreen() {
   const roster = useTeamRoster(team);
 
   const summary = useMemo(() => computeTeamLoadSummary(roster), [roster]);
+  const teamIntel = useTeamIntelligence(id);
 
   const staff = useMemo(() => {
     if (!team) return DEFAULT_STAFF;
@@ -89,6 +91,10 @@ export default function TeamDetailScreen() {
             </Card>
           ))}
         </View>
+      </FormSection>
+
+      <FormSection title={t('teamIntelligence.title')} subtitle={t('teamIntelligence.teamDetailHint')}>
+        <TeamIntelligencePanel snapshot={teamIntel} compact showOpenLink />
       </FormSection>
 
       <FormSection title={t('features.team.rosterTitle')} subtitle={t('features.team.rosterSubtitle')}>

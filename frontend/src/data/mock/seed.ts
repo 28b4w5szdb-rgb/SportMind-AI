@@ -81,7 +81,21 @@ export const SEED_ATHLETES: MockAthlete[] = [
   },
 ];
 
-export const SEED_TEAMS: MockTeam[] = [];
+export const SEED_TEAMS: MockTeam[] = [
+  {
+    id: 'team-1',
+    name: 'SportMind FC',
+    sport: 'Football',
+    athlete_ids: ['1', '2', '3', '4'],
+    head_coach: 'Coach Ibrahim',
+    staff: [
+      { role: 'Assistant coach', name: 'Samir K.' },
+      { role: 'Physio', name: 'Layla M.' },
+      { role: 'Analyst', name: 'Omar R.' },
+    ],
+    created_at: '2025-01-15T08:00:00Z',
+  },
+];
 
 export const SEED_TESTS: MockPerformanceTest[] = [
   {
