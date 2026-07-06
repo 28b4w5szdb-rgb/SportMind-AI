@@ -1,22 +1,23 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
+import { EmptyState } from '@/src/components/common/EmptyState';
+import { SectionHeader } from '@/src/components/common/SectionHeader';
 import { SuccessBanner } from '@/src/components/common/SuccessBanner';
 import { AthleteSelectorChips } from '@/src/features/daily-checkin';
 import { TrainingBuilderPanel, useTrainingBuilderSnapshot, useGenerateTrainingPlan } from '@/src/features/training-builder';
 import { useLatestCheckInForAthlete, useTestsForAthlete } from '@/src/data/mock/hooks';
 import { useMockStore } from '@/src/data/mock/store';
-import { useTheme, useTypography } from '@/src/core/theme';
+import { useTheme } from '@/src/core/theme';
 import { useFormAction } from '@/src/hooks/useFormAction';
 
 export default function TrainingBuilderScreen() {
   const { athleteId: athleteIdParam } = useLocalSearchParams<{ athleteId?: string }>();
   const { t } = useTranslation();
   const theme = useTheme();
-  const type = useTypography();
   const athletes = useMockStore((s) => s.athletes);
 
   const initialAthleteId = useMemo(() => athleteIdParam ?? athletes[0]?.id ?? '', [athleteIdParam, athletes]);
@@ -31,7 +32,7 @@ export default function TrainingBuilderScreen() {
   if (athletes.length === 0) {
     return (
       <FeatureScrollScreen title={t('trainingBuilder.title')}>
-        <Text style={[type.body, { color: theme.colors.textSecondary, textAlign: 'center' }]}>{t('states.empty.defaultDescription')}</Text>
+        <EmptyState icon="barbell-outline" title={t('states.empty.defaultDescription')} />
       </FeatureScrollScreen>
     );
   }
@@ -46,7 +47,7 @@ export default function TrainingBuilderScreen() {
     <FeatureScrollScreen title={t('trainingBuilder.title')} subtitle={t('trainingBuilder.subtitle')}>
       <SuccessBanner visible={success} message={t('trainingBuilder.generateSuccess')} />
       <View style={{ marginBottom: theme.spacing.lg }}>
-        <Text style={[type.label, { color: theme.colors.textSecondary, marginBottom: theme.spacing.sm }]}>{t('dailyCheckIn.selectAthlete')}</Text>
+        <SectionHeader title={t('dailyCheckIn.selectAthlete')} titleSize="label" style={{ marginBottom: theme.spacing[2], marginTop: 0 }} />
         <AthleteSelectorChips athletes={athletes} selectedId={selectedAthleteId} onSelect={setSelectedAthleteId} />
       </View>
       {snapshot ? (

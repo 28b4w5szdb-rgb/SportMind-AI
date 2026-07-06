@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
 import { Input } from '@/src/components/common/Input';
 import { Button } from '@/src/components/common/Button';
+import { Chip } from '@/src/components/common/Chip';
+import { EmptyState } from '@/src/components/common/EmptyState';
 import { SuccessBanner } from '@/src/components/common/SuccessBanner';
 import { CheckInSliderField } from '@/src/features/daily-checkin/components/CheckInSliderField';
 import { findSessionInPlans, sessionDisplayTitle } from '@/src/features/training-builder';
@@ -26,32 +28,20 @@ function StatusChipRow({
   onChange: (v: Exclude<SessionStatus, 'planned'>) => void;
 }) {
   const theme = useTheme();
-  const type = useTypography();
   const { t } = useTranslation();
 
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
-      {EXEC_STATUSES.map((status) => {
-        const active = status === value;
-        return (
-          <TouchableOpacity
-            key={status}
-            onPress={() => onChange(status)}
-            style={{
-              paddingVertical: 8,
-              paddingHorizontal: 12,
-              borderRadius: theme.borderRadius.lg,
-              backgroundColor: active ? theme.colors.primary : theme.colors.surface,
-              borderWidth: 1,
-              borderColor: active ? theme.colors.primary : theme.colors.border,
-            }}
-          >
-            <Text style={[type.caption, { color: active ? '#FFF' : theme.colors.text }]}>
-              {t(`trainingBuilder.execution.status.${status}`)}
-            </Text>
-          </TouchableOpacity>
-        );
-      })}
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: theme.spacing[2], paddingVertical: theme.spacing[1] }}>
+      {EXEC_STATUSES.map((status) => (
+        <Chip
+          key={status}
+          label={t(`trainingBuilder.execution.status.${status}`)}
+          selected={status === value}
+          onPress={() => onChange(status)}
+          variant="solid"
+          size="sm"
+        />
+      ))}
     </ScrollView>
   );
 }
@@ -91,7 +81,7 @@ export default function LogTrainingSessionScreen() {
   if (!session || !plan) {
     return (
       <FeatureScrollScreen title={t('trainingBuilder.execution.title')}>
-        <Text style={[type.body, { color: theme.colors.textSecondary, textAlign: 'center' }]}>{t('states.empty.defaultDescription')}</Text>
+        <EmptyState icon="barbell-outline" title={t('states.empty.defaultDescription')} />
       </FeatureScrollScreen>
     );
   }

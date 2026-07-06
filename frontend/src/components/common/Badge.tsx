@@ -12,15 +12,20 @@ type BadgeVariant = 'success' | 'warning' | 'error' | 'info' | 'neutral';
 interface BadgeProps {
   label: string;
   variant?: BadgeVariant;
+  /** Custom accent when variant alone is insufficient (e.g. trend pills). */
+  toneColor?: string;
   style?: ViewStyle;
 }
 
-export function Badge({ label, variant = 'neutral', style }: BadgeProps) {
+export function Badge({ label, variant = 'neutral', toneColor, style }: BadgeProps) {
   const theme = useTheme();
   const type = useTypography();
   const bgAlpha = theme.isDark ? '30' : '20';
 
   const getColors = () => {
+    if (toneColor) {
+      return { bg: toneColor + bgAlpha, text: toneColor };
+    }
     switch (variant) {
       case 'success':
         return { bg: theme.colors.success + bgAlpha, text: theme.colors.success };

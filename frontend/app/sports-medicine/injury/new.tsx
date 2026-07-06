@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
 import { Input } from '@/src/components/common/Input';
 import { Button } from '@/src/components/common/Button';
+import { Chip } from '@/src/components/common/Chip';
 import { SuccessBanner } from '@/src/components/common/SuccessBanner';
 import { AthleteSelectorChips } from '@/src/features/daily-checkin';
 import { CheckInSliderField } from '@/src/features/daily-checkin/components/CheckInSliderField';
@@ -23,30 +24,20 @@ const RTP: RTPPhaseId[] = ['phase_1', 'phase_2', 'phase_3', 'phase_4', 'phase_5'
 
 function ChipRow<T extends string>({ options, value, onChange, labelPrefix }: { options: T[]; value: T; onChange: (v: T) => void; labelPrefix: string }) {
   const theme = useTheme();
-  const type = useTypography();
   const { t } = useTranslation();
 
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 4 }}>
-      {options.map((opt) => {
-        const active = opt === value;
-        return (
-          <TouchableOpacity
-            key={opt}
-            onPress={() => onChange(opt)}
-            style={{
-              paddingVertical: 8,
-              paddingHorizontal: 12,
-              borderRadius: theme.borderRadius.lg,
-              backgroundColor: active ? theme.colors.primary : theme.colors.surface,
-              borderWidth: 1,
-              borderColor: active ? theme.colors.primary : theme.colors.border,
-            }}
-          >
-            <Text style={[type.caption, { color: active ? '#FFF' : theme.colors.text }]}>{t(`${labelPrefix}.${opt}`)}</Text>
-          </TouchableOpacity>
-        );
-      })}
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: theme.spacing[2], paddingVertical: theme.spacing[1] }}>
+      {options.map((opt) => (
+        <Chip
+          key={opt}
+          label={t(`${labelPrefix}.${opt}`)}
+          selected={opt === value}
+          onPress={() => onChange(opt)}
+          variant="solid"
+          size="sm"
+        />
+      ))}
     </ScrollView>
   );
 }

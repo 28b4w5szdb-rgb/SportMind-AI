@@ -4,6 +4,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
+import { EmptyState } from '@/src/components/common/EmptyState';
+import { SectionHeader } from '@/src/components/common/SectionHeader';
 import { AthleteSelectorChips } from '@/src/features/daily-checkin';
 import { SportsMedicinePanel, useSportsMedicineSnapshot } from '@/src/features/sports-medicine';
 import { injuryHistoryForAthlete } from '@/src/features/sports-medicine/utils/sportsMedicineHelpers';
@@ -32,7 +34,7 @@ export default function SportsMedicineScreen() {
   if (athletes.length === 0) {
     return (
       <FeatureScrollScreen title={t('sportsMedicine.title')}>
-        <Text style={[type.body, { color: theme.colors.textSecondary, textAlign: 'center' }]}>{t('states.empty.defaultDescription')}</Text>
+        <EmptyState icon="medkit-outline" title={t('states.empty.defaultDescription')} />
       </FeatureScrollScreen>
     );
   }
@@ -44,7 +46,7 @@ export default function SportsMedicineScreen() {
       rightAction={{ icon: 'add-circle-outline', onPress: () => router.push(APP_ROUTES.addInjury(selectedAthleteId)) }}
     >
       <View style={{ marginBottom: theme.spacing.lg }}>
-        <Text style={[type.label, { color: theme.colors.textSecondary, marginBottom: theme.spacing.sm }]}>{t('dailyCheckIn.selectAthlete')}</Text>
+        <SectionHeader title={t('dailyCheckIn.selectAthlete')} titleSize="label" style={{ marginBottom: theme.spacing[2], marginTop: 0 }} />
         <AthleteSelectorChips athletes={athletes} selectedId={selectedAthleteId} onSelect={setSelectedAthleteId} />
       </View>
 
@@ -52,7 +54,7 @@ export default function SportsMedicineScreen() {
 
       {history.length > 0 ? (
         <View style={{ marginTop: theme.spacing.lg }}>
-          <Text style={[type.h5, { color: theme.colors.text, marginBottom: theme.spacing.sm }]}>{t('sportsMedicine.injuryHistory')}</Text>
+          <SectionHeader title={t('sportsMedicine.injuryHistory')} titleSize="h5" style={{ marginTop: 0 }} />
           {history.map((inj) => (
             <TouchableOpacity key={inj.id} activeOpacity={0.85}>
               <View style={{ paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: theme.colors.border }}>

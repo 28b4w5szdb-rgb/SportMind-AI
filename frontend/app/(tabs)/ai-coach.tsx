@@ -27,6 +27,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 
 import { Card } from '@/src/components/common/Card';
+import { Chip } from '@/src/components/common/Chip';
 import { ChatMessage, TypingIndicator } from '@/src/components/features/ai-coach';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
@@ -559,29 +560,18 @@ export default function AICoachScreen() {
           style={styles.chipsRow}
           contentContainerStyle={styles.chipsContent}
         >
-          {AI_AGENTS.map((agent) => {
-            const active = selectedAgent === agent.id;
-            return (
-              <TouchableOpacity key={agent.id} onPress={() => setSelectedAgent(agent.id)} activeOpacity={0.85}>
-                <View
-                  style={[
-                    styles.agentChip,
-                    {
-                      flexDirection: flexRow(true),
-                      backgroundColor: active ? agent.color : theme.colors.surface,
-                      borderColor: active ? agent.color : theme.colors.border,
-                      borderRadius: theme.borderRadius.full,
-                    },
-                  ]}
-                >
-                  <Ionicons name={agent.icon as keyof typeof Ionicons.glyphMap} size={14} color={active ? '#FFF' : agent.color} />
-                  <Text style={[type.caption, { color: active ? '#FFF' : theme.colors.text, marginStart: 4, fontWeight: '600' }]}>
-                    {isRTL ? agent.labelAr : agent.labelEn}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
+          {AI_AGENTS.map((agent) => (
+            <Chip
+              key={agent.id}
+              label={isRTL ? agent.labelAr : agent.labelEn}
+              icon={agent.icon as keyof typeof Ionicons.glyphMap}
+              selected={selectedAgent === agent.id}
+              onPress={() => setSelectedAgent(agent.id)}
+              variant="solid"
+              color={agent.color}
+              size="sm"
+            />
+          ))}
         </ScrollView>
 
         {isDesktop ? (

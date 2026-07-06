@@ -1,21 +1,22 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
+import { EmptyState } from '@/src/components/common/EmptyState';
+import { SectionHeader } from '@/src/components/common/SectionHeader';
 import { SuccessBanner } from '@/src/components/common/SuccessBanner';
 import { AthleteSelectorChips } from '@/src/features/daily-checkin';
 import { WearablesDeviceCenter, useWearablesSnapshot } from '@/src/features/wearables';
 import type { MockSyncType, WearableProviderId } from '@/src/features/wearables';
 import { useMockStore } from '@/src/data/mock/store';
-import { useTheme, useTypography } from '@/src/core/theme';
+import { useTheme } from '@/src/core/theme';
 
 export default function WearablesScreen() {
   const { athleteId: athleteIdParam } = useLocalSearchParams<{ athleteId?: string }>();
   const { t } = useTranslation();
   const theme = useTheme();
-  const type = useTypography();
   const athletes = useMockStore((s) => s.athletes);
   const connections = useMockStore((s) => s.wearableConnections);
   const records = useMockStore((s) => s.wearableRecords);
@@ -36,7 +37,7 @@ export default function WearablesScreen() {
   if (athletes.length === 0 || !snapshot) {
     return (
       <FeatureScrollScreen title={t('wearables.title')}>
-        <Text style={[type.body, { color: theme.colors.textSecondary, textAlign: 'center' }]}>{t('states.empty.defaultDescription')}</Text>
+        <EmptyState icon="watch-outline" title={t('states.empty.defaultDescription')} />
       </FeatureScrollScreen>
     );
   }
@@ -46,7 +47,7 @@ export default function WearablesScreen() {
       <SuccessBanner message={success} visible={Boolean(success)} />
 
       <View style={{ marginBottom: theme.spacing.lg }}>
-        <Text style={[type.label, { color: theme.colors.textSecondary, marginBottom: theme.spacing.sm }]}>{t('dailyCheckIn.selectAthlete')}</Text>
+        <SectionHeader title={t('dailyCheckIn.selectAthlete')} titleSize="label" style={{ marginBottom: theme.spacing[2], marginTop: 0 }} />
         <AthleteSelectorChips athletes={athletes} selectedId={selectedAthleteId} onSelect={setSelectedAthleteId} />
       </View>
 

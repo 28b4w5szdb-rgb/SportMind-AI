@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 
+import { SectionHeader } from '@/src/components/common/SectionHeader';
 import { PremiumProviderCard } from './PremiumProviderCard';
 import { LiveMetricsGrid } from './LiveMetricsGrid';
 import { SyncHistoryTimeline } from './SyncHistoryTimeline';
@@ -22,21 +23,6 @@ interface WearablesDeviceCenterProps {
   onConnect: (providerId: WearableProviderId) => void;
   onDisconnect: (providerId: WearableProviderId) => void;
   onMockSync: (providerId: WearableProviderId, syncType: MockSyncType) => void;
-}
-
-function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
-  const theme = useTheme();
-  const type = useTypography();
-  const { textAlign } = useDirection();
-
-  return (
-    <View style={{ marginBottom: theme.spacing.sm, marginTop: theme.spacing.lg }}>
-      <Text style={[type.label, { color: theme.colors.textTertiary, textAlign: textAlign('start'), letterSpacing: 1 }]}>{title.toUpperCase()}</Text>
-      {subtitle ? (
-        <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: 4, textAlign: textAlign('start') }]}>{subtitle}</Text>
-      ) : null}
-    </View>
-  );
 }
 
 export function WearablesDeviceCenter({
@@ -123,13 +109,13 @@ export function WearablesDeviceCenter({
       </LinearGradient>
 
       {/* Live Metrics */}
-      <SectionHeader title={t('wearables.sections.liveMetrics')} subtitle={t('wearables.liveMetricsSubtitle')} />
+      <SectionHeader variant="overline" title={t('wearables.sections.liveMetrics')} subtitle={t('wearables.liveMetricsSubtitle')} style={{ marginTop: theme.spacing.lg, marginBottom: theme.spacing[2] }} />
       <LiveMetricsGrid snapshot={snapshot} athleteId={athleteId} />
 
       {/* Connected Devices */}
       {connectedProviders.length > 0 ? (
         <>
-          <SectionHeader title={t('wearables.sections.connectedDevices')} />
+          <SectionHeader variant="overline" title={t('wearables.sections.connectedDevices')} style={{ marginTop: theme.spacing.lg, marginBottom: theme.spacing[2] }} />
           {connectedProviders.map((provider) => (
             <PremiumProviderCard
               key={provider.id}
@@ -146,7 +132,7 @@ export function WearablesDeviceCenter({
       ) : null}
 
       {/* Available Devices */}
-      <SectionHeader title={t('wearables.sections.availableDevices')} subtitle={t('wearables.availableSubtitle')} />
+      <SectionHeader variant="overline" title={t('wearables.sections.availableDevices')} subtitle={t('wearables.availableSubtitle')} style={{ marginTop: theme.spacing.lg, marginBottom: theme.spacing[2] }} />
       {availableProviders.map((provider) => (
         <PremiumProviderCard
           key={provider.id}
@@ -161,11 +147,11 @@ export function WearablesDeviceCenter({
       ))}
 
       {/* Recent Sync */}
-      <SectionHeader title={t('wearables.sections.recentSync')} />
+      <SectionHeader variant="overline" title={t('wearables.sections.recentSync')} style={{ marginTop: theme.spacing.lg, marginBottom: theme.spacing[2] }} />
       <SyncHistoryTimeline entries={syncHistory} />
 
       {/* Device Health */}
-      <SectionHeader title={t('wearables.deviceHealth.title')} />
+      <SectionHeader variant="overline" title={t('wearables.deviceHealth.title')} style={{ marginTop: theme.spacing.lg, marginBottom: theme.spacing[2] }} />
       <DeviceHealthCard snapshot={snapshot} athleteId={athleteId} />
     </View>
   );

@@ -23,6 +23,8 @@ import { useRouter } from 'expo-router';
 
 import { Card } from '@/src/components/common/Card';
 import { Button } from '@/src/components/common/Button';
+import { Chip } from '@/src/components/common/Chip';
+import { EmptyState } from '@/src/components/common/EmptyState';
 import { ReadinessScore } from '@/src/components/features/ReadinessScore';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
@@ -321,42 +323,14 @@ export default function AthletesScreen() {
             contentContainerStyle={{ gap: theme.spacing[2] }}
           >
             {filterChips.map((chip) => (
-              <TouchableOpacity
+              <Chip
                 key={chip.id}
+                label={`${isRTL ? chip.labelAr : chip.labelEn} (${filterCounts[chip.id] ?? 0})`}
+                selected={selectedFilter === chip.id}
                 onPress={() => setSelectedFilter(chip.id)}
-                activeOpacity={0.85}
-              >
-                <View
-                  style={[
-                    styles.filterChip,
-                    {
-                      backgroundColor:
-                        selectedFilter === chip.id
-                          ? theme.colors.primary
-                          : theme.colors.backgroundSecondary,
-                      borderRadius: theme.borderRadius.full,
-                      borderWidth: selectedFilter === chip.id ? 0 : 1,
-                      borderColor: theme.colors.border,
-                    },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      type.label,
-                      {
-                        color:
-                          selectedFilter === chip.id
-                            ? '#FFFFFF'
-                            : theme.colors.textSecondary,
-                      },
-                    ]}
-                  >
-                    {isRTL ? chip.labelAr : chip.labelEn}
-                    {' '}
-                    <Text style={{ opacity: 0.8 }}>({filterCounts[chip.id] ?? 0})</Text>
-                  </Text>
-                </View>
-              </TouchableOpacity>
+                variant="solid"
+                size="sm"
+              />
             ))}
           </ScrollView>
         </View>
@@ -433,58 +407,13 @@ export default function AthletesScreen() {
             />
           ) : (
             <View style={{ flex: 1, justifyContent: 'center', paddingVertical: theme.spacing[12] }}>
-              <Card
-                variant="filled"
-                padding="xl"
-                style={{ borderRadius: theme.borderRadius['2xl'] }}
-              >
-                <View style={styles.emptyContent}>
-                  <View
-                    style={[
-                      styles.emptyIcon,
-                      {
-                        backgroundColor: theme.colors.primary + '15',
-                        borderRadius: theme.borderRadius['3xl'],
-                      },
-                    ]}
-                  >
-                    <Ionicons name="people-outline" size={48} color={theme.colors.primary} />
-                  </View>
-                  <Text
-                    style={[
-                      type.h4,
-                      {
-                        color: theme.colors.text,
-                        marginTop: theme.spacing[5],
-                        textAlign: 'center',
-                      },
-                    ]}
-                  >
-                    {t('athletes.empty.title')}
-                  </Text>
-                  <Text
-                    style={[
-                      type.body,
-                      {
-                        color: theme.colors.textSecondary,
-                        textAlign: 'center',
-                        marginTop: theme.spacing[2],
-                      },
-                    ]}
-                  >
-                    {t('athletes.empty.description')}
-                  </Text>
-                  <Button
-                    title={t('actions.addAthlete')}
-                    variant="primary"
-                    size="large"
-                    icon="person-add"
-                    onPress={() => router.push(APP_ROUTES.athleteAdd)}
-                    style={{ marginTop: theme.spacing[6] }}
-                    fullWidth
-                  />
-                </View>
-              </Card>
+              <EmptyState
+                icon="people-outline"
+                title={t('athletes.empty.title')}
+                description={t('athletes.empty.description')}
+                actionLabel={t('actions.addAthlete')}
+                onAction={() => router.push(APP_ROUTES.athleteAdd)}
+              />
             </View>
           )}
         </View>

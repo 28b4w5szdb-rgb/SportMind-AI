@@ -21,6 +21,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 
 import { Card } from '@/src/components/common/Card';
+import { SectionHeader } from '@/src/components/common/SectionHeader';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import { useAuth } from '@/src/providers/AuthProvider';
@@ -315,18 +316,11 @@ export default function MoreScreen() {
             width: '100%',
           }}
         >
-          <Text
-            style={[
-              type.label,
-              {
-                color: theme.colors.textTertiary,
-                marginBottom: theme.spacing[3],
-                textAlign: textAlign('start'),
-              },
-            ]}
-          >
-            {isRTL ? 'الرئيسية' : 'MAIN'}
-          </Text>
+          <SectionHeader
+            title={isRTL ? 'الرئيسية' : 'MAIN'}
+            titleSize="label"
+            style={{ marginBottom: theme.spacing[3], marginTop: 0 }}
+          />
           <View style={[styles.menuGrid, { flexDirection: flexRow(true), gap: gridConfig.gap }]}>
             {mainMenuItems.map((item) => {
               const labels = menuItemLabels[item.key];
@@ -392,18 +386,11 @@ export default function MoreScreen() {
             width: '100%',
           }}
         >
-          <Text
-            style={[
-              type.label,
-              {
-                color: theme.colors.textTertiary,
-                marginBottom: theme.spacing[3],
-                textAlign: textAlign('start'),
-              },
-            ]}
-          >
-            {isRTL ? 'العافية والتدريب' : 'WELLNESS & TRAINING'}
-          </Text>
+          <SectionHeader
+            title={isRTL ? 'العافية والتدريب' : 'WELLNESS & TRAINING'}
+            titleSize="label"
+            style={{ marginBottom: theme.spacing[3], marginTop: 0 }}
+          />
           {wellnessItems.map((item) => {
             const labels = menuItemLabels[item.key];
             return (
@@ -433,18 +420,11 @@ export default function MoreScreen() {
             width: '100%',
           }}
         >
-          <Text
-            style={[
-              type.label,
-              {
-                color: theme.colors.textTertiary,
-                marginBottom: theme.spacing[3],
-                textAlign: textAlign('start'),
-              },
-            ]}
-          >
-            {isRTL ? 'الدعم' : 'SUPPORT'}
-          </Text>
+          <SectionHeader
+            title={isRTL ? 'الدعم' : 'SUPPORT'}
+            titleSize="label"
+            style={{ marginBottom: theme.spacing[3], marginTop: 0 }}
+          />
           {supportItems.map((item) => {
             const labels = menuItemLabels[item.key];
             return (

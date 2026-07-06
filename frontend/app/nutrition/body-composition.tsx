@@ -1,9 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
+import { EmptyState } from '@/src/components/common/EmptyState';
+import { SectionHeader } from '@/src/components/common/SectionHeader';
 import { SuccessBanner } from '@/src/components/common/SuccessBanner';
 import { AthleteSelectorChips } from '@/src/features/daily-checkin';
 import { BodyCompositionForm, BodyCompositionHistoryPanel } from '@/src/features/nutrition/components/BodyCompositionPanel';
@@ -12,7 +14,7 @@ import { useAthleteById, useBodyCompositionForAthlete } from '@/src/data/mock/ho
 import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import { todayDateKey } from '@/src/features/daily-checkin/validation';
-import { useTheme, useTypography } from '@/src/core/theme';
+import { useTheme } from '@/src/core/theme';
 import { useFormAction } from '@/src/hooks/useFormAction';
 import type { BodyCompositionInput } from '@/src/data/mock/types';
 
@@ -21,7 +23,6 @@ export default function BodyCompositionScreen() {
   const router = useRouter();
   const { t } = useTranslation();
   const theme = useTheme();
-  const type = useTypography();
   const athletes = useMockStore((s) => s.athletes);
   const addBodyCompositionRecord = useMockStore((s) => s.addBodyCompositionRecord);
   const { loading, success, run } = useFormAction();
@@ -43,7 +44,7 @@ export default function BodyCompositionScreen() {
   if (athletes.length === 0) {
     return (
       <FeatureScrollScreen title={t('nutrition.bodyComp.screenTitle')}>
-        <Text style={[type.body, { color: theme.colors.textSecondary, textAlign: 'center' }]}>{t('states.empty.defaultDescription')}</Text>
+        <EmptyState icon="body-outline" title={t('states.empty.defaultDescription')} />
       </FeatureScrollScreen>
     );
   }
@@ -52,7 +53,7 @@ export default function BodyCompositionScreen() {
     <FeatureScrollScreen title={t('nutrition.bodyComp.screenTitle')} subtitle={t('nutrition.bodyComp.screenSubtitle')}>
       {success ? <SuccessBanner message={t('nutrition.bodyComp.saveSuccess')} visible={success} /> : null}
       <View style={{ marginBottom: theme.spacing.lg }}>
-        <Text style={[type.label, { color: theme.colors.textSecondary, marginBottom: theme.spacing.sm }]}>{t('dailyCheckIn.selectAthlete')}</Text>
+        <SectionHeader title={t('dailyCheckIn.selectAthlete')} titleSize="label" style={{ marginBottom: theme.spacing[2], marginTop: 0 }} />
         <AthleteSelectorChips athletes={athletes} selectedId={selectedAthleteId} onSelect={setSelectedAthleteId} />
       </View>
       {snapshot?.bodyCompositionAnalysis ? (

@@ -19,6 +19,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 
+import { EmptyState } from '@/src/components/common/EmptyState';
 import { Card } from '@/src/components/common/Card';
 import { Button } from '@/src/components/common/Button';
 import { SectionHeader } from '@/src/components/common/SectionHeader';
@@ -471,55 +472,20 @@ export default function PerformanceLabScreen() {
             width: '100%',
           }}
         >
-          <Card
-            variant="filled"
-            padding="xl"
-            style={{ borderRadius: theme.borderRadius['2xl'] }}
-          >
-            <View style={styles.emptyContent}>
-              <View
-                style={[
-                  styles.emptyIcon,
-                  {
-                    backgroundColor: theme.colors.accent + '15',
-                    borderRadius: theme.borderRadius['3xl'],
-                  },
-                ]}
-              >
-                <Ionicons name="pulse" size={40} color={theme.colors.accent} />
-              </View>
-              <Text
-                style={[
-                  type.h4,
-                  { color: theme.colors.text, marginTop: theme.spacing[5], textAlign: 'center' },
-                ]}
-              >
-                {isRTL ? 'ابدأ الآن' : 'Get Started'}
-              </Text>
-              <Text
-                style={[
-                  type.body,
-                  { color: theme.colors.textSecondary, textAlign: 'center', marginTop: theme.spacing[2] },
-                ]}
-              >
-                {isRTL
-                  ? 'قم بإجراء أول اختبار أداء لتتبع تقدم الرياضيين'
-                  : 'Conduct your first performance test to start tracking athlete progress'}
-              </Text>
-              <Button
-                title={isRTL ? 'إجراء اختبار جديد' : 'New Performance Test'}
-                variant="primary"
-                size="large"
-                icon="analytics"
-                onPress={() => {
-                  const featured = getFeaturedTestForCategory('speed');
-                  if (featured) router.push(APP_ROUTES.performanceLabTest(featured.key));
-                }}
-                style={{ marginTop: theme.spacing[6] }}
-                fullWidth
-              />
-            </View>
-          </Card>
+          <EmptyState
+            icon="pulse"
+            title={isRTL ? 'ابدأ الآن' : 'Get Started'}
+            description={
+              isRTL
+                ? 'قم بإجراء أول اختبار أداء لتتبع تقدم الرياضيين'
+                : 'Conduct your first performance test to start tracking athlete progress'
+            }
+            actionLabel={isRTL ? 'إجراء اختبار جديد' : 'New Performance Test'}
+            onAction={() => {
+              const featured = getFeaturedTestForCategory('speed');
+              if (featured) router.push(APP_ROUTES.performanceLabTest(featured.key));
+            }}
+          />
         </View>
         )}
       </ScrollView>

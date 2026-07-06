@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { Button } from '@/src/components/common/Button';
+import { Chip } from '@/src/components/common/Chip';
 import { FormSection } from '@/src/components/common/FormSection';
 import {
   AGE_BANDS,
@@ -41,17 +41,18 @@ function ChipRow<T extends string>({
 
   return (
     <View style={{ marginBottom: theme.spacing.md }}>
-      <Text style={[type.caption, { color: theme.colors.textSecondary, marginBottom: 8, textAlign: textAlign('start') }]}>
+      <Text style={[type.caption, { color: theme.colors.textSecondary, marginBottom: theme.spacing[2], textAlign: textAlign('start') }]}>
         {label}
       </Text>
-      <View style={{ flexDirection: flexRow(true), flexWrap: 'wrap', gap: 8 }}>
+      <View style={{ flexDirection: flexRow(true), flexWrap: 'wrap', gap: theme.spacing[2] }}>
         {options.map((option) => (
-          <Button
+          <Chip
             key={option}
-            title={labelFor(option)}
+            label={labelFor(option)}
+            selected={selected === option}
             onPress={() => onSelect(option)}
-            variant={selected === option ? 'primary' : 'outline'}
-            size="small"
+            variant="solid"
+            size="sm"
           />
         ))}
       </View>

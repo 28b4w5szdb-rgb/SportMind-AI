@@ -21,6 +21,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useTranslation } from 'react-i18next';
 
 import { Card } from '@/src/components/common/Card';
+import { Badge } from '@/src/components/common/Badge';
+import { SectionHeader } from '@/src/components/common/SectionHeader';
 import { LanguageToggle } from '@/src/components/common/LanguageToggle';
 import { ReadinessScore } from '@/src/components/features/ReadinessScore';
 import { useTheme, useTypography } from '@/src/core/theme';
@@ -404,11 +406,7 @@ export default function DashboardScreen() {
                       >
                         <Ionicons name={stat.icon} size={22} color={stat.color} />
                       </View>
-                      <View style={[styles.statTrend, { backgroundColor: stat.color + '15', borderRadius: theme.borderRadius.full }]}>
-                        <Text style={[type.captionMd, { color: stat.color, fontWeight: '600' }]}>
-                          {stat.trend}
-                        </Text>
-                      </View>
+                      <Badge label={stat.trend} toneColor={stat.color} />
                     </View>
                     <Text
                       style={[
@@ -597,9 +595,7 @@ export default function DashboardScreen() {
         {/* Athlete readiness summary */}
         {teamAnalytics.snapshots.length > 0 && (
           <View style={[styles.section, { maxWidth: isDesktop ? 1400 : undefined, marginHorizontal: isDesktop ? 'auto' : undefined, width: '100%' }]}>
-            <Text style={[type.h4, { color: theme.colors.text, marginBottom: theme.spacing[3], textAlign: textAlign('start') }]}>
-              {isRTL ? 'جاهزية اللاعبين' : 'Athlete readiness'}
-            </Text>
+            <SectionHeader title={isRTL ? 'جاهزية اللاعبين' : 'Athlete readiness'} style={{ marginBottom: theme.spacing[3] }} />
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: theme.spacing[3] }}>
               {teamAnalytics.snapshots.slice(0, 6).map(({ athlete: a, analytics }) => {
                 const readiness = analytics.kpis.find((k) => k.id === 'readiness');
@@ -653,9 +649,7 @@ export default function DashboardScreen() {
         {/* Team overview */}
         {teamAnalytics.snapshots.length > 0 && (
           <View style={[styles.section, { maxWidth: isDesktop ? 1400 : undefined, marginHorizontal: isDesktop ? 'auto' : undefined, width: '100%' }]}>
-            <Text style={[type.h4, { color: theme.colors.text, marginBottom: theme.spacing[3], textAlign: textAlign('start') }]}>
-              {isRTL ? 'نظرة الفريق' : 'Team overview'}
-            </Text>
+            <SectionHeader title={isRTL ? 'نظرة الفريق' : 'Team overview'} style={{ marginBottom: theme.spacing[3] }} />
             {teamAnalytics.snapshots.map(({ athlete: a, analytics }) => (
               <TouchableOpacity key={a.id} activeOpacity={0.85} onPress={() => router.push(APP_ROUTES.athleteDetail(a.id))}>
                 <Card variant="outlined" padding="md" style={{ borderRadius: theme.borderRadius.xl, marginBottom: theme.spacing[2] }}>
@@ -711,9 +705,7 @@ export default function DashboardScreen() {
             },
           ]}
         >
-          <Text style={[type.h4, { color: theme.colors.text, marginBottom: theme.spacing[3], textAlign: textAlign('start') }]}>
-            {isRTL ? 'نظرة اليوم' : 'Today'}
-          </Text>
+          <SectionHeader title={isRTL ? 'نظرة اليوم' : 'Today'} style={{ marginBottom: theme.spacing[3] }} />
           {todayItems.map((item) => (
             <TouchableOpacity key={item.id} activeOpacity={0.85} onPress={() => router.push(item.route as never)}>
               <Card variant="elevated" padding="md" style={{ borderRadius: theme.borderRadius.xl, marginBottom: theme.spacing[2] }}>
@@ -747,9 +739,7 @@ export default function DashboardScreen() {
             },
           ]}
         >
-          <Text style={[type.h4, { color: theme.colors.text, marginBottom: theme.spacing[3], textAlign: textAlign('start') }]}>
-            {isRTL ? 'اتجاه الأداء' : 'Performance trend'}
-          </Text>
+          <SectionHeader title={isRTL ? 'اتجاه الأداء' : 'Performance trend'} style={{ marginBottom: theme.spacing[3] }} />
           <Card variant="elevated" padding="lg" style={{ borderRadius: theme.borderRadius['2xl'] }}>
             <View style={[styles.trendRow, { flexDirection: flexRow(true), justifyContent: 'space-between', alignItems: 'flex-end', height: 120 }]}>
               {trendBars.map((bar) => (

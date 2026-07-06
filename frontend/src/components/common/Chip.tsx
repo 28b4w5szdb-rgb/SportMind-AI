@@ -11,6 +11,7 @@ import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 
 export type ChipSize = 'sm' | 'md';
+export type ChipVariant = 'soft' | 'solid';
 
 interface ChipProps {
   label: string;
@@ -19,6 +20,9 @@ interface ChipProps {
   icon?: keyof typeof Ionicons.glyphMap;
   disabled?: boolean;
   size?: ChipSize;
+  variant?: ChipVariant;
+  /** Accent for solid variant (selected fill / unselected icon). Defaults to primary. */
+  color?: string;
   style?: ViewStyle;
 }
 
@@ -29,6 +33,8 @@ export function Chip({
   icon,
   disabled = false,
   size = 'md',
+  variant = 'soft',
+  color,
   style,
 }: ChipProps) {
   const theme = useTheme();
@@ -36,15 +42,39 @@ export function Chip({
   const { flexRow } = useDirection();
   const { tokens } = theme;
 
+  const accent = color ?? theme.colors.primary;
   const isInteractive = Boolean(onPress) && !disabled;
   const radius = theme.borderRadius[tokens.radius.chip];
   const minHeight = size === 'sm' ? theme.layout.buttonHeightSm : theme.layout.buttonHeightMd;
 
-  const backgroundColor = selected
-    ? theme.colors.primary + (theme.isDark ? '35' : '18')
-    : theme.colors.backgroundSecondary;
-  const borderColor = selected ? theme.colors.primary : theme.colors.border;
-  const textColor = selected ? theme.colors.primary : theme.colors.textSecondary;
+  let backgroundColor: string;
+  let borderColor: string;
+  let textColor: string;
+  let iconColor: string;
+
+  if (variant === 'solid') {
+    if (selected) {
+      backgroundColor = accent;
+      borderColor = accent;
+      textColor = '#FFFFFF';
+      iconColor = '#FFFFFF';
+    } else {
+      backgroundColor = theme.colors.surface;
+      borderColor = theme.colors.border;
+      textColor = theme.colors.text;
+      iconColor = accent;
+    }
+  } else if (selected) {
+    backgroundColor = accent + (theme.isDark ? '35' : '18');
+    borderColor = accent;
+    textColor = accent;
+    iconColor = accent;
+  } else {
+    backgroundColor = theme.colors.backgroundSecondary;
+    borderColor = theme.colors.border;
+    textColor = theme.colors.textSecondary;
+    iconColor = theme.colors.textSecondary;
+  }
 
   const content = (
     <>
@@ -52,7 +82,7 @@ export function Chip({
         <Ionicons
           name={icon}
           size={size === 'sm' ? 14 : 16}
-          color={textColor}
+          color={iconColor}
           style={{ marginEnd: theme.spacing[1] }}
         />
       ) : null}
