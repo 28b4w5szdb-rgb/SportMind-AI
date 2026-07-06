@@ -12,6 +12,7 @@ import { Badge } from '@/src/components/common/Badge';
 import { useTheme } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import { useAuth } from '@/src/cloud/auth/useAuth';
+import { useCloudProfileStatus } from '@/src/cloud/auth/useCloudProfileStatus';
 import { getCloudReadinessSnapshot, getFirebaseEnvChecks } from '@/src/cloud/sync/cloudReadiness';
 
 export function CloudReadinessPanel() {
@@ -21,9 +22,19 @@ export function CloudReadinessPanel() {
   const snapshot = getCloudReadinessSnapshot();
   const envChecks = getFirebaseEnvChecks();
   const auth = useAuth();
+  const profileStatus = useCloudProfileStatus();
 
   const authConnected = auth.isAuthenticated;
   const dataModeVariant = snapshot.dataMode === 'cloud' ? 'success' : 'info';
+
+  const formatTimestamp = (iso: string | null) => {
+    if (!iso) return t('cloud.notAvailable');
+    try {
+      return new Date(iso).toLocaleString();
+    } catch {
+      return t('cloud.notAvailable');
+    }
+  };
 
   return (
     <View>
@@ -75,6 +86,45 @@ export function CloudReadinessPanel() {
             {t('cloud.verificationStatus')}:{' '}
             {auth.isEmailVerified ? t('cloud.verified') : t('cloud.notVerified')}
           </Text>
+        </View>
+      </Card>
+
+      <Card style={{ borderRadius: theme.borderRadius['2xl'], marginBottom: theme.spacing.md }}>
+        <Text style={[theme.typography.label, { color: theme.colors.textTertiary, marginBottom: theme.spacing.sm, textAlign: textAlign('start') }]}>
+          {t('cloud.profileDocument')}
+        </Text>
+        <View style={[styles.row, { flexDirection: flexRow(true), marginBottom: theme.spacing.sm }]}>
+          <Ionicons
+            name={profileStatus.exists ? 'document-text' : 'document-outline'}
+            size={22}
+            color={profileStatus.exists ? theme.colors.success : theme.colors.textTertiary}
+          />
+          <Text style={[theme.typography.body, { color: theme.colors.text, flex: 1, marginStart: theme.spacing.sm, textAlign: textAlign('start') }]}>
+            {profileStatus.loading
+              ? t('cloud.profileLoading')
+              : profileStatus.exists
+                ? t('cloud.profileExists')
+                : t('cloud.profileMissing')}
+          </Text>
+          {!profileStatus.loading ? (
+            <Badge
+              label={profileStatus.exists ? t('cloud.profileExists') : t('cloud.profileMissing')}
+              variant={profileStatus.exists ? 'success' : 'warning'}
+            />
+          ) : null}
+        </View>
+        <View style={{ marginTop: theme.spacing.xs }}>
+          <Text style={[theme.typography.caption, { color: theme.colors.textTertiary, textAlign: textAlign('start') }]}>
+            {t('cloud.lastLogin')}: {formatTimestamp(profileStatus.lastLogin)}
+          </Text>
+          <Text style={[theme.typography.caption, { color: theme.colors.textTertiary, marginTop: 4, textAlign: textAlign('start') }]}>
+            {t('cloud.accountCreated')}: {formatTimestamp(profileStatus.accountCreated)}
+          </Text>
+          {profileStatus.errorKey ? (
+            <Text style={[theme.typography.caption, { color: theme.colors.warning, marginTop: 4, textAlign: textAlign('start') }]}>
+              {t(profileStatus.errorKey)}
+            </Text>
+          ) : null}
         </View>
       </Card>
 

@@ -707,7 +707,14 @@
     "noUser": "غير مسجل",
     "verificationStatus": "تأكيد البريد",
     "verified": "مؤكد",
-    "notVerified": "غير مؤكد"
+    "notVerified": "غير مؤكد",
+    "profileDocument": "مستند الملف الشخصي",
+    "profileExists": "موجود",
+    "profileMissing": "غير موجود",
+    "profileLoading": "جاري التحقق…",
+    "lastLogin": "آخر تسجيل دخول",
+    "accountCreated": "تاريخ إنشاء الحساب",
+    "notAvailable": "غير متاح"
   },
   "states": {
     "empty": {
@@ -765,7 +772,10 @@
       "sessionExpired": "انتهت جلستك. يرجى تسجيل الدخول مجددًا.",
       "networkFailure": "خطأ في الشبكة. تحقق من الاتصال وحاول مجددًا.",
       "accountDisabled": "تم تعطيل هذا الحساب. تواصل مع الدعم.",
-      "emailInvalid": "أدخل بريدًا إلكترونيًا صالحًا."
+      "emailInvalid": "أدخل بريدًا إلكترونيًا صالحًا.",
+      "permissionDenied": "ليس لديك صلاحية للوصول إلى هذا المورد.",
+      "profileCreateFailed": "تم إنشاء حسابك لكن تعذّر حفظ الملف الشخصي. حاول تسجيل الدخول مجددًا.",
+      "profileDuplicate": "يوجد ملف شخصي لهذا الحساب بالفعل."
     },
     "signIn": {
       "title": "تسجيل الدخول",

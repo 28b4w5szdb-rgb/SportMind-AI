@@ -6,7 +6,7 @@ import { onAuthStateChanged, type User as FirebaseUser } from 'firebase/auth';
 
 import { getFirebaseAuth } from '@/src/cloud/firebase/auth';
 import type { AuthUser } from './types';
-import { mapFirebaseUserToAuthUser } from './userMapper';
+import { mapFirebaseUserToAuthUser, resolveAuthUserWithProfile } from './userMapper';
 
 export type AuthStateCallback = (user: AuthUser | null) => void;
 
@@ -23,7 +23,14 @@ export class AuthStateListener {
     }
 
     this.unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
-      callback(firebaseUser ? mapFirebaseUserToAuthUser(firebaseUser) : null);
+      if (!firebaseUser) {
+        callback(null);
+        return;
+      }
+
+      void resolveAuthUserWithProfile(firebaseUser)
+        .then(callback)
+        .catch(() => callback(mapFirebaseUserToAuthUser(firebaseUser)));
     });
 
     return () => this.stop();

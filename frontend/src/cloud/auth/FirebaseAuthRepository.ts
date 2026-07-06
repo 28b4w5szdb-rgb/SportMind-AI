@@ -11,8 +11,11 @@ import { getFirebaseAuth } from '@/src/cloud/firebase/auth';
 import type { AuthRepository } from './AuthRepository';
 import type { AuthUser } from './types';
 import { AuthStateListener } from './AuthStateListener';
+import { ProfileError } from './profileErrors';
 import { SessionManager } from './SessionManager';
-import { mapFirebaseUserToAuthUser } from './userMapper';
+import { UserProfileService } from './UserProfileService';
+import { getFirestoreProfileErrorKey } from './errors';
+import { resolveAuthUserWithProfile } from './userMapper';
 
 function requireAuth() {
   const auth = getFirebaseAuth();
@@ -26,7 +29,14 @@ export class FirebaseAuthRepository implements AuthRepository {
   async signIn(email: string, password: string): Promise<AuthUser> {
     const auth = requireAuth();
     const credential = await signInWithEmailAndPassword(auth, email.trim(), password);
-    return mapFirebaseUserToAuthUser(credential.user);
+
+    try {
+      await UserProfileService.touchLogin(credential.user.uid, credential.user.emailVerified);
+    } catch {
+      // Non-fatal — session remains valid
+    }
+
+    return resolveAuthUserWithProfile(credential.user);
   }
 
   async signUp(email: string, password: string, displayName: string): Promise<AuthUser> {
@@ -44,7 +54,18 @@ export class FirebaseAuthRepository implements AuthRepository {
     }
 
     await credential.user.reload();
-    return mapFirebaseUserToAuthUser(auth.currentUser ?? credential.user);
+
+    try {
+      const profile = await UserProfileService.ensureProfileOnSignUp(
+        auth.currentUser ?? credential.user,
+        displayName
+      );
+      const authUser = await resolveAuthUserWithProfile(auth.currentUser ?? credential.user);
+      return { ...authUser, profile };
+    } catch (err) {
+      if (err instanceof ProfileError) throw err;
+      throw new ProfileError(getFirestoreProfileErrorKey(err), err);
+    }
   }
 
   async signOut(): Promise<void> {
@@ -70,6 +91,14 @@ export class FirebaseAuthRepository implements AuthRepository {
 
   async refreshSession(): Promise<AuthUser | null> {
     return SessionManager.refreshSession();
+  }
+
+  async reloadUser(): Promise<AuthUser | null> {
+    return SessionManager.reloadUser();
+  }
+
+  async isSessionExpired(): Promise<boolean> {
+    return SessionManager.isSessionExpired();
   }
 
   onAuthStateChanged(callback: (user: AuthUser | null) => void): () => void {

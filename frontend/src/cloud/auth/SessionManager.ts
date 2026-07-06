@@ -1,5 +1,5 @@
 /**
- * Firebase session lifecycle — refresh and resolve current user.
+ * Firebase session lifecycle — refresh, reload, and resolve current user.
  */
 
 import {
@@ -9,14 +9,27 @@ import {
 
 import { getFirebaseAuth } from '@/src/cloud/firebase/auth';
 import type { AuthUser } from './types';
-import { mapFirebaseUserToAuthUser } from './userMapper';
+import { resolveAuthUserWithProfile } from './userMapper';
 
 export class SessionManager {
   /** Returns mapped auth user or null when signed out / unavailable. */
   static async getCurrentUser(): Promise<AuthUser | null> {
     const auth = getFirebaseAuth();
     if (!auth?.currentUser) return null;
-    return mapFirebaseUserToAuthUser(auth.currentUser);
+    return resolveAuthUserWithProfile(auth.currentUser);
+  }
+
+  /** Reloads Firebase user record and merges Firestore profile when present. */
+  static async reloadUser(): Promise<AuthUser | null> {
+    const auth = getFirebaseAuth();
+    if (!auth?.currentUser) return null;
+
+    try {
+      await auth.currentUser.reload();
+      return resolveAuthUserWithProfile(auth.currentUser);
+    } catch {
+      return null;
+    }
   }
 
   /** Forces token refresh; returns updated user or null. */
@@ -27,9 +40,23 @@ export class SessionManager {
     try {
       await auth.currentUser.reload();
       await auth.currentUser.getIdToken(true);
-      return mapFirebaseUserToAuthUser(auth.currentUser);
+      return resolveAuthUserWithProfile(auth.currentUser);
     } catch {
       return null;
+    }
+  }
+
+  /** True when no active user or the ID token has expired. */
+  static async isSessionExpired(): Promise<boolean> {
+    const auth = getFirebaseAuth();
+    if (!auth?.currentUser) return true;
+
+    try {
+      const tokenResult = await auth.currentUser.getIdTokenResult();
+      const expiresAt = new Date(tokenResult.expirationTime).getTime();
+      return Date.now() >= expiresAt;
+    } catch {
+      return true;
     }
   }
 
@@ -42,7 +69,14 @@ export class SessionManager {
     }
 
     return onIdTokenChanged(auth, (firebaseUser: FirebaseUser | null) => {
-      callback(firebaseUser ? mapFirebaseUserToAuthUser(firebaseUser) : null);
+      if (!firebaseUser) {
+        callback(null);
+        return;
+      }
+
+      void resolveAuthUserWithProfile(firebaseUser)
+        .then(callback)
+        .catch(() => callback(null));
     });
   }
 }

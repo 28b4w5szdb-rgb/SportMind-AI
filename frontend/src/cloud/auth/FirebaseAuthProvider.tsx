@@ -14,7 +14,7 @@ import React, {
 
 import { createFirebaseAuthRepository } from './FirebaseAuthRepository';
 import { SessionManager } from './SessionManager';
-import { getFirebaseAuthErrorKey } from './errors';
+import { getCloudAuthErrorKey } from './errors';
 import type { AuthUser } from './types';
 
 export interface FirebaseAuthContextValue {
@@ -81,7 +81,7 @@ export function FirebaseAuthProvider({ children }: FirebaseAuthProviderProps) {
       const key =
         err instanceof Error && err.message === 'firebase_not_configured'
           ? 'auth.errors.firebaseNotConfigured'
-          : getFirebaseAuthErrorKey(err);
+          : getCloudAuthErrorKey(err);
       setErrorKey(key);
       throw err;
     } finally {

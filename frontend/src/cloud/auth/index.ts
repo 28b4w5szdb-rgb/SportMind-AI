@@ -1,6 +1,6 @@
 export { shouldUseFirebaseAuth, resolveAuthBackend } from './config';
 export type { AuthBackend } from './config';
-export type { ProductionUserProfile, ProductionUserProfileInput } from './UserProfile';
+export type { ProductionUserProfile, ProductionUserProfileInput, CloudProfileDocumentStatus, UserAccountStatus } from './UserProfile';
 export type { AuthUser, AuthCredentials, SignUpPayload } from './types';
 export type { AuthRepository } from './AuthRepository';
 export type { AuthContextValue } from './AuthContext';
@@ -10,5 +10,7 @@ export { FirebaseAuthProvider, useFirebaseAuthContext } from './FirebaseAuthProv
 export { FirebaseAuthBridge } from './FirebaseAuthBridge';
 export { FirebaseAuthRepository, createFirebaseAuthRepository } from './FirebaseAuthRepository';
 export { SessionManager } from './SessionManager';
+export { UserProfileService } from './UserProfileService';
+export { useCloudProfileStatus } from './useCloudProfileStatus';
 export { AuthStateListener } from './AuthStateListener';
-export { getFirebaseAuthErrorKey } from './errors';
+export { getFirebaseAuthErrorKey, getFirestoreProfileErrorKey, getCloudAuthErrorKey } from './errors';

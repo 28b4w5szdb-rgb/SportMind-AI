@@ -703,7 +703,14 @@
     "noUser": "Not signed in",
     "verificationStatus": "Email verification",
     "verified": "Verified",
-    "notVerified": "Not verified"
+    "notVerified": "Not verified",
+    "profileDocument": "Profile document",
+    "profileExists": "Exists",
+    "profileMissing": "Missing",
+    "profileLoading": "Checking…",
+    "lastLogin": "Last login",
+    "accountCreated": "Account created",
+    "notAvailable": "Not available"
   },
   "states": {
     "empty": {
@@ -761,7 +768,10 @@
       "sessionExpired": "Your session has expired. Please sign in again.",
       "networkFailure": "Network error. Check your connection and try again.",
       "accountDisabled": "This account has been disabled. Contact support.",
-      "emailInvalid": "Enter a valid email address."
+      "emailInvalid": "Enter a valid email address.",
+      "permissionDenied": "You don't have permission to access this resource.",
+      "profileCreateFailed": "Your account was created but the profile could not be saved. Try signing in again.",
+      "profileDuplicate": "A profile already exists for this account."
     },
     "signIn": {
       "title": "Sign in",
