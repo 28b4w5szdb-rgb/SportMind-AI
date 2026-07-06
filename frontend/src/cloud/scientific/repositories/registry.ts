@@ -1,8 +1,8 @@
 /**
- * Scientific repository registry — lazy, DI-ready stubs.
- * No Firestore implementations in Phase 6C.1.
+ * Scientific repository registry — lazy DI with mock / Firestore adapters.
  */
 
+import { createCatalogRepository, createOrganizationRepository } from '../adapters';
 import { canAccessScientificFirestore } from '../config';
 import type {
   ScientificCatalogRepository,
@@ -11,13 +11,13 @@ import type {
 
 export interface ScientificRepositoryRegistry {
   readonly enabled: boolean;
-  readonly catalog: ScientificCatalogRepository | null;
-  readonly organization: ScientificOrganizationRepository | null;
+  readonly catalog: ScientificCatalogRepository;
+  readonly organization: ScientificOrganizationRepository;
 }
 
 let cachedRegistry: ScientificRepositoryRegistry | undefined;
 
-/** Returns registry shell; adapters null until cloud mode implementation phase. */
+/** Returns catalog + organization repositories (mock or Firestore based on cloud gate). */
 export function getScientificRepositoryRegistry(): ScientificRepositoryRegistry {
   if (cachedRegistry !== undefined) return cachedRegistry;
 
@@ -25,8 +25,8 @@ export function getScientificRepositoryRegistry(): ScientificRepositoryRegistry 
 
   cachedRegistry = {
     enabled,
-    catalog: null,
-    organization: null,
+    catalog: createCatalogRepository(enabled),
+    organization: createOrganizationRepository(enabled),
   };
 
   return cachedRegistry;

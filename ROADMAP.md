@@ -76,13 +76,13 @@
 | **6C.0.2** | Scientific data model & Firestore schema design | ✅ Design approved |
 | **6C.0.3** | Elite platform extensions (equipment, environment, passport, timeline) | ✅ Design approved |
 | **6C.1** | Scientific Firestore core foundation — types, paths, validation, repository contracts | ✅ Complete |
-| **6C.2** | Assessment sessions entity + catalog seed | 🔜 Next |
-| **6C.3** | Organization Firestore adapters + security rules | Planned |
-| **6C.4** | Screen migration (athletes → tests) | Planned |
+| **6C.2** | Catalog seed data + read-only Firestore/mock repository adapters | ✅ Complete |
+| **6C.3** | Assessment sessions entity + security rules deployment | 🔜 Next |
+| **6C.4** | Organization write paths + screen migration (athletes → tests) | Planned |
 
-**6C.1 exit criteria (met):** Typed catalog + org models, path helpers, validators, repository interfaces, feature gate, security policy metadata — no UI changes, no Firestore writes.
+**6C.2 exit criteria (met):** Catalog seed (sports, categories A–R, evidence tiers, equipment types, formulas, questionnaires), memory cache, mock + Firestore read adapters, registry wired to cloud gate — no UI changes, no writes.
 
-**6C overall exit criteria:** Assessment sessions, scientific catalog seeded, org-scoped reads/writes when cloud mode enabled.
+**6C overall exit criteria:** Assessment sessions, scientific catalog seeded in Firestore, org-scoped reads/writes when cloud mode enabled.
 
 ---
 
@@ -187,4 +187,4 @@
 - **SSID and analytics logic unchanged** unless explicitly scoped.
 - **EN + AR** maintained for all user-facing strings.
 
-*Last updated: Phase 6C.1*
+*Last updated: Phase 6C.2*

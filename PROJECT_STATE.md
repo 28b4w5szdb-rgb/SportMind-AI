@@ -7,8 +7,8 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.1 — Scientific Firestore Core Foundation (complete) |
-| **Next phase** | Phase 6C.2 — Assessment Sessions & Catalog Seed |
+| **Current phase** | Phase 6C.2 — Firestore Catalog Seed & Repository Adapters (complete) |
+| **Next phase** | Phase 6C.3 — Assessment Sessions + Security Rules |
 
 ---
 
@@ -24,6 +24,7 @@
 | **6B.1** | Auth persistence, Firestore user profiles, SessionManager | ✅ Complete |
 | **6C.0.1–6C.0.3** | Scientific audit + data model + elite extensions (design) | ✅ Approved |
 | **6C.1** | Scientific Firestore core foundation (types, paths, contracts) | ✅ Complete |
+| **6C.2** | Catalog seed data + read-only Firestore/mock repository adapters | ✅ Complete |
 
 ---
 
@@ -50,12 +51,22 @@ frontend/src/cloud/
 ├── firebase/       # Lazy-init app, auth, firestore, storage
 ├── auth/           # Firebase + Supabase unified AuthProvider
 ├── firestore/      # Phase 6A entity models + repository interfaces
-├── scientific/     # Phase 6C.1 — catalog + org scientific foundation
+├── scientific/     # Phase 6C.1–6C.2 — catalog seed, adapters, org reads
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
 
-#### Phase 6C.1 — `scientific/` module (infrastructure only)
+#### Phase 6C.2 — `scientific/` catalog layer (read-only)
+
+| Area | Contents |
+|------|----------|
+| **Seed data** | Sports, assessment categories (A–R), evidence tiers, equipment types, formulas + versions, questionnaire templates |
+| **Memory cache** | In-process catalog/org read cache (no persistence) |
+| **Mock adapters** | Default when `USE_CLOUD_DATA=false` — seed-backed catalog, empty org stubs |
+| **Firestore adapters** | Read-only catalog (Firestore first, seed fallback) + org subcollection reads when cloud enabled |
+| **Registry** | `getScientificRepositoryRegistry()` returns real adapters when cloud gate passes |
+
+#### Phase 6C.1 — `scientific/` module (infrastructure)
 
 | Area | Contents |
 |------|----------|
@@ -64,9 +75,9 @@ frontend/src/cloud/
 | **Org models** | Organization root, users, teams, athletes, seasons, locations, equipment, sport_configs, role_definitions |
 | **Validation** | Runtime validators for versioned catalog + org entities |
 | **Security** | Collection policy metadata for future Firestore rules |
-| **Repositories** | Interface contracts only; registry returns `null` adapters until 6C.2+ |
+| **Repositories** | Interface contracts + registry with mock/Firestore adapter factories |
 
-**Not implemented (by design):** assessment sessions, passport, timeline, equipment logic, environmental records, migrations, Firestore writes.
+**Not implemented (by design):** assessment sessions, passport, timeline, equipment business logic, environmental records, migrations, Firestore writes, security rules deployment.
 
 ### Authentication (Phase 6B / 6B.1)
 
@@ -81,7 +92,8 @@ frontend/src/cloud/
 
 | Commit | Phase | Description |
 |--------|-------|-------------|
-| *(pending)* | 6C.1 | Scientific Firestore core foundation |
+| *(pending)* | 6C.2 | Catalog seed + read-only Firestore/mock adapters |
+| `e81b8c2` | 6C.1 | Scientific Firestore core foundation |
 | `8ee0f4b` | UX | Calculator Hub entry from More screen |
 | `f9d693e` | 6B.1 | Auth persistence + user profiles |
 | `6973515` | 6B | Firebase Auth production layer |
@@ -89,12 +101,12 @@ frontend/src/cloud/
 
 ---
 
-## Next Planned Phase: 6C.2
+## Next Planned Phase: 6C.3
 
-- Catalog seed data (static or admin tooling design)
-- Assessment session entity models (no UI wiring)
-- Firestore adapter implementations for catalog read paths
-- Security rules draft from `scientific/security/collectionPolicy.ts`
+- Assessment session entity models
+- Firestore write paths (org + sessions)
+- Security rules deployment from `scientific/security/collectionPolicy.ts`
+- Optional catalog seed upload tooling
 
 See [ROADMAP.md](./ROADMAP.md).
 
@@ -103,10 +115,10 @@ See [ROADMAP.md](./ROADMAP.md).
 ## Important Notes
 
 1. **Mock data is active by default.** No Firestore scientific writes occur in UI paths.
-2. **Scientific module is infrastructure-only.** Repository registry returns null adapters.
+2. **Scientific catalog reads use seed data in mock mode.** Firestore adapters fall back to seed when collections are empty.
 3. **`USE_CLOUD_DATA=false` by default.** Safe for v0.9-alpha demos.
 4. **Do not commit secrets.** Use `frontend/.env.example`.
-5. **SSID, analytics, AI Coach, dashboard unchanged** in Phase 6C.1.
+5. **SSID, analytics, AI Coach, dashboard unchanged** through Phase 6C.2.
 
 ---
 
@@ -119,4 +131,4 @@ See [ROADMAP.md](./ROADMAP.md).
 | Brand guide | [frontend/BRAND_GUIDE.md](./frontend/BRAND_GUIDE.md) |
 | Env template | [frontend/.env.example](./frontend/.env.example) |
 
-*Last updated: Phase 6C.1*
+*Last updated: Phase 6C.2*

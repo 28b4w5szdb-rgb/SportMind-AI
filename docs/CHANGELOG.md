@@ -107,13 +107,36 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6C.2 — Firestore Catalog Seed & Repository Adapters] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Catalog seed data** — sports, assessment categories (A–R), evidence tiers, equipment types, formula registry + versions, questionnaire templates
+- **`CatalogSeedIndex`** — in-memory lookup helpers with bilingual metadata
+- **Memory cache** — lightweight in-process cache for catalog and org reads
+- **Mock adapters** — seed-backed `CatalogRepository`; empty read-only `OrganizationRepository`
+- **Firestore adapters** — read-only catalog (remote first, seed fallback) and org subcollection reads
+- **Adapter factories** — `createCatalogRepository()` / `createOrganizationRepository()` gated by `canAccessScientificFirestore()`
+- **Registry** — `getScientificRepositoryRegistry()` returns real adapters when `USE_CLOUD_DATA=true` and Firebase configured
+
+### Unchanged (by design)
+
+- No UI, dashboard, analytics, SSID, or AI Coach changes
+- No assessment sessions, passport, timeline, or environmental records
+- No Firestore writes, migrations, Cloud Functions, BigQuery, or security rules deployment
+- Mock store remains default runtime
+
+---
+
 ## Upcoming
 
-- **Phase 6C.2** — Assessment sessions entity + catalog seed
-- **Phase 6C.3** — Firestore adapters + security rules
+- **Phase 6C.3** — Assessment sessions entity + security rules
+- **Phase 6C.4** — Organization write paths + screen migration
 - **Phase 6D** — Firebase Storage
 - **Phase 6E** — Cloud sync engine
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6C.1*
+*Last updated: Phase 6C.2*

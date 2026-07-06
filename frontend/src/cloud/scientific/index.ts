@@ -1,5 +1,5 @@
 /**
- * SportMind AI — Scientific Firestore Core Foundation (Phase 6C.1)
+ * SportMind AI — Scientific Firestore Core Foundation (Phase 6C.1–6C.2)
  *
  * Infrastructure-only module aligned with Phase 6C.0.1–6C.0.3 architecture.
  * No assessment sessions, passport, timeline, or business logic.
@@ -18,3 +18,6 @@ export * from './models';
 export * from './validation';
 export * from './security';
 export * from './repositories';
+export * from './seed';
+export * from './cache';
+export * from './adapters';
