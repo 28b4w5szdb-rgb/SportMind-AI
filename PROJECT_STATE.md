@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 8.2 — Scientific Core Unification (complete) |
+| **Current phase** | Phase 8.3 — Performance & Scalability Hardening (complete) |
 | **Next phase** | Phase 6D — Firebase Storage |
 
 ---
@@ -50,6 +50,7 @@
 | **7.3** | Unified Scientific Export Layer — pipeline, templates, mock adapters | ✅ Complete |
 | **8.1** | Production Hardening — P0 remediation, role-aware report persistence, indexes | ✅ Complete |
 | **8.2** | Scientific Core Unification — single source of truth for calc, SSID, timeline, passport, report | ✅ Complete |
+| **8.3** | Performance & Scalability — batched reads, pagination, caches, debounced previews | ✅ Complete |
 
 ---
 
@@ -108,6 +109,21 @@ frontend/src/cloud/
 **Remaining compatibility wrappers:** `timelineBuilder.ts` (MOCK_EXTRAS demo events), `mapScientificToLegacy.ts`, `TEST_REGISTRY` (Performance Lab), legacy `interpreters/metrics.ts` (unused, retained for reference).
 
 **Canonical scientific flow:** Raw Measurement → Assessment Session → Scientific Calculation → Normative Engine → SSID → Passport → Timeline → Scientific Report → Export Layer
+
+#### Phase 8.3 — Performance & Scalability Hardening
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Batched reads** | Parallel session sub-reads; parallel list assembly via `Promise.all` |
+| **Pagination** | Reports (50), sessions (100), lab history (100), timeline builder cap (200 events) |
+| **Memory caches** | `workspaceArtifactCache`, `reportPreviewCache`, `performanceLabHistoryCache` (30s TTL), catalog LRU |
+| **Debounced previews** | 400ms debounce on Performance Lab scientific preview |
+| **Memoization** | Report preview content-key excludes title; workspace snapshots shared via context |
+| **Rendering** | `LabTimeline` memoized rows; duplicate snapshot hooks removed from cockpit |
+
+**Remaining scale risks:** No Firestore cursor pagination; workspace cockpit single ScrollView; team analytics O(N athletes); caches memory-only.
+
+**Intentionally unchanged:** Scientific formulas, SSID rules, UI layout, Firestore rules, Cloud Functions, BigQuery.
 
 #### Phase 7.3 — Unified Scientific Export Layer
 

@@ -14,7 +14,7 @@ import { useTrainingBuilderSnapshot } from '@/src/features/training-builder';
 import { useWearablesSnapshot } from '@/src/features/wearables';
 
 import { loadCloudSessionsForAthlete } from '../bridge/athleteWorkspaceCloudBridge';
-import { buildWorkspaceArtifacts } from './buildWorkspaceArtifacts';
+import { getOrBuildWorkspaceArtifacts } from '../cache/workspaceArtifactCache';
 import type { AthleteWorkspaceContextValue } from './types';
 import { useWorkspaceDataMode, useWorkspaceSecurityContext } from './useWorkspaceSecurityContext';
 import { buildVisibilityProfile } from './visibilityProfile';
@@ -128,7 +128,7 @@ export function AthleteWorkspaceProvider({
   );
 
   const artifacts = useMemo(() => {
-    return buildWorkspaceArtifacts({
+    return getOrBuildWorkspaceArtifacts({
       orgId: organizationId,
       athlete,
       tests,
@@ -192,6 +192,9 @@ export function AthleteWorkspaceProvider({
       loadingPassport: loadingCloud,
       loadingTimeline: !timelineReady,
       visibilityProfile,
+      trainingSnapshot,
+      nutritionSnapshot,
+      wearableSnapshot,
     }),
     [
       athlete,
@@ -208,6 +211,9 @@ export function AthleteWorkspaceProvider({
       loadingCloud,
       timelineReady,
       visibilityProfile,
+      trainingSnapshot,
+      nutritionSnapshot,
+      wearableSnapshot,
     ]
   );
 

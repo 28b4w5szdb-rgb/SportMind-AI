@@ -9,6 +9,9 @@ import type { DataMode } from '@/src/core/config/cloud';
 import type { MockAthlete, MockPerformanceTest } from '@/src/data/mock/types';
 
 import type { WorkspaceRole } from '../security/workspaceRolePresets';
+import type { TrainingBuilderSnapshot } from '@/src/features/training-builder/types';
+import type { NutritionSnapshot } from '@/src/features/nutrition/types';
+import type { WearableDailySnapshot } from '@/src/features/wearables/types';
 
 export interface WorkspaceVisibilityProfile {
   workspaceRole: WorkspaceRole;
@@ -35,4 +38,7 @@ export interface AthleteWorkspaceContextValue {
   loadingPassport: boolean;
   loadingTimeline: boolean;
   visibilityProfile: WorkspaceVisibilityProfile;
+  trainingSnapshot: TrainingBuilderSnapshot | null;
+  nutritionSnapshot: NutritionSnapshot | null;
+  wearableSnapshot: WearableDailySnapshot | null;
 }

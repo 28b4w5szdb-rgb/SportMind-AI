@@ -3,10 +3,13 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
+  orderBy,
   query,
   where,
   type DocumentData,
   type Firestore,
+  type QueryConstraint,
   type WhereFilterOp,
 } from 'firebase/firestore';
 
@@ -92,15 +95,23 @@ export async function readSubcollectionFiltered<T>(
   parentCollectionId: string,
   parentId: string,
   subcollectionId: string,
-  filters?: Array<{ field: string; op: WhereFilterOp; value: unknown }>
+  filters?: Array<{ field: string; op: WhereFilterOp; value: unknown }>,
+  options?: { limit?: number; orderByField?: string; orderDirection?: 'asc' | 'desc' }
 ): Promise<T[]> {
   const db = requireFirestore();
 
   try {
     const base = collection(db, parentCollectionId, parentId, subcollectionId);
-    const q = filters?.length
-      ? query(base, ...filters.map((f) => where(f.field, f.op, f.value)))
-      : query(base);
+    const constraints: QueryConstraint[] = filters?.length
+      ? filters.map((f) => where(f.field, f.op, f.value))
+      : [];
+    if (options?.orderByField) {
+      constraints.push(orderBy(options.orderByField, options.orderDirection ?? 'desc'));
+    }
+    if (options?.limit != null && options.limit > 0) {
+      constraints.push(limit(options.limit));
+    }
+    const q = constraints.length ? query(base, ...constraints) : query(base);
     const snap = await getDocs(q);
     return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T);
   } catch (cause) {

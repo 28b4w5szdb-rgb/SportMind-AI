@@ -3,6 +3,7 @@
  */
 
 import type { AssessmentSession } from '@/src/cloud/scientific/models/session';
+import { DEFAULT_LAB_HISTORY_LIMIT } from '@/src/cloud/scientific/models/common/ListPagination';
 import type { MockAthlete, MockPerformanceTest } from '@/src/data/mock/types';
 import { getTestDefinition } from '@/src/features/performance-lab/registry/tests';
 import { buildTestInterpretation } from '@/src/features/ssid-engine/utils/buildTestInterpretation';
@@ -75,7 +76,9 @@ export async function loadScientificSession(sessionId: string): Promise<Assessme
 export async function listScientificSessionsForLab(): Promise<AssessmentSession[]> {
   try {
     const registry = getScientificRepositoryRegistry();
-    return registry.sessions.listByOrganization(PERFORMANCE_LAB_MOCK_ORG_ID);
+    return registry.sessions.listByOrganization(PERFORMANCE_LAB_MOCK_ORG_ID, {
+      limit: DEFAULT_LAB_HISTORY_LIMIT,
+    });
   } catch {
     return [];
   }

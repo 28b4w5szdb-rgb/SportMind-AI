@@ -1,23 +1,55 @@
 /**
  * Firestore assessment session persistence adapter — append-only writes.
+ * Phase 8.3 — athlete-scoped queries, parallel assembly, pagination.
  */
 
 import type { PersistedRawMeasurementRecord, SessionMetadataRecord } from '../../models/persistence';
 import { PERSISTENCE_VERSION } from '../../models/persistence';
+import type { ScientificListPagination } from '../../models/common/ListPagination';
+import { DEFAULT_SESSION_LIST_LIMIT } from '../../models/common/ListPagination';
 import type { AssessmentSession } from '../../models/session';
 import type { AssessmentSessionRepository } from '../../repositories/contracts/AssessmentSessionRepository';
 import { ORGANIZATIONS_ROOT } from '../../paths/organizationPaths';
 import { ASSESSMENT_SESSIONS_SUBCOLLECTION, RAW_MEASUREMENTS_SUBCOLLECTION } from '../../paths/sessionPaths';
 import {
   createOrgSessionSubcollectionDocumentsIfNotExists,
-  readSubcollection,
+  readSubcollectionFiltered,
   readSubDocument,
 } from './firestoreReadHelper';
 import { createDocumentIfNotExists, documentExists } from './firestoreWriteHelper';
-import { assembleAssessmentSessionFromFirestore } from './persistenceFirestoreAssembler';
+import {
+  assembleAssessmentSessionFromFirestore,
+  assembleAssessmentSessionsFromFirestore,
+} from './persistenceFirestoreAssembler';
 
 function orgSessionPath(orgId: string, sessionId: string): string[] {
   return [ORGANIZATIONS_ROOT, orgId, ASSESSMENT_SESSIONS_SUBCOLLECTION, sessionId];
+}
+
+function resolveLimit(pagination?: ScientificListPagination): number {
+  return pagination?.limit ?? DEFAULT_SESSION_LIST_LIMIT;
+}
+
+async function listSessionMetadata(
+  organizationId: string,
+  filters?: Array<{ field: string; op: '=='; value: unknown }>,
+  pagination?: ScientificListPagination
+): Promise<SessionMetadataRecord[]> {
+  return readSubcollectionFiltered<SessionMetadataRecord>(
+    ORGANIZATIONS_ROOT,
+    organizationId,
+    ASSESSMENT_SESSIONS_SUBCOLLECTION,
+    filters,
+    { limit: resolveLimit(pagination), orderByField: 'conducted_at', orderDirection: 'desc' }
+  );
+}
+
+async function assembleFromMetadataList(
+  organizationId: string,
+  metadataList: SessionMetadataRecord[]
+): Promise<AssessmentSession[]> {
+  const ids = metadataList.map((m) => m.session_id);
+  return assembleAssessmentSessionsFromFirestore(organizationId, ids);
 }
 
 export function createAssessmentSessionFirestoreRepository(): AssessmentSessionRepository {
@@ -25,29 +57,25 @@ export function createAssessmentSessionFirestoreRepository(): AssessmentSessionR
     async getById(organizationId, sessionId) {
       return assembleAssessmentSessionFromFirestore(organizationId, sessionId);
     },
-    async listByOrganization(organizationId) {
-      const sessions = await readSubcollection<SessionMetadataRecord>(
-        ORGANIZATIONS_ROOT,
+    async listByOrganization(organizationId, pagination) {
+      const metadata = await listSessionMetadata(organizationId, undefined, pagination);
+      return assembleFromMetadataList(organizationId, metadata);
+    },
+    async listByAthlete(organizationId, athleteId, pagination) {
+      const metadata = await listSessionMetadata(
         organizationId,
-        ASSESSMENT_SESSIONS_SUBCOLLECTION
+        [{ field: 'athlete_id', op: '==', value: athleteId }],
+        pagination
       );
-      const assembled: AssessmentSession[] = [];
-      for (const meta of sessions) {
-        const session = await assembleAssessmentSessionFromFirestore(
-          organizationId,
-          meta.session_id
-        );
-        if (session) assembled.push(session);
-      }
-      return assembled;
+      return assembleFromMetadataList(organizationId, metadata);
     },
-    async listByAthlete(organizationId, athleteId) {
-      const all = await this.listByOrganization(organizationId);
-      return all.filter((s) => s.athlete_id === athleteId);
-    },
-    async listByAssessmentDefinition(organizationId, assessmentDefinitionKey) {
-      const all = await this.listByOrganization(organizationId);
-      return all.filter((s) => s.assessment_definition_key === assessmentDefinitionKey);
+    async listByAssessmentDefinition(organizationId, assessmentDefinitionKey, pagination) {
+      const metadata = await listSessionMetadata(
+        organizationId,
+        [{ field: 'assessment_definition_key', op: '==', value: assessmentDefinitionKey }],
+        pagination
+      );
+      return assembleFromMetadataList(organizationId, metadata);
     },
     async listAssessmentSessions() {
       return [];

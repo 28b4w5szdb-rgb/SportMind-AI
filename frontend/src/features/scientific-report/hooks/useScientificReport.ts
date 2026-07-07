@@ -1,6 +1,7 @@
 /**
  * Hook for building scientific reports from report builder config (Phase 7.0).
  * Phase 8.2 — passport/timeline via canonical buildWorkspaceArtifacts.
+ * Phase 8.3 — content-keyed preview cache; title changes skip passport/timeline rebuild.
  */
 
 import { useMemo } from 'react';
@@ -8,14 +9,18 @@ import { useTranslation } from 'react-i18next';
 
 import { buildSecurityContext } from '@/src/cloud/scientific/security/accessControl';
 import { useMockStore } from '@/src/data/mock/store';
-import { buildWorkspaceArtifacts } from '@/src/features/athlete-workspace/context/buildWorkspaceArtifacts';
-import { mapMockAthleteToPassportProfile } from '@/src/features/athlete-passport/bridge/athletePassportMockBridge';
 import { WORKSPACE_MOCK_ORG_ID } from '@/src/features/athlete-workspace/security/workspaceRolePresets';
 import type { ReportBuilderConfig } from '@/src/features/report-builder/types';
 import { computeAthleteAnalytics } from '@/src/analytics/engine/performanceAnalyticsEngine';
 
+import {
+  getCachedReportPreview,
+  reportPreviewContentKey,
+  setCachedReportPreview,
+} from '../cache/reportPreviewCache';
 import { buildScientificReportFromWorkspace } from '../bridge/scientificReportBridge';
 import { scientificReportToMockSections } from '../utils/mapScientificToLegacy';
+import { buildWorkspaceArtifacts } from '@/src/features/athlete-workspace/context/buildWorkspaceArtifacts';
 
 const DEV_MOCK_UID = 'dev_report_builder';
 
@@ -44,8 +49,21 @@ export function useScientificReport(config: ReportBuilderConfig) {
     []
   );
 
-  const scientificReport = useMemo(() => {
+  const previewContentKey = useMemo(() => reportPreviewContentKey(config), [
+    config.athleteId,
+    config.scope,
+    config.dateFrom,
+    config.dateTo,
+    config.sectionOrder,
+    config.reportType,
+    config.theme,
+  ]);
+
+  const previewBundle = useMemo(() => {
     if (!athlete || config.scope === 'team') return null;
+
+    const cached = getCachedReportPreview(previewContentKey);
+    if (cached) return cached;
 
     const athleteTests = tests.filter((t) => t.athlete_id === athlete.id);
     const checkIn = checkIns.find((c) => c.athlete_id === athlete.id);
@@ -84,21 +102,17 @@ export function useScientificReport(config: ReportBuilderConfig) {
       reports: reports.filter((r) => r.athlete_id === athlete.id),
     });
 
-    return buildScientificReportFromWorkspace({
-      config,
-      orgId: WORKSPACE_MOCK_ORG_ID,
-      passport,
-      timeline,
-      athleteDisplayName: `${athlete.first_name} ${athlete.last_name}`,
-      securityContext,
-    });
+    const bundle = { analytics, passport, timeline };
+    setCachedReportPreview(previewContentKey, bundle);
+    return bundle;
   }, [
     athlete,
     bodyCompositionRecords,
     checkIns,
-    config,
+    config.scope,
     injuries,
     nutritionLogs,
+    previewContentKey,
     reports,
     securityContext,
     teams,
@@ -106,6 +120,19 @@ export function useScientificReport(config: ReportBuilderConfig) {
     trainingPlans,
     wearableRecords,
   ]);
+
+  const scientificReport = useMemo(() => {
+    if (!athlete || config.scope === 'team' || !previewBundle) return null;
+
+    return buildScientificReportFromWorkspace({
+      config,
+      orgId: WORKSPACE_MOCK_ORG_ID,
+      passport: previewBundle.passport,
+      timeline: previewBundle.timeline,
+      athleteDisplayName: `${athlete.first_name} ${athlete.last_name}`,
+      securityContext,
+    });
+  }, [athlete, config, previewBundle, securityContext]);
 
   const legacySections = useMemo(() => {
     if (!scientificReport) return null;

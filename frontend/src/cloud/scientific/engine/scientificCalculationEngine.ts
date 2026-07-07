@@ -185,11 +185,7 @@ export class ScientificCalculationEngine {
   }
 
   async calculateBatch(requests: CalculationRequest[]): Promise<CalculationResult[]> {
-    const results: CalculationResult[] = [];
-    for (const request of requests) {
-      results.push(await this.calculate(request.formula_key, request.inputs));
-    }
-    return results;
+    return Promise.all(requests.map((request) => this.calculate(request.formula_key, request.inputs)));
   }
 
   private errorResult(

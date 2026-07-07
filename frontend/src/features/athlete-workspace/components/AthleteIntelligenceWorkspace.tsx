@@ -16,9 +16,9 @@ import { useMockStore } from '@/src/data/mock/store';
 import { useTheme } from '@/src/core/theme';
 import { useResponsiveLayout } from '@/src/hooks/useResponsiveLayout';
 import { useSportsMedicineSnapshot, attentionRegions, regionsWithHistory } from '@/src/features/sports-medicine';
-import { useTrainingBuilderSnapshot, WorkspaceTrainingSection } from '@/src/features/training-builder';
-import { useNutritionSnapshot, WorkspaceNutritionSection } from '@/src/features/nutrition';
-import { useWearablesSnapshot, WorkspaceWearablesSection } from '@/src/features/wearables';
+import { WorkspaceTrainingSection } from '@/src/features/training-builder';
+import { WorkspaceNutritionSection } from '@/src/features/nutrition';
+import { WorkspaceWearablesSection } from '@/src/features/wearables';
 import { buildWorkspaceSsidEntries, SsidBundleSection } from '@/src/features/ssid-engine';
 import { WorkspacePassportOverview } from '@/src/features/athlete-passport';
 import { WorkspaceScientificTimeline } from '@/src/features/athlete-timeline';
@@ -58,16 +58,13 @@ function AthleteIntelligenceWorkspaceContent() {
   const sectionOffsets = useRef<Partial<Record<CockpitSectionId, number>>>({});
   const [activeSection, setActiveSection] = useState<CockpitSectionId>('overview');
 
-  const { athlete, tests, analytics, passport, scientificTimeline } = useAthleteWorkspaceContext();
+  const { athlete, tests, analytics, passport, scientificTimeline, trainingSnapshot, nutritionSnapshot, wearableSnapshot } = useAthleteWorkspaceContext();
 
   const workspace = useAthleteWorkspace(athlete, tests, analytics, scientificTimeline);
   const latestCheckIn = useLatestCheckInForAthlete(athlete.id);
   const reports = useMockStore((s) => s.reports);
   const injuryRecords = useMockStore((s) => s.injuryRecords);
   const sportsMedicine = useSportsMedicineSnapshot(athlete, tests, latestCheckIn);
-  const trainingSnapshot = useTrainingBuilderSnapshot(athlete, tests);
-  const nutritionSnapshot = useNutritionSnapshot(athlete);
-  const wearableSnapshot = useWearablesSnapshot(athlete);
 
   const latestReport = useMemo(
     () =>

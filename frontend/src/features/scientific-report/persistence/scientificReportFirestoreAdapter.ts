@@ -87,7 +87,8 @@ export async function tryLoadScientificReportFromFirestore(
 
 /** List org scientific reports from Firestore — throws on cloud read failure. */
 export async function listScientificReportsFromFirestore(
-  organizationId: string
+  organizationId: string,
+  filters?: import('@/src/cloud/scientific/models/report/PersistedScientificReportRecord').ScientificReportListFilters
 ): Promise<PersistedScientificReportRecord[]> {
   if (!canAccessScientificFirestore()) {
     throw new ScientificCloudError('firestore_unavailable', 'Cloud data mode is disabled');
@@ -96,7 +97,7 @@ export async function listScientificReportsFromFirestore(
   if (!repo) {
     throw new ScientificCloudError('firestore_unavailable', 'Scientific report repository unavailable');
   }
-  return repo.listScientificReports(organizationId);
+  return repo.listScientificReports(organizationId, filters);
 }
 
 /** Soft-archive report in Firestore. */

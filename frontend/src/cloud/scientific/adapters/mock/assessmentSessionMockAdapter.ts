@@ -5,6 +5,8 @@
 import type { RawMeasurement } from '../../models/session';
 import type { SessionMetadataRecord, PersistedRawMeasurementRecord } from '../../models/persistence';
 import { PERSISTENCE_VERSION } from '../../models/persistence';
+import type { ScientificListPagination } from '../../models/common/ListPagination';
+import { DEFAULT_SESSION_LIST_LIMIT } from '../../models/common/ListPagination';
 import type { AssessmentSessionRepository } from '../../repositories/contracts/AssessmentSessionRepository';
 import {
   getPersistedSession,
@@ -17,19 +19,27 @@ import {
   persistenceBundleExists,
 } from '../../persistence/persistenceMemoryStore';
 
+function slicePage<T>(items: T[], pagination?: ScientificListPagination): T[] {
+  const cap = pagination?.limit ?? DEFAULT_SESSION_LIST_LIMIT;
+  return cap > 0 ? items.slice(0, cap) : items;
+}
+
 export function createAssessmentSessionMockRepository(): AssessmentSessionRepository {
   return {
     async getById(organizationId, sessionId) {
       return getPersistedSession(organizationId, sessionId);
     },
-    async listByOrganization(organizationId) {
-      return listPersistedSessionsByOrganization(organizationId);
+    async listByOrganization(organizationId, pagination) {
+      return slicePage(await listPersistedSessionsByOrganization(organizationId), pagination);
     },
-    async listByAthlete(organizationId, athleteId) {
-      return listPersistedSessionsByAthlete(organizationId, athleteId);
+    async listByAthlete(organizationId, athleteId, pagination) {
+      return slicePage(await listPersistedSessionsByAthlete(organizationId, athleteId), pagination);
     },
-    async listByAssessmentDefinition(organizationId, assessmentDefinitionKey) {
-      return listPersistedSessionsByDefinition(organizationId, assessmentDefinitionKey);
+    async listByAssessmentDefinition(organizationId, assessmentDefinitionKey, pagination) {
+      return slicePage(
+        await listPersistedSessionsByDefinition(organizationId, assessmentDefinitionKey),
+        pagination
+      );
     },
     async listAssessmentSessions() {
       return listPersistedSessions();

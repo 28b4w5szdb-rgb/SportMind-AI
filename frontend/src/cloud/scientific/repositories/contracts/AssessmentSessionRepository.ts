@@ -7,14 +7,24 @@ import type {
   PersistedRawMeasurementRecord,
   SessionMetadataRecord,
 } from '../../models/persistence';
+import type { ScientificListPagination } from '../../models/common/ListPagination';
+import { DEFAULT_SESSION_LIST_LIMIT } from '../../models/common/ListPagination';
 
 export interface AssessmentSessionRepository {
   getById(organizationId: string, sessionId: string): Promise<AssessmentSession | null>;
-  listByOrganization(organizationId: string): Promise<AssessmentSession[]>;
-  listByAthlete(organizationId: string, athleteId: string): Promise<AssessmentSession[]>;
+  listByOrganization(
+    organizationId: string,
+    pagination?: ScientificListPagination
+  ): Promise<AssessmentSession[]>;
+  listByAthlete(
+    organizationId: string,
+    athleteId: string,
+    pagination?: ScientificListPagination
+  ): Promise<AssessmentSession[]>;
   listByAssessmentDefinition(
     organizationId: string,
-    assessmentDefinitionKey: string
+    assessmentDefinitionKey: string,
+    pagination?: ScientificListPagination
   ): Promise<AssessmentSession[]>;
   listAssessmentSessions(): Promise<AssessmentSession[]>;
   exists(organizationId: string, sessionId: string): Promise<boolean>;

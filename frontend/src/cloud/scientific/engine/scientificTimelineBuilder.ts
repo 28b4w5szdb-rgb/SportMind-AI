@@ -26,6 +26,7 @@ import {
 } from '../models/timeline/ScientificTimeline';
 import type { TimelineBuildContext } from '../models/timeline/TimelineBuildInput';
 import type { EvidenceTier } from '../models/common';
+import { DEFAULT_TIMELINE_EVENT_CAP } from '../models/common/ListPagination';
 
 function ref(
   collection: string,
@@ -394,7 +395,10 @@ export function buildTimelineEvents(context: TimelineBuildContext): ScientificTi
     events.push(...buildResearchEvents(orgId, athleteId, athleteTests));
   }
 
-  return sortEvents(events);
+  const sorted = sortEvents(events);
+  return sorted.length > DEFAULT_TIMELINE_EVENT_CAP
+    ? sorted.slice(0, DEFAULT_TIMELINE_EVENT_CAP)
+    : sorted;
 }
 
 /** Assemble full athlete scientific timeline. */

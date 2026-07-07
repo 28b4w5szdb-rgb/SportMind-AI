@@ -11,6 +11,36 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+---
+
+## [Phase 8.3 — Performance & Scalability Hardening] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- `ListPagination.ts` — shared default limits (reports 50, sessions 100, timeline 200)
+- `workspaceArtifactCache`, `reportPreviewCache`, `performanceLabHistoryCache` — memory-only caches
+- `useDebouncedValue` hook — 400ms debounce for scientific previews
+- Firestore query `limit` + `orderBy` support in `readSubcollectionFiltered`
+
+### Changed
+
+- Session assembly — parallel sub-reads; athlete-filtered queries; parallel batch assembly
+- Reports list — paginated Firestore fetch + client cap
+- Report builder preview — content-keyed cache (title changes skip passport/timeline rebuild)
+- Workspace provider — artifact cache; snapshots exposed via context (no duplicate hooks)
+- `LabTimeline` — memoized rows + history cap
+- `calculateBatch` — parallel formula execution
+- Catalog cache — LRU trim at 256 entries
+
+### Unchanged (by design)
+
+- Scientific formulas, SSID rules, UI layout, Firestore security rules
+- No Cloud Functions, BigQuery, or persistent cache
+
+---
+
 ## [Phase 8.2 — Scientific Core Unification] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`

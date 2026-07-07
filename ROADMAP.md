@@ -303,6 +303,21 @@
 
 ---
 
+### Phase 8.3 — Performance & Scalability Hardening ✅
+
+**Goal:** Optimize reads, rendering, caching, and list handling before Phase 9 AI Coach — no new features.
+
+- Parallel Firestore session assembly; athlete-scoped queries replace full-org scans
+- Pagination limits: reports 50, sessions 100, lab history 100, timeline 200 events
+- Memory caches: workspace artifacts, report preview (content-keyed), lab history (TTL)
+- Debounced Performance Lab preview (400ms)
+- Shared workspace snapshots via context; `LabTimeline` memoization
+- `calculateBatch` parallelized
+
+**Exit criteria:** Reduced N+1 patterns; bounded list reads; debounced previews; tests pass; UI unchanged.
+
+---
+
 ### Phase 7 — Real AI
 
 **Goal:** Connect AI Coach to production LLM with guardrails.

@@ -11,6 +11,7 @@ import type {
   ScientificReportListFilters,
   ScientificReportRecordStatus,
 } from '../../models/report/PersistedScientificReportRecord';
+import { DEFAULT_REPORT_LIST_LIMIT } from '../../models/common/ListPagination';
 import type { ScientificReportRepository } from '../../repositories/contracts/ScientificReportRepository';
 import {
   ORGANIZATIONS_ROOT,
@@ -47,8 +48,15 @@ function applyListFilters(
   records: PersistedScientificReportRecord[],
   filters?: ScientificReportListFilters
 ): PersistedScientificReportRecord[] {
-  if (filters?.includeArchived) return records;
-  return records.filter((r) => r.status !== 'archived');
+  let rows = filters?.includeArchived ? records : records.filter((r) => r.status !== 'archived');
+  const cap = filters?.limit ?? DEFAULT_REPORT_LIST_LIMIT;
+  if (cap > 0 && rows.length > cap) {
+    rows = rows
+      .slice()
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+      .slice(0, cap);
+  }
+  return rows;
 }
 
 async function loadRoleView(
@@ -143,7 +151,13 @@ export function createScientificReportFirestoreRepository(): ScientificReportRep
       const rows = await readSubcollectionFiltered<PersistedScientificReportRecord>(
         ORGANIZATIONS_ROOT,
         organizationId,
-        REPORTS_SUBCOLLECTION
+        REPORTS_SUBCOLLECTION,
+        undefined,
+        {
+          limit: filters?.limit ?? DEFAULT_REPORT_LIST_LIMIT,
+          orderByField: 'created_at',
+          orderDirection: 'desc',
+        }
       );
       return applyListFilters(rows.map(mapRecord), filters);
     },

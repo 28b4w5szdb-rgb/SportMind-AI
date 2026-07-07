@@ -38,8 +38,14 @@ function applyListFilters(
   records: PersistedScientificReportRecord[],
   filters?: ScientificReportListFilters
 ): PersistedScientificReportRecord[] {
-  if (filters?.includeArchived) return records;
-  return records.filter((r) => r.status !== 'archived');
+  let rows = filters?.includeArchived ? records : records.filter((r) => r.status !== 'archived');
+  if (filters?.limit != null && filters.limit > 0 && rows.length > filters.limit) {
+    rows = rows
+      .slice()
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+      .slice(0, filters.limit);
+  }
+  return rows;
 }
 
 /** Clear in-memory store — test helper. */

@@ -16,8 +16,15 @@ import {
 } from './catalogDefinitionMapper';
 
 const definitionCache = new Map<string, CatalogAssessmentDefinition>();
+const MAX_DEFINITION_CACHE = 256;
 let allDefinitionsPromise: Promise<CatalogAssessmentDefinition[]> | null = null;
 let allLibraryDefinitionsPromise: Promise<TestDefinition[]> | null = null;
+
+function trimDefinitionCache(): void {
+  if (definitionCache.size <= MAX_DEFINITION_CACHE) return;
+  const first = definitionCache.keys().next().value;
+  if (first) definitionCache.delete(first);
+}
 
 export async function getCachedCatalogDefinition(
   key: string
@@ -35,6 +42,7 @@ export async function getCachedCatalogDefinition(
   const definition = await engine.getAssessmentDefinitionByKey(key);
   if (definition) {
     definitionCache.set(key, definition);
+    trimDefinitionCache();
   }
   return definition;
 }

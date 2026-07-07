@@ -1,5 +1,6 @@
 /**
  * Assembles full AssessmentSession from Firestore persistence documents.
+ * Phase 8.3 — parallel sub-reads per session.
  */
 
 import type { AssessmentSession } from '../../models/session';
@@ -39,31 +40,30 @@ export async function assembleAssessmentSessionFromFirestore(
   );
   if (!metadata) return null;
 
-  const raw_measurements = await readOrgSessionSubcollection<PersistedRawMeasurementRecord>(
-    organizationId,
-    sessionId,
-    RAW_MEASUREMENTS_SUBCOLLECTION
-  );
-
-  const calculated_metrics = await readOrgSessionSubcollection<PersistedCalculatedMetricRecord>(
-    organizationId,
-    sessionId,
-    CALCULATED_METRICS_SUBCOLLECTION
-  );
-
-  const normative_snapshot = await readOrgSessionSubDocument<PersistedNormativeSnapshotRecord>(
-    organizationId,
-    sessionId,
-    NORMATIVE_SNAPSHOT_SUBCOLLECTION,
-    NORMATIVE_SNAPSHOT_DOC_ID
-  );
-
-  const interpretation = await readOrgSessionSubDocument<PersistedInterpretationRecord>(
-    organizationId,
-    sessionId,
-    INTERPRETATIONS_SUBCOLLECTION,
-    INTERPRETATION_DOC_ID
-  );
+  const [raw_measurements, calculated_metrics, normative_snapshot, interpretation] = await Promise.all([
+    readOrgSessionSubcollection<PersistedRawMeasurementRecord>(
+      organizationId,
+      sessionId,
+      RAW_MEASUREMENTS_SUBCOLLECTION
+    ),
+    readOrgSessionSubcollection<PersistedCalculatedMetricRecord>(
+      organizationId,
+      sessionId,
+      CALCULATED_METRICS_SUBCOLLECTION
+    ),
+    readOrgSessionSubDocument<PersistedNormativeSnapshotRecord>(
+      organizationId,
+      sessionId,
+      NORMATIVE_SNAPSHOT_SUBCOLLECTION,
+      NORMATIVE_SNAPSHOT_DOC_ID
+    ),
+    readOrgSessionSubDocument<PersistedInterpretationRecord>(
+      organizationId,
+      sessionId,
+      INTERPRETATIONS_SUBCOLLECTION,
+      INTERPRETATION_DOC_ID
+    ),
+  ]);
 
   return assembleAssessmentSession({
     metadata,
@@ -72,4 +72,15 @@ export async function assembleAssessmentSessionFromFirestore(
     normative_snapshot,
     interpretation,
   });
+}
+
+/** Batch-assemble sessions in parallel (bounded concurrency via Promise.all). */
+export async function assembleAssessmentSessionsFromFirestore(
+  organizationId: string,
+  sessionIds: string[]
+): Promise<AssessmentSession[]> {
+  const assembled = await Promise.all(
+    sessionIds.map((sessionId) => assembleAssessmentSessionFromFirestore(organizationId, sessionId))
+  );
+  return assembled.filter((s): s is AssessmentSession => s != null);
 }

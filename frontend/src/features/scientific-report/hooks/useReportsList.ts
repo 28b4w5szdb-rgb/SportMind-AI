@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { DEFAULT_REPORT_LIST_LIMIT } from '@/src/cloud/scientific/models/common/ListPagination';
 import { logScientificCloudError } from '@/src/cloud/scientific/adapters/cloudErrorDiagnostics';
 import { canAccessScientificFirestore } from '@/src/cloud/scientific/config';
 import type { MockReport } from '@/src/data/mock/types';
@@ -15,6 +16,7 @@ export function useReportsList(): {
   cloudEnabled: boolean;
   cloudError?: string;
   refresh: () => void;
+  hasMore: boolean;
 } {
   const mockReports = useMockStore((s) => s.reports);
   const cloudEnabled = canAccessScientificFirestore();
@@ -31,7 +33,9 @@ export function useReportsList(): {
     setLoading(true);
     setCloudError(undefined);
     try {
-      const rows = await listScientificReportsFromFirestore(WORKSPACE_MOCK_ORG_ID);
+      const rows = await listScientificReportsFromFirestore(WORKSPACE_MOCK_ORG_ID, {
+        limit: DEFAULT_REPORT_LIST_LIMIT,
+      });
       setCloudReports(rows);
     } catch (e) {
       logScientificCloudError(e, 'useReportsList');
@@ -46,10 +50,22 @@ export function useReportsList(): {
     loadCloud();
   }, [loadCloud]);
 
-  const reports = useMemo(
-    () => (cloudEnabled && !cloudError ? mergeReportLists(mockReports, cloudReports) : mockReports),
-    [cloudEnabled, cloudError, cloudReports, mockReports]
-  );
+  const reports = useMemo(() => {
+    const merged =
+      cloudEnabled && !cloudError ? mergeReportLists(mockReports, cloudReports) : mockReports;
+    return merged
+      .slice()
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+      .slice(0, DEFAULT_REPORT_LIST_LIMIT);
+  }, [cloudEnabled, cloudError, cloudReports, mockReports]);
 
-  return { reports, loading, cloudEnabled, cloudError, refresh: loadCloud };
+  const hasMore = useMemo(() => {
+    const mergedCount =
+      cloudEnabled && !cloudError
+        ? mergeReportLists(mockReports, cloudReports).length
+        : mockReports.length;
+    return mergedCount > DEFAULT_REPORT_LIST_LIMIT;
+  }, [cloudEnabled, cloudError, cloudReports, mockReports]);
+
+  return { reports, loading, cloudEnabled, cloudError, refresh: loadCloud, hasMore };
 }

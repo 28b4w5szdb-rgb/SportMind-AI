@@ -36,4 +36,6 @@ export interface CreateScientificReportInput {
 
 export interface ScientificReportListFilters {
   includeArchived?: boolean;
+  /** Max reports per list query (default 50). */
+  limit?: number;
 }
