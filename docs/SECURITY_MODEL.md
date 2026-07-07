@@ -261,6 +261,14 @@ Passport is a **computed summary** — not persisted in Firestore in this phase.
 
 Timeline is a **computed index** — not persisted in Firestore in this phase.
 
+### Phase 6D.3 — Workspace Context & Role Presets
+
+| Dev env var | Effect |
+|-------------|--------|
+| `EXPO_PUBLIC_DEV_WORKSPACE_ROLE` | Sets mock workspace role (coach, team_doctor, researcher, etc.) |
+
+Passport and timeline filtering use the same `SecurityContext`. Org admin bypasses section/event redaction. Diagnostics panel is **`__DEV__` only** — never shipped to production.
+
 ### Remaining untested
 
 - Team-scoped ABAC (`teamIds` claim enforcement)

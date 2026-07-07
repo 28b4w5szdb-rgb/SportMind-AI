@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6D.2 — Scientific Timeline (complete) |
+| **Current phase** | Phase 6D.3 — Athlete Workspace Role Context & Cloud Readiness (complete) |
 | **Next phase** | Phase 6D — Firebase Storage |
 
 ---
@@ -42,6 +42,7 @@
 | **6C.11** | Custom Claims & Membership Permissions — effective resolver, rules + tests | ✅ Complete |
 | **6D.1** | Athlete Digital Passport — summary layer, builder, workspace overview | ✅ Complete |
 | **6D.2** | Scientific Timeline — chronological index layer, builder, workspace UI | ✅ Complete |
+| **6D.3** | Workspace Context — role-aware passport/timeline, cloud bridge, dev diagnostics | ✅ Complete |
 
 ---
 
@@ -72,6 +73,18 @@ frontend/src/cloud/
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6D.3 — Athlete Workspace Role Context & Cloud Readiness
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Workspace context** | `AthleteWorkspaceProvider` — athlete, org, role, permissions, passport, timeline, visibility |
+| **Role presets** | coach, sports_scientist, team_doctor, physiotherapist, researcher, athlete, org_admin |
+| **Security** | `filterPassportForContext` / `filterTimelineForContext` via `SecurityContext` |
+| **Cloud bridge** | `loadCloudSessionsForAthlete()` when scientific cloud enabled |
+| **Mock fallback** | Shared `buildWorkspaceArtifacts()` from mock store when cloud off |
+| **Dev diagnostics** | `WorkspaceVisibilityDiagnostics` — `__DEV__` only |
+| **Performance** | Single source aggregation; timeline lazy-loaded after passport |
 
 #### Phase 6D.2 — Scientific Timeline
 

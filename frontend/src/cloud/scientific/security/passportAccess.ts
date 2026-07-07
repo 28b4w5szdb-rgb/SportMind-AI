@@ -14,6 +14,7 @@ const SCIENTIST_SECTIONS: PassportSectionId[] = ['body_composition', 'equipment'
 
 /** Map security context to passport viewer role. */
 export function resolvePassportViewerRole(context: SecurityContext): PassportViewerRole {
+  if (context.claims.isOrgAdmin) return 'clinical';
   if (canReadFullMedicalRecord(context)) return 'clinical';
   if (canReadResearchData(context) && !hasPermission(context, PERMISSIONS.READ_ATHLETES)) return 'research';
   if (hasPermission(context, PERMISSIONS.READ_ASSESSMENTS) && hasPermission(context, PERMISSIONS.READ_ATHLETES)) {
@@ -121,6 +122,23 @@ export function filterPassportForContext(
   passport: AthletePassport,
   context: SecurityContext
 ): AthletePassport {
+  if (context.claims.isOrgAdmin) {
+    const visibleIds = (Object.keys(passport.sections) as PassportSectionId[]).filter(
+      (id) => !passport.sections[id].is_missing || passport.sections[id].summary_fields.length > 0
+    );
+    return {
+      ...passport,
+      viewer_role: 'clinical',
+      privacy_metadata: {
+        ...passport.privacy_metadata,
+        pii_redacted: false,
+        clinical_restricted: false,
+        research_deidentified: false,
+        visible_section_ids: visibleIds,
+      },
+    };
+  }
+
   const role = resolvePassportViewerRole(context);
   let filtered = filterPassportForViewer(passport, role);
 

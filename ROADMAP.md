@@ -154,6 +154,20 @@
 
 ---
 
+### Phase 6D.3 — Athlete Workspace Role Context & Cloud Readiness
+
+**Goal:** Connect Passport and Scientific Timeline to authorization model and cloud repositories without UI redesign.
+
+- `AthleteWorkspaceProvider` — single context for athlete, org, role, permissions, passport, timeline
+- Role-aware passport/timeline via security helpers (7 workspace roles)
+- Cloud session loading when scientific cloud enabled; mock bridge fallback
+- Dev-only visibility diagnostics (`__DEV__`)
+- Lazy timeline load after passport; memoized shared build sources
+
+**Exit criteria (met):** Context drives passport/timeline; role presets work; cloud bridge ready; mock mode unchanged; TypeScript + 15 unit tests pass.
+
+---
+
 ### Phase 6D — Storage
 
 **Goal:** Firebase Storage for files and exports.

@@ -89,6 +89,10 @@ export function filterTimelineForContext(
   timeline: AthleteScientificTimeline,
   context: SecurityContext
 ): AthleteScientificTimeline {
+  if (context.claims.isOrgAdmin) {
+    return { ...timeline, viewer_role: 'clinical', events: timeline.events };
+  }
+
   const role = resolveTimelineViewerRole(context);
   let filtered = filterTimelineForViewer(timeline, role);
 

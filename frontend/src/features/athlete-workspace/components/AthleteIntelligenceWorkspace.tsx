@@ -20,11 +20,12 @@ import { useTrainingBuilderSnapshot, WorkspaceTrainingSection } from '@/src/feat
 import { useNutritionSnapshot, WorkspaceNutritionSection } from '@/src/features/nutrition';
 import { useWearablesSnapshot, WorkspaceWearablesSection } from '@/src/features/wearables';
 import { buildWorkspaceSsidEntries, SsidBundleSection } from '@/src/features/ssid-engine';
-import { useAthletePassport, WorkspacePassportOverview } from '@/src/features/athlete-passport';
-import { useScientificTimeline, WorkspaceScientificTimeline } from '@/src/features/athlete-timeline';
+import { WorkspacePassportOverview } from '@/src/features/athlete-passport';
+import { WorkspaceScientificTimeline } from '@/src/features/athlete-timeline';
 
 import { useAthleteWorkspace } from '../hooks/useAthleteWorkspace';
 import { useAthleteCockpitPresentation } from '../hooks/useAthleteCockpitPresentation';
+import { AthleteWorkspaceProvider, useAthleteWorkspaceContext } from '../context/AthleteWorkspaceProvider';
 import type { CockpitSectionId } from '../constants/cockpitSections';
 import { COCKPIT_NAV_ITEMS } from '../constants/cockpitSections';
 import { WorkspaceQuickActions } from './WorkspaceQuickActions';
@@ -41,6 +42,7 @@ import { CockpitAiSummary } from './cockpit/CockpitAiSummary';
 import { CockpitChartsPanel } from './cockpit/CockpitChartsPanel';
 import { CockpitBodyIntelligence } from './cockpit/CockpitBodyIntelligence';
 import { CockpitCollapsibleSection } from './cockpit/CockpitCollapsibleSection';
+import { WorkspaceVisibilityDiagnostics } from './dev/WorkspaceVisibilityDiagnostics';
 
 interface AthleteIntelligenceWorkspaceProps {
   athlete: MockAthlete;
@@ -48,13 +50,15 @@ interface AthleteIntelligenceWorkspaceProps {
   analytics: AthleteAnalyticsSnapshot;
 }
 
-export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: AthleteIntelligenceWorkspaceProps) {
+function AthleteIntelligenceWorkspaceContent() {
   const { t } = useTranslation();
   const theme = useTheme();
   const { horizontalPadding } = useResponsiveLayout();
   const scrollRef = useRef<ScrollView>(null);
   const sectionOffsets = useRef<Partial<Record<CockpitSectionId, number>>>({});
   const [activeSection, setActiveSection] = useState<CockpitSectionId>('overview');
+
+  const { athlete, tests, analytics, passport, scientificTimeline } = useAthleteWorkspaceContext();
 
   const workspace = useAthleteWorkspace(athlete, tests, analytics);
   const latestCheckIn = useLatestCheckInForAthlete(athlete.id);
@@ -64,8 +68,6 @@ export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: Athl
   const trainingSnapshot = useTrainingBuilderSnapshot(athlete, tests);
   const nutritionSnapshot = useNutritionSnapshot(athlete);
   const wearableSnapshot = useWearablesSnapshot(athlete);
-  const passport = useAthletePassport(athlete, tests, analytics);
-  const scientificTimeline = useScientificTimeline(athlete, tests, analytics, { passport });
 
   const latestReport = useMemo(
     () =>
@@ -207,6 +209,7 @@ export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: Athl
         <View onLayout={registerSection('timeline')}>
           <CockpitCollapsibleSection title={t('scientificTimeline.title')} subtitle={t('athleteWorkspace.timelineSubtitle')}>
             {scientificTimeline ? <WorkspaceScientificTimeline timeline={scientificTimeline} /> : null}
+            <WorkspaceVisibilityDiagnostics />
             <View style={{ marginTop: theme.spacing.lg }}>
               <AthleteProfileDetails athlete={athlete} />
             </View>
@@ -214,6 +217,14 @@ export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: Athl
         </View>
       </ScrollView>
     </View>
+  );
+}
+
+export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: AthleteIntelligenceWorkspaceProps) {
+  return (
+    <AthleteWorkspaceProvider athlete={athlete} tests={tests} analytics={analytics}>
+      <AthleteIntelligenceWorkspaceContent />
+    </AthleteWorkspaceProvider>
   );
 }
 

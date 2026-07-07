@@ -302,6 +302,27 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6D.3 — Athlete Workspace Role Context & Cloud Readiness] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **AthleteWorkspaceProvider** — unified context: athlete, org, role, permissions, data mode, passport, timeline, visibility profile
+- **Workspace role presets** — coach, sports_scientist, team_doctor, physiotherapist, researcher, athlete, org_admin (dev via `EXPO_PUBLIC_DEV_WORKSPACE_ROLE`)
+- **Role-aware filtering** — passport/timeline use `filterPassportForContext` and `filterTimelineForContext`
+- **Cloud bridge** — `loadCloudSessionsForAthlete()` merges scientific sessions when cloud enabled
+- **Shared artifact builder** — `buildWorkspaceArtifacts()` avoids duplicate mock reads
+- **Dev diagnostics** — `WorkspaceVisibilityDiagnostics` (`__DEV__` only)
+- **Unit tests** — 4 workspace context tests (15 total with prior phases)
+
+### Unchanged (by design)
+
+- No UI redesign, Dashboard, Performance Lab, Reports, AI, or Firestore persistence changes
+- Mock mode remains default
+
+---
+
 ## [Phase 6D.2 — Scientific Timeline] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`
@@ -559,4 +580,4 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6D.1*
+*Last updated: Phase 6D.3*
