@@ -6,14 +6,14 @@
 
 import { buildDecisionContext } from '../context/decisionContextBuilder';
 import type { BuildDecisionContextInput } from '../models/DecisionContext';
-import type { AiProvider, AiProviderResponse } from '../providers/aiProviderContract';
-import { getMockAiProvider } from '../providers/mockAiProvider';
+import type { AiProvider } from '../providers/aiProviderContract';
 import type { SdssRecommendationBundle } from '../models/SdssRecommendation';
 import type { GovernancePipelineResult, RecommendationAuditRecord, ValidationMetricsSnapshot } from '../models/Governance';
 import { applyGovernanceToBundle, runGovernancePipeline } from '../governance/governancePipeline';
 import { SDSS_VERSION } from '../models/SdssRecommendation';
 import { buildSafePromptPipeline } from '../privacy/safePromptBuilder';
 import type { SafePromptBundle } from '../privacy/privacyModels';
+import { executeProviderRequest } from '../providers/ProviderFactory';
 
 export interface SdssRequest {
   contextInput: BuildDecisionContextInput;
@@ -40,13 +40,21 @@ export interface SdssResponse {
 export async function runSdssPipeline(request: SdssRequest): Promise<SdssResponse> {
   const context = buildDecisionContext(request.contextInput);
   const safePipeline = buildSafePromptPipeline(context, request.userQuery);
-  const provider = request.provider ?? getMockAiProvider();
 
-  const result: AiProviderResponse = await provider.generate({
-    prompt: safePipeline.prompt,
-    context,
-    user_query: request.userQuery,
-  });
+  const result = request.provider
+    ? await request.provider.generate({
+        prompt: safePipeline.prompt,
+        context,
+        user_query: request.userQuery,
+      })
+    : await executeProviderRequest(
+        {
+          prompt: safePipeline.prompt,
+          context,
+          user_query: request.userQuery,
+        },
+        { organization_id: request.contextInput.organizationId, user_id: request.contextInput.athleteId ?? undefined }
+      );
 
   const governed = runGovernancePipeline({
     bundle: result.recommendations,
@@ -73,5 +81,7 @@ export async function runSdssPipeline(request: SdssRequest): Promise<SdssRespons
   };
 }
 
-export { buildDecisionContext, getMockAiProvider };
+export { buildDecisionContext };
 export { buildSafePromptPipeline } from '../privacy/safePromptBuilder';
+export { executeProviderRequest } from '../providers/ProviderFactory';
+export { getMockAiProvider } from '../providers/mockAiProvider';

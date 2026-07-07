@@ -9,6 +9,15 @@ import type { SdssDecisionContext } from '../models/DecisionContext';
 
 export type AiProviderId = 'mock' | 'openai' | 'azure_openai' | 'local_llm';
 
+export interface AiProviderExecutionMetadata {
+  input_tokens?: number;
+  output_tokens?: number;
+  total_tokens?: number;
+  estimated_cost_usd?: number;
+  retry_count?: number;
+  failover_from?: AiProviderId | null;
+}
+
 export interface AiProviderRequest {
   prompt: SafePromptBundle;
   context: SdssDecisionContext;
@@ -20,6 +29,7 @@ export interface AiProviderResponse {
   raw_text: string;
   recommendations: SdssRecommendationBundle;
   latency_ms: number;
+  metadata?: AiProviderExecutionMetadata;
 }
 
 export interface AiProvider {
