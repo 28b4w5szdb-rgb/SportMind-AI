@@ -226,6 +226,12 @@ service cloud.firestore {
         allow read: if isActiveOrgMember(orgId) && hasPermission(orgId, 'read_athletes');
         allow create, update: if isActiveOrgMember(orgId) && hasPermission(orgId, 'write_athletes');
         allow delete: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission(orgId, 'manage_org'));
+
+        match /memberships/{membershipId} {
+          allow read: if isActiveOrgMember(orgId) && hasPermission(orgId, 'read_athletes');
+          allow create, update: if isActiveOrgMember(orgId) && hasPermission(orgId, 'write_athletes');
+          allow delete: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission(orgId, 'manage_org'));
+        }
       }
 
       // Athletes — coaches read/write; no embedded diagnosis fields on write from non-clinical roles
@@ -242,6 +248,12 @@ service cloud.firestore {
         allow read: if isActiveOrgMember(orgId);
         allow create, update: if isActiveOrgMember(orgId) && hasPermission(orgId, 'manage_equipment');
         allow delete: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission(orgId, 'manage_equipment'));
+
+        match /maintenance_logs/{logId} {
+          allow read: if isActiveOrgMember(orgId);
+          allow create, update: if isActiveOrgMember(orgId) && hasPermission(orgId, 'manage_equipment');
+          allow delete: if false;
+        }
       }
 
       // Locations
@@ -283,6 +295,18 @@ service cloud.firestore {
         allow read: if isActiveOrgMember(orgId) && hasPermission(orgId, 'read_reports');
         allow create, update: if isActiveOrgMember(orgId) && hasPermission(orgId, 'write_reports');
         allow delete: if isActiveOrgMember(orgId) && isOrgAdminClaim();
+
+        // Role-filtered section views — clinical/research isolated from coach-safe main doc (Phase 8.1)
+        match /role_views/{roleId} {
+          allow read: if isActiveOrgMember(orgId) && (
+            (roleId == 'coach' && hasPermission(orgId, 'read_reports')) ||
+            (roleId == 'sports_scientist' && hasPermission(orgId, 'read_reports')) ||
+            (roleId == 'clinical' && hasClinicalRead(orgId)) ||
+            (roleId == 'research' && hasPermission(orgId, 'read_research'))
+          );
+          allow create, update: if isActiveOrgMember(orgId) && hasPermission(orgId, 'write_reports');
+          allow delete: if false;
+        }
       }
 
       // Append-only audit trail

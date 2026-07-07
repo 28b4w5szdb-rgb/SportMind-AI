@@ -86,6 +86,9 @@ export function orgReportPathSegments(orgId: string, reportId: string): string[]
 
 export const MEDICAL_RECORDS_SUBCOLLECTION = 'medical_records' as const;
 export const REPORTS_SUBCOLLECTION = 'reports' as const;
+export const REPORT_ROLE_VIEWS_SUBCOLLECTION = 'role_views' as const;
+export const TEAM_MEMBERSHIPS_SUBCOLLECTION = 'memberships' as const;
+export const EQUIPMENT_MAINTENANCE_LOGS_SUBCOLLECTION = 'maintenance_logs' as const;
 export const AUDIT_LOGS_SUBCOLLECTION = 'audit_logs' as const;
 export const RESEARCH_DATASETS_SUBCOLLECTION = 'research_datasets' as const;
 

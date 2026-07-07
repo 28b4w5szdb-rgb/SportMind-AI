@@ -13,7 +13,8 @@ export interface ScientificReportRepository {
   createScientificReport(input: CreateScientificReportInput): Promise<PersistedScientificReportRecord>;
   getScientificReportById(
     organizationId: string,
-    reportId: string
+    reportId: string,
+    viewerRole?: import('../../models/report').ReportViewerRole
   ): Promise<PersistedScientificReportRecord | null>;
   listScientificReports(
     organizationId: string,

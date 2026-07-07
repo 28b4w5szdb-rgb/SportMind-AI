@@ -42,7 +42,8 @@ export function ReportBuilderWizard() {
   const athletes = useMockStore((s) => s.athletes);
   const addReport = useMockStore((s) => s.addReport);
   const updateReport = useMockStore((s) => s.updateReport);
-  const { loading, success, run } = useFormAction();
+  const { loading, success, error, run } = useFormAction();
+  const [saveNotice, setSaveNotice] = React.useState<string | null>(null);
   const prefillApplied = useRef(false);
 
   const {
@@ -107,6 +108,7 @@ export function ReportBuilderWizard() {
 
   const handleSave = () => {
     if (!config.title.trim()) return;
+    setSaveNotice(null);
     run(async () => {
       const sections = sectionsToMockReportSections(config.sectionOrder, allSections);
 
@@ -120,6 +122,11 @@ export function ReportBuilderWizard() {
           addReport,
           updateReport,
         });
+        if (saved.cloudError) {
+          setSaveNotice(t('scientificCloud.save.cloudSyncFailed', { reason: saved.cloudError }));
+        } else if (saved.sizeWarning) {
+          setSaveNotice(t('scientificCloud.save.sizeWarning'));
+        }
         setTimeout(() => router.replace(APP_ROUTES.reportDetail(saved.report.id)), 600);
         return;
       }
@@ -358,6 +365,16 @@ export function ReportBuilderWizard() {
   return (
     <FeatureScrollScreen title={t('reportBuilder.title')} subtitle={t('reportBuilder.subtitle')}>
       <SuccessBanner message={t('features.reports.saved')} visible={success} />
+      {saveNotice ? (
+        <Text style={[type.bodySm, { color: theme.colors.warning, marginBottom: theme.spacing.sm, textAlign: textAlign('start') }]}>
+          {saveNotice}
+        </Text>
+      ) : null}
+      {error ? (
+        <Text style={[type.bodySm, { color: theme.colors.error, marginBottom: theme.spacing.sm, textAlign: textAlign('start') }]}>
+          {error}
+        </Text>
+      ) : null}
       <WizardStepIndicator currentStep={step} />
       {renderStep()}
 

@@ -26,6 +26,8 @@ export interface SaveScientificReportResult {
   report: MockReport;
   cloudSaved: boolean;
   cloudError?: string;
+  sizeWarning?: boolean;
+  chunkingRecommended?: boolean;
 }
 
 export function isPersistedScientificReport(report: MockReport | null | undefined): boolean {
@@ -67,6 +69,8 @@ export async function saveScientificReport(input: SaveScientificReportInput): Pr
 
   let cloudSaved = false;
   let cloudError: string | undefined;
+  let sizeWarning = false;
+  let chunkingRecommended = false;
 
   if (canAccessScientificFirestore()) {
     const result = await tryPersistScientificReportToFirestore({
@@ -80,7 +84,10 @@ export async function saveScientificReport(input: SaveScientificReportInput): Pr
     }).catch(() => ({ ok: false as const, reason: 'write_failed' as const }));
 
     cloudSaved = result.ok;
-    if (!result.ok) {
+    if (result.ok) {
+      sizeWarning = Boolean(result.sizeWarning);
+      chunkingRecommended = Boolean(result.chunkingRecommended);
+    } else {
       cloudError = result.reason;
     }
   }
@@ -89,6 +96,8 @@ export async function saveScientificReport(input: SaveScientificReportInput): Pr
     report: { ...report, scientific_report: finalized },
     cloudSaved,
     cloudError,
+    sizeWarning,
+    chunkingRecommended,
   };
 }
 

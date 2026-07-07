@@ -12,24 +12,41 @@ import {
 
 import { getCloudFirestore } from '@/src/cloud/firebase/firestore';
 
-import { ORGANIZATIONS_ROOT } from '../../paths/organizationPaths';
+import {
+  ORGANIZATIONS_ROOT,
+  REPORT_ROLE_VIEWS_SUBCOLLECTION,
+  REPORTS_SUBCOLLECTION,
+} from '../../paths/organizationPaths';
 import { ASSESSMENT_SESSIONS_SUBCOLLECTION } from '../../paths/sessionPaths';
+import { ScientificCloudError } from '../errors';
+import { wrapFirestoreError } from '../cloudErrorDiagnostics';
 import { createDocumentIfNotExists } from './firestoreWriteHelper';
 
 export function getScientificFirestore(): Firestore | null {
   return getCloudFirestore();
 }
 
-export async function readDocument<T>(collectionId: string, documentId: string): Promise<T | null> {
+function requireFirestore(): Firestore {
   const db = getScientificFirestore();
-  if (!db) return null;
+  if (!db) {
+    throw new ScientificCloudError(
+      'firestore_unavailable',
+      'Firestore is not configured',
+      'getCloudFirestore() returned null'
+    );
+  }
+  return db;
+}
+
+export async function readDocument<T>(collectionId: string, documentId: string): Promise<T | null> {
+  const db = requireFirestore();
 
   try {
     const snap = await getDoc(doc(db, collectionId, documentId));
     if (!snap.exists()) return null;
     return { id: snap.id, ...snap.data() } as T;
-  } catch {
-    return null;
+  } catch (cause) {
+    throw wrapFirestoreError(`readDocument(${collectionId}/${documentId})`, cause);
   }
 }
 
@@ -37,8 +54,7 @@ export async function readCollection<T>(
   collectionId: string,
   filters?: Array<{ field: string; op: '==' | '!='; value: unknown }>
 ): Promise<T[]> {
-  const db = getScientificFirestore();
-  if (!db) return [];
+  const db = requireFirestore();
 
   try {
     const base = collection(db, collectionId);
@@ -47,8 +63,8 @@ export async function readCollection<T>(
       : query(base);
     const snap = await getDocs(q);
     return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T);
-  } catch {
-    return [];
+  } catch (cause) {
+    throw wrapFirestoreError(`readCollection(${collectionId})`, cause);
   }
 }
 
@@ -58,15 +74,17 @@ export async function readSubDocument<T>(
   subcollectionId: string,
   documentId: string
 ): Promise<T | null> {
-  const db = getScientificFirestore();
-  if (!db) return null;
+  const db = requireFirestore();
 
   try {
     const snap = await getDoc(doc(db, parentCollectionId, parentId, subcollectionId, documentId));
     if (!snap.exists()) return null;
     return { id: snap.id, ...snap.data() } as T;
-  } catch {
-    return null;
+  } catch (cause) {
+    throw wrapFirestoreError(
+      `readSubDocument(${parentCollectionId}/${parentId}/${subcollectionId}/${documentId})`,
+      cause
+    );
   }
 }
 
@@ -76,8 +94,7 @@ export async function readSubcollectionFiltered<T>(
   subcollectionId: string,
   filters?: Array<{ field: string; op: WhereFilterOp; value: unknown }>
 ): Promise<T[]> {
-  const db = getScientificFirestore();
-  if (!db) return [];
+  const db = requireFirestore();
 
   try {
     const base = collection(db, parentCollectionId, parentId, subcollectionId);
@@ -86,8 +103,11 @@ export async function readSubcollectionFiltered<T>(
       : query(base);
     const snap = await getDocs(q);
     return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T);
-  } catch {
-    return [];
+  } catch (cause) {
+    throw wrapFirestoreError(
+      `readSubcollectionFiltered(${parentCollectionId}/${parentId}/${subcollectionId})`,
+      cause
+    );
   }
 }
 
@@ -106,16 +126,44 @@ export async function readNestedSubcollection<T>(
   nestedId: string,
   nestedSubcollectionId: string
 ): Promise<T[]> {
-  const db = getScientificFirestore();
-  if (!db) return [];
+  const db = requireFirestore();
 
   try {
     const snap = await getDocs(
       collection(db, parentCollectionId, parentId, subcollectionId, nestedId, nestedSubcollectionId)
     );
     return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T);
-  } catch {
-    return [];
+  } catch (cause) {
+    throw wrapFirestoreError(
+      `readNestedSubcollection(${parentCollectionId}/${parentId}/${subcollectionId}/${nestedId}/${nestedSubcollectionId})`,
+      cause
+    );
+  }
+}
+
+export async function readReportRoleView<T>(
+  orgId: string,
+  reportId: string,
+  role: string
+): Promise<T | null> {
+  const db = requireFirestore();
+
+  try {
+    const snap = await getDoc(
+      doc(
+        db,
+        ORGANIZATIONS_ROOT,
+        orgId,
+        REPORTS_SUBCOLLECTION,
+        reportId,
+        REPORT_ROLE_VIEWS_SUBCOLLECTION,
+        role
+      )
+    );
+    if (!snap.exists()) return null;
+    return { id: snap.id, ...snap.data() } as T;
+  } catch (cause) {
+    throw wrapFirestoreError(`readReportRoleView(${orgId}/${reportId}/${role})`, cause);
   }
 }
 
@@ -124,8 +172,7 @@ export async function readOrgSessionSubcollection<T>(
   sessionId: string,
   subcollectionId: string
 ): Promise<T[]> {
-  const db = getScientificFirestore();
-  if (!db) return [];
+  const db = requireFirestore();
 
   try {
     const snap = await getDocs(
@@ -139,8 +186,8 @@ export async function readOrgSessionSubcollection<T>(
       )
     );
     return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T);
-  } catch {
-    return [];
+  } catch (cause) {
+    throw wrapFirestoreError(`readOrgSessionSubcollection(${orgId}/${sessionId}/${subcollectionId})`, cause);
   }
 }
 
@@ -150,8 +197,7 @@ export async function readOrgSessionSubDocument<T>(
   subcollectionId: string,
   documentId: string
 ): Promise<T | null> {
-  const db = getScientificFirestore();
-  if (!db) return null;
+  const db = requireFirestore();
 
   try {
     const snap = await getDoc(
@@ -167,8 +213,11 @@ export async function readOrgSessionSubDocument<T>(
     );
     if (!snap.exists()) return null;
     return { id: snap.id, ...snap.data() } as T;
-  } catch {
-    return null;
+  } catch (cause) {
+    throw wrapFirestoreError(
+      `readOrgSessionSubDocument(${orgId}/${sessionId}/${subcollectionId}/${documentId})`,
+      cause
+    );
   }
 }
 

@@ -7,6 +7,33 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+---
+
+## [Phase 8.1 — Production Hardening (P0 Remediation)] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Role-aware report persistence** — coach-safe main document + `role_views/{role}` subcollection
+- **`reportPersistenceSecurity.ts`** — prepare, validate size, resolve viewer-specific persisted views
+- **`ScientificCloudError`** — unified cloud errors with developer diagnostics
+- **`firestore.indexes.json`** — composite indexes for catalog, reports, sessions, athletes
+- **Firestore rules** — nested `memberships`, `maintenance_logs`, `role_views` paths
+- **Registry** — `reports` repository on `getScientificRepositoryRegistry()`
+- **UI** — cloud sync failure and size warnings on report save
+
+### Fixed
+
+- Firestore read helpers no longer swallow errors as empty arrays/null
+- Rules/code path mismatch for nested organization collections
+
+### Unchanged (by design)
+
+- No UI redesign, AI, PDF, timeline/passport redesign, or scientific engine changes
+
+---
+
 ## [Phase 7.3 — Unified Scientific Export Layer] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`

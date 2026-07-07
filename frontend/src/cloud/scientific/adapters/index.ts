@@ -26,7 +26,8 @@ import { createScientificCalculationMockRepository } from './mock/scientificCalc
 import { createScientificInterpretationMockRepository } from './mock/scientificInterpretationMockAdapter';
 import { createScientificReportMockRepository } from './mock/scientificReportMockAdapter';
 
-export { ScientificPersistenceError, ScientificReadOnlyError } from './errors';
+export { ScientificPersistenceError, ScientificReadOnlyError, ScientificCloudError } from './errors';
+export type { ScientificCloudErrorCode } from './errors';
 
 export function createCatalogRepository(
   useCloud = canAccessScientificFirestore()

@@ -9,8 +9,9 @@ import {
   createOrganizationRepository,
   createScientificCalculationRepository,
   createScientificInterpretationRepository,
+  createScientificReportRepository,
 } from '../adapters';
-import { createFirestoreAtomicPersistenceRepository } from '../adapters/firestore/firestoreAtomicPersistenceAdapter';
+import type { ScientificReportRepository } from './contracts/ScientificReportRepository';
 import { canAccessScientificFirestore } from '../config';
 import { createAssessmentSessionEngine } from '../engine/assessmentSessionEngine';
 import { createAssessmentDefinitionEngine } from '../engine/assessmentDefinitionEngine';
@@ -30,6 +31,7 @@ import type {
   ScientificInterpretationRepository,
   ScientificOrganizationRepository,
 } from './contracts';
+import { createFirestoreAtomicPersistenceRepository } from '../adapters/firestore/firestoreAtomicPersistenceAdapter';
 
 export interface ScientificRepositoryRegistry {
   readonly enabled: boolean;
@@ -39,6 +41,7 @@ export interface ScientificRepositoryRegistry {
   readonly calculations: ScientificCalculationRepository;
   readonly normativeSnapshots: NormativeSnapshotRepository;
   readonly interpretations: ScientificInterpretationRepository;
+  readonly reports: ScientificReportRepository;
   readonly persistence: ScientificPersistenceGateway;
 }
 
@@ -67,6 +70,7 @@ export function getScientificRepositoryRegistry(): ScientificRepositoryRegistry 
     calculations,
     normativeSnapshots,
     interpretations,
+    reports: createScientificReportRepository(enabled),
     persistence: createScientificPersistenceGateway({
       sessions,
       atomic,

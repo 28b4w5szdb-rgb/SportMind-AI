@@ -16,6 +16,12 @@ export interface PersistedScientificReportRecord extends ScientificReport {
   mock_type?: 'athlete' | 'team' | 'session' | 'custom';
   created_at: string;
   updated_at: string;
+  /** Phase 8.1 — coach-safe persistence schema marker. */
+  persistence_schema_version?: string;
+  /** Estimated JSON payload size at write time (bytes). */
+  payload_bytes_estimate?: number;
+  /** True when payload exceeds warn threshold — future chunking candidate. */
+  chunking_recommended?: boolean;
 }
 
 export interface CreateScientificReportInput {

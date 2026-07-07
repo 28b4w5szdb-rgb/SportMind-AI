@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 7.3 — Unified Scientific Export Layer (complete) |
+| **Current phase** | Phase 8.1 — Production Hardening (complete) |
 | **Next phase** | Phase 6D — Firebase Storage |
 
 ---
@@ -48,6 +48,7 @@
 | **7.2** | Firestore scientific report repository, cloud read path, list merge | ✅ Complete |
 | **7.2.1** | Firestore rules regression fix — reports test SDK alignment | ✅ Complete |
 | **7.3** | Unified Scientific Export Layer — pipeline, templates, mock adapters | ✅ Complete |
+| **8.1** | Production Hardening — P0 remediation, role-aware report persistence, indexes | ✅ Complete |
 
 ---
 
@@ -78,6 +79,18 @@ frontend/src/cloud/
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 8.1 — Production Hardening (P0 Remediation)
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Report security** | Coach-safe main Firestore doc + `role_views/{role}` subcollection; clinical content isolated |
+| **Persistence prep** | `prepareReportForPersistence()` + `validateReportPayloadSize()` before write |
+| **Firestore paths** | Rules for `teams/.../memberships`, `equipment/.../maintenance_logs`, `reports/.../role_views` |
+| **Indexes** | `firestore.indexes.json` — catalog, reports, sessions, athletes, seasons |
+| **Cloud errors** | `ScientificCloudError` — read helpers throw instead of silent empty arrays |
+| **Registry** | `ScientificReportRepository` registered in `getScientificRepositoryRegistry()` |
+| **UI** | Cloud sync / size warnings on report save; list/detail cloud error surfacing |
 
 #### Phase 7.3 — Unified Scientific Export Layer
 

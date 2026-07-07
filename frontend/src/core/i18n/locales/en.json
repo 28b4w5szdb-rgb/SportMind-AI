@@ -2268,5 +2268,21 @@
     "title": "Export {{format}}",
     "formatComingSoon": "Format rendering coming soon — no file generated yet.",
     "preparedMeta": "Prepared: {{file}} ({{sections}} sections)"
+  },
+  "scientificCloud": {
+    "errors": {
+      "generic": "Cloud data could not be loaded. Showing local data when available.",
+      "firestoreUnavailable": "Cloud storage is unavailable. Check your connection and try again.",
+      "readFailed": "Could not read cloud data. Local data is shown when available.",
+      "writeFailed": "Report saved locally but cloud sync failed. Try again later.",
+      "permissionDenied": "You do not have permission for this cloud operation.",
+      "reportOversized": "This report is too large to save to the cloud. Reduce sections and try again.",
+      "reportSizeWarning": "This report is large. Future versions may split it into smaller cloud documents.",
+      "duplicateDocument": "This record already exists in the cloud."
+    },
+    "save": {
+      "cloudSyncFailed": "Saved locally. Cloud sync failed ({{reason}}).",
+      "sizeWarning": "Report saved. Cloud payload is large — chunking may apply in a future update."
+    }
   }
 }

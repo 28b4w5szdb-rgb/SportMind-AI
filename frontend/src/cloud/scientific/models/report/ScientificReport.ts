@@ -110,6 +110,10 @@ export interface ScientificReport {
   generated_by: string;
   version_metadata: ReportVersionMetadata;
   viewer_role: ReportViewerRole;
+  /** Set when persisted with role-aware views (Phase 8.1). */
+  persistence_schema_version?: string;
+  payload_bytes_estimate?: number;
+  chunking_recommended?: boolean;
 }
 
 export const REPORT_SCHEMA_VERSION = '1.0.0';

@@ -271,6 +271,22 @@
 
 ---
 
+### Phase 8.1 — Production Hardening (P0 Remediation) ✅
+
+**Goal:** Resolve P0 audit findings for production cloud readiness.
+
+- Role-aware report persistence — coach-safe main doc + per-role `role_views` subcollection
+- Firestore rules aligned with nested org paths (memberships, maintenance_logs, role_views)
+- `firestore.indexes.json` for catalog, reports, sessions, athletes
+- `ScientificCloudError` — no silent empty arrays on Firestore read failures
+- `ScientificReportRepository` in canonical registry
+- Report payload size validation before cloud write
+- 6 new rules tests + 4 persistence security unit tests
+
+**Exit criteria:** P0 items resolved; rules suite expanded; cloud errors surfaced in report UI.
+
+---
+
 ### Phase 7 — Real AI
 
 **Goal:** Connect AI Coach to production LLM with guardrails.

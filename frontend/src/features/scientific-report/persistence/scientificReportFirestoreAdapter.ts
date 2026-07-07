@@ -1,15 +1,17 @@
 /**
- * Scientific Report Firestore bridge (Phase 7.2).
+ * Scientific Report Firestore bridge (Phase 7.2 / 8.1).
  */
 
-import { createScientificReportRepository } from '@/src/cloud/scientific/adapters';
+import { logScientificCloudError } from '@/src/cloud/scientific/adapters/cloudErrorDiagnostics';
+import { ScientificCloudError, ScientificPersistenceError } from '@/src/cloud/scientific/adapters/errors';
 import { canAccessScientificFirestore } from '@/src/cloud/scientific/config';
+import type { ReportViewerRole } from '@/src/cloud/scientific/models/report';
 import type { CreateScientificReportInput, PersistedScientificReportRecord } from '@/src/cloud/scientific/models/report';
-import { ScientificPersistenceError } from '@/src/cloud/scientific/adapters/errors';
+import { getScientificRepositoryRegistry } from '@/src/cloud/scientific/repositories/registry';
 
 export type FirestorePersistResult =
-  | { ok: true; reportId: string }
-  | { ok: false; reason: 'repository_unavailable' | 'cloud_disabled' | 'write_failed' };
+  | { ok: true; reportId: string; sizeWarning?: boolean; chunkingRecommended?: boolean }
+  | { ok: false; reason: 'repository_unavailable' | 'cloud_disabled' | 'write_failed' | 'report_oversized' };
 
 export type FirestoreLoadResult =
   | { ok: true; record: PersistedScientificReportRecord }
@@ -18,8 +20,9 @@ export type FirestoreLoadResult =
 function getRepository() {
   if (!canAccessScientificFirestore()) return null;
   try {
-    return createScientificReportRepository(true);
-  } catch {
+    return getScientificRepositoryRegistry().reports;
+  } catch (e) {
+    logScientificCloudError(e, 'getRepository');
     return null;
   }
 }
@@ -39,8 +42,17 @@ export async function tryPersistScientificReportToFirestore(
 
   try {
     const record = await repo.createScientificReport(input);
-    return { ok: true, reportId: record.report_id };
+    return {
+      ok: true,
+      reportId: record.report_id,
+      sizeWarning: Boolean(record.chunking_recommended),
+      chunkingRecommended: Boolean(record.chunking_recommended),
+    };
   } catch (e) {
+    logScientificCloudError(e, 'tryPersistScientificReportToFirestore');
+    if (e instanceof ScientificCloudError && e.code === 'report_oversized') {
+      return { ok: false, reason: 'report_oversized' };
+    }
     if (e instanceof ScientificPersistenceError && e.code === 'firestore_unavailable') {
       return { ok: false, reason: 'repository_unavailable' };
     }
@@ -48,10 +60,11 @@ export async function tryPersistScientificReportToFirestore(
   }
 }
 
-/** Load scientific report from Firestore. */
+/** Load scientific report from Firestore with role-aware view resolution. */
 export async function tryLoadScientificReportFromFirestore(
   organizationId: string,
-  reportId: string
+  reportId: string,
+  viewerRole?: ReportViewerRole
 ): Promise<FirestoreLoadResult> {
   if (!canAccessScientificFirestore()) {
     return { ok: false, reason: 'cloud_disabled' };
@@ -63,26 +76,27 @@ export async function tryLoadScientificReportFromFirestore(
   }
 
   try {
-    const record = await repo.getScientificReportById(organizationId, reportId);
+    const record = await repo.getScientificReportById(organizationId, reportId, viewerRole);
     if (!record) return { ok: false, reason: 'not_found' };
     return { ok: true, record };
-  } catch {
+  } catch (e) {
+    logScientificCloudError(e, 'tryLoadScientificReportFromFirestore');
     return { ok: false, reason: 'read_failed' };
   }
 }
 
-/** List org scientific reports from Firestore. */
+/** List org scientific reports from Firestore — throws on cloud read failure. */
 export async function listScientificReportsFromFirestore(
   organizationId: string
 ): Promise<PersistedScientificReportRecord[]> {
-  if (!canAccessScientificFirestore()) return [];
-  const repo = getRepository();
-  if (!repo) return [];
-  try {
-    return await repo.listScientificReports(organizationId);
-  } catch {
-    return [];
+  if (!canAccessScientificFirestore()) {
+    throw new ScientificCloudError('firestore_unavailable', 'Cloud data mode is disabled');
   }
+  const repo = getRepository();
+  if (!repo) {
+    throw new ScientificCloudError('firestore_unavailable', 'Scientific report repository unavailable');
+  }
+  return repo.listScientificReports(organizationId);
 }
 
 /** Soft-archive report in Firestore. */
@@ -96,7 +110,8 @@ export async function archiveScientificReportInFirestore(
   try {
     const result = await repo.archiveScientificReport(organizationId, reportId);
     return Boolean(result);
-  } catch {
-    return false;
+  } catch (e) {
+    logScientificCloudError(e, 'archiveScientificReportInFirestore');
+    throw e;
   }
 }

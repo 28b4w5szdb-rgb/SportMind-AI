@@ -79,6 +79,7 @@ describe('scientificReportMockRepository', () => {
     assert.ok(loaded);
     assert.equal(loaded?.report_id, 'rep_1');
     assert.equal(loaded?.organization_id, ORG);
+    assert.equal(loaded?.persistence_schema_version, '8.1');
   });
 
   it('lists reports by athlete', async () => {
