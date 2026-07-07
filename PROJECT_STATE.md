@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 7.2.1 — Firestore Rules Regression Fix (complete) |
+| **Current phase** | Phase 7.3 — Unified Scientific Export Layer (complete) |
 | **Next phase** | Phase 6D — Firebase Storage |
 
 ---
@@ -47,6 +47,7 @@
 | **7.1** | Report persistence, saved read path, athlete workspace prefill | ✅ Complete |
 | **7.2** | Firestore scientific report repository, cloud read path, list merge | ✅ Complete |
 | **7.2.1** | Firestore rules regression fix — reports test SDK alignment | ✅ Complete |
+| **7.3** | Unified Scientific Export Layer — pipeline, templates, mock adapters | ✅ Complete |
 
 ---
 
@@ -77,6 +78,21 @@ frontend/src/cloud/
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 7.3 — Unified Scientific Export Layer
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Architecture** | One `ScientificReport` → reusable export pipeline → multiple format adapters |
+| **Domain models** | `ExportJob`, `ExportRequest`, `ExportArtifact`, `ExportFormat`, `ExportTemplate`, `ExportResult` |
+| **Pipeline stages** | Export Builder → Template Resolver → Role Filter → Evidence Filter → Localized Content → Format Adapter → Artifact |
+| **Formats (metadata only)** | PDF, Word, Excel, Print, Share, JSON Archive, Research Dataset, API Payload |
+| **Templates** | `club_standard`, `university`, `research`, `sports_medicine`, `executive_summary` |
+| **Formatting** | Reusable blocks: titles, tables, chart placeholders, metric cards, SSID, references, signatures, disclaimers |
+| **Localization** | English, Arabic, bilingual — no internal keys exposed |
+| **Security** | `filterReportForViewer` in role filter — export never bypasses visibility |
+| **UI** | Existing Report Builder export buttons call `prepareScientificExport`; alerts show prepared metadata + “format coming soon” |
+| **Adapters** | Mock adapters only — no binary file generation |
 
 #### Phase 7.2.1 — Firestore Rules Regression Fix
 

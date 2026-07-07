@@ -13,7 +13,8 @@ import type { MockReportSections, MockReportStatus } from '@/src/data/mock/types
 import { reportStatusVariant } from '@/src/utils/moduleHelpers';
 import { getThemeById } from '../constants';
 import { ReportSectionBlock, ReportChartsBlock } from './blocks/ReportSectionBlock';
-import { showReportExportAlert } from '../utils/exportAlert';
+import { showReportExportAlert, showScientificExportResultAlert } from '../utils/exportAlert';
+import { prepareScientificExport } from '@/src/features/scientific-export';
 import type { ReportBuilderConfig, ReportPreviewBlock } from '../types';
 import type { ScientificReport } from '@/src/cloud/scientific/models/report';
 import { ScientificReportPreview } from '@/src/features/scientific-report';
@@ -56,8 +57,18 @@ export function ReportPreview({
   const reportTheme = getThemeById(config.theme);
   const chartSections = sections ?? ({} as MockReportSections);
 
-  const handleExport = (format: 'pdf' | 'word' | 'excel') => {
-    showReportExportAlert(format, t, scientificReport?.report_id);
+  const handleExport = async (format: 'pdf' | 'word' | 'excel') => {
+    if (!scientificReport) {
+      showReportExportAlert(format, t);
+      return;
+    }
+    const localeMode = i18n.language.startsWith('ar') ? 'ar' : i18n.language.startsWith('en') ? 'en' : 'bilingual';
+    const result = await prepareScientificExport(scientificReport, format, {
+      theme: config.theme,
+      localeMode,
+      requestedBy: scientificReport.generated_by,
+    });
+    showScientificExportResultAlert(format, result, t, i18n.language);
   };
 
   return (

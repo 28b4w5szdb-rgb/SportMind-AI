@@ -2244,7 +2244,7 @@
       "compactLabel": "تم تجميع {{count}} أقسام علمية"
     },
     "export": {
-      "engineReady": "التقرير العلمي {{reportId}} جاهز. خط تصدير التقارير العلمية قريباً (PDF مؤجل).",
+      "engineReady": "التقرير العلمي {{reportId}} جاهز. طبقة التصدير الموحدة جهّزت البيانات الوصفية.",
       "engineFallback": "أنشئ تقريراً علمياً للاعب لتفعيل بيانات التصدير المنظمة."
     },
     "sections": {
@@ -2267,5 +2267,10 @@
       "references": "المراجع",
       "signature": "التوقيع"
     }
+  },
+  "scientificExport": {
+    "title": "تصدير {{format}}",
+    "formatComingSoon": "عرض الصيغة قريباً — لم يتم إنشاء ملف بعد.",
+    "preparedMeta": "تم التجهيز: {{file}} ({{sections}} أقسام)"
   }
 }

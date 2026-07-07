@@ -5,6 +5,32 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+---
+
+## [Phase 7.3 — Unified Scientific Export Layer] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Export domain** — `ExportJob`, `ExportRequest`, `ExportArtifact`, `ExportFormat`, `ExportTemplate`, `ExportResult`
+- **Unified pipeline** — Export Builder → Template Resolver → Role Filter → Evidence Filter → Localized Content → Format Adapter → Artifact
+- **Export templates** — `club_standard`, `university`, `research`, `sports_medicine`, `executive_summary`
+- **Format adapters (mock)** — PDF, Word, Excel, Print, Share, JSON Archive, Research Dataset, API Payload
+- **Report formatter** — reusable blocks: titles, sections, metric cards, chart placeholders, SSID, references, signatures, disclaimers
+- **Localization** — English, Arabic, bilingual modes
+- **Security** — role filter uses `filterReportForViewer`; evidence filter for research/clinical exports
+- **Feature bridge** — `prepareScientificExport` + Report Builder export button wiring
+- **Unit tests** — 9 export pipeline tests (`npm run test:export`)
+
+### Unchanged (by design)
+
+- No real PDF/Word/Excel rendering, email, or Cloud Functions
+- Scientific Core, Dashboard, Report Builder UI layout untouched
+- Mock mode fully functional
+
+---
+
 ## [Phase 7.2.1 — Firestore Rules Regression Fix] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`

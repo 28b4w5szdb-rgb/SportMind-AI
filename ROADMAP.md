@@ -253,6 +253,24 @@
 
 ---
 
+### Phase 7.3 — Unified Scientific Export Layer ✅
+
+**Goal:** Reusable export architecture from one `ScientificReport` — metadata and pipeline only, no real rendering.
+
+- Export domain models: `ExportJob`, `ExportRequest`, `ExportArtifact`, `ExportFormat`, `ExportTemplate`, `ExportResult`
+- Unified pipeline: Builder → Template → Role → Evidence → Locale → Adapter → Artifact
+- Five templates: club_standard, university, research, sports_medicine, executive_summary
+- Eight format targets with mock adapters: PDF, Word, Excel, Print, Share, JSON Archive, Research Dataset, API Payload
+- Reusable formatting layer (titles, metric cards, chart placeholders, SSID, references, signatures, disclaimers)
+- EN / AR / bilingual localization
+- Role and evidence filters — export never bypasses visibility
+- Report Builder export buttons wired to `prepareScientificExport` — “Export prepared / Format coming soon”
+- 9 unit tests
+
+**Exit criteria:** All export formats prepare metadata artifacts; no binary output; mock mode unchanged; Scientific Core untouched.
+
+---
+
 ### Phase 7 — Real AI
 
 **Goal:** Connect AI Coach to production LLM with guardrails.

@@ -2240,7 +2240,7 @@
       "compactLabel": "{{count}} scientific sections assembled"
     },
     "export": {
-      "engineReady": "Scientific report {{reportId}} is assembled. The scientific report export pipeline is coming soon (PDF deferred).",
+      "engineReady": "Scientific report {{reportId}} is assembled. Unified export layer prepared metadata.",
       "engineFallback": "Build a scientific athlete report to enable structured export metadata."
     },
     "sections": {
@@ -2263,5 +2263,10 @@
       "references": "References",
       "signature": "Signature"
     }
+  },
+  "scientificExport": {
+    "title": "Export {{format}}",
+    "formatComingSoon": "Format rendering coming soon — no file generated yet.",
+    "preparedMeta": "Prepared: {{file}} ({{sections}} sections)"
   }
 }
