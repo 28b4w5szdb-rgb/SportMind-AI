@@ -1,3 +1,4 @@
+export type { ScientificAtomicPersistenceRepository } from './ScientificAtomicPersistenceRepository';
 export type { AssessmentSessionRepository } from './AssessmentSessionRepository';
 export type { ScientificCalculationRepository } from './ScientificCalculationRepository';
 export type { NormativeSnapshotRepository } from './NormativeSnapshotRepository';

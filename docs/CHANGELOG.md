@@ -302,6 +302,29 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6C.8.1 — Atomic Scientific Persistence] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Atomic persistence operation** — `persist_session_bundle` writes all 6 entity types as one logical operation
+- **ScientificAtomicPersistenceRepository** — mock + Firestore adapters with identical contract
+- **Firestore transaction** — `runTransaction` with read-before-write duplicate guard across session + subcollections
+- **Mock atomic commit/rollback** — staging store, failure hooks, partial-write simulation
+- **Transaction audit** — `pending`, `writing`, `completed`, `failed`, `rolled_back` statuses with full audit trail
+- **Retry policy** — automatic retry for transient Firestore errors; immediate stop on validation errors
+- **Structured persistence logger** — in-memory ring buffer, no console output
+- **Persistence version bump** — `1.1.0` with transaction metadata embedded in audit records
+
+### Unchanged (by design)
+
+- No UI, dashboard, Performance Lab, navigation, passport, timeline, reports, or AI
+- Mock mode fully functional when cloud disabled
+- Individual read repositories unchanged
+
+---
+
 ## [Phase 6C.8 — Scientific Persistence Layer] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`
@@ -340,4 +363,4 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6C.8*
+*Last updated: Phase 6C.8.1*

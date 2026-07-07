@@ -1,5 +1,6 @@
 /**
  * Append-only in-memory scientific persistence store — mock adapter backing.
+ * Phase 6C.8.1: atomic commit, rollback, and transaction audit log.
  */
 
 import type { AssessmentSession } from '../models/session';
@@ -8,8 +9,11 @@ import type {
   PersistedInterpretationRecord,
   PersistedNormativeSnapshotRecord,
   PersistedRawMeasurementRecord,
+  PersistenceTransactionAudit,
+  ScientificPersistenceBundle,
   SessionMetadataRecord,
 } from '../models/persistence';
+import { ScientificPersistenceError } from '../adapters/errors';
 
 interface MemoryBundle {
   metadata: SessionMetadataRecord;
@@ -20,9 +24,42 @@ interface MemoryBundle {
 }
 
 const bundles = new Map<string, MemoryBundle>();
+const transactionLog = new Map<string, PersistenceTransactionAudit>();
+const staging = new Map<string, MemoryBundle>();
+
+let mockCommitFailureReason: string | null = null;
+let mockSimulatePartialWrite = false;
 
 function bundleKey(organizationId: string, sessionId: string): string {
   return `${organizationId}::${sessionId}`;
+}
+
+function bundleFromScientific(bundle: ScientificPersistenceBundle): MemoryBundle {
+  return {
+    metadata: bundle.metadata,
+    raw_measurements: bundle.raw_measurements,
+    calculated_metrics: bundle.calculated_metrics,
+    normative_snapshot: bundle.normative_snapshot,
+    interpretation: bundle.interpretation,
+  };
+}
+
+export function setMockAtomicPersistenceFailure(reason: string | null): void {
+  mockCommitFailureReason = reason;
+}
+
+export function setMockAtomicPartialWriteSimulation(enabled: boolean): void {
+  mockSimulatePartialWrite = enabled;
+}
+
+export function getPersistenceTransactionLog(
+  transactionId: string
+): PersistenceTransactionAudit | null {
+  return transactionLog.get(transactionId) ?? null;
+}
+
+export function listPersistenceTransactions(): PersistenceTransactionAudit[] {
+  return [...transactionLog.values()];
 }
 
 export function assembleAssessmentSession(bundle: MemoryBundle): AssessmentSession {
@@ -75,6 +112,91 @@ export function assembleAssessmentSession(bundle: MemoryBundle): AssessmentSessi
 
 export function persistenceBundleExists(organizationId: string, sessionId: string): boolean {
   return bundles.has(bundleKey(organizationId, sessionId));
+}
+
+export function commitAtomicBundle(
+  bundle: ScientificPersistenceBundle,
+  transaction: PersistenceTransactionAudit
+): PersistenceTransactionAudit {
+  const key = bundleKey(bundle.metadata.organization_id, bundle.metadata.session_id);
+  const memoryBundle = bundleFromScientific(bundle);
+
+  if (bundles.has(key)) {
+    const failed: PersistenceTransactionAudit = {
+      ...transaction,
+      status: 'failed',
+      completed_at: new Date().toISOString(),
+      duration_ms: Date.now() - Date.parse(transaction.started_at),
+      failure_reason: 'persistence_duplicate:session',
+    };
+    transactionLog.set(transaction.transaction_id, failed);
+    throw new ScientificPersistenceError('persistence_duplicate:session');
+  }
+
+  if (mockCommitFailureReason) {
+    const failed: PersistenceTransactionAudit = {
+      ...transaction,
+      status: 'failed',
+      completed_at: new Date().toISOString(),
+      duration_ms: Date.now() - Date.parse(transaction.started_at),
+      failure_reason: mockCommitFailureReason,
+    };
+    transactionLog.set(transaction.transaction_id, failed);
+    throw new ScientificPersistenceError('mock_commit_failed', mockCommitFailureReason);
+  }
+
+  if (mockSimulatePartialWrite) {
+    staging.set(key, memoryBundle);
+    const rolledBack: PersistenceTransactionAudit = {
+      ...transaction,
+      status: 'rolled_back',
+      completed_at: new Date().toISOString(),
+      duration_ms: Date.now() - Date.parse(transaction.started_at),
+      failure_reason: 'mock_partial_write_rolled_back',
+    };
+    staging.delete(key);
+    transactionLog.set(transaction.transaction_id, rolledBack);
+    throw new ScientificPersistenceError('mock_partial_write', 'rolled_back');
+  }
+
+  const completed: PersistenceTransactionAudit = {
+    ...transaction,
+    status: 'completed',
+    completed_at: new Date().toISOString(),
+    duration_ms: Date.now() - Date.parse(transaction.started_at),
+    failure_reason: null,
+  };
+
+  memoryBundle.metadata = {
+    ...memoryBundle.metadata,
+    audit: {
+      ...memoryBundle.metadata.audit,
+      persisted_at: completed.completed_at!,
+      transaction: completed,
+    },
+  };
+
+  try {
+    staging.set(key, memoryBundle);
+    bundles.set(key, memoryBundle);
+    staging.delete(key);
+
+    transactionLog.set(transaction.transaction_id, completed);
+    return completed;
+  } catch (error) {
+    staging.delete(key);
+    bundles.delete(key);
+
+    const rolledBack: PersistenceTransactionAudit = {
+      ...transaction,
+      status: 'rolled_back',
+      completed_at: new Date().toISOString(),
+      duration_ms: Date.now() - Date.parse(transaction.started_at),
+      failure_reason: error instanceof Error ? error.message : 'rollback',
+    };
+    transactionLog.set(transaction.transaction_id, rolledBack);
+    throw error;
+  }
 }
 
 export function persistMetadataRecord(metadata: SessionMetadataRecord): SessionMetadataRecord {
@@ -195,4 +317,8 @@ export function getInterpretationForSession(
 
 export function resetScientificPersistenceMemoryStore(): void {
   bundles.clear();
+  staging.clear();
+  transactionLog.clear();
+  mockCommitFailureReason = null;
+  mockSimulatePartialWrite = false;
 }

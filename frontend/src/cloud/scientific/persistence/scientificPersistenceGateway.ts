@@ -1,72 +1,46 @@
 /**
- * Scientific Persistence Gateway — sole write path for scientific records (Phase 6C.8).
+ * Scientific Persistence Gateway — sole write path for scientific records (Phase 6C.8 / 6C.8.1).
  *
- * Scientific Core → Repository Layer → Persistence Adapter → Firestore OR Mock
+ * Scientific Core → Repository Layer → Atomic Persistence Adapter → Firestore OR Mock
  */
 
 import type { AssessmentSession } from '../models/session';
 import type {
-  PersistedCalculatedMetricRecord,
-  PersistedInterpretationRecord,
-  PersistedNormativeSnapshotRecord,
-  PersistedRawMeasurementRecord,
   PersistenceAdapterKind,
-  ScientificAuditMetadata,
   ScientificPersistenceResult,
-  SessionMetadataRecord,
 } from '../models/persistence';
-import { PERSISTENCE_ENTITIES_COUNT, PERSISTENCE_VERSION } from '../models/persistence';
+import {
+  ATOMIC_OPERATIONS_SUPPORTED,
+  ATOMIC_PERSISTENCE_OPERATION as ATOMIC_OP,
+  PERSISTENCE_ENTITIES_COUNT,
+} from '../models/persistence';
 import type { AssessmentSessionRepository } from '../repositories/contracts/AssessmentSessionRepository';
-import type { NormativeSnapshotRepository } from '../repositories/contracts/NormativeSnapshotRepository';
-import type { ScientificCalculationRepository } from '../repositories/contracts/ScientificCalculationRepository';
-import type { ScientificInterpretationRepository } from '../repositories/contracts/ScientificInterpretationRepository';
+import type { ScientificAtomicPersistenceRepository } from '../repositories/contracts/ScientificAtomicPersistenceRepository';
 import { ScientificPersistenceError } from '../adapters/errors';
 import { validatePersistableAssessmentSession } from '../validation/persistenceValidators';
+import {
+  buildAuditMetadata,
+  buildPersistenceBundle,
+  createPendingTransaction,
+} from './atomicBundleBuilder';
+import { logPersistence } from './persistenceLogger';
+import { isTransientPersistenceError, withPersistenceRetry } from './retryPolicy';
 
 export interface ScientificPersistenceGatewayDependencies {
   sessions: AssessmentSessionRepository;
-  calculations: ScientificCalculationRepository;
-  normative: NormativeSnapshotRepository;
-  interpretations: ScientificInterpretationRepository;
+  atomic: ScientificAtomicPersistenceRepository;
   adapter: PersistenceAdapterKind;
 }
 
-function buildAudit(session: AssessmentSession, adapter: PersistenceAdapterKind): ScientificAuditMetadata {
-  return {
-    persisted_at: new Date().toISOString(),
-    persisted_by: session.conducted_by,
-    persistence_version: PERSISTENCE_VERSION,
-    persistence_adapter: adapter,
-    schema_version: session.protocol_version,
-    immutable: true,
-  };
-}
-
-function buildMetadata(
-  session: AssessmentSession,
-  audit: ScientificAuditMetadata
-): SessionMetadataRecord {
-  return {
-    id: session.id,
-    session_id: session.session_id,
-    created_at: session.created_at,
-    updated_at: session.updated_at,
-    athlete_id: session.athlete_id,
-    organization_id: session.organization_id,
-    team_id: session.team_id ?? null,
-    season_id: session.season_id ?? null,
-    assessment_definition_id: session.assessment_definition_id,
-    assessment_definition_key: session.assessment_definition_key,
-    protocol_version: session.protocol_version,
-    evidence_tier_snapshot: session.evidence_tier_snapshot,
-    conducted_at: session.conducted_at,
-    conducted_by: session.conducted_by,
-    source_type: session.source_type,
-    session_context: session.session_context,
-    status: session.status,
-    protocol_snapshot: session.protocol_snapshot,
-    audit,
-  };
+function countBundleEntities(bundle: ReturnType<typeof buildPersistenceBundle>): number {
+  return (
+    1 +
+    bundle.raw_measurements.length +
+    bundle.calculated_metrics.length +
+    1 +
+    1 +
+    1
+  );
 }
 
 export class ScientificPersistenceGateway {
@@ -79,69 +53,134 @@ export class ScientificPersistenceGateway {
   async persist(session: AssessmentSession): Promise<ScientificPersistenceResult> {
     const validation = validatePersistableAssessmentSession(session);
     if (!validation.valid) {
+      logPersistence({
+        level: 'error',
+        event: 'validation_failed',
+        transaction_id: 'none',
+        session_id: session.session_id,
+        organization_id: session.organization_id,
+        adapter: this.deps.adapter,
+        detail: { errors: validation.errors },
+      });
       throw new ScientificPersistenceError(
         'validation_failed',
         validation.errors.join(';')
       );
     }
 
-    const exists = await this.deps.sessions.exists(session.organization_id, session.session_id);
+    const exists = await this.deps.atomic.sessionExists(
+      session.organization_id,
+      session.session_id
+    );
     if (exists) {
       throw new ScientificPersistenceError('persistence_duplicate:session');
     }
 
-    const audit = buildAudit(session, this.deps.adapter);
-    const metadata = buildMetadata(session, audit);
+    let transaction = createPendingTransaction(this.deps.adapter);
 
-    await this.deps.sessions.appendMetadata(metadata);
-
-    const rawRecords: PersistedRawMeasurementRecord[] =
-      session.raw_measurements.length > 0
-        ? await this.deps.sessions.appendRawMeasurements(
-            session.organization_id,
-            session.session_id,
-            session.raw_measurements
-          )
-        : [];
-
-    const metricRecords: PersistedCalculatedMetricRecord[] =
-      session.calculated_metrics.length > 0
-        ? await this.deps.calculations.appendMetrics(
-            session.organization_id,
-            session.session_id,
-            session.calculated_metrics
-          )
-        : [];
-
-    const normativeRecord: PersistedNormativeSnapshotRecord =
-      await this.deps.normative.appendSnapshot(
-        session.organization_id,
-        session.session_id,
-        session.normative_comparison
-      );
-
-    const interpretationRecord: PersistedInterpretationRecord =
-      await this.deps.interpretations.appendInterpretation(
-        session.organization_id,
-        session.session_id,
-        session.interpretation
-      );
-
-    const entityCount =
-      1 +
-      rawRecords.length +
-      metricRecords.length +
-      1 +
-      1 +
-      1;
-
-    return {
+    logPersistence({
+      level: 'info',
+      event: 'transaction_pending',
+      transaction_id: transaction.transaction_id,
       session_id: session.session_id,
       organization_id: session.organization_id,
-      persisted_at: audit.persisted_at,
       adapter: this.deps.adapter,
-      entity_count: entityCount,
-    };
+    });
+
+    const audit = buildAuditMetadata(session, this.deps.adapter, {
+      ...transaction,
+      status: 'writing',
+    });
+    const bundle = buildPersistenceBundle(session, audit);
+
+    logPersistence({
+      level: 'info',
+      event: 'transaction_writing',
+      transaction_id: transaction.transaction_id,
+      session_id: session.session_id,
+      organization_id: session.organization_id,
+      adapter: this.deps.adapter,
+      detail: { entity_count: countBundleEntities(bundle) },
+    });
+
+    try {
+      const { result: completedTransaction, retryCount } = await withPersistenceRetry(
+        () =>
+          this.deps.atomic.persistAtomically(bundle, {
+            ...transaction,
+            status: 'writing',
+            retry_count: transaction.retry_count,
+          }),
+        { maxAttempts: 3 }
+      );
+
+      transaction = {
+        ...completedTransaction,
+        retry_count: retryCount,
+      };
+
+      logPersistence({
+        level: 'info',
+        event: 'transaction_completed',
+        transaction_id: transaction.transaction_id,
+        session_id: session.session_id,
+        organization_id: session.organization_id,
+        adapter: this.deps.adapter,
+        detail: {
+          duration_ms: transaction.duration_ms,
+          retry_count: transaction.retry_count,
+        },
+      });
+
+      return {
+        session_id: session.session_id,
+        organization_id: session.organization_id,
+        persisted_at: transaction.completed_at ?? audit.persisted_at,
+        adapter: this.deps.adapter,
+        entity_count: countBundleEntities(bundle),
+        atomic: true,
+        operation: ATOMIC_OP,
+        transaction,
+      };
+    } catch (error) {
+      const failureReason =
+        error instanceof Error ? error.message : 'atomic_persist_failed';
+
+      transaction = {
+        ...transaction,
+        status: isTransientPersistenceError(error) ? 'failed' : 'failed',
+        completed_at: new Date().toISOString(),
+        duration_ms: Date.now() - Date.parse(transaction.started_at),
+        failure_reason: failureReason,
+      };
+
+      if (
+        error &&
+        typeof error === 'object' &&
+        'transactionAudit' in error &&
+        (error as { transactionAudit?: typeof transaction }).transactionAudit
+      ) {
+        transaction = (error as { transactionAudit: typeof transaction }).transactionAudit;
+      }
+
+      logPersistence({
+        level: 'error',
+        event: 'transaction_failed',
+        transaction_id: transaction.transaction_id,
+        session_id: session.session_id,
+        organization_id: session.organization_id,
+        adapter: this.deps.adapter,
+        detail: {
+          failure_reason: transaction.failure_reason,
+          retry_count: transaction.retry_count,
+        },
+      });
+
+      if (error instanceof ScientificPersistenceError) {
+        throw error;
+      }
+      throw new ScientificPersistenceError('atomic_persist_failed', failureReason);
+    }
   }
 
   async getSession(organizationId: string, sessionId: string): Promise<AssessmentSession | null> {
@@ -155,4 +194,8 @@ export function createScientificPersistenceGateway(
   return new ScientificPersistenceGateway(deps);
 }
 
-export { PERSISTENCE_ENTITIES_COUNT };
+export {
+  ATOMIC_OPERATIONS_SUPPORTED,
+  ATOMIC_OP as ATOMIC_PERSISTENCE_OPERATION,
+  PERSISTENCE_ENTITIES_COUNT,
+};

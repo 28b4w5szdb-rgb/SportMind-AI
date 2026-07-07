@@ -10,10 +10,12 @@ import {
   createScientificCalculationRepository,
   createScientificInterpretationRepository,
 } from '../adapters';
+import { createFirestoreAtomicPersistenceRepository } from '../adapters/firestore/firestoreAtomicPersistenceAdapter';
 import { canAccessScientificFirestore } from '../config';
 import { createAssessmentSessionEngine } from '../engine/assessmentSessionEngine';
 import { createScientificCalculationEngine } from '../engine/scientificCalculationEngine';
 import { createSsidInterpretationEngine } from '../engine/ssidInterpretationEngine';
+import { createMockAtomicPersistenceRepository } from '../persistence/mockAtomicPersistenceAdapter';
 import {
   createScientificPersistenceGateway,
   type ScientificPersistenceGateway,
@@ -51,6 +53,9 @@ export function getScientificRepositoryRegistry(): ScientificRepositoryRegistry 
   const calculations = createScientificCalculationRepository(enabled);
   const normativeSnapshots = createNormativeSnapshotRepository(enabled);
   const interpretations = createScientificInterpretationRepository(enabled);
+  const atomic = enabled
+    ? createFirestoreAtomicPersistenceRepository()
+    : createMockAtomicPersistenceRepository();
 
   cachedRegistry = {
     enabled,
@@ -62,9 +67,7 @@ export function getScientificRepositoryRegistry(): ScientificRepositoryRegistry 
     interpretations,
     persistence: createScientificPersistenceGateway({
       sessions,
-      calculations,
-      normative: normativeSnapshots,
-      interpretations,
+      atomic,
       adapter,
     }),
   };

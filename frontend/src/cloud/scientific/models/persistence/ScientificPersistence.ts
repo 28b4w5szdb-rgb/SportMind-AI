@@ -1,5 +1,5 @@
 /**
- * Scientific persistence entity types — Phase 6C.8.
+ * Scientific persistence entity types — Phase 6C.8 / 6C.8.1.
  */
 
 import type { CalculatedMetric, NormativeComparisonSnapshot, RawMeasurement } from '../session/AssessmentSession';
@@ -10,7 +10,7 @@ import type {
 } from '../session/AssessmentSession';
 import type { CloudDocumentMeta, DataSourceType, EvidenceTier } from '../common';
 
-export const PERSISTENCE_VERSION = '1.0.0';
+export const PERSISTENCE_VERSION = '1.1.0';
 
 export const PERSISTENCE_ENTITY_TYPES = [
   'session_metadata',
@@ -27,6 +27,29 @@ export const PERSISTENCE_ENTITIES_COUNT = PERSISTENCE_ENTITY_TYPES.length;
 
 export type PersistenceAdapterKind = 'mock' | 'firestore';
 
+/** Single atomic operation persisting all six entity types together. */
+export const ATOMIC_PERSISTENCE_OPERATION = 'persist_session_bundle' as const;
+
+export const ATOMIC_OPERATIONS_SUPPORTED = 1;
+
+export type PersistenceTransactionStatus =
+  | 'pending'
+  | 'writing'
+  | 'completed'
+  | 'failed'
+  | 'rolled_back';
+
+export interface PersistenceTransactionAudit {
+  transaction_id: string;
+  status: PersistenceTransactionStatus;
+  started_at: string;
+  completed_at?: string | null;
+  duration_ms?: number | null;
+  retry_count: number;
+  failure_reason?: string | null;
+  adapter: PersistenceAdapterKind;
+}
+
 export interface ScientificAuditMetadata {
   persisted_at: string;
   persisted_by: string;
@@ -34,6 +57,7 @@ export interface ScientificAuditMetadata {
   persistence_adapter: PersistenceAdapterKind;
   schema_version: string;
   immutable: true;
+  transaction: PersistenceTransactionAudit;
 }
 
 export interface SessionMetadataRecord extends CloudDocumentMeta {
@@ -94,4 +118,7 @@ export interface ScientificPersistenceResult {
   persisted_at: string;
   adapter: PersistenceAdapterKind;
   entity_count: number;
+  atomic: true;
+  operation: typeof ATOMIC_PERSISTENCE_OPERATION;
+  transaction: PersistenceTransactionAudit;
 }

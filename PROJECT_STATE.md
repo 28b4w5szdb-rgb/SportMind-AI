@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.8 — Scientific Persistence Layer (complete) |
+| **Current phase** | Phase 6C.8.1 — Atomic Scientific Persistence (complete) |
 | **Next phase** | Phase 6C.9 — Organization Write Paths + Performance Lab Bridge |
 
 ---
@@ -32,6 +32,7 @@
 | **6C.6.1** | Scientific Calculation Audit — validation hardening, HR zones v1.1, 24 tests | ✅ Complete |
 | **6C.7** | SSID Scientific Sports Intelligence Engine — rule-based bilingual interpretation | ✅ Complete |
 | **6C.8** | Scientific Persistence Layer — repository-backed mock/Firestore gateway | ✅ Complete |
+| **6C.8.1** | Atomic Scientific Persistence — transactional bundle writes, audit, retry | ✅ Complete |
 
 ---
 
@@ -58,10 +59,21 @@ frontend/src/cloud/
 ├── firebase/       # Lazy-init app, auth, firestore, storage
 ├── auth/           # Firebase + Supabase unified AuthProvider
 ├── firestore/      # Phase 6A entity models + repository interfaces
-├── scientific/     # Phase 6C.1–6C.8 — catalog, engines, persistence gateway
+├── scientific/     # Phase 6C.1–6C.8.1 — catalog, engines, atomic persistence gateway
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6C.8.1 — Atomic Scientific Persistence
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Atomic bundle** | Single `persist_session_bundle` operation writes all 6 entity types |
+| **Firestore transaction** | `runTransaction` with read-before-write duplicate guard |
+| **Mock rollback** | Staging + rollback simulation; failure/partial-write hooks for tests |
+| **Transaction audit** | `transactionId`, status, timestamps, duration, retry count, failure reason |
+| **Retry policy** | Transient Firestore errors retried (max 3); validation errors fail immediately |
+| **Structured logging** | In-memory ring buffer via `persistenceLogger` — no console spam |
 
 #### Phase 6C.8 — Scientific Persistence Layer
 
@@ -256,4 +268,4 @@ See [ROADMAP.md](./ROADMAP.md).
 | Brand guide | [frontend/BRAND_GUIDE.md](./frontend/BRAND_GUIDE.md) |
 | Env template | [frontend/.env.example](./frontend/.env.example) |
 
-*Last updated: Phase 6C.8*
+*Last updated: Phase 6C.8.1*
