@@ -3,7 +3,7 @@
   "private": true,
   "description": "SportMind AI monorepo — Firestore rules tests and emulator config",
   "scripts": {
-    "test:rules": "env -u VSCODE_CWD firebase emulators:exec --only firestore --project sportmind-rules-test \"tsx --test tests/firestore-rules/*.test.ts\"",
+    "test:rules": "env -u VSCODE_CWD firebase emulators:exec --only firestore --project sportmind-rules-test \"tsx --test --test-concurrency=1 tests/firestore-rules/*.test.ts\"",
     "emulators:start": "env -u VSCODE_CWD firebase emulators:start --only firestore --project sportmind-rules-test"
   },
   "devDependencies": {

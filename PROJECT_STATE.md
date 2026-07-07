@@ -7,8 +7,8 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.10.1 — Firebase Rules Emulator & Security Tests (complete) |
-| **Next phase** | Phase 6C.11 — Custom Claims Provisioning & Rules Deployment |
+| **Current phase** | Phase 6C.11 — Custom Claims & Membership Permissions (complete) |
+| **Next phase** | Phase 6C.12 — Cloud Functions Claims Provisioning & Rules Deployment |
 
 ---
 
@@ -39,6 +39,7 @@
 | **6C.9.3** | Custom Assessments Bridge — org-scoped definitions, scientific entry pipeline, legacy fallback | ✅ Complete |
 | **6C.10** | Scientific Security & RBAC — Firestore rules, multi-tenant isolation, permission helpers | ✅ Complete |
 | **6C.10.1** | Firebase Rules Emulator & Security Tests — 36 rules tests, emulator config | ✅ Complete |
+| **6C.11** | Custom Claims & Membership Permissions — effective resolver, rules + tests | ✅ Complete |
 
 ---
 
@@ -69,6 +70,16 @@ frontend/src/cloud/
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6C.11 — Custom Claims & Membership Permissions
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Effective resolver** | `effectivePermissionsResolver.ts` unions claims + membership roles + direct permissions + flags |
+| **Membership fields** | `role_ids`, `permissions`, `clinical_access`, `research_access`, `export_research` on OrgMember |
+| **Claims helpers** | `buildCustomClaimsPayload`, `validateClaimsPayload`, `buildClaimsFromMembership` |
+| **Firestore rules** | `hasPermission(orgId, permission)` checks claims OR membership-derived permissions |
+| **Rules tests** | 45 total including 9 membership permission scenarios |
 
 #### Phase 6C.10.1 — Firebase Rules Emulator & Security Tests
 

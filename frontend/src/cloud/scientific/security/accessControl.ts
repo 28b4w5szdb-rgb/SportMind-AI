@@ -1,31 +1,34 @@
 /**
- * Client-side access control helpers — mirror Firestore rules logic (Phase 6C.10).
+ * Client-side access control helpers — mirror Firestore rules logic (Phase 6C.10 / 6C.11).
  */
 
 import type { DecodedCustomClaims } from './customClaims';
 import { normalizeCustomClaims } from './customClaims';
+import {
+  resolveEffectivePermissions,
+  type MembershipPermissionSource,
+} from './effectivePermissionsResolver';
 import { PERMISSIONS, type PermissionKey } from './permissions';
-import { permissionsForRoles, type SystemRoleKey } from './roles';
+import type { SystemRoleKey } from './roles';
 
 export interface SecurityContext {
   uid: string;
   orgId: string;
   claims: DecodedCustomClaims;
-  /** Optional org membership roles from Firestore when claims are not yet provisioned. */
-  membershipRoleIds?: string[];
+  membership?: MembershipPermissionSource | null;
 }
 
 export function buildSecurityContext(
   uid: string,
   orgId: string,
   claims?: DecodedCustomClaims | null,
-  membershipRoleIds?: string[]
+  membership?: MembershipPermissionSource | null
 ): SecurityContext {
   return {
     uid,
     orgId,
     claims: normalizeCustomClaims(claims),
-    membershipRoleIds,
+    membership,
   };
 }
 
@@ -33,38 +36,29 @@ export function isOrgMember(context: SecurityContext): boolean {
   const organizationIds = context.claims.organizationIds ?? [];
   const { activeOrganizationId } = context.claims;
   if (activeOrganizationId === context.orgId) return true;
-  return organizationIds.includes(context.orgId);
+  if (organizationIds.includes(context.orgId)) return true;
+  return context.membership?.status === 'active';
 }
 
-/** Mirrors rules fallback: claims OR active org membership document roles. */
+/** Mirrors rules fallback: claims OR active org membership document. */
 export function isActiveOrgMember(context: SecurityContext): boolean {
   if (isOrgMember(context)) return true;
-  return Boolean(context.membershipRoleIds?.length);
+  return context.membership?.status === 'active';
 }
 
-export function resolveEffectivePermissions(context: SecurityContext): PermissionKey[] {
-  if (context.claims.isOrgAdmin) {
-    return Object.values(PERMISSIONS);
-  }
-
-  const claimPermissions = (context.claims.permissions ?? []).filter(
-    (item): item is PermissionKey => Object.values(PERMISSIONS).includes(item as PermissionKey)
-  );
-  if (claimPermissions.length > 0) {
-    return [...new Set(claimPermissions)];
-  }
-
-  const roleIds = [
-    ...(context.claims.roleIds ?? []),
-    ...(context.membershipRoleIds ?? []),
-  ];
-  return permissionsForRoles(roleIds);
+export function resolveContextPermissions(context: SecurityContext): PermissionKey[] {
+  return resolveEffectivePermissions({
+    uid: context.uid,
+    orgId: context.orgId,
+    claims: context.claims,
+    membership: context.membership,
+  });
 }
 
 export function hasPermission(context: SecurityContext, permission: PermissionKey): boolean {
   if (!isActiveOrgMember(context)) return false;
   if (context.claims.isOrgAdmin) return true;
-  return resolveEffectivePermissions(context).includes(permission);
+  return resolveContextPermissions(context).includes(permission);
 }
 
 export function hasAnyPermission(context: SecurityContext, permissions: PermissionKey[]): boolean {
@@ -73,8 +67,8 @@ export function hasAnyPermission(context: SecurityContext, permissions: Permissi
 
 export function hasRole(context: SecurityContext, role: SystemRoleKey | string): boolean {
   const roleIds = [
-    ...(context.claims.roleIds ?? []),
-    ...(context.membershipRoleIds ?? []),
+    ...((context.claims.roleIds as string[]) ?? []),
+    ...(context.membership?.role_ids ?? []),
   ];
   return roleIds.includes(role);
 }
@@ -102,3 +96,6 @@ export function canManageOrg(context: SecurityContext): boolean {
 export function canManageUsers(context: SecurityContext): boolean {
   return context.claims.isOrgAdmin === true || hasPermission(context, PERMISSIONS.MANAGE_USERS);
 }
+
+/** @deprecated Use resolveContextPermissions */
+export { resolveContextPermissions as resolveEffectivePermissions };

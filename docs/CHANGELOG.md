@@ -302,6 +302,25 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6C.11 — Custom Claims & Membership Permissions] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Effective permissions resolver** — unions custom claims, membership `role_ids`, direct `permissions`, and access flags
+- **OrgMember extensions** — `permissions[]`, `clinical_access`, `research_access`, `export_research`
+- **Custom claims helpers** — build, validate, and map role IDs to permissions (no Cloud Functions yet)
+- **Firestore rules** — `hasPermission(orgId, permission)` resolves membership document permissions
+- **Rules tests** — 9 new membership permission tests (45 total)
+
+### Unchanged (by design)
+
+- No UI, Cloud Functions deployment, or data migration
+- Mock mode unchanged; rules not deployed to production
+
+---
+
 ## [Phase 6C.10.1 — Firebase Rules Emulator & Security Tests] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`
@@ -497,4 +516,4 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6C.10.1*
+*Last updated: Phase 6C.11*

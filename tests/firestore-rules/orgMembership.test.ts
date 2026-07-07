@@ -49,7 +49,7 @@ describe('organization membership', () => {
   });
 
   it('inactive membership doc does not grant access', async () => {
-    await seedOrgMember(ORG_A, 'inactive_user', 'inactive');
+    await seedOrgMember(ORG_A, 'inactive_user', { status: 'inactive' });
     const db = authedDb('inactive_user', {});
     await assertFails(getDoc(doc(db, 'organizations', ORG_A, 'athletes', 'athlete_a1')));
   });

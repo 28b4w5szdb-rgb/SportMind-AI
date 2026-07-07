@@ -101,18 +101,31 @@ export async function seedOrganization(orgId: string, name: string): Promise<voi
 export async function seedOrgMember(
   orgId: string,
   uid: string,
-  status: 'active' | 'inactive' | 'invited' = 'active'
+  options: {
+    status?: 'active' | 'inactive' | 'invited';
+    role_ids?: string[];
+    permissions?: string[];
+    team_ids?: string[];
+    clinical_access?: boolean;
+    research_access?: boolean;
+    export_research?: boolean;
+  } = {}
 ): Promise<void> {
+  const status = options.status ?? 'active';
   await withRulesDisabled(async (db) => {
     await setDoc(doc(db, 'organizations', orgId, 'users', uid), {
       uid,
       organization_id: orgId,
       email: `${uid}@example.com`,
       display_name: uid,
-      role_ids: [],
-      team_ids: [],
+      role_ids: options.role_ids ?? [],
+      permissions: options.permissions ?? [],
+      team_ids: options.team_ids ?? [],
       language: 'en',
       status,
+      clinical_access: options.clinical_access ?? false,
+      research_access: options.research_access ?? false,
+      export_research: options.export_research ?? false,
     });
   });
 }

@@ -1,12 +1,10 @@
 rules_version = '2';
 
 /**
- * SportMind AI — Firestore Security Rules (Phase 6C.10)
+ * SportMind AI — Firestore Security Rules (Phase 6C.10 / 6C.11)
  *
  * Multi-tenant isolation, RBAC, clinical protection, research de-identification.
- * Custom claims preferred; org membership document fallback when claims absent.
- *
- * NOT DEPLOYED in this phase — design + repository artifact only.
+ * Custom claims preferred; org membership document resolves roles + direct permissions.
  */
 
 service cloud.firestore {
@@ -41,10 +39,27 @@ service cloud.firestore {
       return request.auth.token.get('isOrgAdmin', false) == true;
     }
 
+    function memberPath(orgId) {
+      return /databases/$(database)/documents/organizations/$(orgId)/users/$(uid());
+    }
+
     function membershipDocActive(orgId) {
-      let memberPath = /databases/$(database)/documents/organizations/$(orgId)/users/$(uid());
-      return exists(memberPath) &&
-        get(memberPath).data.get('status', '') == 'active';
+      return exists(memberPath(orgId)) &&
+        get(memberPath(orgId)).data.get('status', '') == 'active';
+    }
+
+    function memberData(orgId) {
+      return get(memberPath(orgId)).data;
+    }
+
+    function memberRoleIds(orgId) {
+      let roles = memberData(orgId).get('role_ids', []);
+      return roles is list ? roles : [];
+    }
+
+    function memberDirectPermissions(orgId) {
+      let perms = memberData(orgId).get('permissions', []);
+      return perms is list ? perms : [];
     }
 
     function isOrgMember(orgId) {
@@ -52,10 +67,6 @@ service cloud.firestore {
         activeOrganizationId() == orgId ||
         orgId in claimOrgIds()
       );
-    }
-
-    function orgMemberDoc(orgId) {
-      return get(/databases/$(database)/documents/organizations/$(orgId)/users/$(uid())).data;
     }
 
     function isActiveOrgMember(orgId) {
@@ -66,24 +77,56 @@ service cloud.firestore {
       );
     }
 
-    function hasPermission(permission) {
-      return isSignedIn() && (
-        isOrgAdminClaim() ||
-        permission in claimPermissions()
+    function rolesGrantPermission(roleIds, permission) {
+      return ('org_admin' in roleIds) ||
+        (('coach' in roleIds || 'head_coach' in roleIds) &&
+          permission in ['read_athletes', 'write_athletes', 'read_assessments', 'write_assessments']) ||
+        ('head_coach' in roleIds &&
+          permission in ['read_reports', 'write_reports']) ||
+        (('physiotherapist' in roleIds || 'team_doctor' in roleIds) &&
+          permission in ['read_athletes', 'read_assessments', 'read_medical', 'write_medical']) ||
+        ('team_doctor' in roleIds && permission == 'read_reports') ||
+        ('sports_scientist' in roleIds &&
+          permission in ['read_athletes', 'read_assessments', 'write_assessments', 'read_research', 'read_reports']) ||
+        ('researcher' in roleIds &&
+          permission in ['read_research', 'export_research']) ||
+        ('analyst' in roleIds &&
+          permission in ['read_athletes', 'read_assessments', 'read_reports']) ||
+        ('viewer' in roleIds &&
+          permission in ['read_athletes', 'read_assessments']) ||
+        ('athlete_portal' in roleIds && permission == 'read_assessments');
+    }
+
+    function membershipFlagsGrantPermission(orgId, permission) {
+      let data = memberData(orgId);
+      return (data.get('clinical_access', false) == true &&
+          permission in ['read_medical', 'write_medical']) ||
+        (data.get('research_access', false) == true && permission == 'read_research') ||
+        (data.get('export_research', false) == true && permission == 'export_research');
+    }
+
+    function membershipGrantsPermission(orgId, permission) {
+      return membershipDocActive(orgId) && (
+        permission in memberDirectPermissions(orgId) ||
+        membershipFlagsGrantPermission(orgId, permission) ||
+        rolesGrantPermission(memberRoleIds(orgId), permission)
       );
     }
 
-    function tenantMatchesOrg(orgId) {
-      return resource.data.organization_id == orgId ||
-        request.resource.data.organization_id == orgId;
+    function hasPermission(orgId, permission) {
+      return isSignedIn() && (
+        isOrgAdminClaim() ||
+        permission in claimPermissions() ||
+        membershipGrantsPermission(orgId, permission)
+      );
     }
 
-    function hasClinicalRead() {
-      return hasPermission('read_medical');
+    function hasClinicalRead(orgId) {
+      return hasPermission(orgId, 'read_medical');
     }
 
-    function hasClinicalWrite() {
-      return hasPermission('write_medical');
+    function hasClinicalWrite(orgId) {
+      return hasPermission(orgId, 'write_medical');
     }
 
     function immutableCreateOnly() {
@@ -159,74 +202,77 @@ service cloud.firestore {
 
     match /organizations/{orgId} {
       allow read: if isActiveOrgMember(orgId);
-      allow create: if isSignedIn() && hasPermission('manage_org');
-      allow update: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_org'));
+      allow create: if isSignedIn() && (isOrgAdminClaim() || 'manage_org' in claimPermissions());
+      allow update: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission(orgId, 'manage_org'));
       allow delete: if false;
 
-      // Org members / RBAC
+      // Org members / RBAC — self-read avoids get() recursion in membershipGrantsPermission()
       match /users/{memberId} {
-        allow read: if isActiveOrgMember(orgId);
-        allow create, update: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_users'));
+        allow read: if isSignedIn() && (
+          uid() == memberId ||
+          (isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission(orgId, 'manage_users')))
+        );
+        allow create, update: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission(orgId, 'manage_users'));
         allow delete: if isActiveOrgMember(orgId) && isOrgAdminClaim();
       }
 
       match /role_definitions/{roleId} {
         allow read: if isActiveOrgMember(orgId);
-        allow write: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_org'));
+        allow write: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission(orgId, 'manage_org'));
       }
 
       // Teams
       match /teams/{teamId} {
-        allow read: if isActiveOrgMember(orgId) && hasPermission('read_athletes');
-        allow create, update: if isActiveOrgMember(orgId) && hasPermission('write_athletes');
-        allow delete: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_org'));
+        allow read: if isActiveOrgMember(orgId) && hasPermission(orgId, 'read_athletes');
+        allow create, update: if isActiveOrgMember(orgId) && hasPermission(orgId, 'write_athletes');
+        allow delete: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission(orgId, 'manage_org'));
       }
 
       // Athletes — coaches read/write; no embedded diagnosis fields on write from non-clinical roles
       match /athletes/{athleteId} {
-        allow read: if isActiveOrgMember(orgId) && hasPermission('read_athletes');
-        allow create, update: if isActiveOrgMember(orgId) && hasPermission('write_athletes') &&
+        allow read: if isActiveOrgMember(orgId) && hasPermission(orgId, 'read_athletes');
+        allow create, update: if isActiveOrgMember(orgId) && hasPermission(orgId, 'write_athletes') &&
           (!request.resource.data.keys().hasAny(['diagnosis', 'clinical_notes', 'treatment_plan']) ||
-            hasClinicalWrite());
+            hasClinicalWrite(orgId));
         allow delete: if isActiveOrgMember(orgId) && isOrgAdminClaim();
       }
 
       // Equipment
       match /equipment/{equipmentId} {
         allow read: if isActiveOrgMember(orgId);
-        allow create, update: if isActiveOrgMember(orgId) && hasPermission('manage_equipment');
-        allow delete: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_equipment'));
+        allow create, update: if isActiveOrgMember(orgId) && hasPermission(orgId, 'manage_equipment');
+        allow delete: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission(orgId, 'manage_equipment'));
       }
 
       // Locations
       match /locations/{locationId} {
         allow read: if isActiveOrgMember(orgId);
-        allow create, update: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_org'));
+        allow create, update: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission(orgId, 'manage_org'));
         allow delete: if isActiveOrgMember(orgId) && isOrgAdminClaim();
       }
 
       match /seasons/{seasonId} {
         allow read: if isActiveOrgMember(orgId);
-        allow write: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_org'));
+        allow write: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission(orgId, 'manage_org'));
       }
 
       match /sport_configs/{configId} {
         allow read: if isActiveOrgMember(orgId);
-        allow write: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_org'));
+        allow write: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission(orgId, 'manage_org'));
       }
 
       // Medical records — clinical roles only (full diagnosis-level data)
       match /medical_records/{recordId} {
-        allow read: if isActiveOrgMember(orgId) && hasClinicalRead();
-        allow create, update: if isActiveOrgMember(orgId) && hasClinicalWrite();
+        allow read: if isActiveOrgMember(orgId) && hasClinicalRead(orgId);
+        allow create, update: if isActiveOrgMember(orgId) && hasClinicalWrite(orgId);
         allow delete: if false;
       }
 
       // Research datasets — de-identified by default
       match /research_datasets/{datasetId} {
-        allow read: if isActiveOrgMember(orgId) && hasPermission('read_research') &&
-          resource.data.deidentified == true;
-        allow create: if isActiveOrgMember(orgId) && hasPermission('export_research') &&
+        allow read: if isActiveOrgMember(orgId) && hasPermission(orgId, 'read_research') &&
+          resource != null && resource.data.get('deidentified', false) == true;
+        allow create: if isActiveOrgMember(orgId) && hasPermission(orgId, 'export_research') &&
           request.resource.data.deidentified == true &&
           request.resource.data.keys().hasAll(['pseudonym_id', 'organization_id']);
         allow update, delete: if false;
@@ -234,48 +280,48 @@ service cloud.firestore {
 
       // Org-scoped reports
       match /reports/{reportId} {
-        allow read: if isActiveOrgMember(orgId) && hasPermission('read_reports');
-        allow create, update: if isActiveOrgMember(orgId) && hasPermission('write_reports');
+        allow read: if isActiveOrgMember(orgId) && hasPermission(orgId, 'read_reports');
+        allow create, update: if isActiveOrgMember(orgId) && hasPermission(orgId, 'write_reports');
         allow delete: if isActiveOrgMember(orgId) && isOrgAdminClaim();
       }
 
       // Append-only audit trail
       match /audit_logs/{eventId} {
-        allow read: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_org'));
+        allow read: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission(orgId, 'manage_org'));
         allow create: if isActiveOrgMember(orgId);
         allow update, delete: if false;
       }
 
       // Assessment sessions — append-only scientific records
       match /assessment_sessions/{sessionId} {
-        allow read: if isActiveOrgMember(orgId) && hasPermission('read_assessments');
-        allow create: if isActiveOrgMember(orgId) && hasPermission('write_assessments') &&
+        allow read: if isActiveOrgMember(orgId) && hasPermission(orgId, 'read_assessments');
+        allow create: if isActiveOrgMember(orgId) && hasPermission(orgId, 'write_assessments') &&
           request.resource.data.organization_id == orgId;
         allow update, delete: if sessionImmutableUpdate();
 
         match /raw_measurements/{measurementId} {
-          allow read: if isActiveOrgMember(orgId) && hasPermission('read_assessments');
-          allow create: if isActiveOrgMember(orgId) && hasPermission('write_assessments');
+          allow read: if isActiveOrgMember(orgId) && hasPermission(orgId, 'read_assessments');
+          allow create: if isActiveOrgMember(orgId) && hasPermission(orgId, 'write_assessments');
           allow update, delete: if false;
         }
 
         match /calculated_metrics/{metricId} {
-          allow read: if isActiveOrgMember(orgId) && hasPermission('read_assessments');
-          allow create: if isActiveOrgMember(orgId) && hasPermission('write_assessments');
+          allow read: if isActiveOrgMember(orgId) && hasPermission(orgId, 'read_assessments');
+          allow create: if isActiveOrgMember(orgId) && hasPermission(orgId, 'write_assessments');
           allow update, delete: if false;
         }
 
         // normative_snapshot (canonical) — alias normative_snapshots blocked at rules level
         match /normative_snapshot/{snapshotId} {
-          allow read: if isActiveOrgMember(orgId) && hasPermission('read_assessments');
-          allow create: if isActiveOrgMember(orgId) && hasPermission('write_assessments');
+          allow read: if isActiveOrgMember(orgId) && hasPermission(orgId, 'read_assessments');
+          allow create: if isActiveOrgMember(orgId) && hasPermission(orgId, 'write_assessments');
           allow update, delete: if false;
         }
 
         // interpretations (SSID / scientific_interpretations canonical subcollection name)
         match /interpretations/{interpretationId} {
-          allow read: if isActiveOrgMember(orgId) && hasPermission('read_assessments');
-          allow create: if isActiveOrgMember(orgId) && hasPermission('write_assessments');
+          allow read: if isActiveOrgMember(orgId) && hasPermission(orgId, 'read_assessments');
+          allow create: if isActiveOrgMember(orgId) && hasPermission(orgId, 'write_assessments');
           allow update, delete: if false;
         }
       }
@@ -284,17 +330,17 @@ service cloud.firestore {
     // ─── Legacy top-level collections (org_id field isolation) ──────────────
 
     match /reports/{reportId} {
-      allow read: if isSignedIn() && hasPermission('read_reports') &&
+      allow read: if isSignedIn() && hasPermission(resource.data.organization_id, 'read_reports') &&
         isActiveOrgMember(resource.data.organization_id);
-      allow create, update: if isSignedIn() && hasPermission('write_reports') &&
+      allow create, update: if isSignedIn() && hasPermission(request.resource.data.organization_id, 'write_reports') &&
         isActiveOrgMember(request.resource.data.organization_id);
       allow delete: if false;
     }
 
     match /injuries/{injuryId} {
-      allow read: if isSignedIn() && hasClinicalRead() &&
+      allow read: if isSignedIn() && hasClinicalRead(resource.data.organization_id) &&
         isActiveOrgMember(resource.data.organization_id);
-      allow create, update: if isSignedIn() && hasClinicalWrite() &&
+      allow create, update: if isSignedIn() && hasClinicalWrite(request.resource.data.organization_id) &&
         isActiveOrgMember(request.resource.data.organization_id);
       allow delete: if false;
     }

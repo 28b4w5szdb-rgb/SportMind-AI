@@ -6,7 +6,7 @@
 
 import { canReadAssessments, canReadAthletes, hasPermission, type SecurityContext } from './accessControl';
 import { PERMISSIONS } from './permissions';
-import { isClinicalRole, SYSTEM_ROLES, type SystemRoleKey } from './roles';
+import { SYSTEM_ROLES, type SystemRoleKey } from './roles';
 
 export type AthleteAvailabilityStatus = 'available' | 'modified' | 'unavailable';
 
@@ -30,22 +30,20 @@ export const RESTRICTED_MEDICAL_FIELDS = [
 ] as const;
 
 export function canReadFullMedicalRecord(context: SecurityContext): boolean {
-  if (!hasPermission(context, PERMISSIONS.READ_MEDICAL)) return false;
-  const roleIds = [...(context.claims.roleIds ?? []), ...(context.membershipRoleIds ?? [])];
-  return roleIds.some((roleId) => isClinicalRole(roleId) || roleId === 'org_admin');
+  return hasPermission(context, PERMISSIONS.READ_MEDICAL);
 }
 
 export function canWriteMedicalRecord(context: SecurityContext): boolean {
-  if (!hasPermission(context, PERMISSIONS.WRITE_MEDICAL)) return false;
-  const roleIds = [...(context.claims.roleIds ?? []), ...(context.membershipRoleIds ?? [])];
-  const allowed: SystemRoleKey[] = ['org_admin', 'physiotherapist', 'team_doctor'];
-  return roleIds.some((roleId) => allowed.includes(roleId as SystemRoleKey));
+  return hasPermission(context, PERMISSIONS.WRITE_MEDICAL);
 }
 
 export function canReadLimitedMedicalStatus(context: SecurityContext): boolean {
   if (canReadFullMedicalRecord(context)) return true;
   if (!canReadAthletes(context)) return false;
-  const roleIds = [...(context.claims.roleIds ?? []), ...(context.membershipRoleIds ?? [])];
+  const roleIds = [
+    ...((context.claims.roleIds as string[]) ?? []),
+    ...(context.membership?.role_ids ?? []),
+  ];
   return roleIds.some((roleId) => SYSTEM_ROLES[roleId as SystemRoleKey]?.limitedMedicalStatus);
 }
 

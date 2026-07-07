@@ -160,6 +160,8 @@ export function permissionsForRoles(roleIds: string[]): PermissionKey[] {
   return [...set];
 }
 
+export const mapRoleIdsToPermissions = permissionsForRoles;
+
 export function isClinicalRole(roleId: string): boolean {
   const role = SYSTEM_ROLES[roleId as SystemRoleKey];
   return Boolean(role?.clinicalAccess);

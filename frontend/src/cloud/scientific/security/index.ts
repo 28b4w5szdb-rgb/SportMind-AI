@@ -16,6 +16,7 @@ export {
   SYSTEM_ROLE_KEYS,
   SYSTEM_ROLES,
   permissionsForRoles,
+  mapRoleIdsToPermissions,
   isClinicalRole,
 } from './roles';
 export type { SystemRoleKey, SystemRoleDefinition } from './roles';
@@ -36,6 +37,7 @@ export {
   isOrgMember,
   isActiveOrgMember,
   resolveEffectivePermissions,
+  resolveContextPermissions,
   hasPermission,
   hasAnyPermission,
   hasRole,
@@ -47,6 +49,28 @@ export {
   canManageUsers,
 } from './accessControl';
 export type { SecurityContext } from './accessControl';
+
+export {
+  resolveEffectivePermissions as resolveEffectivePermissionsFromInput,
+  hasEffectivePermission,
+  isActiveMembership,
+} from './effectivePermissionsResolver';
+export type {
+  EffectivePermissionInput,
+  MembershipPermissionSource,
+} from './effectivePermissionsResolver';
+
+export {
+  buildCustomClaimsPayload,
+  validateClaimsPayload,
+  resolveActiveOrganizationId,
+  checkOrgMembershipFromClaims,
+  checkOrgMembershipFromDocument,
+  membershipFromOrgMember,
+  checkEffectivePermission,
+  buildClaimsFromMembership,
+} from './customClaimsHelpers';
+export type { BuildCustomClaimsInput, ClaimsValidationResult } from './customClaimsHelpers';
 
 export {
   COACH_VISIBLE_MEDICAL_FIELDS,

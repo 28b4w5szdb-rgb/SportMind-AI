@@ -91,7 +91,10 @@
 | **6C.9.3** | Custom Assessments Bridge — org-scoped custom definitions + scientific entry | ✅ Complete |
 | **6C.10** | Scientific Security & RBAC — Firestore rules, multi-tenant isolation, permission model | ✅ Complete |
 | **6C.10.1** | Firebase Rules Emulator & Security Tests — 36 rules tests | ✅ Complete |
-| **6C.11** | Custom claims provisioning + Firestore rules deployment | 🔜 Next |
+| **6C.11** | Custom Claims & Membership Permissions — effective resolver + rules bridge | ✅ Complete |
+| **6C.12** | Cloud Functions claims provisioning + rules deployment | 🔜 Next |
+
+**6C.11 exit criteria (met):** Effective permissions resolver, membership permission fields, Firestore rules membership bridge, claims helpers, 45 passing rules tests — no UI or Cloud Functions deployment.
 
 **6C.10.1 exit criteria (met):** Firebase emulator config, 36 Firestore rules tests covering isolation/RBAC/clinical/research/catalog/reports/audit, `yarn test:rules` script, documentation — no UI or engine changes.
 

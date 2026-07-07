@@ -200,7 +200,7 @@ yarn test:rules
 
 | Environment | Result | Reason |
 |-------------|--------|--------|
-| TypeScript (frontend) | ✅ Pass | No frontend changes |
+| TypeScript (frontend) | ✅ Pass | Effective permissions resolver + claims helpers |
 | Rules emulator tests | ⏸ Ready | Requires Java runtime — `java -version` failed in CI/dev sandbox without JRE |
 
 Install Java (macOS): `brew install openjdk@17` then re-run `yarn test:rules`.
@@ -212,7 +212,7 @@ cp .firebaserc.example .firebaserc   # use placeholder project id only
 yarn emulators:start
 ```
 
-### Coverage (36 tests)
+### Coverage (45 tests)
 
 | Suite | Tests | Scenarios |
 |-------|-------|-----------|
@@ -225,6 +225,17 @@ yarn emulators:start
 | Catalogs | 3 | Auth read; unauth denied; write denied |
 | Reports | 4 | Org-scoped + legacy cross-org denied |
 | Audit logs | 4 | Append-only; update/delete denied |
+| Membership permissions | 9 | role_ids, direct permissions, clinical/research flags |
+
+### Phase 6C.11 — Custom Claims & Membership Permissions
+
+| Source | Resolution |
+|--------|------------|
+| **Custom claims** | `permissions[]`, `roleIds[]`, `isOrgAdmin`, `organizationIds`, `activeOrganizationId` |
+| **Membership doc** | `role_ids[]`, `permissions[]`, `clinical_access`, `research_access`, `export_research` |
+| **Effective permissions** | Union of all sources via `resolveEffectivePermissions()` |
+| **Firestore rules** | `membershipGrantsPermission(orgId, permission)` mirrors static role map + flags; `/users/{uid}` self-read avoids `get()` recursion |
+| **Cloud Functions** | 🔜 `buildCustomClaimsPayload()` ready; not deployed |
 
 ### Remaining untested
 
