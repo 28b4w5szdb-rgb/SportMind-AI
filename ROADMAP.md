@@ -211,6 +211,21 @@
 
 ---
 
+### Phase 7.1 — Scientific Report Persistence & Athlete Prefill ✅
+
+**Goal:** Complete reporting workflow with persistence and athlete-based report creation.
+
+- Persist `scientific_report` snapshot on mock reports (reportId, sections, evidence, visibility, version metadata)
+- Saved reports reopen via `ScientificReportPreview`; legacy reports use legacy preview
+- Athlete workspace "Create Report" prefills builder with athleteId + scientific sections
+- Query params: `athleteId`, `reportType`, `prefill=scientific`
+- Firestore adapter stub — safe fallback when repository unavailable
+- Export placeholders mention scientific report export pipeline (PDF deferred)
+
+**Exit criteria:** Save/load scientific reports in mock mode; workspace prefill works; cloud stub fails safely.
+
+---
+
 ### Phase 7 — Real AI
 
 **Goal:** Connect AI Coach to production LLM with guardrails.

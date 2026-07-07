@@ -61,6 +61,7 @@ export function buildScientificReportFromWorkspace(params: ScientificReportBuild
       viewerRole,
       generatedBy: params.generatedBy ?? 'SportMind AI',
       title,
+      sectionOrder: params.config.scientificSectionOrder,
     },
     sources: {
       passport: params.passport,

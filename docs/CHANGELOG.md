@@ -5,6 +5,29 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [Phase 7.1 — Scientific Report Persistence & Athlete Prefill] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Scientific report persistence** — `scientific_report` field on `MockReport` with full structured snapshot
+- **Save path** — `saveScientificReport()` writes mock store + Firestore adapter stub with safe fallback
+- **Saved read path** — `useSavedReportPreview` loads scientific reports into `ScientificReportPreview`; legacy fallback preserved
+- **Athlete workspace prefill** — Create Report action opens builder with athleteId + scientific section defaults
+- **Query params** — `athleteId`, `reportType`, `prefill=scientific` on `/reports/builder`
+- **Security on load** — `filterReportForContext` applied when reopening persisted reports
+- **Export messages** — updated to reference scientific report export pipeline (PDF deferred)
+- **Unit tests** — persistence roundtrip tests
+
+### Unchanged (by design)
+
+- No real PDF/Word/Excel export
+- ReportRepository Firestore implementation still deferred
+- Dashboard, Performance Lab, Scientific Core engines untouched
+
+---
+
 ## [Phase 7.0 — Scientific Reporting Engine] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`
@@ -610,4 +633,4 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 7.0*
+*Last updated: Phase 7.1*

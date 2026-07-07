@@ -92,7 +92,12 @@ export function WorkspaceQuickActions({ athlete }: WorkspaceQuickActionsProps) {
         router.push(APP_ROUTES.athleteEdit(athlete.id));
         break;
       case 'create_report':
-        router.push(APP_ROUTES.reportBuilder);
+        router.push(
+          APP_ROUTES.reportBuilderForAthlete(athlete.id, {
+            reportType: 'athlete',
+            prefill: 'scientific',
+          })
+        );
         break;
       case 'compare':
         router.push(APP_ROUTES.performanceLabCompare);

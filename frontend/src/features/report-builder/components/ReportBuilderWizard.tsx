@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -16,8 +16,17 @@ import { APP_ROUTES } from '@/src/core/constants/routes';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import { useFormAction } from '@/src/hooks/useFormAction';
+import { WORKSPACE_MOCK_ORG_ID } from '@/src/features/athlete-workspace/security/workspaceRolePresets';
+import {
+  ATHLETE_SCIENTIFIC_LEGACY_SECTION_ORDER,
+  ATHLETE_SCIENTIFIC_PREFILL_REPORT_TYPE,
+  ATHLETE_SCIENTIFIC_SECTION_ORDER,
+  isScientificPrefillParam,
+} from '@/src/features/scientific-report/constants/prefill';
+import { saveScientificReport } from '@/src/features/scientific-report/persistence/scientificReportPersistence';
 import { REPORT_SECTION_OPTIONS, REPORT_THEMES, REPORT_TYPE_OPTIONS } from '../constants';
 import { useReportBuilderState, useReportBuilderContent } from '../hooks/useReportBuilder';
+import type { ReportBuilderTypeId } from '../types';
 import { sectionsToMockReportSections } from '../utils/reportContent';
 import { configToBuilderMeta } from '../utils/reportMeta';
 import { WizardStepIndicator } from './wizard/WizardStepIndicator';
@@ -25,13 +34,16 @@ import { ReportPreview } from './ReportPreview';
 
 export function ReportBuilderWizard() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ athleteId?: string; reportType?: string; prefill?: string }>();
   const { t } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
   const { flexRow, textAlign } = useDirection();
   const athletes = useMockStore((s) => s.athletes);
   const addReport = useMockStore((s) => s.addReport);
+  const updateReport = useMockStore((s) => s.updateReport);
   const { loading, success, run } = useFormAction();
+  const prefillApplied = useRef(false);
 
   const {
     step,
@@ -49,10 +61,31 @@ export function ReportBuilderWizard() {
   const { allSections, previewBlocks, subtitle, mockType, scientificReport } = useReportBuilderContent(config);
 
   useEffect(() => {
-    if (!config.athleteId && athletes[0]?.id) {
-      patchConfig({ athleteId: athletes[0].id });
+    if (prefillApplied.current) return;
+    const athleteId = typeof params.athleteId === 'string' ? params.athleteId : undefined;
+    const reportTypeParam = typeof params.reportType === 'string' ? params.reportType : undefined;
+    const prefillScientific = isScientificPrefillParam(typeof params.prefill === 'string' ? params.prefill : undefined);
+    if (!athleteId && !reportTypeParam && !prefillScientific) return;
+
+    prefillApplied.current = true;
+    if (prefillScientific) {
+      setReportType(ATHLETE_SCIENTIFIC_PREFILL_REPORT_TYPE);
+      patchConfig({
+        athleteId: athleteId ?? null,
+        scope: 'athlete',
+        sectionOrder: [...ATHLETE_SCIENTIFIC_LEGACY_SECTION_ORDER],
+        scientificSectionOrder: [...ATHLETE_SCIENTIFIC_SECTION_ORDER],
+      });
+    } else {
+      if (reportTypeParam) setReportType(reportTypeParam as ReportBuilderTypeId);
+      if (athleteId) patchConfig({ athleteId, scope: 'athlete' });
     }
-  }, [athletes, config.athleteId, patchConfig]);
+  }, [params.athleteId, params.prefill, params.reportType, patchConfig, setReportType]);
+
+  useEffect(() => {
+    if (config.athleteId || params.athleteId) return;
+    if (athletes[0]?.id) patchConfig({ athleteId: athletes[0].id });
+  }, [athletes, config.athleteId, params.athleteId, patchConfig]);
 
   const canProceed = useMemo(() => {
     switch (step) {
@@ -74,8 +107,23 @@ export function ReportBuilderWizard() {
 
   const handleSave = () => {
     if (!config.title.trim()) return;
-    run(() => {
+    run(async () => {
       const sections = sectionsToMockReportSections(config.sectionOrder, allSections);
+
+      if (scientificReport) {
+        const saved = await saveScientificReport({
+          config,
+          scientificReport,
+          legacySections: sections,
+          mockType,
+          organizationId: WORKSPACE_MOCK_ORG_ID,
+          addReport,
+          updateReport,
+        });
+        setTimeout(() => router.replace(APP_ROUTES.reportDetail(saved.id)), 600);
+        return;
+      }
+
       const summary = sections.athlete_summary?.slice(0, 160) || config.title;
       const report = addReport({
         title: config.title.trim(),

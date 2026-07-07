@@ -28,6 +28,15 @@ export const APP_ROUTES = {
   calculatorType: (type: string): Href => `/calculator/${type}` as Href,
   reports: '/reports' as Href,
   reportBuilder: '/reports/builder' as Href,
+  reportBuilderForAthlete: (
+    athleteId: string,
+    options?: { reportType?: string; prefill?: 'scientific' }
+  ): Href => {
+    const params = new URLSearchParams({ athleteId });
+    if (options?.reportType) params.set('reportType', options.reportType);
+    if (options?.prefill) params.set('prefill', options.prefill);
+    return `/reports/builder?${params.toString()}` as Href;
+  },
   reportDetail: (id: string): Href => `/reports/${id}` as Href,
   research: '/research' as Href,
   researchNew: '/research/new' as Href,

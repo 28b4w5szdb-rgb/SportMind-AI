@@ -33,6 +33,9 @@ export function builderMetaToConfig(report: MockReport): ReportBuilderConfig {
       ? (meta.sectionOrder as ReportSectionId[])
       : inferLegacySectionOrder(report.sections, isTeam, reportType),
     theme: (meta?.theme ?? 'professional') as ReportThemeId,
+    scientificSectionOrder: meta?.scientificSectionOrder?.length
+      ? (meta.scientificSectionOrder as import('@/src/cloud/scientific/models/report').ScientificReportSectionId[])
+      : undefined,
   };
 }
 

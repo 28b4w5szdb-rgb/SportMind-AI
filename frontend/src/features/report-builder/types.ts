@@ -52,6 +52,8 @@ export interface ReportBuilderConfig {
   dateTo: string;
   sectionOrder: ReportSectionId[];
   theme: ReportThemeId;
+  /** Phase 7.1 — scientific engine section order override */
+  scientificSectionOrder?: import('@/src/cloud/scientific/models/report').ScientificReportSectionId[];
 }
 
 export interface ReportPreviewBlock {

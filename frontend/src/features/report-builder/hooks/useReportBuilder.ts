@@ -39,20 +39,28 @@ function defaultTitle(type: ReportBuilderTypeId, isRTL: boolean): string {
   return isRTL ? labels[type].ar : labels[type].en;
 }
 
-export function useReportBuilderState() {
+export function useReportBuilderState(initial?: {
+  athleteId?: string | null;
+  reportType?: ReportBuilderTypeId;
+  sectionOrder?: ReportSectionId[];
+  scientificSectionOrder?: ReportBuilderConfig['scientificSectionOrder'];
+  scope?: ReportScope;
+}) {
   const { i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
+  const initType = initial?.reportType ?? 'athlete';
   const [step, setStep] = useState<ReportBuilderStep>('type');
   const [config, setConfig] = useState<ReportBuilderConfig>(() => ({
-    title: defaultTitle('athlete', isRTL),
-    reportType: 'athlete',
-    scope: 'athlete',
-    athleteId: null,
+    title: defaultTitle(initType, isRTL),
+    reportType: initType,
+    scope: initial?.scope ?? 'athlete',
+    athleteId: initial?.athleteId ?? null,
     teamId: null,
     dateFrom: DEFAULT_DATE_FROM,
     dateTo: DEFAULT_DATE_TO,
-    sectionOrder: [...DEFAULT_SECTIONS_BY_TYPE.athlete],
+    sectionOrder: initial?.sectionOrder ? [...initial.sectionOrder] : [...DEFAULT_SECTIONS_BY_TYPE[initType]],
     theme: 'professional',
+    scientificSectionOrder: initial?.scientificSectionOrder,
   }));
 
   const setReportType = useCallback(

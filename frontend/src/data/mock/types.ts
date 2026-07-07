@@ -95,6 +95,8 @@ export interface MockReport {
   sections: MockReportSections;
   /** Scientific Report Builder metadata (Phase 5E.2+) */
   builder_meta?: MockReportBuilderMeta;
+  /** Structured scientific report snapshot (Phase 7.1) — output layer only */
+  scientific_report?: import('@/src/cloud/scientific/models/report').ScientificReport;
 }
 
 /** Persisted wizard configuration for premium report rendering */
@@ -106,6 +108,10 @@ export interface MockReportBuilderMeta {
   dateTo: string;
   scope: 'athlete' | 'team';
   teamId?: string | null;
+  /** Phase 7.1 — structured scientific report metadata */
+  isScientific?: boolean;
+  organizationId?: string;
+  scientificSectionOrder?: string[];
 }
 
 export interface MockResearchProject {

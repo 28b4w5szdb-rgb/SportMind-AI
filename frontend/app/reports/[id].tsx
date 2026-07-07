@@ -19,7 +19,7 @@ export default function ReportDetailScreen() {
   const report = useReportById(id);
   const updateReport = useMockStore((s) => s.updateReport);
   const { loading, success, run } = useFormAction();
-  const { config, blocks, subtitle } = useSavedReportPreview(report);
+  const { config, blocks, subtitle, scientificReport } = useSavedReportPreview(report);
 
   if (!report || !config) {
     return (
@@ -52,6 +52,7 @@ export default function ReportDetailScreen() {
         blocks={blocks}
         subtitle={subtitle}
         sections={report.sections}
+        scientificReport={scientificReport}
         status={report.status}
         createdAt={report.created_at}
         onMarkReady={markReady}

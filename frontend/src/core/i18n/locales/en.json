@@ -2221,11 +2221,11 @@
       "dateScope": "{{from}} → {{to}}"
     },
     "export": {
-      "subtitle": "Professional export formats — pipeline enabled in production",
+      "subtitle": "Scientific report export pipeline coming soon — structured content is ready",
       "title": "Export as {{format}}",
-      "pdfMessage": "PDF export is coming soon.\n\nYour report layout, theme, and section order are ready. The production export pipeline will generate branded PDF documents from this preview.",
-      "wordMessage": "Word export is coming soon.\n\nEditable .docx reports with your selected theme and modules will be available when the production export service is enabled.",
-      "excelMessage": "Excel export is coming soon.\n\nStructured KPI and analytics spreadsheets will be generated from your report data in the production release.",
+      "pdfMessage": "PDF export is coming soon.\n\nThe Scientific Reporting Engine has assembled your structured report. The production export pipeline will generate branded PDF documents from this preview.",
+      "wordMessage": "Word export is coming soon.\n\nThe Scientific report export pipeline will produce editable .docx reports from your assembled scientific sections.",
+      "excelMessage": "Excel export is coming soon.\n\nThe Scientific report export pipeline will generate structured KPI spreadsheets from your report data.",
       "placeholder": "Export is not connected yet. This is a mock placeholder.",
       "pdf": "PDF",
       "word": "Word",
@@ -2240,7 +2240,7 @@
       "compactLabel": "{{count}} scientific sections assembled"
     },
     "export": {
-      "engineReady": "Scientific report {{reportId}} is assembled and ready for the production PDF pipeline (deferred).",
+      "engineReady": "Scientific report {{reportId}} is assembled. The scientific report export pipeline is coming soon (PDF deferred).",
       "engineFallback": "Build a scientific athlete report to enable structured export metadata."
     },
     "sections": {

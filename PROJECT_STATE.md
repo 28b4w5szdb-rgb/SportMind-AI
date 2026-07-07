@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 7.0 — Scientific Reporting Engine (complete) |
+| **Current phase** | Phase 7.1 — Scientific Report Persistence & Athlete Prefill (complete) |
 | **Next phase** | Phase 6D — Firebase Storage |
 
 ---
@@ -44,6 +44,7 @@
 | **6D.2** | Scientific Timeline — chronological index layer, builder, workspace UI | ✅ Complete |
 | **6D.3** | Workspace Context — role-aware passport/timeline, cloud bridge, dev diagnostics | ✅ Complete |
 | **7.0** | Scientific Reporting Engine — deterministic builder, role/evidence-aware output, preview UI | ✅ Complete |
+| **7.1** | Report persistence, saved read path, athlete workspace prefill | ✅ Complete |
 
 ---
 
@@ -74,6 +75,17 @@ frontend/src/cloud/
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 7.1 — Scientific Report Persistence & Athlete Prefill
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Persistence** | `scientific_report` snapshot on `MockReport` — mock store primary; Firestore adapter stub with safe fallback |
+| **Saved read path** | `useSavedReportPreview` loads structured report → `ScientificReportPreview`; legacy fallback for old reports |
+| **Athlete prefill** | Workspace `create_report` → `/reports/builder?athleteId&reportType=athlete&prefill=scientific` |
+| **Section preselect** | Athlete profile, passport, performance, assessments, SSID, timeline, recommendations, evidence |
+| **Security** | `filterReportForContext` on load; visibility metadata persisted |
+| **Export** | Placeholders reference scientific export pipeline (PDF deferred) |
 
 #### Phase 7.0 — Scientific Reporting Engine
 

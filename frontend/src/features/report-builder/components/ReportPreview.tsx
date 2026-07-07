@@ -88,13 +88,13 @@ export function ReportPreview({
 
       {scientificReport ? <ScientificReportPreview report={scientificReport} /> : null}
 
-      {blocks.length === 0 ? (
+      {!scientificReport && blocks.length === 0 ? (
         <Card variant="filled" padding="lg" style={{ marginBottom: theme.spacing.lg, borderRadius: theme.borderRadius.xl }}>
           <Text style={[type.body, { color: theme.colors.textSecondary, textAlign: textAlign('center') }]}>
             {t('reportBuilder.preview.empty')}
           </Text>
         </Card>
-      ) : (
+      ) : !scientificReport ? (
         blocks.map((block, index) => (
           <View key={`${block.id}-${index}`}>
             {block.id === 'charts' ? (
@@ -113,7 +113,7 @@ export function ReportPreview({
             )}
           </View>
         ))
-      )}
+      ) : null}
 
       {showExport ? (
         <>
