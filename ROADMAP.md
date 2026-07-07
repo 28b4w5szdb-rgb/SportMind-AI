@@ -89,7 +89,10 @@
 | **6C.9.1** | Performance Lab Read Path Bridge — result/history scientific read + dedup | ✅ Complete |
 | **6C.9.2** | Performance Lab Read Screen Bridge — dashboard, library, category, benchmark, compare | ✅ Complete |
 | **6C.9.3** | Custom Assessments Bridge — org-scoped custom definitions + scientific entry | ✅ Complete |
-| **6C.10** | Firestore security rules deployment | 🔜 Next |
+| **6C.10** | Scientific Security & RBAC — Firestore rules, multi-tenant isolation, permission model | ✅ Complete |
+| **6C.11** | Custom claims provisioning + Firestore rules deployment | 🔜 Next |
+
+**6C.10 exit criteria (met):** Production-ready `firestore.rules`, RBAC permission model, clinical/research access helpers, custom claims types, audit policy, `docs/SECURITY_MODEL.md` — no UI changes, mock mode unchanged, rules not deployed.
 
 **6C.9.3 exit criteria (met):** Custom create bridged to Assessment Definition model, scientific entry pipeline with legacy fallback, progressive disclosure UI, mock registry persistence, validation + evidence policy — no UI redesign beyond disclosure sections.
 

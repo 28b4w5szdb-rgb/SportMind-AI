@@ -72,6 +72,11 @@ export function orgRoleDefinitionPath(orgId: string, roleId: string): string {
   return `${orgRoleDefinitionsPath(orgId)}/${roleId}`;
 }
 
+export const MEDICAL_RECORDS_SUBCOLLECTION = 'medical_records' as const;
+export const REPORTS_SUBCOLLECTION = 'reports' as const;
+export const AUDIT_LOGS_SUBCOLLECTION = 'audit_logs' as const;
+export const RESEARCH_DATASETS_SUBCOLLECTION = 'research_datasets' as const;
+
 export const ORG_SUBCOLLECTIONS = [
   'users',
   'teams',
@@ -81,6 +86,10 @@ export const ORG_SUBCOLLECTIONS = [
   'equipment',
   'sport_configs',
   'role_definitions',
+  MEDICAL_RECORDS_SUBCOLLECTION,
+  REPORTS_SUBCOLLECTION,
+  AUDIT_LOGS_SUBCOLLECTION,
+  RESEARCH_DATASETS_SUBCOLLECTION,
 ] as const;
 
 export type OrgSubcollection = (typeof ORG_SUBCOLLECTIONS)[number];

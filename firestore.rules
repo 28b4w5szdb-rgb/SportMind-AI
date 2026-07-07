@@ -1,0 +1,298 @@
+rules_version = '2';
+
+/**
+ * SportMind AI — Firestore Security Rules (Phase 6C.10)
+ *
+ * Multi-tenant isolation, RBAC, clinical protection, research de-identification.
+ * Custom claims preferred; org membership document fallback when claims absent.
+ *
+ * NOT DEPLOYED in this phase — design + repository artifact only.
+ */
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helpers ───────────────────────────────────────────────────────────
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    function claimOrgIds() {
+      return request.auth.token.organizationIds != null
+        ? request.auth.token.organizationIds
+        : [];
+    }
+
+    function claimPermissions() {
+      return request.auth.token.permissions != null
+        ? request.auth.token.permissions
+        : [];
+    }
+
+    function isOrgAdminClaim() {
+      return request.auth.token.isOrgAdmin == true;
+    }
+
+    function isOrgMember(orgId) {
+      return isSignedIn() && (
+        request.auth.token.activeOrganizationId == orgId ||
+        orgId in claimOrgIds()
+      );
+    }
+
+    function orgMemberDoc(orgId) {
+      return get(/databases/$(database)/documents/organizations/$(orgId)/users/$(uid())).data;
+    }
+
+    function isActiveOrgMember(orgId) {
+      return isOrgMember(orgId) || (
+        isSignedIn() &&
+        exists(/databases/$(database)/documents/organizations/$(orgId)/users/$(uid())) &&
+        orgMemberDoc(orgId).status == 'active'
+      );
+    }
+
+    function hasPermission(permission) {
+      return isSignedIn() && (
+        isOrgAdminClaim() ||
+        permission in claimPermissions()
+      );
+    }
+
+    function tenantMatchesOrg(orgId) {
+      return resource.data.organization_id == orgId ||
+        request.resource.data.organization_id == orgId;
+    }
+
+    function hasClinicalRead() {
+      return hasPermission('read_medical');
+    }
+
+    function hasClinicalWrite() {
+      return hasPermission('write_medical');
+    }
+
+    function immutableCreateOnly() {
+      return request.resource.data.keys().hasAll(['created_at']) &&
+        !resource.exists;
+    }
+
+    function sessionImmutableUpdate() {
+      return false;
+    }
+
+    // ─── Global user profiles ───────────────────────────────────────────────
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && uid() == userId;
+      allow create: if isSignedIn() && uid() == userId;
+      allow update: if isSignedIn() && uid() == userId;
+      allow delete: if false;
+    }
+
+    // ─── Global catalog (read-only for clients) ─────────────────────────────
+
+    match /catalog_sports/{docId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /catalog_assessment_categories/{docId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /catalog_assessment_definitions/{docId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /catalog_evidence_tiers/{docId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /catalog_formulas/{docId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /catalog_formulas/{formulaId}/versions/{versionId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /catalog_equipment_types/{docId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /catalog_equipment_models/{docId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /catalog_normative_references/{docId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /catalog_normative_references/{refId}/versions/{versionId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /catalog_questionnaire_templates/{docId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /catalog_assessment_definitions/{defId}/protocol_versions/{versionId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    // ─── Organization tenant root ───────────────────────────────────────────
+
+    match /organizations/{orgId} {
+      allow read: if isActiveOrgMember(orgId);
+      allow create: if isSignedIn() && hasPermission('manage_org');
+      allow update: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_org'));
+      allow delete: if false;
+
+      // Org members / RBAC
+      match /users/{memberId} {
+        allow read: if isActiveOrgMember(orgId);
+        allow create, update: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_users'));
+        allow delete: if isActiveOrgMember(orgId) && isOrgAdminClaim();
+      }
+
+      match /role_definitions/{roleId} {
+        allow read: if isActiveOrgMember(orgId);
+        allow write: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_org'));
+      }
+
+      // Teams
+      match /teams/{teamId} {
+        allow read: if isActiveOrgMember(orgId) && hasPermission('read_athletes');
+        allow create, update: if isActiveOrgMember(orgId) && hasPermission('write_athletes');
+        allow delete: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_org'));
+      }
+
+      // Athletes — coaches read/write; no embedded diagnosis fields on write from non-clinical roles
+      match /athletes/{athleteId} {
+        allow read: if isActiveOrgMember(orgId) && hasPermission('read_athletes');
+        allow create, update: if isActiveOrgMember(orgId) && hasPermission('write_athletes') &&
+          (!request.resource.data.keys().hasAny(['diagnosis', 'clinical_notes', 'treatment_plan']) ||
+            hasClinicalWrite());
+        allow delete: if isActiveOrgMember(orgId) && isOrgAdminClaim();
+      }
+
+      // Equipment
+      match /equipment/{equipmentId} {
+        allow read: if isActiveOrgMember(orgId);
+        allow create, update: if isActiveOrgMember(orgId) && hasPermission('manage_equipment');
+        allow delete: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_equipment'));
+      }
+
+      // Locations
+      match /locations/{locationId} {
+        allow read: if isActiveOrgMember(orgId);
+        allow create, update: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_org'));
+        allow delete: if isActiveOrgMember(orgId) && isOrgAdminClaim();
+      }
+
+      match /seasons/{seasonId} {
+        allow read: if isActiveOrgMember(orgId);
+        allow write: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_org'));
+      }
+
+      match /sport_configs/{configId} {
+        allow read: if isActiveOrgMember(orgId);
+        allow write: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_org'));
+      }
+
+      // Medical records — clinical roles only (full diagnosis-level data)
+      match /medical_records/{recordId} {
+        allow read: if isActiveOrgMember(orgId) && hasClinicalRead();
+        allow create, update: if isActiveOrgMember(orgId) && hasClinicalWrite();
+        allow delete: if false;
+      }
+
+      // Research datasets — de-identified by default
+      match /research_datasets/{datasetId} {
+        allow read: if isActiveOrgMember(orgId) && hasPermission('read_research') &&
+          resource.data.deidentified == true;
+        allow create: if isActiveOrgMember(orgId) && hasPermission('export_research') &&
+          request.resource.data.deidentified == true &&
+          request.resource.data.keys().hasAll(['pseudonym_id', 'organization_id']);
+        allow update, delete: if false;
+      }
+
+      // Org-scoped reports
+      match /reports/{reportId} {
+        allow read: if isActiveOrgMember(orgId) && hasPermission('read_reports');
+        allow create, update: if isActiveOrgMember(orgId) && hasPermission('write_reports');
+        allow delete: if isActiveOrgMember(orgId) && isOrgAdminClaim();
+      }
+
+      // Append-only audit trail
+      match /audit_logs/{eventId} {
+        allow read: if isActiveOrgMember(orgId) && (isOrgAdminClaim() || hasPermission('manage_org'));
+        allow create: if isActiveOrgMember(orgId);
+        allow update, delete: if false;
+      }
+
+      // Assessment sessions — append-only scientific records
+      match /assessment_sessions/{sessionId} {
+        allow read: if isActiveOrgMember(orgId) && hasPermission('read_assessments');
+        allow create: if isActiveOrgMember(orgId) && hasPermission('write_assessments') &&
+          request.resource.data.organization_id == orgId;
+        allow update, delete: if sessionImmutableUpdate();
+
+        match /raw_measurements/{measurementId} {
+          allow read: if isActiveOrgMember(orgId) && hasPermission('read_assessments');
+          allow create: if isActiveOrgMember(orgId) && hasPermission('write_assessments');
+          allow update, delete: if false;
+        }
+
+        match /calculated_metrics/{metricId} {
+          allow read: if isActiveOrgMember(orgId) && hasPermission('read_assessments');
+          allow create: if isActiveOrgMember(orgId) && hasPermission('write_assessments');
+          allow update, delete: if false;
+        }
+
+        // normative_snapshot (canonical) — alias normative_snapshots blocked at rules level
+        match /normative_snapshot/{snapshotId} {
+          allow read: if isActiveOrgMember(orgId) && hasPermission('read_assessments');
+          allow create: if isActiveOrgMember(orgId) && hasPermission('write_assessments');
+          allow update, delete: if false;
+        }
+
+        // interpretations (SSID / scientific_interpretations canonical subcollection name)
+        match /interpretations/{interpretationId} {
+          allow read: if isActiveOrgMember(orgId) && hasPermission('read_assessments');
+          allow create: if isActiveOrgMember(orgId) && hasPermission('write_assessments');
+          allow update, delete: if false;
+        }
+      }
+    }
+
+    // ─── Legacy top-level collections (org_id field isolation) ──────────────
+
+    match /reports/{reportId} {
+      allow read: if isSignedIn() && hasPermission('read_reports') &&
+        isActiveOrgMember(resource.data.organization_id);
+      allow create, update: if isSignedIn() && hasPermission('write_reports') &&
+        isActiveOrgMember(request.resource.data.organization_id);
+      allow delete: if false;
+    }
+
+    match /injuries/{injuryId} {
+      allow read: if isSignedIn() && hasClinicalRead() &&
+        isActiveOrgMember(resource.data.organization_id);
+      allow create, update: if isSignedIn() && hasClinicalWrite() &&
+        isActiveOrgMember(request.resource.data.organization_id);
+      allow delete: if false;
+    }
+
+    // Deny all other paths by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -302,6 +302,29 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6C.10 — Scientific Security & RBAC] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Firestore rules** — `firestore.rules` with multi-tenant isolation, RBAC, clinical, and research policies
+- **Permission model** — 13 permission keys (`read_athletes`, `write_assessments`, `read_medical`, etc.)
+- **System roles** — 10 roles: org_admin, head_coach, coach, sports_scientist, physiotherapist, team_doctor, researcher, analyst, viewer, athlete_portal
+- **Security helpers** — `accessControl`, `clinicalAccess`, `researchAccess` mirroring rules logic
+- **Custom claims types** — `SportMindCustomClaims` design (not provisioned)
+- **Audit policy** — 7 audit event types with severity mapping
+- **Documentation** — `docs/SECURITY_MODEL.md`
+- **Tests** — `npm run test:security` (7 access control tests)
+
+### Unchanged (by design)
+
+- No UI, dashboard, Performance Lab, passport, timeline, reports, or AI changes
+- Mock mode fully functional; rules not deployed
+- No Cloud Functions or custom claims provisioning
+
+---
+
 ## [Phase 6C.9.3 — Custom Assessments Bridge] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`
@@ -450,4 +473,4 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6C.9.3*
+*Last updated: Phase 6C.10*

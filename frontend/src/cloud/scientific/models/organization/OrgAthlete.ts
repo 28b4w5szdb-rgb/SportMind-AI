@@ -17,6 +17,8 @@ export interface OrgAthlete extends CloudDocumentMeta {
   team_ids: string[];
   consent_status: 'pending' | 'granted' | 'revoked';
   pseudonym_id?: string | null;
+  /** Coach-visible medical availability — no diagnosis details. */
+  availability_status?: 'available' | 'modified' | 'unavailable';
   status: 'active' | 'inactive' | 'archived';
 }
 

@@ -1,0 +1,188 @@
+# SportMind AI — Security Model (Phase 6C.10)
+
+> Multi-tenant isolation, RBAC, clinical protection, and research de-identification for the scientific data model.
+
+---
+
+## Principles
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Scientific Inside, Simple Outside** | Rich permission model; UI unchanged in this phase |
+| **Privacy by Design** | Tenant isolation at every org-scoped path |
+| **Least Privilege** | Role bundles grant minimum permissions |
+| **Multi-Tenant Isolation** | All org data keyed by `orgId`; no cross-org reads |
+| **Clinical Data Protection** | Diagnosis-level data in `medical_records` only |
+| **Research De-Identification** | PII stripped; `pseudonym_id` required |
+| **Backward Compatibility** | Mock mode unchanged; rules not deployed yet |
+
+---
+
+## Firestore Collections
+
+### Global
+
+| Path | Read | Write | Notes |
+|------|------|-------|-------|
+| `users/{uid}` | Self only | Self only | Firebase Auth profile |
+| `catalog_*` | Authenticated | Denied | Seed catalog — admin tooling only |
+
+### Organization-scoped (`organizations/{orgId}`)
+
+| Path | Permission(s) | Notes |
+|------|---------------|-------|
+| `/` (org root) | `manage_org` write | Tenant anchor |
+| `/users/{userId}` | member read; `manage_users` write | Org membership + roles |
+| `/teams/{teamId}` | `read_athletes` / `write_athletes` | Team scope |
+| `/athletes/{athleteId}` | `read_athletes` / `write_athletes` | Coaches see `availability_status` only |
+| `/assessment_sessions/{sessionId}` | `read_assessments` / `write_assessments` | Append-only |
+| `/assessment_sessions/.../raw_measurements` | assessment permissions | Immutable |
+| `/assessment_sessions/.../calculated_metrics` | assessment permissions | Immutable |
+| `/assessment_sessions/.../normative_snapshot` | assessment permissions | Canonical name¹ |
+| `/assessment_sessions/.../interpretations` | assessment permissions | SSID / scientific interpretations¹ |
+| `/medical_records/{recordId}` | `read_medical` / `write_medical` | Clinical roles only |
+| `/equipment/{equipmentId}` | `manage_equipment` | Org equipment registry |
+| `/locations/{locationId}` | `manage_org` | Facilities |
+| `/reports/{reportId}` | `read_reports` / `write_reports` | Org reports |
+| `/research_datasets/{datasetId}` | `read_research` / `export_research` | De-identified only |
+| `/audit_logs/{eventId}` | `manage_org` read; member create | Append-only |
+
+¹ Codebase canonical subcollection names. Alias names (`normative_snapshots`, `scientific_interpretations`) map to these paths in adapters.
+
+### Legacy top-level (org field isolation)
+
+| Path | Notes |
+|------|-------|
+| `reports/{id}` | `organization_id` must match active org |
+| `injuries/{id}` | Clinical access; migrate to `medical_records` in future phase |
+
+---
+
+## Roles
+
+| Role | Clinical | Limited medical status | Research default |
+|------|----------|------------------------|------------------|
+| `org_admin` | Full | — | Full |
+| `head_coach` | — | ✅ | — |
+| `coach` | — | ✅ | — |
+| `sports_scientist` | — | — | De-identified |
+| `physiotherapist` | Full | — | — |
+| `team_doctor` | Full | — | — |
+| `researcher` | — | — | De-identified + export |
+| `analyst` | — | — | De-identified |
+| `viewer` | — | — | — |
+| `athlete_portal` | — | — | Self assessments only |
+
+---
+
+## Permissions
+
+| Key | Description |
+|-----|-------------|
+| `read_athletes` | Read athlete profiles |
+| `write_athletes` | Create/update athletes |
+| `read_assessments` | Read sessions + scientific results |
+| `write_assessments` | Create assessment sessions (append-only) |
+| `read_medical` | Read full medical records |
+| `write_medical` | Write medical records |
+| `read_research` | Read de-identified research datasets |
+| `export_research` | Create/export research datasets |
+| `read_reports` | Read reports |
+| `write_reports` | Create/update reports |
+| `manage_users` | Invite/manage org members |
+| `manage_org` | Org settings, audit log read |
+| `manage_equipment` | Equipment registry |
+
+TypeScript definitions: `frontend/src/cloud/scientific/security/permissions.ts`
+
+---
+
+## Custom Claims (Firebase Auth)
+
+Prepared types — **not provisioned in this phase**.
+
+```typescript
+interface SportMindCustomClaims {
+  organizationIds: string[];
+  activeOrganizationId?: string;
+  roleIds: string[];
+  permissions: string[];
+  isOrgAdmin?: boolean;
+  teamIds?: string[];
+  linkedAthleteId?: string;
+  claimsVersion?: string;
+}
+```
+
+Rules prefer claims; fallback to `organizations/{orgId}/users/{uid}` membership document.
+
+---
+
+## Clinical Data Protection
+
+- **Full records:** `organizations/{orgId}/medical_records/{recordId}` — `team_doctor`, `physiotherapist`, `org_admin`
+- **Coach view:** `availability_status` on athlete profile — `available` | `modified` | `unavailable`
+- **Blocked fields for coaches:** diagnosis, clinical notes, treatment plans, imaging, lab results
+
+Helpers: `clinicalAccess.ts`
+
+---
+
+## Research Data Access
+
+- Default: de-identified datasets with `pseudonym_id`
+- PII fields stripped: name, email, DOB, external IDs, etc.
+- Export requires `export_research` permission
+- Writes rejected unless `deidentified: true`
+
+Helpers: `researchAccess.ts`
+
+---
+
+## Audit Policy
+
+| Event | Severity |
+|-------|----------|
+| `user_login` | info |
+| `data_export` | warning |
+| `medical_record_access` | warning |
+| `assessment_created` | info |
+| `assessment_amended` | warning |
+| `report_generated` | info |
+| `permission_change` | critical |
+
+No audit UI in this phase. Definitions: `auditPolicy.ts`
+
+---
+
+## TypeScript Helpers
+
+| Module | Purpose |
+|--------|---------|
+| `accessControl.ts` | Permission + org membership checks |
+| `clinicalAccess.ts` | Medical record access |
+| `researchAccess.ts` | De-identification + export |
+| `roles.ts` | System role bundles |
+| `customClaims.ts` | JWT claim types |
+| `auditPolicy.ts` | Audit event definitions |
+
+All helpers mirror `firestore.rules` logic for client-side pre-checks. **Server/rules enforcement is authoritative.**
+
+---
+
+## Deployment Status
+
+| Item | Status |
+|------|--------|
+| `firestore.rules` | ✅ Authored — not deployed |
+| Custom claims provisioning | 🔜 Cloud Functions (future) |
+| Audit log writes | 🔜 Gateway integration (future) |
+| Mock mode | ✅ Unchanged |
+
+---
+
+## Related Documents
+
+- [ENG_06_SECURITY.md](../frontend/ENG_06_SECURITY.md) — Engineering security standards
+- [PROJECT_STATE.md](../PROJECT_STATE.md) — Phase tracking
+- [ROADMAP.md](../ROADMAP.md) — Next phases

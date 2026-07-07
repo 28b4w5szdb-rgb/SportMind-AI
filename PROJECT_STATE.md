@@ -7,8 +7,8 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.9.3 — Custom Assessments Bridge (complete) |
-| **Next phase** | Phase 6C.10 — Firestore Security Rules Deployment |
+| **Current phase** | Phase 6C.10 — Scientific Security & RBAC (complete) |
+| **Next phase** | Phase 6C.11 — Custom Claims Provisioning & Rules Deployment |
 
 ---
 
@@ -37,6 +37,7 @@
 | **6C.9.1** | Performance Lab Read Path Bridge — result/history scientific read + dedup | ✅ Complete |
 | **6C.9.2** | Performance Lab Read Screen Bridge — dashboard, library, category, benchmark, compare | ✅ Complete |
 | **6C.9.3** | Custom Assessments Bridge — org-scoped definitions, scientific entry pipeline, legacy fallback | ✅ Complete |
+| **6C.10** | Scientific Security & RBAC — Firestore rules, multi-tenant isolation, permission helpers | ✅ Complete |
 
 ---
 
@@ -67,6 +68,18 @@ frontend/src/cloud/
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6C.10 — Scientific Security & RBAC
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Multi-tenant isolation** | All org data scoped by `orgId`; rules deny cross-org access |
+| **RBAC** | 10 system roles with 13 permission keys |
+| **Clinical protection** | Full medical in `medical_records`; coaches see `availability_status` only |
+| **Research de-identification** | PII stripped; `pseudonym_id` required for research datasets |
+| **Custom claims design** | TypeScript types prepared; provisioning deferred |
+| **Audit policy** | 7 event types defined; append-only `audit_logs` path |
+| **Rules artifact** | `firestore.rules` authored — not deployed |
 
 #### Phase 6C.9.3 — Custom Assessments Bridge
 
