@@ -120,7 +120,7 @@ export function ReportBuilderWizard() {
           addReport,
           updateReport,
         });
-        setTimeout(() => router.replace(APP_ROUTES.reportDetail(saved.id)), 600);
+        setTimeout(() => router.replace(APP_ROUTES.reportDetail(saved.report.id)), 600);
         return;
       }
 

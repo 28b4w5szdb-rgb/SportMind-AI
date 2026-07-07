@@ -16,4 +16,10 @@ export type {
   ScientificReportSection,
   ScientificReport,
 } from './ScientificReport';
+export type {
+  PersistedScientificReportRecord,
+  CreateScientificReportInput,
+  ScientificReportRecordStatus,
+  ScientificReportListFilters,
+} from './PersistedScientificReportRecord';
 export type { ReportBuildContext, ReportBuildSources, ReportBuildInput } from './ReportBuildInput';

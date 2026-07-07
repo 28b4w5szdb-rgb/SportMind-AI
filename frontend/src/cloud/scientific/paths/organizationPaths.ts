@@ -72,6 +72,18 @@ export function orgRoleDefinitionPath(orgId: string, roleId: string): string {
   return `${orgRoleDefinitionsPath(orgId)}/${roleId}`;
 }
 
+export function orgReportsPath(orgId: string): string {
+  return `${organizationPath(orgId)}/${REPORTS_SUBCOLLECTION}`;
+}
+
+export function orgReportPath(orgId: string, reportId: string): string {
+  return `${orgReportsPath(orgId)}/${reportId}`;
+}
+
+export function orgReportPathSegments(orgId: string, reportId: string): string[] {
+  return [ORGANIZATIONS_ROOT, orgId, REPORTS_SUBCOLLECTION, reportId];
+}
+
 export const MEDICAL_RECORDS_SUBCOLLECTION = 'medical_records' as const;
 export const REPORTS_SUBCOLLECTION = 'reports' as const;
 export const AUDIT_LOGS_SUBCOLLECTION = 'audit_logs' as const;

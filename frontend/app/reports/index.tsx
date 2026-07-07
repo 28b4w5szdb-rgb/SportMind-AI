@@ -13,7 +13,7 @@ import { Card } from '@/src/components/common/Card';
 import { Badge } from '@/src/components/common/Badge';
 import { EmptyState } from '@/src/components/common/EmptyState';
 import { Button } from '@/src/components/common/Button';
-import { useMockStore } from '@/src/data/mock/store';
+import { useReportsList } from '@/src/features/scientific-report/hooks/useReportsList';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
@@ -25,7 +25,7 @@ export default function ReportsScreen() {
   const theme = useTheme();
   const type = useTypography();
   const { flexRow, textAlign, chevronIcon, isRTL } = useDirection();
-  const reports = useMockStore((s) => s.reports);
+  const { reports } = useReportsList();
 
   const stats = useMemo(() => {
     const draft = reports.filter((r) => r.status === 'draft').length;

@@ -1,7 +1,7 @@
 /**
- * Scientific Report persistence (Phase 7.1).
+ * Scientific Report persistence (Phase 7.1 / 7.2).
  *
- * Mock mode: Zustand store. Cloud mode: Firestore adapter stub with safe fallback.
+ * Mock mode: Zustand store. Cloud mode: org-scoped Firestore repository with safe fallback.
  */
 
 import { canAccessScientificFirestore } from '@/src/cloud/scientific/config';
@@ -22,12 +22,18 @@ export interface SaveScientificReportInput {
   updateReport: (id: string, patch: Partial<MockReport>) => void;
 }
 
+export interface SaveScientificReportResult {
+  report: MockReport;
+  cloudSaved: boolean;
+  cloudError?: string;
+}
+
 export function isPersistedScientificReport(report: MockReport | null | undefined): boolean {
   return Boolean(report?.scientific_report ?? report?.builder_meta?.isScientific);
 }
 
-/** Attach stable report id and persist to mock store (+ optional cloud stub). */
-export async function saveScientificReport(input: SaveScientificReportInput): Promise<MockReport> {
+/** Attach stable report id and persist to mock store (+ optional cloud repository). */
+export async function saveScientificReport(input: SaveScientificReportInput): Promise<SaveScientificReportResult> {
   const { config, scientificReport, legacySections, mockType, organizationId, addReport, updateReport } = input;
 
   const summary =
@@ -35,9 +41,11 @@ export async function saveScientificReport(input: SaveScientificReportInput): Pr
     legacySections.athlete_summary?.slice(0, 160) ||
     config.title;
 
-  const persistedPayload: Omit<ScientificReport, 'report_id'> & { report_id?: string } = {
-    ...scientificReport,
-    organization_id: organizationId,
+  const builderMeta = {
+    ...configToBuilderMeta(config),
+    isScientific: true,
+    organizationId,
+    scientificSectionOrder: scientificReport.sections.map((s) => s.section_id),
   };
 
   const report = addReport({
@@ -46,28 +54,42 @@ export async function saveScientificReport(input: SaveScientificReportInput): Pr
     summary,
     athlete_id: config.scope === 'athlete' ? config.athleteId ?? undefined : undefined,
     sections: legacySections,
-    builder_meta: {
-      ...configToBuilderMeta(config),
-      isScientific: true,
-      organizationId,
-      scientificSectionOrder: scientificReport.sections.map((s) => s.section_id),
-    },
+    builder_meta: builderMeta,
   });
 
   const finalized: ScientificReport = {
-    ...persistedPayload,
+    ...scientificReport,
     report_id: report.id,
+    organization_id: organizationId,
   };
 
   updateReport(report.id, { scientific_report: finalized });
 
+  let cloudSaved = false;
+  let cloudError: string | undefined;
+
   if (canAccessScientificFirestore()) {
-    await tryPersistScientificReportToFirestore(finalized).catch(() => {
-      /* safe fallback — mock store remains source of truth */
-    });
+    const result = await tryPersistScientificReportToFirestore({
+      organizationId,
+      report: finalized,
+      status: 'draft',
+      summary,
+      legacySections: legacySections as unknown as Record<string, string | undefined>,
+      builderMeta: builderMeta as unknown as Record<string, unknown>,
+      mockType,
+    }).catch(() => ({ ok: false as const, reason: 'write_failed' as const }));
+
+    cloudSaved = result.ok;
+    if (!result.ok) {
+      cloudError = result.reason;
+    }
   }
 
-  return { ...report, scientific_report: finalized };
+  return {
+    report: { ...report, scientific_report: finalized },
+    cloudSaved,
+    cloudError,
+  };
 }
 
 /** Load persisted scientific report from mock report wrapper. */

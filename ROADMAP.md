@@ -226,6 +226,21 @@
 
 ---
 
+### Phase 7.2 — Scientific Report Cloud Repository ✅
+
+**Goal:** Firestore persistence for structured scientific reports at org-scoped paths.
+
+- `ScientificReportRepository` with create, get, list, listByAthlete/Team, archive
+- Path: `organizations/{orgId}/reports/{reportId}`
+- Mock adapter + Firestore adapter via feature gate
+- Reports list/detail: cloud read with mock fallback, dedupe by reportId
+- Archive as soft-delete (`status: archived`)
+- Security: existing `read_reports` / `write_reports` rules; role filter on load
+
+**Exit criteria:** Cloud mode persists and reads org-scoped reports; mock mode unchanged; graceful fallback on Firestore errors.
+
+---
+
 ### Phase 7 — Real AI
 
 **Goal:** Connect AI Coach to production LLM with guardrails.

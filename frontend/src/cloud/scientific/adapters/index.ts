@@ -17,12 +17,14 @@ import { createNormativeSnapshotFirestoreRepository } from './firestore/normativ
 import { createOrganizationFirestoreRepository } from './firestore/organizationFirestoreAdapter';
 import { createScientificCalculationFirestoreRepository } from './firestore/scientificCalculationFirestoreAdapter';
 import { createScientificInterpretationFirestoreRepository } from './firestore/scientificInterpretationFirestoreAdapter';
+import { createScientificReportFirestoreRepository } from './firestore/scientificReportFirestoreAdapter';
 import { createAssessmentSessionMockRepository } from './mock/assessmentSessionMockAdapter';
 import { createCatalogMockRepository } from './mock/catalogMockAdapter';
 import { createNormativeSnapshotMockRepository } from './mock/normativeSnapshotMockAdapter';
 import { createOrganizationMockRepository } from './mock/organizationMockAdapter';
 import { createScientificCalculationMockRepository } from './mock/scientificCalculationMockAdapter';
 import { createScientificInterpretationMockRepository } from './mock/scientificInterpretationMockAdapter';
+import { createScientificReportMockRepository } from './mock/scientificReportMockAdapter';
 
 export { ScientificPersistenceError, ScientificReadOnlyError } from './errors';
 
@@ -70,6 +72,14 @@ export function createScientificInterpretationRepository(
     : createScientificInterpretationMockRepository();
 }
 
+export function createScientificReportRepository(
+  useCloud = canAccessScientificFirestore()
+): import('../repositories/contracts/ScientificReportRepository').ScientificReportRepository {
+  return useCloud
+    ? createScientificReportFirestoreRepository()
+    : createScientificReportMockRepository();
+}
+
 export {
   createCatalogFirestoreRepository,
   createOrganizationFirestoreRepository,
@@ -83,4 +93,6 @@ export {
   createNormativeSnapshotFirestoreRepository,
   createScientificInterpretationMockRepository,
   createScientificInterpretationFirestoreRepository,
+  createScientificReportMockRepository,
+  createScientificReportFirestoreRepository,
 };

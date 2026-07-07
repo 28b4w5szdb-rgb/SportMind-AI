@@ -44,6 +44,34 @@ export async function createDocumentIfNotExists(
   await setDoc(ref, data);
 }
 
+export async function updateDocumentFields(
+  pathSegments: string[],
+  patch: DocumentData
+): Promise<void> {
+  const db = getScientificFirestoreForWrite();
+  if (!db) {
+    throw new ScientificPersistenceError('firestore_unavailable');
+  }
+
+  const { updateDoc } = await import('firebase/firestore');
+  const ref = doc(db, ...(pathSegments as [string, ...string[]]));
+  await updateDoc(ref, { ...patch, updated_at: new Date().toISOString() });
+}
+
+export async function setDocument(
+  pathSegments: string[],
+  data: DocumentData,
+  options?: { merge?: boolean }
+): Promise<void> {
+  const db = getScientificFirestoreForWrite();
+  if (!db) {
+    throw new ScientificPersistenceError('firestore_unavailable');
+  }
+
+  const ref = doc(db, ...(pathSegments as [string, ...string[]]));
+  await setDoc(ref, data, { merge: options?.merge ?? false });
+}
+
 export async function createSubcollectionDocumentsIfNotExists(
   parentPathSegments: string[],
   subcollectionId: string,

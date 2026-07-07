@@ -13,3 +13,5 @@ export {
   loadPersistedScientificReport,
   isPersistedScientificReport,
 } from './persistence/scientificReportPersistence';
+export { useReportsList } from './hooks/useReportsList';
+export { useReportDetail } from './hooks/useReportDetail';

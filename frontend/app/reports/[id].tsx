@@ -6,7 +6,7 @@ import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen
 import { Button } from '@/src/components/common/Button';
 import { EmptyState } from '@/src/components/common/EmptyState';
 import { SuccessBanner } from '@/src/components/common/SuccessBanner';
-import { useReportById } from '@/src/data/mock/hooks';
+import { useReportDetail } from '@/src/features/scientific-report/hooks/useReportDetail';
 import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import { useFormAction } from '@/src/hooks/useFormAction';
@@ -16,7 +16,7 @@ export default function ReportDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { t } = useTranslation();
-  const report = useReportById(id);
+  const { report } = useReportDetail(id);
   const updateReport = useMockStore((s) => s.updateReport);
   const { loading, success, run } = useFormAction();
   const { config, blocks, subtitle, scientificReport } = useSavedReportPreview(report);

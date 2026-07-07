@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 7.1 — Scientific Report Persistence & Athlete Prefill (complete) |
+| **Current phase** | Phase 7.2 — Scientific Report Cloud Repository (complete) |
 | **Next phase** | Phase 6D — Firebase Storage |
 
 ---
@@ -45,6 +45,7 @@
 | **6D.3** | Workspace Context — role-aware passport/timeline, cloud bridge, dev diagnostics | ✅ Complete |
 | **7.0** | Scientific Reporting Engine — deterministic builder, role/evidence-aware output, preview UI | ✅ Complete |
 | **7.1** | Report persistence, saved read path, athlete workspace prefill | ✅ Complete |
+| **7.2** | Firestore scientific report repository, cloud read path, list merge | ✅ Complete |
 
 ---
 
@@ -75,6 +76,19 @@ frontend/src/cloud/
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 7.2 — Scientific Report Cloud Repository
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Repository** | `ScientificReportRepository` — create, get, list, listByAthlete/Team, archive |
+| **Firestore path** | `organizations/{orgId}/reports/{reportId}` |
+| **Mock/Cloud gate** | `createScientificReportRepository()` via `canAccessScientificFirestore()` |
+| **Persistence fields** | reportId, type, org, athlete/team, dateRange, sections, evidence, visibility, metadata |
+| **Security** | Firestore rules: `read_reports` / `write_reports`; `filterReportForContext` on load |
+| **Read path** | Cloud first → mock fallback → legacy preview |
+| **List merge** | `useReportsList()` dedupes mock/cloud by reportId (cloud wins) |
+| **Archive** | Soft-delete `status: archived` — no hard delete |
 
 #### Phase 7.1 — Scientific Report Persistence & Athlete Prefill
 

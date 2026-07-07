@@ -5,6 +5,31 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [Phase 7.2 — Scientific Report Cloud Repository] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **ScientificReportRepository** — create, get, list, listByAthlete, listByTeam, archive
+- **Org-scoped Firestore path** — `organizations/{orgId}/reports/{reportId}`
+- **Firestore adapter** — `scientificReportFirestoreAdapter.ts` with create + soft archive
+- **Mock adapter** — in-memory repository for mock mode and unit tests
+- **Path helpers** — `orgReportsPath`, `orgReportPath`, `orgReportPathSegments`
+- **Cloud read hooks** — `useReportsList`, `useReportDetail` (cloud first, mock fallback, dedupe)
+- **Mapper** — `persistedRecordToMockReport`, `mergeReportLists`
+- **Rules tests** — create, archive update, write permission denial
+- **Repository tests** — mock adapter CRUD + archive
+
+### Unchanged (by design)
+
+- No real PDF/Word/Excel export
+- No AI generation or Cloud Functions
+- Dashboard, Performance Lab, Scientific Core engines untouched
+- Mock mode remains fully functional
+
+---
+
 ## [Phase 7.1 — Scientific Report Persistence & Athlete Prefill] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`
@@ -633,4 +658,4 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 7.1*
+*Last updated: Phase 7.2*

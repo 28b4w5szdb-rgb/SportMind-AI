@@ -100,12 +100,12 @@ describe('scientificReportPersistence', () => {
       updateReport,
     });
 
-    assert.equal(saved.id, 'rep_test_1');
-    assert.ok(isPersistedScientificReport(saved));
-    assert.ok(saved.scientific_report);
-    assert.equal(saved.scientific_report?.report_id, 'rep_test_1');
-    assert.equal(saved.builder_meta?.isScientific, true);
-    assert.equal(saved.builder_meta?.organizationId, 'org_test');
+    assert.equal(saved.report.id, 'rep_test_1');
+    assert.ok(isPersistedScientificReport(saved.report));
+    assert.ok(saved.report.scientific_report);
+    assert.equal(saved.report.scientific_report?.report_id, 'rep_test_1');
+    assert.equal(saved.report.builder_meta?.isScientific, true);
+    assert.equal(saved.report.builder_meta?.organizationId, 'org_test');
   });
 
   it('loads persisted scientific report by id', () => {
