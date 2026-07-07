@@ -23,24 +23,33 @@ service cloud.firestore {
     }
 
     function claimOrgIds() {
-      return request.auth.token.organizationIds != null
-        ? request.auth.token.organizationIds
-        : [];
+      let ids = request.auth.token.get('organizationIds', []);
+      return ids is list ? ids : [];
     }
 
     function claimPermissions() {
-      return request.auth.token.permissions != null
-        ? request.auth.token.permissions
-        : [];
+      let perms = request.auth.token.get('permissions', []);
+      return perms is list ? perms : [];
+    }
+
+    function activeOrganizationId() {
+      let activeOrg = request.auth.token.get('activeOrganizationId', '');
+      return activeOrg is string ? activeOrg : '';
     }
 
     function isOrgAdminClaim() {
-      return request.auth.token.isOrgAdmin == true;
+      return request.auth.token.get('isOrgAdmin', false) == true;
+    }
+
+    function membershipDocActive(orgId) {
+      let memberPath = /databases/$(database)/documents/organizations/$(orgId)/users/$(uid());
+      return exists(memberPath) &&
+        get(memberPath).data.get('status', '') == 'active';
     }
 
     function isOrgMember(orgId) {
       return isSignedIn() && (
-        request.auth.token.activeOrganizationId == orgId ||
+        activeOrganizationId() == orgId ||
         orgId in claimOrgIds()
       );
     }
@@ -50,10 +59,10 @@ service cloud.firestore {
     }
 
     function isActiveOrgMember(orgId) {
-      return isOrgMember(orgId) || (
-        isSignedIn() &&
-        exists(/databases/$(database)/documents/organizations/$(orgId)/users/$(uid())) &&
-        orgMemberDoc(orgId).status == 'active'
+      return isSignedIn() && (
+        membershipDocActive(orgId) ||
+        activeOrganizationId() == orgId ||
+        orgId in claimOrgIds()
       );
     }
 
