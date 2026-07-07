@@ -64,4 +64,5 @@ export interface AiRoleExample {
 export interface MockResponseResult {
   content: string;
   structured?: StructuredAiResponse;
+  sdssRecommendations?: import('@/src/cloud/scientific/sdss/models/SdssRecommendation').ScientificRecommendation[];
 }

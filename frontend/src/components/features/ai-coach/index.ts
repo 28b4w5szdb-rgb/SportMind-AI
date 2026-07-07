@@ -1,4 +1,5 @@
 export { ChatMessage } from './ChatMessage';
+export { AiRecommendationCard } from './AiRecommendationCard';
 export { TypingIndicator } from './TypingIndicator';
 export { AiStructuredResponseCard } from './AiStructuredResponseCard';
 export { AiMessageActions } from './AiMessageActions';

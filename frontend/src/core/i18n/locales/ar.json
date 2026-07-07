@@ -187,6 +187,17 @@
     "welcome": "اسأل عن التدريب أو التعافي أو الأداء أو التغذية أو ذكاء الفريق.",
     "whyLabel": "لماذا؟",
     "confidenceLabel": "مستوى الثقة",
+    "sdss": {
+      "confidence": {
+        "very_high": "ثقة عالية جداً",
+        "high": "ثقة عالية",
+        "moderate": "ثقة متوسطة",
+        "low": "ثقة منخفضة",
+        "insufficient_evidence": "أدلة غير كافية"
+      },
+      "evidenceBadge": "مستوى الدليل",
+      "safetyDisclaimer": "دعم قرار فقط — ليس تشخيصاً طبياً."
+    },
     "newChat": "محادثة جديدة",
     "export": "تصدير المحادثة",
     "quickActions": "إجراءات سريعة",

@@ -7,6 +7,7 @@ import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import type { AiMessage } from '@/src/data/mock/ai-coach';
 import { AiStructuredResponseCard } from './AiStructuredResponseCard';
+import { AiRecommendationCard } from './AiRecommendationCard';
 import { AiMessageActions } from './AiMessageActions';
 
 interface ChatMessageProps {
@@ -54,6 +55,7 @@ export function ChatMessage({ message, onCopy, onRegenerate, isLastAssistant }: 
   );
 
   const hasStructured = !isUser && message.structured && message.structured.sections.length > 0;
+  const hasSdssCards = !isUser && (message.sdssRecommendations?.length ?? 0) > 0;
 
   const textBaseStyle = {
     color: isUser ? '#FFF' : theme.colors.text,
@@ -105,14 +107,20 @@ export function ChatMessage({ message, onCopy, onRegenerate, isLastAssistant }: 
               borderTopStartRadius: isUser ? theme.borderRadius['2xl'] : theme.borderRadius.sm,
               borderTopEndRadius: isUser ? theme.borderRadius.sm : theme.borderRadius['2xl'],
               paddingHorizontal: theme.spacing.md,
-              paddingVertical: hasStructured ? theme.spacing.sm + 2 : theme.spacing.sm + 6,
+              paddingVertical: hasStructured || hasSdssCards ? theme.spacing.sm + 2 : theme.spacing.sm + 6,
               borderWidth: isUser ? 0 : 1,
               ...(!isUser ? theme.shadows.sm : {}),
             },
           ]}
           collapsable={false}
         >
-          {hasStructured ? (
+          {hasSdssCards ? (
+            <View style={styles.structuredContent}>
+              {message.sdssRecommendations!.map((rec) => (
+                <AiRecommendationCard key={rec.id} recommendation={rec} />
+              ))}
+            </View>
+          ) : hasStructured ? (
             <View style={styles.structuredContent}>
               {message.structured!.sections.map((section) => (
                 <AiStructuredResponseCard key={section.id} section={section} />

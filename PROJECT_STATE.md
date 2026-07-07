@@ -7,8 +7,8 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 8.3 — Performance & Scalability Hardening (complete) |
-| **Next phase** | Phase 6D — Firebase Storage |
+| **Current phase** | Phase 9.0 — AI Coach & Scientific Decision Support (SSDI v1) (complete) |
+| **Next phase** | Phase 7 — Real AI (OpenAI integration) |
 
 ---
 
@@ -51,6 +51,7 @@
 | **8.1** | Production Hardening — P0 remediation, role-aware report persistence, indexes | ✅ Complete |
 | **8.2** | Scientific Core Unification — single source of truth for calc, SSID, timeline, passport, report | ✅ Complete |
 | **8.3** | Performance & Scalability — batched reads, pagination, caches, debounced previews | ✅ Complete |
+| **9.0** | AI Coach SSDI v1 — Scientific Decision Support layer, mock provider, UI cards | ✅ Complete |
 
 ---
 
@@ -61,7 +62,24 @@
 - **Router:** Expo Router — unchanged; mock mode default
 - **State:** Zustand mock store — runtime source of truth when `USE_CLOUD_DATA=false`
 - **i18n:** English + Arabic with RTL
-- **Analytics / SSID / AI Coach:** Unchanged — local mock engines
+- **Analytics / SSID / AI Coach:** Local mock engines; AI Coach wired to SSDI v1 (deterministic mock provider)
+
+#### Phase 9.0 — AI Coach & Scientific Decision Support (SSDI v1)
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Evidence first** | `decisionContextBuilder` + `evidenceCollector` assemble role-filtered context from passport, timeline, analytics, SSID, load, recovery, nutrition, wearables |
+| **No AI calculations** | Recommendations derived from Scientific Core outputs only; `recommendationBuilder` is deterministic |
+| **Provider abstraction** | `AiProvider` contract; `MockAiProvider` (default); OpenAI/Azure/local stubs for future |
+| **Safety layer** | Blocks diagnosis/medication patterns; medical/research disclaimers; role-aware depth |
+| **Explainability** | Every recommendation includes why, evidence used/missing, confidence, alternatives, limitations |
+| **UI** | Existing AI Coach screen — `AiRecommendationCard` with confidence/evidence badges; team scope falls back to legacy mock |
+
+**SSDI pipeline:** Scientific Core → Decision Context → Evidence → Prompt Builder → Provider → Response Validator → Recommendation Builder → Action Cards
+
+**Intentionally not implemented:** Live OpenAI API, streaming, voice, chat redesign, medical diagnosis, Cloud Functions.
+
+**Remaining before production AI:** OpenAI/Azure provider implementation, PII redaction, rate limiting, citation library, streaming UX.
 
 ### Data Mode (current runtime)
 

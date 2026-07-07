@@ -43,6 +43,7 @@ export interface AiMessage {
   timestamp: string;
   agentId?: AiAgentId;
   structured?: import('@/src/features/ai-coach/types').StructuredAiResponse;
+  sdssRecommendations?: import('@/src/cloud/scientific/sdss/models/SdssRecommendation').ScientificRecommendation[];
 }
 
 export interface AnalyticsCoachContext {

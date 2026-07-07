@@ -318,6 +318,21 @@
 
 ---
 
+### Phase 9.0 — AI Coach & Scientific Decision Support (SSDI v1) ✅
+
+**Goal:** Production-grade Scientific Decision Support layer — not a chatbot. Grounded in Scientific Core; mock provider only.
+
+- SSDI module: decision context, evidence collector, prompt builder, safety layer, response validator, recommendation builder
+- Provider interfaces: mock (deterministic), OpenAI/Azure/local stubs
+- 14 recommendation categories; confidence model (very high → insufficient evidence)
+- Role-aware depth: coach, sports scientist, physiotherapist, doctor, researcher, athlete, org admin
+- AI Coach UI: recommendation cards with confidence/evidence badges; athlete scope uses SSDI; team scope legacy mock
+- Bilingual prompts (EN/AR/bilingual); no live API calls
+
+**Exit criteria:** Pipeline tests pass; mock mode works; UI unchanged; no Scientific Core replacement.
+
+---
+
 ### Phase 7 — Real AI
 
 **Goal:** Connect AI Coach to production LLM with guardrails.

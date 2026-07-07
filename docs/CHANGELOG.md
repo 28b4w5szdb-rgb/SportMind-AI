@@ -13,6 +13,40 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+---
+
+## [Phase 9.0 — AI Coach & Scientific Decision Support (SSDI v1)] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- `frontend/src/cloud/scientific/sdss/` — SSDI v1 module (models, context, evidence, prompt, providers, safety, validation, engine)
+- `MockAiProvider` — deterministic recommendations without live LLM
+- `AiRecommendationCard` — confidence badge, evidence badge, scientific reasoning, limitations, actions
+- `generateAiCoachResponse` — athlete scope → SSDI; team scope → legacy mock fallback
+- SSDI unit tests (`sdssEngine.test.ts`) — pipeline, safety, deterministic mock
+- i18n keys for SSDI confidence levels (EN/AR)
+
+### Architecture
+
+Scientific Core → Decision Context Builder → Evidence Collector → Prompt Builder → Provider (mock) → Response Validator → Recommendation Builder → Action Cards
+
+### Safety model
+
+- Never diagnose disease or prescribe medication
+- Medical/research disclaimers on sensitive categories
+- Blocked query patterns redirect to clinical review messaging
+- AI never performs calculations; consumes Scientific Core only
+
+### Unchanged (by design)
+
+- Scientific Core formulas, SSID, Normative Engine
+- AI Coach screen layout
+- No live OpenAI API, streaming, voice, or Cloud Functions
+
+---
+
 ## [Phase 8.3 — Performance & Scalability Hardening] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`

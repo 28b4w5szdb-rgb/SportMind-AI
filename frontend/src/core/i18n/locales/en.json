@@ -183,6 +183,17 @@
     "welcome": "Ask anything about training, recovery, performance, nutrition, or team intelligence.",
     "whyLabel": "Why?",
     "confidenceLabel": "Confidence",
+    "sdss": {
+      "confidence": {
+        "very_high": "Very high confidence",
+        "high": "High confidence",
+        "moderate": "Moderate confidence",
+        "low": "Low confidence",
+        "insufficient_evidence": "Insufficient evidence"
+      },
+      "evidenceBadge": "Evidence level",
+      "safetyDisclaimer": "Decision support only — not medical diagnosis."
+    },
     "newChat": "New chat",
     "export": "Export conversation",
     "quickActions": "Quick actions",

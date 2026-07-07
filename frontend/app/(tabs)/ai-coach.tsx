@@ -37,7 +37,8 @@ import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import { AI_MODULES } from '@/src/features/ai-coach/constants';
 import type { AiContextScope, AiModuleId, StructuredAiResponse } from '@/src/features/ai-coach/types';
-import { generateMockResponse, type AiAgentId, type AiMessage } from '@/src/data/mock/ai-coach';
+import { generateAiCoachResponse } from '@/src/features/ai-coach/sdss/generateAiCoachResponse';
+import type { AiAgentId, AiMessage } from '@/src/data/mock/ai-coach';
 import { useActiveConversationMessages } from '@/src/data/mock/hooks';
 import { useMockStore } from '@/src/data/mock/store';
 import { computeAthleteAnalytics } from '@/src/analytics';
@@ -50,7 +51,8 @@ function createMessage(
   role: AiMessage['role'],
   content: string,
   agentId?: AiAgentId,
-  structured?: StructuredAiResponse
+  structured?: StructuredAiResponse,
+  sdssRecommendations?: AiMessage['sdssRecommendations']
 ): AiMessage {
   return {
     id: `${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
@@ -59,6 +61,7 @@ function createMessage(
     timestamp: new Date().toISOString(),
     agentId,
     structured,
+    sdssRecommendations,
   };
 }
 
@@ -104,6 +107,16 @@ export default function AICoachScreen() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
+
+  const selectedAthlete = useMemo(
+    () => athletes.find((a) => a.id === selectedAthleteId) ?? athletes[0] ?? null,
+    [athletes, selectedAthleteId]
+  );
+
+  const selectedAthleteTests = useMemo(
+    () => (selectedAthlete ? tests.filter((tst) => tst.athlete_id === selectedAthlete.id) : []),
+    [selectedAthlete, tests]
+  );
 
   useEffect(() => {
     if (!selectedAthleteId && athletes.length > 0) {
@@ -239,15 +252,38 @@ export default function AICoachScreen() {
       shouldAutoScrollRef.current = true;
       scrollToEnd(true);
 
-      setTimeout(() => {
-        const reply = generateMockResponse(agent, trimmed, isRTL, analyticsContext, (key) => t(key));
-        appendActiveMessage(createMessage('assistant', reply.content, agent, reply.structured));
+      setTimeout(async () => {
+        const reply = await generateAiCoachResponse({
+          agent,
+          userQuery: trimmed,
+          isRTL,
+          analyticsContext,
+          translate: (key) => t(key),
+          athlete: contextScope === 'athlete' ? selectedAthlete : null,
+          athleteTests: contextScope === 'athlete' ? selectedAthleteTests : [],
+          useSdss: contextScope === 'athlete',
+        });
+        appendActiveMessage(
+          createMessage('assistant', reply.content, agent, reply.structured, reply.sdssRecommendations)
+        );
         setIsTyping(false);
         shouldAutoScrollRef.current = true;
         scrollToEnd(true);
       }, 1400 + Math.random() * 800);
     },
-    [analyticsContext, appendActiveMessage, isRTL, isTyping, scrollToEnd, selectedAgent, setSelectedAgent, t]
+    [
+      analyticsContext,
+      appendActiveMessage,
+      contextScope,
+      isRTL,
+      isTyping,
+      scrollToEnd,
+      selectedAgent,
+      selectedAthlete,
+      selectedAthleteTests,
+      setSelectedAgent,
+      t,
+    ]
   );
 
   const handleNewChat = () => {
@@ -271,14 +307,38 @@ export default function AICoachScreen() {
     if (lastAssistantIdx < 0) return;
     setActiveMessages(messages.slice(0, lastAssistantIdx));
     setIsTyping(true);
-    setTimeout(() => {
-      const reply = generateMockResponse(selectedAgent, lastUser.content, isRTL, analyticsContext, (key) => t(key));
-      appendActiveMessage(createMessage('assistant', reply.content, selectedAgent, reply.structured));
+    setTimeout(async () => {
+      const reply = await generateAiCoachResponse({
+        agent: selectedAgent,
+        userQuery: lastUser.content,
+        isRTL,
+        analyticsContext,
+        translate: (key) => t(key),
+        athlete: contextScope === 'athlete' ? selectedAthlete : null,
+        athleteTests: contextScope === 'athlete' ? selectedAthleteTests : [],
+        useSdss: contextScope === 'athlete',
+      });
+      appendActiveMessage(
+        createMessage('assistant', reply.content, selectedAgent, reply.structured, reply.sdssRecommendations)
+      );
       setIsTyping(false);
       shouldAutoScrollRef.current = true;
       scrollToEnd(true);
     }, 1200);
-  }, [analyticsContext, appendActiveMessage, isRTL, isTyping, messages, scrollToEnd, selectedAgent, setActiveMessages, t]);
+  }, [
+    analyticsContext,
+    appendActiveMessage,
+    contextScope,
+    isRTL,
+    isTyping,
+    messages,
+    scrollToEnd,
+    selectedAgent,
+    selectedAthlete,
+    selectedAthleteTests,
+    setActiveMessages,
+    t,
+  ]);
 
   const handleExport = () => {
     const body = messages.map((m) => `${m.role}: ${m.content}`).join('\n\n');
