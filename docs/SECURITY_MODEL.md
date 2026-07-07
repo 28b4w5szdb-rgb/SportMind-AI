@@ -174,10 +174,67 @@ All helpers mirror `firestore.rules` logic for client-side pre-checks. **Server/
 
 | Item | Status |
 |------|--------|
-| `firestore.rules` | ✅ Authored — not deployed |
+| `firestore.rules` | ✅ Authored — not deployed to production |
+| Rules emulator tests | ✅ `yarn test:rules` (Phase 6C.10.1) |
 | Custom claims provisioning | 🔜 Cloud Functions (future) |
 | Audit log writes | 🔜 Gateway integration (future) |
 | Mock mode | ✅ Unchanged |
+
+---
+
+## Rules Test Suite (Phase 6C.10.1)
+
+### Run tests
+
+From repository root (requires Yarn + **Java 11+** for Firestore emulator):
+
+```bash
+yarn install
+java -version   # must succeed
+yarn test:rules
+```
+
+> **Note:** If running inside VS Code/Cursor, `yarn test:rules` unsets `VSCODE_CWD` automatically so `firebase-tools` resolves template paths correctly.
+
+### Validation status (Phase 6C.10.1)
+
+| Environment | Result | Reason |
+|-------------|--------|--------|
+| TypeScript (frontend) | ✅ Pass | No frontend changes |
+| Rules emulator tests | ⏸ Ready | Requires Java runtime — `java -version` failed in CI/dev sandbox without JRE |
+
+Install Java (macOS): `brew install openjdk@17` then re-run `yarn test:rules`.
+
+Optional — start Firestore emulator UI manually:
+
+```bash
+cp .firebaserc.example .firebaserc   # use placeholder project id only
+yarn emulators:start
+```
+
+### Coverage (36 tests)
+
+| Suite | Tests | Scenarios |
+|-------|-------|-----------|
+| Multi-tenant isolation | 4 | Cross-org read/write denied |
+| User profile | 2 | Self read only |
+| Organization membership | 4 | Claims + doc fallback + inactive denied |
+| Assessment sessions | 6 | Create, append-only, raw measurements |
+| Clinical data | 4 | Coach/viewer denied; physio/doctor allowed |
+| Research data | 5 | De-identified read, PII denied, export permission |
+| Catalogs | 3 | Auth read; unauth denied; write denied |
+| Reports | 4 | Org-scoped + legacy cross-org denied |
+| Audit logs | 4 | Append-only; update/delete denied |
+
+### Remaining untested
+
+- Team-scoped ABAC (`teamIds` claim enforcement)
+- Custom claims + membership doc conflict edge cases
+- All 12 catalog collection variants (only `catalog_sports` sampled)
+- Session subcollections: `calculated_metrics`, `normative_snapshot`, `interpretations`
+- Legacy `injuries/` top-level collection
+- Equipment, locations, seasons write paths
+- Unauthenticated org access attempts on every collection
 
 ---
 

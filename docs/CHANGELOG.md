@@ -302,6 +302,30 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6C.10.1 — Firebase Rules Emulator & Security Tests] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Firebase config** — `firebase.json`, `.firebaserc.example` (placeholder project id only)
+- **Root package** — Yarn workspace for rules tests (`@firebase/rules-unit-testing`, `firebase-tools`)
+- **Rules test suite** — 36 tests in 9 suites under `tests/firestore-rules/`
+- **Scripts** — `yarn test:rules`, `yarn emulators:start` (requires Java 11+)
+- **Documentation** — rules test coverage and run instructions in `docs/SECURITY_MODEL.md`
+
+### Validation
+
+- Frontend TypeScript: pass
+- Rules tests: 36 tests authored; emulator execution requires Java runtime (not available in initial validation environment)
+
+### Unchanged (by design)
+
+- No UI, engine, migration, or Cloud Functions changes
+- Mock mode unchanged; rules not deployed to production
+
+---
+
 ## [Phase 6C.10 — Scientific Security & RBAC] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`
@@ -473,4 +497,4 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6C.10*
+*Last updated: Phase 6C.10.1*

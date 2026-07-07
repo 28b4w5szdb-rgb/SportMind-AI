@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.10 — Scientific Security & RBAC (complete) |
+| **Current phase** | Phase 6C.10.1 — Firebase Rules Emulator & Security Tests (complete) |
 | **Next phase** | Phase 6C.11 — Custom Claims Provisioning & Rules Deployment |
 
 ---
@@ -38,6 +38,7 @@
 | **6C.9.2** | Performance Lab Read Screen Bridge — dashboard, library, category, benchmark, compare | ✅ Complete |
 | **6C.9.3** | Custom Assessments Bridge — org-scoped definitions, scientific entry pipeline, legacy fallback | ✅ Complete |
 | **6C.10** | Scientific Security & RBAC — Firestore rules, multi-tenant isolation, permission helpers | ✅ Complete |
+| **6C.10.1** | Firebase Rules Emulator & Security Tests — 36 rules tests, emulator config | ✅ Complete |
 
 ---
 
@@ -68,6 +69,15 @@ frontend/src/cloud/
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6C.10.1 — Firebase Rules Emulator & Security Tests
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Emulator config** | `firebase.json` + `.firebaserc.example` (no real project IDs) |
+| **Rules tests** | 36 tests across 9 suites via `@firebase/rules-unit-testing` |
+| **Scripts** | Root `yarn test:rules`, `yarn emulators:start` |
+| **Validation** | Multi-tenant, RBAC, clinical, research, catalog, reports, audit |
 
 #### Phase 6C.10 — Scientific Security & RBAC
 

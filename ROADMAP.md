@@ -90,7 +90,10 @@
 | **6C.9.2** | Performance Lab Read Screen Bridge — dashboard, library, category, benchmark, compare | ✅ Complete |
 | **6C.9.3** | Custom Assessments Bridge — org-scoped custom definitions + scientific entry | ✅ Complete |
 | **6C.10** | Scientific Security & RBAC — Firestore rules, multi-tenant isolation, permission model | ✅ Complete |
+| **6C.10.1** | Firebase Rules Emulator & Security Tests — 36 rules tests | ✅ Complete |
 | **6C.11** | Custom claims provisioning + Firestore rules deployment | 🔜 Next |
+
+**6C.10.1 exit criteria (met):** Firebase emulator config, 36 Firestore rules tests covering isolation/RBAC/clinical/research/catalog/reports/audit, `yarn test:rules` script, documentation — no UI or engine changes.
 
 **6C.10 exit criteria (met):** Production-ready `firestore.rules`, RBAC permission model, clinical/research access helpers, custom claims types, audit policy, `docs/SECURITY_MODEL.md` — no UI changes, mock mode unchanged, rules not deployed.
 
