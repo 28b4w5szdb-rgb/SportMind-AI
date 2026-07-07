@@ -7,8 +7,8 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.8.1 — Atomic Scientific Persistence (complete) |
-| **Next phase** | Phase 6C.9 — Organization Write Paths + Performance Lab Bridge |
+| **Current phase** | Phase 6C.9 — Performance Lab Bridge (complete) |
+| **Next phase** | Phase 6C.10 — Firestore Security Rules Deployment |
 
 ---
 
@@ -33,6 +33,7 @@
 | **6C.7** | SSID Scientific Sports Intelligence Engine — rule-based bilingual interpretation | ✅ Complete |
 | **6C.8** | Scientific Persistence Layer — repository-backed mock/Firestore gateway | ✅ Complete |
 | **6C.8.1** | Atomic Scientific Persistence — transactional bundle writes, audit, retry | ✅ Complete |
+| **6C.9** | Performance Lab Bridge — Scientific Core integration via adapter layer | ✅ Complete |
 
 ---
 
@@ -59,10 +60,20 @@ frontend/src/cloud/
 ├── firebase/       # Lazy-init app, auth, firestore, storage
 ├── auth/           # Firebase + Supabase unified AuthProvider
 ├── firestore/      # Phase 6A entity models + repository interfaces
-├── scientific/     # Phase 6C.1–6C.8.1 — catalog, engines, atomic persistence gateway
+├── scientific/     # Phase 6C.1–6C.9 — catalog, engines, bridge, atomic persistence
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6C.9 — Performance Lab Bridge
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Adapter layer** | `performance-lab/bridge/` — Legacy UI → Scientific Core without screen redesign |
+| **Pipeline** | Definition → Calculation → Normative → SSID → Session → Persistence Gateway |
+| **Dual write** | Scientific session persisted + mock store updated for analytics/history continuity |
+| **Preview** | `useScientificTestPreview` — async scientific preview with legacy fallback |
+| **Errors** | Friendly i18n messages — no Firebase IDs or stack traces exposed |
 
 #### Phase 6C.8.1 — Atomic Scientific Persistence
 
@@ -268,4 +279,4 @@ See [ROADMAP.md](./ROADMAP.md).
 | Brand guide | [frontend/BRAND_GUIDE.md](./frontend/BRAND_GUIDE.md) |
 | Env template | [frontend/.env.example](./frontend/.env.example) |
 
-*Last updated: Phase 6C.8.1*
+*Last updated: Phase 6C.9*

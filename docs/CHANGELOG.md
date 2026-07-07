@@ -302,6 +302,28 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6C.9 — Performance Lab Bridge] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Performance Lab Bridge** — adapter layer connecting legacy UI to Scientific Core (`performance-lab/bridge/`)
+- **Scientific pipeline on save** — Assessment Definition → Calculation → Normative → SSID → Session → Persistence Gateway
+- **Async scientific preview** — `useScientificTestPreview` hook with legacy SSID fallback
+- **Dual persistence** — scientific session via gateway + mock store for analytics/history continuity
+- **Friendly error handling** — i18n bridge messages; no Firebase IDs or stack traces exposed
+- **Lazy catalog cache** — `scientificCatalogCache` avoids repeated definition lookups
+- **Registry factories** — `createAssessmentDefinitionEngineFromRegistry`, `createNormativeReferenceEngineFromRegistry`
+
+### Unchanged (by design)
+
+- No UI redesign, navigation, dashboard, or tab layout changes
+- Legacy TEST_REGISTRY, mock store, and SSID view components preserved
+- Mock mode fully functional when cloud disabled
+
+---
+
 ## [Phase 6C.8.1 — Atomic Scientific Persistence] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`
@@ -363,4 +385,4 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6C.8.1*
+*Last updated: Phase 6C.9*

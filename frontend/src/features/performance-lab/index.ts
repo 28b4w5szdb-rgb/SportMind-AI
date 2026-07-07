@@ -23,6 +23,11 @@ export { TestReferencePanel } from './components/TestReferencePanel';
 export { DemographicSelector } from './components/DemographicSelector';
 export { DemographicContextCard } from './components/DemographicContextCard';
 export { interpretTestWithSsid } from './utils/testInterpretation';
+export {
+  previewPerformanceLabAssessment,
+  recordPerformanceLabAssessment,
+  useScientificTestPreview,
+} from './bridge';
 export { getTestProtocolMeta, levelToPercentile } from './utils/labPresentation';
 export { useLabDashboardPresentation, buildTestHistoryTrend } from './hooks/useLabDashboardPresentation';
 export { LabDashboard } from './components/lab/LabDashboard';

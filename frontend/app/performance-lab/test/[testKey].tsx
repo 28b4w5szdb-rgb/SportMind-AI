@@ -32,6 +32,11 @@ import {
   interpretTestWithSsid,
   LabKnowledgePremiumPanel,
 } from '@/src/features/performance-lab';
+import {
+  recordPerformanceLabAssessment,
+  toFriendlyBridgeError,
+  useScientificTestPreview,
+} from '@/src/features/performance-lab/bridge';
 import { DEFAULT_DEMOGRAPHIC_CONTEXT, type TestDemographicContext } from '@/src/features/testing-science';
 import { SsidInterpretationView } from '@/src/features/ssid-engine';
 import type { MockPerformanceTest } from '@/src/data/mock/types';
@@ -47,7 +52,7 @@ export default function TestDetailScreen() {
   const tests = useMockStore((s) => s.tests);
   const favorites = useMockStore((s) => s.favoriteTestKeys);
   const addTest = useMockStore((s) => s.addTest);
-  const { loading, success, run } = useFormAction();
+  const { loading, success, error, run } = useFormAction();
   const { pushRecent, toggleFavorite } = useTestLibraryActions();
 
   const definition = useTestDefinition(testKey);
@@ -77,15 +82,19 @@ export default function TestDetailScreen() {
     return computeTestAnalyticsImpact(athlete, athleteTests, simulated);
   }, [athlete, athleteTests, value, definition, date, isRTL]);
 
-  const projectedSsid = useMemo(() => {
-    if (!definition || !value.trim() || Number.isNaN(Number(value))) return null;
-    return interpretTestWithSsid(definition, Number(value), demographicContext).ssid;
-  }, [definition, value, demographicContext]);
+  const scientificPreview = useScientificTestPreview(
+    definition,
+    athleteId,
+    athlete ? `${athlete.first_name} ${athlete.last_name}` : '',
+    value,
+    date,
+    demographicContext,
+    isRTL
+  );
 
-  const projectedLevel = useMemo(() => {
-    if (!definition || !value.trim() || Number.isNaN(Number(value))) return null;
-    return interpretTestWithSsid(definition, Number(value), demographicContext).level;
-  }, [definition, value, demographicContext]);
+  const projectedSsid = scientificPreview?.ssid ?? null;
+
+  const projectedLevel = scientificPreview?.level ?? null;
 
   if (!definition) {
     return (
@@ -109,20 +118,24 @@ export default function TestDetailScreen() {
 
   const handleSave = () => {
     if (!validate() || !athlete) return;
-    run(() => {
-      pushRecent(definition.key);
-      const saved = addTest({
-        athlete_id: athlete.id,
-        athlete_name: `${athlete.first_name} ${athlete.last_name}`,
-        test_type: getTestName(definition, isRTL),
-        test_type_key: definition.key,
-        value: Number(value),
-        unit: definition.unit,
-        date,
-        notes: notes.trim() || undefined,
-        demographicContext,
-      });
-      setTimeout(() => router.replace(APP_ROUTES.performanceLabResult(saved.id)), 800);
+    run(async () => {
+      try {
+        pushRecent(definition.key);
+        const bridged = await recordPerformanceLabAssessment({
+          definition,
+          athleteId: athlete.id,
+          athleteName: `${athlete.first_name} ${athlete.last_name}`,
+          value: Number(value),
+          date,
+          notes: notes.trim() || undefined,
+          demographicContext,
+          isRTL,
+        });
+        const saved = addTest(bridged.mockTest);
+        setTimeout(() => router.replace(APP_ROUTES.performanceLabResult(saved.id)), 800);
+      } catch (err) {
+        throw new Error(toFriendlyBridgeError(err));
+      }
     });
   };
 
@@ -132,6 +145,11 @@ export default function TestDetailScreen() {
       rightAction={{ icon: isFavorite ? 'star' : 'star-outline', onPress: () => toggleFavorite(definition.key) }}
     >
       <SuccessBanner message={t('features.lab.saved')} visible={success} />
+      {error ? (
+        <Text style={[type.caption, { color: theme.colors.error, marginBottom: theme.spacing.md, textAlign: textAlign('start') }]}>
+          {t(error)}
+        </Text>
+      ) : null}
 
       <Card variant="gradient" padding="lg" gradientColors={[levelColor, levelColor + '99']} style={{ borderRadius: theme.borderRadius['2xl'], marginBottom: theme.spacing.lg }}>
         <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>

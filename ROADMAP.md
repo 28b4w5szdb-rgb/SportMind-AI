@@ -85,8 +85,10 @@
 | **6C.7** | SSID Scientific Sports Intelligence Engine — rule-based bilingual interpretation | ✅ Complete |
 | **6C.8** | Scientific Persistence Layer — repository-backed mock/Firestore gateway | ✅ Complete |
 | **6C.8.1** | Atomic Scientific Persistence — transactional bundle writes, audit, retry | ✅ Complete |
-| **6C.9** | Organization write paths + Performance Lab bridge | 🔜 Next |
-| **6C.10** | Firestore security rules deployment | Planned |
+| **6C.9** | Performance Lab Bridge — Scientific Core integration via adapter layer | ✅ Complete |
+| **6C.10** | Firestore security rules deployment | 🔜 Next |
+
+**6C.9 exit criteria (met):** Performance Lab bridge adapter, scientific pipeline on test entry save/preview, mock store dual-write, friendly error handling, legacy fallback — no UI/navigation redesign.
 
 **6C.8.1 exit criteria (met):** Atomic session bundle persistence, Firestore transaction + mock rollback, transaction audit metadata, transient retry policy, pre-transaction validation, structured logging — no UI/AI/report changes.
 

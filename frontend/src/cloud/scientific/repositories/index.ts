@@ -3,6 +3,8 @@ export {
   getScientificRepositoryRegistry,
   resetScientificRepositoryRegistry,
   createAssessmentSessionEngineFromRegistry,
+  createAssessmentDefinitionEngineFromRegistry,
+  createNormativeReferenceEngineFromRegistry,
   createScientificCalculationEngineFromRegistry,
   createSsidInterpretationEngineFromRegistry,
   createScientificPersistenceGatewayFromRegistry,

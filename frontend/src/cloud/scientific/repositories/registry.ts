@@ -13,7 +13,9 @@ import {
 import { createFirestoreAtomicPersistenceRepository } from '../adapters/firestore/firestoreAtomicPersistenceAdapter';
 import { canAccessScientificFirestore } from '../config';
 import { createAssessmentSessionEngine } from '../engine/assessmentSessionEngine';
+import { createAssessmentDefinitionEngine } from '../engine/assessmentDefinitionEngine';
 import { createScientificCalculationEngine } from '../engine/scientificCalculationEngine';
+import { createNormativeReferenceEngine } from '../engine/normativeReferenceEngine';
 import { createSsidInterpretationEngine } from '../engine/ssidInterpretationEngine';
 import { createMockAtomicPersistenceRepository } from '../persistence/mockAtomicPersistenceAdapter';
 import {
@@ -92,6 +94,18 @@ export function createAssessmentSessionEngineFromRegistry(options?: { includeSsi
     ssid,
     persistence: registry.persistence,
   });
+}
+
+/** Factory for the Assessment Definition Engine from registry dependencies. */
+export function createAssessmentDefinitionEngineFromRegistry() {
+  const registry = getScientificRepositoryRegistry();
+  return createAssessmentDefinitionEngine(registry.catalog);
+}
+
+/** Factory for the Normative Reference Engine from registry dependencies. */
+export function createNormativeReferenceEngineFromRegistry() {
+  const registry = getScientificRepositoryRegistry();
+  return createNormativeReferenceEngine(registry.catalog);
 }
 
 /** Factory for the Scientific Calculation Engine from registry dependencies. */

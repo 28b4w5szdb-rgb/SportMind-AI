@@ -440,6 +440,12 @@
       "value": "Enter a valid result value",
       "date": "Use YYYY-MM-DD format"
     },
+    "bridge": {
+      "validation": "Please check the result value and athlete profile, then try again.",
+      "saveFailed": "We could not save this result right now. Please try again.",
+      "duplicate": "This result was already recorded.",
+      "unsupportedTest": "This test type is not yet supported for scientific recording."
+    },
     "sections": {
       "protocol": "Protocol",
       "protocolHint": "Standardized test procedure",

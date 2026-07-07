@@ -215,9 +215,9 @@ export const useMockStore = create<MockStore>()(
         const customDefs = get().customTestDefinitions ?? [];
         const definition = getTestDefinition(input.test_type_key, customDefs);
         const context = input.demographicContext;
-        const ssid = definition
-          ? interpretTestWithSsid(definition, input.value, context ?? {}).ssid
-          : undefined;
+        const ssid =
+          input.ssid ??
+          (definition ? interpretTestWithSsid(definition, input.value, context ?? {}).ssid : undefined);
         const referenceProfile =
           definition && context
             ? buildStoredReferenceProfile(context, definition.referenceValues, definition.categoryId)
