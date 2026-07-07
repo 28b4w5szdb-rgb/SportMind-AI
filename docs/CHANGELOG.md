@@ -302,6 +302,27 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6D.2 — Scientific Timeline] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Scientific Timeline domain model** — 13 event types with source references, evidence tier, severity, visibility, key metrics
+- **Timeline builder** — `buildAthleteScientificTimeline()` from assessments, injuries, wellness, training, nutrition, wearables, reports, passport
+- **Role-based filtering** — `timelineAccess.ts` for coach, clinical, and research views
+- **Mock bridge** — `buildMockAthleteScientificTimeline()` + `useScientificTimeline()` hook
+- **Workspace UI** — `WorkspaceScientificTimeline` with category filters, severity badges, expandable compact cards
+- **Unit tests** — 7 tests for builder and access filtering
+- **i18n** — `scientificTimeline.*` keys (EN/AR)
+
+### Unchanged (by design)
+
+- No Dashboard, Performance Lab, Timeline Firestore persistence, AI, Reports, or security rules changes
+- Mock mode remains default runtime
+
+---
+
 ## [Phase 6D.1 — Athlete Digital Passport] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`

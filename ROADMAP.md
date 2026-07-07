@@ -140,6 +140,20 @@
 
 ---
 
+### Phase 6D.2 — Scientific Timeline
+
+**Goal:** Chronological scientific history index for each athlete — summaries only, source collections remain truth.
+
+- `ScientificTimelineEvent` domain model (13 event types, source references, severity, visibility)
+- `scientificTimelineBuilder` — assemble from assessments, injuries, wellness, training, nutrition, wearables, reports, passport
+- Role-based filtering via `timelineAccess.ts`
+- Mock bridge + `useScientificTimeline()` hook
+- `WorkspaceScientificTimeline` in athlete workspace timeline section (filters, compact cards, severity badges)
+
+**Exit criteria (met):** Timeline builds in mock mode; workspace shows filtered event cards; clinical/research gating applied; TypeScript + 7 unit tests pass.
+
+---
+
 ### Phase 6D — Storage
 
 **Goal:** Firebase Storage for files and exports.

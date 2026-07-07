@@ -1419,6 +1419,46 @@
       "medical": "Medical"
     }
   },
+  "scientificTimeline": {
+    "title": "Scientific Timeline",
+    "subtitle": "{{count}} indexed events · source references only",
+    "empty": "No timeline events yet — assessments and wellness logs will appear here.",
+    "sourceRef": "Source",
+    "filters": {
+      "all": "All",
+      "assessment": "Assessments",
+      "training": "Training",
+      "injury": "Injury",
+      "recovery": "Recovery",
+      "nutrition": "Nutrition",
+      "wearable": "Wearables",
+      "report": "Reports",
+      "performance": "Performance",
+      "medical": "Medical"
+    },
+    "severity": {
+      "info": "Info",
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "critical": "Critical"
+    },
+    "types": {
+      "assessment": "Assessment",
+      "training": "Training",
+      "match": "Match",
+      "injury": "Injury",
+      "recovery": "Recovery",
+      "nutrition": "Nutrition",
+      "wearable": "Wearable",
+      "gps": "GPS",
+      "laboratory": "Laboratory",
+      "report": "Report",
+      "research": "Research",
+      "ai_recommendation": "AI insight",
+      "passport_version": "Passport"
+    }
+  },
   "dailyCheckIn": {
     "title": "Daily Check-in",
     "subtitle": "Log sleep, wellness, and readiness markers",

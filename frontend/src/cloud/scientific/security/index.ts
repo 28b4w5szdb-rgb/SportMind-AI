@@ -112,3 +112,13 @@ export {
   filterPassportForContext,
   canViewAthletePassport,
 } from './passportAccess';
+
+export {
+  resolveTimelineViewerRole,
+  defaultMockTimelineViewerRole,
+  filterTimelineForViewer,
+  filterTimelineForContext,
+  canViewAthleteTimeline,
+  filterTimelineByCategory,
+  summaryContainsClinicalDetail,
+} from './timelineAccess';

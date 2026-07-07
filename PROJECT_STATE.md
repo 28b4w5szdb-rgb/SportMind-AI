@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6D.1 — Athlete Digital Passport (complete) |
+| **Current phase** | Phase 6D.2 — Scientific Timeline (complete) |
 | **Next phase** | Phase 6D — Firebase Storage |
 
 ---
@@ -41,6 +41,7 @@
 | **6C.10.1** | Firebase Rules Emulator & Security Tests — 36 rules tests, emulator config | ✅ Complete |
 | **6C.11** | Custom Claims & Membership Permissions — effective resolver, rules + tests | ✅ Complete |
 | **6D.1** | Athlete Digital Passport — summary layer, builder, workspace overview | ✅ Complete |
+| **6D.2** | Scientific Timeline — chronological index layer, builder, workspace UI | ✅ Complete |
 
 ---
 
@@ -71,6 +72,17 @@ frontend/src/cloud/
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6D.2 — Scientific Timeline
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Index layer** | `ScientificTimelineEvent` with source references — no raw duplication |
+| **Event types** | 13 types: assessment, training, match, injury, recovery, nutrition, wearable, GPS, laboratory, report, research, AI placeholder, passport version |
+| **Builder** | `scientificTimelineBuilder.ts` from sessions, injuries, wellness, training, nutrition, wearables, reports, passport |
+| **Visibility** | `timelineAccess.ts` — coach/clinical/research filtering |
+| **UI** | `WorkspaceScientificTimeline` with category filters, severity badges, compact cards |
+| **Tests** | 7 unit tests (builder + access) |
 
 #### Phase 6D.1 — Athlete Digital Passport
 

@@ -1423,6 +1423,46 @@
       "medical": "طبي"
     }
   },
+  "scientificTimeline": {
+    "title": "الخط الزمني العلمي",
+    "subtitle": "{{count}} حدث مفهرس · مراجع المصدر فقط",
+    "empty": "لا توجد أحداث بعد — ستظهر التقييمات وسجلات العافية هنا.",
+    "sourceRef": "المصدر",
+    "filters": {
+      "all": "الكل",
+      "assessment": "التقييمات",
+      "training": "التدريب",
+      "injury": "الإصابة",
+      "recovery": "التعافي",
+      "nutrition": "التغذية",
+      "wearable": "الأجهزة",
+      "report": "التقارير",
+      "performance": "الأداء",
+      "medical": "طبي"
+    },
+    "severity": {
+      "info": "معلومة",
+      "low": "منخفض",
+      "medium": "متوسط",
+      "high": "مرتفع",
+      "critical": "حرج"
+    },
+    "types": {
+      "assessment": "تقييم",
+      "training": "تدريب",
+      "match": "مباراة",
+      "injury": "إصابة",
+      "recovery": "تعافي",
+      "nutrition": "تغذية",
+      "wearable": "جهاز",
+      "gps": "GPS",
+      "laboratory": "مختبر",
+      "report": "تقرير",
+      "research": "بحث",
+      "ai_recommendation": "رؤية AI",
+      "passport_version": "الجواز"
+    }
+  },
   "dailyCheckIn": {
     "title": "التسجيل اليومي",
     "subtitle": "سجّل النوم والعافية ومؤشرات الجاهزية",

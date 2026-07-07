@@ -249,6 +249,18 @@ yarn emulators:start
 
 Passport is a **computed summary** — not persisted in Firestore in this phase. Source collections remain authoritative.
 
+### Phase 6D.2 — Scientific Timeline Visibility
+
+| Viewer role | Timeline access | Restrictions |
+|-------------|-----------------|--------------|
+| **Coach** | Assessments, training, recovery, nutrition, wearables, reports, passport | Injury events show RTP phase only — no pain/diagnosis |
+| **Sports scientist** | Coach events + research index events | Full assessment metrics |
+| **Clinical** | All events including injury pain/RTP and laboratory placeholders | Requires `read_medical` |
+| **Research** | De-identified assessment/research index events | Clinical injury events excluded; PII stripped |
+| **Athlete (portal)** | Self assessments, recovery, training summaries | No staff clinical detail |
+
+Timeline is a **computed index** — not persisted in Firestore in this phase.
+
 ### Remaining untested
 
 - Team-scoped ABAC (`teamIds` claim enforcement)

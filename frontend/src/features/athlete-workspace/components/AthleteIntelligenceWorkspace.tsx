@@ -21,6 +21,7 @@ import { useNutritionSnapshot, WorkspaceNutritionSection } from '@/src/features/
 import { useWearablesSnapshot, WorkspaceWearablesSection } from '@/src/features/wearables';
 import { buildWorkspaceSsidEntries, SsidBundleSection } from '@/src/features/ssid-engine';
 import { useAthletePassport, WorkspacePassportOverview } from '@/src/features/athlete-passport';
+import { useScientificTimeline, WorkspaceScientificTimeline } from '@/src/features/athlete-timeline';
 
 import { useAthleteWorkspace } from '../hooks/useAthleteWorkspace';
 import { useAthleteCockpitPresentation } from '../hooks/useAthleteCockpitPresentation';
@@ -39,7 +40,6 @@ import { CockpitPerformanceSnapshot } from './cockpit/CockpitPerformanceSnapshot
 import { CockpitAiSummary } from './cockpit/CockpitAiSummary';
 import { CockpitChartsPanel } from './cockpit/CockpitChartsPanel';
 import { CockpitBodyIntelligence } from './cockpit/CockpitBodyIntelligence';
-import { CockpitTimeline } from './cockpit/CockpitTimeline';
 import { CockpitCollapsibleSection } from './cockpit/CockpitCollapsibleSection';
 
 interface AthleteIntelligenceWorkspaceProps {
@@ -65,6 +65,7 @@ export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: Athl
   const nutritionSnapshot = useNutritionSnapshot(athlete);
   const wearableSnapshot = useWearablesSnapshot(athlete);
   const passport = useAthletePassport(athlete, tests, analytics);
+  const scientificTimeline = useScientificTimeline(athlete, tests, analytics, { passport });
 
   const latestReport = useMemo(
     () =>
@@ -90,22 +91,6 @@ export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: Athl
     () => buildWorkspaceSsidEntries(analytics, nutritionSnapshot?.bodyCompositionAnalysis?.ssid),
     [analytics, nutritionSnapshot?.bodyCompositionAnalysis?.ssid]
   );
-
-  const timelineEvents = useMemo(() => {
-    const base = workspace.timeline;
-    if (!wearableSnapshot?.lastSyncAt) return base;
-    const wearableEvent = {
-      id: `wearable_${athlete.id}`,
-      athleteId: athlete.id,
-      type: 'wearables' as const,
-      titleEn: 'Wearable device synced',
-      titleAr: 'تمت مزامنة الجهاز',
-      subtitleEn: wearableSnapshot.hrv ? `HRV ${wearableSnapshot.hrv} ms · Sleep ${wearableSnapshot.sleepDurationHours ?? '—'}h` : undefined,
-      subtitleAr: wearableSnapshot.hrv ? `HRV ${wearableSnapshot.hrv} ms · نوم ${wearableSnapshot.sleepDurationHours ?? '—'} س` : undefined,
-      date: wearableSnapshot.lastSyncAt.slice(0, 10),
-    };
-    return [wearableEvent, ...base];
-  }, [athlete.id, wearableSnapshot, workspace.timeline]);
 
   const injuryRegions = useMemo(() => regionsWithHistory(injuryRecords, athlete.id), [injuryRecords, athlete.id]);
   const attention = useMemo(
@@ -220,8 +205,8 @@ export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: Athl
         </View>
 
         <View onLayout={registerSection('timeline')}>
-          <CockpitCollapsibleSection title={t('athleteWorkspace.timelineTitle')} subtitle={t('athleteWorkspace.timelineSubtitle')}>
-            <CockpitTimeline events={timelineEvents} />
+          <CockpitCollapsibleSection title={t('scientificTimeline.title')} subtitle={t('athleteWorkspace.timelineSubtitle')}>
+            {scientificTimeline ? <WorkspaceScientificTimeline timeline={scientificTimeline} /> : null}
             <View style={{ marginTop: theme.spacing.lg }}>
               <AthleteProfileDetails athlete={athlete} />
             </View>
