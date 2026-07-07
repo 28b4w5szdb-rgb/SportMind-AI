@@ -241,6 +241,18 @@
 
 ---
 
+### Phase 7.2.1 — Firestore Rules Regression Fix ✅
+
+**Goal:** Restore full Firestore security rules suite to passing state after Phase 7.2.
+
+- Root cause: dynamic Firestore SDK imports in new report rules tests caused `invalid-argument` ref mismatch (not a rules regression)
+- Fix: align report tests with static imports used by assessment, audit, research, and catalog suites
+- No security weakening — zero changes to `firestore.rules`
+
+**Exit criteria:** `yarn test:rules` — 48/48 pass.
+
+---
+
 ### Phase 7 — Real AI
 
 **Goal:** Connect AI Coach to production LLM with guardrails.

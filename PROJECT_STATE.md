@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 7.2 — Scientific Report Cloud Repository (complete) |
+| **Current phase** | Phase 7.2.1 — Firestore Rules Regression Fix (complete) |
 | **Next phase** | Phase 6D — Firebase Storage |
 
 ---
@@ -46,6 +46,7 @@
 | **7.0** | Scientific Reporting Engine — deterministic builder, role/evidence-aware output, preview UI | ✅ Complete |
 | **7.1** | Report persistence, saved read path, athlete workspace prefill | ✅ Complete |
 | **7.2** | Firestore scientific report repository, cloud read path, list merge | ✅ Complete |
+| **7.2.1** | Firestore rules regression fix — reports test SDK alignment | ✅ Complete |
 
 ---
 
@@ -76,6 +77,15 @@ frontend/src/cloud/
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 7.2.1 — Firestore Rules Regression Fix
+
+| Item | Detail |
+|------|--------|
+| **Root cause** | Phase 7.2 report rules tests used dynamic `import('firebase/firestore')`, causing SDK instance mismatch with rules-test `doc()` refs |
+| **Fix** | Static top-level imports of `setDoc`/`updateDoc` — same pattern as all other rules test files |
+| **Security** | No rule changes; permissions unchanged |
+| **Suite status** | 48/48 passing |
 
 #### Phase 7.2 — Scientific Report Cloud Repository
 

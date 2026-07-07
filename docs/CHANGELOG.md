@@ -5,6 +5,23 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [Phase 7.2.1 — Firestore Rules Regression Fix] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Fixed
+
+- **Firestore rules suite** — restored to 48/48 passing after Phase 7.2 report test regression
+- **Root cause** — new report rules tests used dynamic `import('firebase/firestore')` for `setDoc`/`updateDoc`, incompatible with `@firebase/rules-unit-testing` document refs from `./helpers`
+- **Resolution** — static top-level Firestore imports matching all other rules test files
+
+### Unchanged (by design)
+
+- No changes to `firestore.rules` — multi-tenant isolation, append-only sessions, clinical/research/catalog protections preserved
+- No UI, repository, or Scientific Core changes
+
+---
+
 ## [Phase 7.2 — Scientific Report Cloud Repository] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`
@@ -658,4 +675,4 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 7.2*
+*Last updated: Phase 7.2.1*
