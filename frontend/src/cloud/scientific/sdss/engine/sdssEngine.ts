@@ -1,18 +1,19 @@
 /**
- * SSDI Engine — orchestrates Scientific Core → Decision Support pipeline (Phase 9.0–9.1).
+ * SSDI Engine — orchestrates Scientific Core → Decision Support pipeline (Phase 9.0–9.2).
  *
- * Pipeline: Decision Context → Evidence → Prompt → Provider → Validation → Consistency → Governance → Audit
+ * Pipeline: Decision Context → PII Redaction → Prompt Safety → Safe Prompt → Provider → Governance → Audit
  */
 
 import { buildDecisionContext } from '../context/decisionContextBuilder';
 import type { BuildDecisionContextInput } from '../models/DecisionContext';
-import { buildSdssPrompt } from '../prompt/promptBuilder';
 import type { AiProvider, AiProviderResponse } from '../providers/aiProviderContract';
 import { getMockAiProvider } from '../providers/mockAiProvider';
 import type { SdssRecommendationBundle } from '../models/SdssRecommendation';
 import type { GovernancePipelineResult, RecommendationAuditRecord, ValidationMetricsSnapshot } from '../models/Governance';
 import { applyGovernanceToBundle, runGovernancePipeline } from '../governance/governancePipeline';
 import { SDSS_VERSION } from '../models/SdssRecommendation';
+import { buildSafePromptPipeline } from '../privacy/safePromptBuilder';
+import type { SafePromptBundle } from '../privacy/privacyModels';
 
 export interface SdssRequest {
   contextInput: BuildDecisionContextInput;
@@ -31,16 +32,18 @@ export interface SdssResponse {
   governance: GovernancePipelineResult;
   audit_records: RecommendationAuditRecord[];
   metrics: ValidationMetricsSnapshot;
+  safe_prompt: SafePromptBundle;
+  outbound_safe: boolean;
 }
 
-/** Run full SSDI pipeline — mock provider by default; governance validates before delivery. */
+/** Run full SSDI pipeline — privacy layer before provider; governance validates before delivery. */
 export async function runSdssPipeline(request: SdssRequest): Promise<SdssResponse> {
   const context = buildDecisionContext(request.contextInput);
-  const prompt = buildSdssPrompt(context, request.userQuery);
+  const safePipeline = buildSafePromptPipeline(context, request.userQuery);
   const provider = request.provider ?? getMockAiProvider();
 
   const result: AiProviderResponse = await provider.generate({
-    prompt,
+    prompt: safePipeline.prompt,
     context,
     user_query: request.userQuery,
   });
@@ -49,14 +52,14 @@ export async function runSdssPipeline(request: SdssRequest): Promise<SdssRespons
     bundle: result.recommendations,
     context,
     modelVersion: SDSS_VERSION,
-    promptVersion: prompt.prompt_version,
+    promptVersion: safePipeline.prompt.prompt_version,
   });
 
   const validatedBundle = applyGovernanceToBundle(result.recommendations, governed);
 
   return {
     context_id: context.context_id,
-    prompt_version: prompt.prompt_version,
+    prompt_version: safePipeline.prompt.prompt_version,
     provider_id: result.provider_id,
     model_version: SDSS_VERSION,
     bundle: validatedBundle,
@@ -65,7 +68,10 @@ export async function runSdssPipeline(request: SdssRequest): Promise<SdssRespons
     governance: governed,
     audit_records: governed.audit_records,
     metrics: governed.metrics,
+    safe_prompt: safePipeline.prompt,
+    outbound_safe: safePipeline.prompt.outbound_safe,
   };
 }
 
-export { buildDecisionContext, buildSdssPrompt, getMockAiProvider };
+export { buildDecisionContext, getMockAiProvider };
+export { buildSafePromptPipeline } from '../privacy/safePromptBuilder';

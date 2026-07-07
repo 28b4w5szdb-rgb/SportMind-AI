@@ -3,14 +3,14 @@
  * No live API calls in Phase 9.0.
  */
 
-import type { SdssPromptBundle } from '../prompt/promptBuilder';
+import type { SafePromptBundle } from '../privacy/privacyModels';
 import type { SdssRecommendationBundle } from '../models/SdssRecommendation';
 import type { SdssDecisionContext } from '../models/DecisionContext';
 
 export type AiProviderId = 'mock' | 'openai' | 'azure_openai' | 'local_llm';
 
 export interface AiProviderRequest {
-  prompt: SdssPromptBundle;
+  prompt: SafePromptBundle;
   context: SdssDecisionContext;
   user_query: string;
 }

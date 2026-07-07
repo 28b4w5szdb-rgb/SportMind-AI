@@ -84,6 +84,8 @@ describe('SSDI v1', () => {
       assert.ok(first.bundle.evidence_summary.length > 0);
       assert.ok(first.audit_records.length >= 1);
       assert.ok(first.metrics.total_processed >= 1);
+      assert.ok(first.safe_prompt.fingerprint.fingerprint_hash);
+      assert.equal(typeof first.outbound_safe, 'boolean');
 
       const validation = validateRecommendationBundle(first.bundle.recommendations);
       assert.equal(validation.valid, true);

@@ -35,3 +35,9 @@ export {
 export type { ValidatorProvider, ValidatorProviderResult } from './validators/validatorContract';
 export { ValidationMetricsCollector } from './metrics/validationMetrics';
 export { globalSafetyDisclaimer, checkQuerySafety } from './safety/safetyLayer';
+export * from './privacy/privacyModels';
+export { buildSafePromptPipeline } from './privacy/safePromptBuilder';
+export { createRedactionSession, redactUserQuery, redactDecisionContextForOutbound } from './privacy/piiRedactionEngine';
+export { validatePromptSafety, validateUserQuerySafety } from './privacy/promptSafetyEngine';
+export { buildPromptContractPayload, validatePromptContract } from './privacy/promptContract';
+export { buildPromptFingerprint, computeFingerprintHash } from './privacy/promptFingerprint';
