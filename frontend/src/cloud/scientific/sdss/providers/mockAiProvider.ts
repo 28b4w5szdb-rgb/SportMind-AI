@@ -5,7 +5,6 @@
 import type { AiProvider, AiProviderRequest, AiProviderResponse } from './aiProviderContract';
 import { buildRecommendationsFromContext } from '../engine/recommendationBuilder';
 import { applySafetyToRecommendations, checkQuerySafety } from '../safety/safetyLayer';
-import { validateRecommendationBundle } from '../validation/responseValidator';
 
 export class MockAiProvider implements AiProvider {
   readonly id = 'mock' as const;
@@ -45,11 +44,6 @@ export class MockAiProvider implements AiProvider {
       ),
       safety_disclaimer: safety.disclaimer,
     };
-
-    const validation = validateRecommendationBundle(bundle.recommendations);
-    if (!validation.valid) {
-      throw new Error(`sdss_validation_failed:${validation.errors.join(';')}`);
-    }
 
     const rawText = bundle.recommendations
       .map(

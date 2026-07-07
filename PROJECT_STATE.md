@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 9.0 — AI Coach & Scientific Decision Support (SSDI v1) (complete) |
+| **Current phase** | Phase 9.1 — AI Validation & Governance Framework (complete) |
 | **Next phase** | Phase 7 — Real AI (OpenAI integration) |
 
 ---
@@ -52,6 +52,7 @@
 | **8.2** | Scientific Core Unification — single source of truth for calc, SSID, timeline, passport, report | ✅ Complete |
 | **8.3** | Performance & Scalability — batched reads, pagination, caches, debounced previews | ✅ Complete |
 | **9.0** | AI Coach SSDI v1 — Scientific Decision Support layer, mock provider, UI cards | ✅ Complete |
+| **9.1** | AI Validation & Governance — validation, consistency, audit, hallucination guard | ✅ Complete |
 
 ---
 
@@ -80,6 +81,23 @@
 **Intentionally not implemented:** Live OpenAI API, streaming, voice, chat redesign, medical diagnosis, Cloud Functions.
 
 **Remaining before production AI:** OpenAI/Azure provider implementation, PII redaction, rate limiting, citation library, streaming UX.
+
+#### Phase 9.1 — AI Validation & Governance Framework
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Validation engine** | `recommendationValidationEngine` — rejects incomplete recs (reasoning, evidence, confidence, limitations, metrics) |
+| **Consistency engine** | `consistencyEngine` — compares against SSID, passport, timeline, load, recovery, assessments |
+| **Governance engine** | `governanceEngine` — validation status, risk level, medical/research review flags |
+| **Hallucination guard** | Unsupported claims, missing evidence, unavailable metrics → rejected/needs_review/low_confidence |
+| **Confidence calibration** | Downgrades confidence when evidence completeness does not support stated level |
+| **Audit records** | Immutable `RecommendationAuditRecord` with validator_version, validation/consistency/governance results |
+| **Validator interfaces** | Rule, clinical, research, external provider stubs for future integration |
+| **Metrics** | Pass rate, rejections, needs-review rate, safety blocks, confidence distribution |
+
+**Governance pipeline:** Provider → Validation → Consistency → Hallucination Guard → Confidence Calibration → Governance → Audit → Validated Delivery
+
+**Intentionally not implemented:** Live LLM validation, persistent audit storage, Cloud Functions.
 
 ### Data Mode (current runtime)
 

@@ -15,6 +15,42 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+---
+
+## [Phase 9.1 — AI Validation & Governance Framework] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- `recommendationValidationEngine` — rejects incomplete recommendations
+- `consistencyEngine` — contradicts SSID, load, recovery, decision level, context metrics
+- `governanceEngine` — validation status, risk level, medical/research review flags
+- `hallucinationGuard` — unsupported claims, missing evidence, emergency instructions
+- `confidenceCalibration` — evidence-aligned confidence downgrades
+- `explainabilityReport` — internal audit explanation (evidence, alternatives, limitations)
+- `auditRecordBuilder` — immutable `RecommendationAuditRecord`
+- `validatorContract` — rule/clinical/research/external provider interfaces
+- `validationMetrics` — pass rate, rejections, needs-review, safety blocks
+- `governancePipeline` — orchestrates validation before user delivery
+- `sdssGovernance.test.ts` — 7 governance unit tests
+
+### Changed
+
+- `sdssEngine` — runs governance pipeline after mock provider; returns audit records + metrics
+- `mockAiProvider` — defers final validation to governance layer
+- `recommendationBuilder` — monitoring fallback includes `evidence_completeness` metric
+
+### Validation architecture
+
+Provider → Validation Engine → Consistency Engine → Hallucination Guard → Confidence Calibration → Governance Engine → Audit Record → Validated Recommendation
+
+### Unchanged (by design)
+
+- Scientific Core, SSID, UI layout, no OpenAI API, no Cloud Functions
+
+---
+
 ## [Phase 9.0 — AI Coach & Scientific Decision Support (SSDI v1)] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`

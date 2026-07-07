@@ -82,6 +82,8 @@ describe('SSDI v1', () => {
       assert.equal(first.provider_id, 'mock');
       assert.ok(first.bundle.recommendations.length >= 1);
       assert.ok(first.bundle.evidence_summary.length > 0);
+      assert.ok(first.audit_records.length >= 1);
+      assert.ok(first.metrics.total_processed >= 1);
 
       const validation = validateRecommendationBundle(first.bundle.recommendations);
       assert.equal(validation.valid, true);

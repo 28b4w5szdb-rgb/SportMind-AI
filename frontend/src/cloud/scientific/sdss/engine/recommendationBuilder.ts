@@ -209,7 +209,7 @@ export function buildRecommendationsFromContext(
           priority: 'medium',
           confidence: conf,
           evidence_level: 'screening',
-          affected_metrics: [],
+          affected_metrics: ['evidence_completeness'],
           related_assessments: [],
           limitations: [isAr ? 'بيانات ناقصة' : 'Missing data sources'],
           citations_placeholder: [],

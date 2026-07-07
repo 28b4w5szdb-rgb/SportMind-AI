@@ -333,6 +333,23 @@
 
 ---
 
+### Phase 9.1 — AI Validation & Governance Framework ✅
+
+**Goal:** Quality-control layer validating every AI recommendation before user delivery.
+
+- Recommendation Validation Engine — completeness, explainability, evidence requirements
+- Consistency Engine — SSID, normative context, passport, timeline, load, recovery, assessments
+- Governance Engine — validation status, risk level, review flags
+- Hallucination Guard — unsupported claims, missing evidence, unavailable metrics
+- Confidence Calibration — evidence-aligned confidence levels
+- Audit Record — immutable metadata for human review
+- Validator provider interfaces (rule, clinical, research, external stubs)
+- Validation metrics — pass rate, rejections, safety blocks, confidence distribution
+
+**Exit criteria:** Governance pipeline integrated into SSDI engine; audit records produced; tests pass; UI unchanged.
+
+---
+
 ### Phase 7 — Real AI
 
 **Goal:** Connect AI Coach to production LLM with guardrails.
