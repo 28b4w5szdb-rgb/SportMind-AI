@@ -15,12 +15,15 @@ import { getThemeById } from '../constants';
 import { ReportSectionBlock, ReportChartsBlock } from './blocks/ReportSectionBlock';
 import { showReportExportAlert } from '../utils/exportAlert';
 import type { ReportBuilderConfig, ReportPreviewBlock } from '../types';
+import type { ScientificReport } from '@/src/cloud/scientific/models/report';
+import { ScientificReportPreview } from '@/src/features/scientific-report';
 
 interface ReportPreviewProps {
   config: ReportBuilderConfig;
   blocks: ReportPreviewBlock[];
   subtitle: string;
   sections?: MockReportSections;
+  scientificReport?: ScientificReport | null;
   onSave?: () => void;
   saving?: boolean;
   showExport?: boolean;
@@ -36,6 +39,7 @@ export function ReportPreview({
   blocks,
   subtitle,
   sections,
+  scientificReport,
   onSave,
   saving,
   showExport = true,
@@ -53,7 +57,7 @@ export function ReportPreview({
   const chartSections = sections ?? ({} as MockReportSections);
 
   const handleExport = (format: 'pdf' | 'word' | 'excel') => {
-    showReportExportAlert(format, t);
+    showReportExportAlert(format, t, scientificReport?.report_id);
   };
 
   return (
@@ -81,6 +85,8 @@ export function ReportPreview({
           </Text>
         ) : null}
       </LinearGradient>
+
+      {scientificReport ? <ScientificReportPreview report={scientificReport} /> : null}
 
       {blocks.length === 0 ? (
         <Card variant="filled" padding="lg" style={{ marginBottom: theme.spacing.lg, borderRadius: theme.borderRadius.xl }}>

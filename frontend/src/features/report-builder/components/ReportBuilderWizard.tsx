@@ -46,7 +46,7 @@ export function ReportBuilderWizard() {
     setTheme,
   } = useReportBuilderState();
 
-  const { allSections, previewBlocks, subtitle, mockType } = useReportBuilderContent(config);
+  const { allSections, previewBlocks, subtitle, mockType, scientificReport } = useReportBuilderContent(config);
 
   useEffect(() => {
     if (!config.athleteId && athletes[0]?.id) {
@@ -296,6 +296,7 @@ export function ReportBuilderWizard() {
             blocks={previewBlocks}
             subtitle={subtitle}
             sections={allSections}
+            scientificReport={scientificReport}
             onSave={handleSave}
             saving={loading}
           />

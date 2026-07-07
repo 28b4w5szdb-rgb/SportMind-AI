@@ -7,3 +7,4 @@ export * from './interpretation';
 export * from './persistence';
 export * from './passport';
 export * from './timeline';
+export * from './report';

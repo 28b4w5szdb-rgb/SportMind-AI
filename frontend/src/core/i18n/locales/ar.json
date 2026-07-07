@@ -2235,5 +2235,37 @@
       "word": "Word",
       "excel": "Excel"
     }
+  },
+  "scientificReport": {
+    "preview": {
+      "title": "معاينة التقرير العلمي",
+      "subtitle": "مخرجات منظمة من الجواز والخط الزمني ونتائج التقييم",
+      "engineLabel": "محرك التقارير العلمية",
+      "compactLabel": "تم تجميع {{count}} أقسام علمية"
+    },
+    "export": {
+      "engineReady": "التقرير العلمي {{reportId}} جاهز لخط PDF الإنتاج (مؤجل).",
+      "engineFallback": "أنشئ تقريراً علمياً للاعب لتفعيل بيانات التصدير المنظمة."
+    },
+    "sections": {
+      "cover": "الغلاف",
+      "executiveSummary": "الملخص التنفيذي",
+      "athleteProfile": "ملف اللاعب",
+      "passportSummary": "ملخص الجواز العلمي",
+      "performanceSummary": "ملخص الأداء",
+      "assessmentResults": "نتائج التقييم",
+      "normativeComparison": "المقارنة المعيارية",
+      "ssidInterpretation": "تفسير SSID",
+      "scientificTimeline": "الخط الزمني العلمي",
+      "recoverySummary": "ملخص التعافي",
+      "trainingLoadSummary": "ملخص حمل التدريب",
+      "injuryMedicalSummary": "ملخص الإصابة / الطبي",
+      "nutritionSummary": "ملخص التغذية",
+      "wearablesSummary": "ملخص الأجهزة القابلة للارتداء",
+      "recommendations": "التوصيات",
+      "evidenceLimitations": "الأدلة والقيود",
+      "references": "المراجع",
+      "signature": "التوقيع"
+    }
   }
 }

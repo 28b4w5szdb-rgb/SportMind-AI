@@ -5,6 +5,36 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [Phase 7.0 — Scientific Reporting Engine] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Scientific Report domain model** — `ScientificReport`, 18 modular sections, evidence summary, version metadata, source references
+- **Report types** — athlete, team, performance, recovery, sports_medicine, research
+- **Deterministic builder** — `scientificReportBuilder.ts` inputs passport, timeline, sessions; no AI text generation
+- **Evidence-aware language** — `evidenceLanguage.ts` tier-based phrasing (screening/field/professional/research/clinical)
+- **Role-aware reporting** — `reportAccess.ts` filters sections for coach, sports_scientist, clinical, research viewers
+- **Feature module** — `features/scientific-report/` bridge, hook, legacy mapper, `ScientificReportPreview` component
+- **UI integration** — Report Builder preview shows structured scientific sections; export placeholders reference engine ID
+- **Bilingual output** — all section titles and bodies in EN/AR
+- **Unit tests** — 15 tests (builder, access, evidence language)
+
+### Design principles documented
+
+- Scientific inside, simple outside — report is output layer, not data source
+- No duplicate scientific truth — source references only
+- PDF export explicitly deferred
+
+### Unchanged (by design)
+
+- Dashboard, Performance Lab pipeline, Scientific Core engines
+- No AI generation, Cloud Functions, email, or research export pipeline
+- Legacy mock reports and wizard steps remain functional
+
+---
+
 ## [v0.9-alpha] — 2026-07-06
 
 **Tag:** `v0.9-alpha`  
@@ -580,4 +610,4 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6D.3*
+*Last updated: Phase 7.0*

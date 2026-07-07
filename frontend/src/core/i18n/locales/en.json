@@ -2231,5 +2231,37 @@
       "word": "Word",
       "excel": "Excel"
     }
+  },
+  "scientificReport": {
+    "preview": {
+      "title": "Scientific Report Preview",
+      "subtitle": "Structured output from passport, timeline, and assessment artifacts",
+      "engineLabel": "Scientific Reporting Engine",
+      "compactLabel": "{{count}} scientific sections assembled"
+    },
+    "export": {
+      "engineReady": "Scientific report {{reportId}} is assembled and ready for the production PDF pipeline (deferred).",
+      "engineFallback": "Build a scientific athlete report to enable structured export metadata."
+    },
+    "sections": {
+      "cover": "Cover",
+      "executiveSummary": "Executive Summary",
+      "athleteProfile": "Athlete Profile",
+      "passportSummary": "Scientific Passport Summary",
+      "performanceSummary": "Performance Summary",
+      "assessmentResults": "Assessment Results",
+      "normativeComparison": "Normative Comparison",
+      "ssidInterpretation": "SSID Interpretation",
+      "scientificTimeline": "Scientific Timeline",
+      "recoverySummary": "Recovery Summary",
+      "trainingLoadSummary": "Training Load Summary",
+      "injuryMedicalSummary": "Injury / Medical Summary",
+      "nutritionSummary": "Nutrition Summary",
+      "wearablesSummary": "Wearables Summary",
+      "recommendations": "Recommendations",
+      "evidenceLimitations": "Evidence & Limitations",
+      "references": "References",
+      "signature": "Signature"
+    }
   }
 }

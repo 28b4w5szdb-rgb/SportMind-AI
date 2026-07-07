@@ -18,6 +18,7 @@ import type {
 } from '../types';
 import { buildPreviewBlocks, mapBuilderTypeToMockType } from '../utils/reportContent';
 import { buildReportSubtitle } from '../utils/reportMeta';
+import { useScientificReport } from '@/src/features/scientific-report';
 
 const DEFAULT_DATE_TO = new Date().toISOString().slice(0, 10);
 const DEFAULT_DATE_FROM = new Date(Date.now() - 90 * 86400000).toISOString().slice(0, 10);
@@ -166,8 +167,13 @@ export function useReportBuilderContent(config: ReportBuilderConfig) {
 
   const mockType = mapBuilderTypeToMockType(config.reportType);
   const isTeam = config.scope === 'team' || mockType === 'team';
+  const { scientificReport, legacySections } = useScientificReport(config);
 
   const allSections: MockReportSections = useMemo(() => {
+    if (legacySections && !isTeam) {
+      return legacySections;
+    }
+
     const summary = config.title;
     const checkIn = checkIns.find((c) => c.athlete_id === config.athleteId);
 
@@ -214,6 +220,7 @@ export function useReportBuilderContent(config: ReportBuilderConfig) {
     injuries,
     isRTL,
     isTeam,
+    legacySections,
     nutritionGoalSettings,
     nutritionLogs,
     t,
@@ -232,5 +239,5 @@ export function useReportBuilderContent(config: ReportBuilderConfig) {
     return buildReportSubtitle(config, name, t);
   }, [athlete, config, t]);
 
-  return { allSections, previewBlocks, athlete, subtitle, mockType, isTeam };
+  return { allSections, previewBlocks, athlete, subtitle, mockType, isTeam, scientificReport };
 }

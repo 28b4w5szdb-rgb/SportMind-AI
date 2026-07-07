@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6D.3 — Athlete Workspace Role Context & Cloud Readiness (complete) |
+| **Current phase** | Phase 7.0 — Scientific Reporting Engine (complete) |
 | **Next phase** | Phase 6D — Firebase Storage |
 
 ---
@@ -43,6 +43,7 @@
 | **6D.1** | Athlete Digital Passport — summary layer, builder, workspace overview | ✅ Complete |
 | **6D.2** | Scientific Timeline — chronological index layer, builder, workspace UI | ✅ Complete |
 | **6D.3** | Workspace Context — role-aware passport/timeline, cloud bridge, dev diagnostics | ✅ Complete |
+| **7.0** | Scientific Reporting Engine — deterministic builder, role/evidence-aware output, preview UI | ✅ Complete |
 
 ---
 
@@ -73,6 +74,21 @@ frontend/src/cloud/
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 7.0 — Scientific Reporting Engine
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Output layer** | `ScientificReport` domain model — reports summarize passport/timeline/assessments, not duplicate truth |
+| **Report types** | athlete, team, performance, recovery, sports_medicine, research |
+| **Sections** | 18 modular sections: cover, executive summary, passport, timeline, SSID, evidence, signature, etc. |
+| **Builder** | `scientificReportBuilder.ts` — deterministic assembly, no AI generation |
+| **Evidence language** | `evidenceLanguage.ts` — tier-based phrasing (screening → clinical) |
+| **Role-aware** | `reportAccess.ts` — coach/scientist/clinical/research visibility |
+| **UI** | `ScientificReportPreview` in existing Report Builder preview; legacy reports unchanged |
+| **Export** | Placeholder buttons reference engine metadata; real PDF deferred |
+| **Bilingual** | All section titles/bodies in EN/AR |
+| **Tests** | 15 unit tests (builder + access + evidence language) |
 
 #### Phase 6D.3 — Athlete Workspace Role Context & Cloud Readiness
 

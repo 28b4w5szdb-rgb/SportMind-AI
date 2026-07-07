@@ -195,6 +195,22 @@
 
 ---
 
+### Phase 7.0 — Scientific Reporting Engine ✅
+
+**Goal:** Professional output layer for coaches, scientists, universities, researchers, sports medicine, and clubs.
+
+- Deterministic `scientificReportBuilder` from passport, timeline, assessments
+- Six report types: athlete, team, performance, recovery, sports_medicine, research
+- 18 modular bilingual sections with evidence-aware language
+- Role-aware visibility (coach / sports_scientist / clinical / research)
+- `ScientificReportPreview` integrated into existing Report Builder — no dashboard or Performance Lab changes
+- PDF/Word/Excel export deferred — placeholder buttons reference engine metadata
+- Mock mode fully functional
+
+**Exit criteria:** Structured scientific reports preview in Report Builder; legacy mock reports unchanged; no AI generation or real PDF.
+
+---
+
 ### Phase 7 — Real AI
 
 **Goal:** Connect AI Coach to production LLM with guardrails.
