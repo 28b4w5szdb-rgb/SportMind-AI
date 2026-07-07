@@ -47,6 +47,8 @@ export interface MockPerformanceTest {
   ssid?: import('@/src/features/ssid-engine').SsidInterpretation;
   demographicContext?: import('@/src/features/testing-science').TestDemographicContext;
   referenceProfile?: import('@/src/features/testing-science').StoredReferenceProfile;
+  /** Links mock row to scientific session when dual-written. */
+  scientificSessionId?: string;
 }
 
 export type MockReportStatus = 'draft' | 'ready' | 'exported';

@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.9 — Performance Lab Bridge (complete) |
+| **Current phase** | Phase 6C.9.1 — Performance Lab Read Path Bridge (complete) |
 | **Next phase** | Phase 6C.10 — Firestore Security Rules Deployment |
 
 ---
@@ -34,6 +34,7 @@
 | **6C.8** | Scientific Persistence Layer — repository-backed mock/Firestore gateway | ✅ Complete |
 | **6C.8.1** | Atomic Scientific Persistence — transactional bundle writes, audit, retry | ✅ Complete |
 | **6C.9** | Performance Lab Bridge — Scientific Core integration via adapter layer | ✅ Complete |
+| **6C.9.1** | Performance Lab Read Path Bridge — result/history scientific read + dedup | ✅ Complete |
 
 ---
 
@@ -64,6 +65,16 @@ frontend/src/cloud/
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6C.9.1 — Performance Lab Read Path Bridge
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Result read** | `usePerformanceLabResult` — scientific session first, mock fallback |
+| **History merge** | `usePerformanceLabHistory` — scientific sessions preferred, deduped dual-write |
+| **View model** | `PerformanceLabResultViewModel` maps session → existing UI model |
+| **ID alignment** | Save path uses `session_id` as result id for read consistency |
+| **Errors** | Friendly loading/read failure i18n — no internal IDs exposed |
 
 #### Phase 6C.9 — Performance Lab Bridge
 
@@ -279,4 +290,4 @@ See [ROADMAP.md](./ROADMAP.md).
 | Brand guide | [frontend/BRAND_GUIDE.md](./frontend/BRAND_GUIDE.md) |
 | Env template | [frontend/.env.example](./frontend/.env.example) |
 
-*Last updated: Phase 6C.9*
+*Last updated: Phase 6C.9.1*

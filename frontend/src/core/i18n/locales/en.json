@@ -444,7 +444,9 @@
       "validation": "Please check the result value and athlete profile, then try again.",
       "saveFailed": "We could not save this result right now. Please try again.",
       "duplicate": "This result was already recorded.",
-      "unsupportedTest": "This test type is not yet supported for scientific recording."
+      "unsupportedTest": "This test type is not yet supported for scientific recording.",
+      "readFailed": "Some results could not be loaded. Showing available records.",
+      "loading": "Loading results…"
     },
     "sections": {
       "protocol": "Protocol",

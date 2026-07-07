@@ -41,7 +41,12 @@ export function LabTimeline({ tests, compact = false }: LabTimelineProps) {
       {visible.map((test, index) => {
         const definition = getTestDefinition(test.test_type_key, customTests);
         const category = definition ? getCategoryById(definition.categoryId) : undefined;
-        const { level } = definition ? interpretTestWithSsid(definition, test.value, test.demographicContext) : { level: 'average' as const };
+        const { level } =
+          test.ssid?.performanceLevel
+            ? { level: test.ssid.performanceLevel }
+            : definition
+              ? interpretTestWithSsid(definition, test.value, test.demographicContext)
+              : { level: 'average' as const };
         const color = PERFORMANCE_LEVEL_COLORS[level];
         const isLast = index === visible.length - 1;
 

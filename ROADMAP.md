@@ -86,7 +86,10 @@
 | **6C.8** | Scientific Persistence Layer — repository-backed mock/Firestore gateway | ✅ Complete |
 | **6C.8.1** | Atomic Scientific Persistence — transactional bundle writes, audit, retry | ✅ Complete |
 | **6C.9** | Performance Lab Bridge — Scientific Core integration via adapter layer | ✅ Complete |
+| **6C.9.1** | Performance Lab Read Path Bridge — result/history scientific read + dedup | ✅ Complete |
 | **6C.10** | Firestore security rules deployment | 🔜 Next |
+
+**6C.9.1 exit criteria (met):** Result and history read bridges, view model mappers, deduplicated history merge, session id alignment on save, friendly read errors — no UI redesign.
 
 **6C.9 exit criteria (met):** Performance Lab bridge adapter, scientific pipeline on test entry save/preview, mock store dual-write, friendly error handling, legacy fallback — no UI/navigation redesign.
 

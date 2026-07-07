@@ -131,7 +131,11 @@ export default function TestDetailScreen() {
           demographicContext,
           isRTL,
         });
-        const saved = addTest(bridged.mockTest);
+        const saved = addTest({
+          ...bridged.mockTest,
+          id: bridged.sessionId,
+          scientificSessionId: bridged.sessionId.startsWith('sess_') ? bridged.sessionId : undefined,
+        });
         setTimeout(() => router.replace(APP_ROUTES.performanceLabResult(saved.id)), 800);
       } catch (err) {
         throw new Error(toFriendlyBridgeError(err));

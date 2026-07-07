@@ -97,7 +97,7 @@ export interface MockStore {
   getAthlete: (id: string) => MockAthlete | undefined;
 
   addTeam: (input: Omit<MockTeam, 'id' | 'created_at'>) => MockTeam;
-  addTest: (input: Omit<MockPerformanceTest, 'id'>) => MockPerformanceTest;
+  addTest: (input: Omit<MockPerformanceTest, 'id'> & { id?: string }) => MockPerformanceTest;
   addReport: (input: Omit<MockReport, 'id' | 'created_at' | 'status'>) => MockReport;
   updateReport: (id: string, patch: Partial<MockReport>) => void;
   addResearch: (input: Omit<MockResearchProject, 'id' | 'updated_at' | 'progress' | 'status'>) => MockResearchProject;
@@ -222,7 +222,12 @@ export const useMockStore = create<MockStore>()(
           definition && context
             ? buildStoredReferenceProfile(context, definition.referenceValues, definition.categoryId)
             : input.referenceProfile;
-        const test: MockPerformanceTest = { ...input, id: uid('test'), ssid, referenceProfile };
+        const test: MockPerformanceTest = {
+          ...input,
+          id: input.id ?? uid('test'),
+          ssid,
+          referenceProfile,
+        };
         set((s) => ({
           tests: [test, ...s.tests],
           athletes: s.athletes.map((a) =>

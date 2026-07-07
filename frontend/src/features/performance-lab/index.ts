@@ -27,6 +27,8 @@ export {
   previewPerformanceLabAssessment,
   recordPerformanceLabAssessment,
   useScientificTestPreview,
+  usePerformanceLabResult,
+  usePerformanceLabHistory,
 } from './bridge';
 export { getTestProtocolMeta, levelToPercentile } from './utils/labPresentation';
 export { useLabDashboardPresentation, buildTestHistoryTrend } from './hooks/useLabDashboardPresentation';

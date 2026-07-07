@@ -302,6 +302,27 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6C.9.1 — Performance Lab Read Path Bridge] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Read path bridge** — `performanceLabReadBridge.ts` loads scientific sessions with legacy fallback
+- **Result view model** — `PerformanceLabResultViewModel` maps scientific sessions to existing UI shape
+- **Result hook** — `usePerformanceLabResult` for `result/[id].tsx` (scientific first, mock fallback)
+- **History hook** — `usePerformanceLabHistory` merges scientific + mock with deduplication
+- **Session ID alignment** — save path uses `session_id` as result id for consistent reads
+- **Friendly read states** — loading indicator and i18n read-failure messages
+
+### Unchanged (by design)
+
+- No UI redesign, navigation, or layout changes
+- Legacy mock results remain accessible
+- Mock mode fully functional
+
+---
+
 ## [Phase 6C.9 — Performance Lab Bridge] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`
@@ -385,4 +406,4 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6C.9*
+*Last updated: Phase 6C.9.1*
