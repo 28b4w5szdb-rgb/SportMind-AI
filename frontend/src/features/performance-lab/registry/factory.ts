@@ -106,9 +106,10 @@ export function buildCustomTestDefinition(input: CustomTestInput, key: string): 
     notes: input.notes ? { en: input.notes, ar: notesAr } : undefined,
   };
 
-  return defineTest({
+  return {
+    ...defineTest({
     key,
-    categoryId: 'custom',
+    categoryId: input.categoryId ?? 'custom',
     icon: 'create',
     unit: input.unit,
     referenceValues: { elite: 100, good: 75, average: 50 },
@@ -119,7 +120,9 @@ export function buildCustomTestDefinition(input: CustomTestInput, key: string): 
     featured: false,
     defaultRecommendationKey: 'analytics.rec.strength',
     copy,
-  });
+  }),
+    evidenceTier: input.evidenceTier ?? 'screening',
+  };
 }
 
 /** Compact bilingual bundle builder for catalog files. */

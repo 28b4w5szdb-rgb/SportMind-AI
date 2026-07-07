@@ -302,6 +302,28 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6C.9.3 — Custom Assessments Bridge] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Custom assessment bridge** — `customAssessmentBridge` creates org-scoped `CatalogAssessmentDefinition` + protocol versions
+- **Mock registry** — `customAssessmentRegistry` with hydrate/persist via mock store `customAssessmentBundles`
+- **Catalog overlay** — `createCustomAwareDefinitionRepository` merges custom definitions into seed catalog reads
+- **Scientific entry** — custom tests with complete definitions use scientific pipeline on test entry save/preview
+- **Progressive disclosure** — Basic / Advanced / Research sections on custom create screen
+- **Evidence policy** — defaults to `screening`; clinical/research require validity + reliability metadata
+- **Validation** — name, unit, metric, category, source type, duplicate keys
+- **Legacy fallback** — pre-bridge customs marked `scientificStatus: legacy_custom`
+
+### Unchanged (by design)
+
+- No UI redesign, navigation, dashboard, passport, timeline, reports, or AI changes
+- Mock mode fully functional when cloud disabled
+
+---
+
 ## [Phase 6C.9.2 — Performance Lab Read Screen Bridge] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`
@@ -428,4 +450,4 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6C.9.2*
+*Last updated: Phase 6C.9.3*

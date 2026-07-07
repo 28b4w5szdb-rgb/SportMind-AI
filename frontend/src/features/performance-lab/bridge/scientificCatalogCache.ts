@@ -5,6 +5,7 @@
 import type { CatalogAssessmentDefinition } from '@/src/cloud/scientific/models/catalog/AssessmentDefinition';
 import type { EvidenceTier, ScientificCategoryCode } from '@/src/cloud/scientific/models/common';
 import { createAssessmentDefinitionEngineFromRegistry } from '@/src/cloud/scientific/repositories/registry';
+import { getCustomAssessmentBundle } from '@/src/cloud/scientific/adapters/mock/customAssessmentRegistry';
 
 import type { TestCategoryId, TestDefinition } from '../types';
 import { getTestDefinition, getMergedRegistry } from '../registry/tests';
@@ -23,6 +24,12 @@ export async function getCachedCatalogDefinition(
 ): Promise<CatalogAssessmentDefinition | null> {
   const cached = definitionCache.get(key);
   if (cached) return cached;
+
+  const customBundle = getCustomAssessmentBundle(key);
+  if (customBundle) {
+    definitionCache.set(key, customBundle.definition);
+    return customBundle.definition;
+  }
 
   const engine = createAssessmentDefinitionEngineFromRegistry();
   const definition = await engine.getAssessmentDefinitionByKey(key);

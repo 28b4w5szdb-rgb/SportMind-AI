@@ -24,6 +24,7 @@ import {
   type PerformanceLabRecordInput,
 } from './bridgeMappers';
 import { getCachedCatalogDefinition } from './scientificCatalogCache';
+import { canUseScientificCustomPipeline } from './customAssessmentBridge';
 
 let previewEngine: AssessmentSessionEngine | undefined;
 let persistEngine: AssessmentSessionEngine | undefined;
@@ -48,7 +49,8 @@ function getPersistEngine(): AssessmentSessionEngine {
 }
 
 function canUseScientificPipeline(definition: TestDefinition): boolean {
-  return !definition.isCustom && definition.key !== 'custom_test';
+  if (definition.key === 'custom_test') return false;
+  return canUseScientificCustomPipeline(definition);
 }
 
 function legacyBridgeResult(input: PerformanceLabRecordInput): PerformanceLabBridgeResult {

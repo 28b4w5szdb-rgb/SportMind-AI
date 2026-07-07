@@ -80,6 +80,7 @@ export interface TestDefinition {
   objective: TestObjective;
   featured: boolean;
   isCustom?: boolean;
+  scientificStatus?: ScientificCustomStatus;
   /** Days until suggested retest (category default if omitted). */
   retestIntervalDays: number;
   /** Structured knowledge surfaced in Testing Center UI. */
@@ -124,6 +125,14 @@ export interface TestAnalyticsImpact {
   injuryRiskDelta: number;
 }
 
+export type ScientificCustomStatus = 'scientific' | 'legacy_custom';
+
+export interface CustomTestResearchMetadata {
+  validityNotes?: string;
+  reliabilityNotes?: string;
+  citation?: string;
+}
+
 export interface CustomTestInput {
   name: string;
   nameAr?: string;
@@ -132,8 +141,13 @@ export interface CustomTestInput {
   protocolAr?: string;
   targetMetric?: string;
   targetMetricAr?: string;
+  primaryMetricKey?: string;
   notes?: string;
   notesAr?: string;
+  categoryId?: TestCategoryId;
+  evidenceTier?: import('@/src/cloud/scientific/models/common').EvidenceTier;
+  sourceType?: 'manual';
+  researchMetadata?: CustomTestResearchMetadata;
 }
 
 export interface TestLibraryFilters {

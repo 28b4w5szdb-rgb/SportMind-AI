@@ -71,6 +71,7 @@ export function mapScientificCategoryToPerfLab(
 
 export function mapCatalogToTestDefinition(catalog: CatalogAssessmentDefinition): TestDefinition {
   const legacy = getTestDefinition(catalog.key);
+  const isOrgCustom = Boolean(catalog.tags?.includes('custom'));
   const categoryId = mapScientificCategoryToPerfLab(
     catalog.category_code,
     catalog.subcategory,
@@ -83,6 +84,8 @@ export function mapCatalogToTestDefinition(catalog: CatalogAssessmentDefinition)
       ...legacy,
       evidenceTier: catalog.evidence_tier,
       usabilityModes: catalog.usability_modes,
+      isCustom: legacy.isCustom ?? isOrgCustom,
+      scientificStatus: legacy.scientificStatus ?? (isOrgCustom ? 'scientific' : undefined),
     };
   }
 
@@ -97,6 +100,8 @@ export function mapCatalogToTestDefinition(catalog: CatalogAssessmentDefinition)
     expectedTrend: 'up',
     objective,
     featured: false,
+    isCustom: isOrgCustom || undefined,
+    scientificStatus: isOrgCustom ? 'scientific' : undefined,
     retestIntervalDays: catalog.retest_interval_days,
     knowledge: {
       whatMeasures: catalog.description,

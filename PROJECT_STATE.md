@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.9.2 — Performance Lab Read Screen Bridge (complete) |
+| **Current phase** | Phase 6C.9.3 — Custom Assessments Bridge (complete) |
 | **Next phase** | Phase 6C.10 — Firestore Security Rules Deployment |
 
 ---
@@ -36,6 +36,7 @@
 | **6C.9** | Performance Lab Bridge — Scientific Core integration via adapter layer | ✅ Complete |
 | **6C.9.1** | Performance Lab Read Path Bridge — result/history scientific read + dedup | ✅ Complete |
 | **6C.9.2** | Performance Lab Read Screen Bridge — dashboard, library, category, benchmark, compare | ✅ Complete |
+| **6C.9.3** | Custom Assessments Bridge — org-scoped definitions, scientific entry pipeline, legacy fallback | ✅ Complete |
 
 ---
 
@@ -66,6 +67,17 @@ frontend/src/cloud/
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6C.9.3 — Custom Assessments Bridge
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Org-scoped definitions** | Custom tests create `CatalogAssessmentDefinition` + protocol via `customAssessmentBridge` |
+| **Registry overlay** | `customAssessmentRegistry` + `createCustomAwareDefinitionRepository` merge customs into mock catalog |
+| **Entry pipeline** | Custom scientific defs follow validation → calculation → normative → SSID → session → persistence |
+| **Legacy fallback** | Pre-bridge customs marked `scientificStatus: legacy_custom`; incomplete defs use legacy SSID path |
+| **Progressive disclosure** | Basic / Advanced / Research sections on custom create — defaults to `screening` evidence tier |
+| **Validation** | Name, unit, metric, category, source type, duplicate keys; clinical/research require metadata |
 
 #### Phase 6C.9.2 — Performance Lab Read Screen Bridge
 

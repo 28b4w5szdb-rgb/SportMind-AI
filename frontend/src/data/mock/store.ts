@@ -3,14 +3,22 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import type { AiAgentId, AiMessage } from './ai-coach';
-import type { CustomTestInput } from '@/src/features/performance-lab/types';
-import { buildCustomTestDefinition } from '@/src/features/performance-lab/registry/factory';
+import {
+  createCustomAssessmentBundle,
+  resolveCustomScientificStatus,
+} from '@/src/features/performance-lab/bridge/customAssessmentBridge';
+import {
+  hydrateCustomAssessmentBundles,
+  listCustomAssessmentDefinitionKeys,
+  type CustomAssessmentBundle,
+} from '@/src/cloud/scientific/adapters/mock/customAssessmentRegistry';
 import { getTestDefinition } from '@/src/features/performance-lab/registry/tests';
+import type { CustomTestInput, TestDefinition } from '@/src/features/performance-lab/types';
+import { buildCustomTestDefinition } from '@/src/features/performance-lab/registry/factory';
 import { interpretTestWithSsid } from '@/src/features/performance-lab/utils/testInterpretation';
 import { buildStoredReferenceProfile } from '@/src/features/testing-science';
 import { getProviderById, generateMockSyncRecord, mergeWearableRecord } from '@/src/features/wearables';
 import type { MockSyncType, WearableProviderConnection, WearableProviderId } from '@/src/features/wearables';
-import type { TestDefinition } from '@/src/features/performance-lab/types';
 import type {
   MockAthlete,
   MockCalculationRecord,
@@ -83,6 +91,7 @@ export interface MockStore {
   favoriteTestKeys: string[];
   recentTestKeys: string[];
   customTestDefinitions: TestDefinition[];
+  customAssessmentBundles: CustomAssessmentBundle[];
   dailyCheckIns: DailyCheckIn[];
   injuryRecords: InjuryRecord[];
   trainingPlans: TrainingPlan[];
@@ -170,6 +179,7 @@ export const useMockStore = create<MockStore>()(
       favoriteTestKeys: [],
       recentTestKeys: [],
       customTestDefinitions: [],
+      customAssessmentBundles: [],
       dailyCheckIns: SEED_CHECKINS,
       injuryRecords: SEED_INJURIES,
       trainingPlans: SEED_TRAINING_PLANS,
@@ -398,10 +408,23 @@ export const useMockStore = create<MockStore>()(
       },
 
       addCustomTestDefinition: (input) => {
-        const key = uid('custom_test');
-        const def = buildCustomTestDefinition(input, key);
+        const existingKeys = [
+          ...get().customTestDefinitions.map((item) => item.key),
+          ...listCustomAssessmentDefinitionKeys(),
+        ];
+        const created = createCustomAssessmentBundle(input, existingKeys);
+        const def = buildCustomTestDefinition(input, created.key);
         def.isCustom = true;
-        set((s) => ({ customTestDefinitions: [def, ...s.customTestDefinitions] }));
+        def.scientificStatus = created.scientificStatus;
+        def.evidenceTier = created.definition.evidence_tier;
+        def.usabilityModes = created.definition.usability_modes;
+        if (input.categoryId && input.categoryId !== 'custom') {
+          def.categoryId = input.categoryId;
+        }
+        set((s) => ({
+          customTestDefinitions: [def, ...s.customTestDefinitions],
+          customAssessmentBundles: [created.bundle, ...s.customAssessmentBundles],
+        }));
         return def;
       },
 
@@ -619,6 +642,7 @@ export const useMockStore = create<MockStore>()(
         favoriteTestKeys: state.favoriteTestKeys,
         recentTestKeys: state.recentTestKeys,
         customTestDefinitions: state.customTestDefinitions,
+        customAssessmentBundles: state.customAssessmentBundles,
         dailyCheckIns: state.dailyCheckIns,
         injuryRecords: state.injuryRecords,
         trainingPlans: state.trainingPlans,
@@ -629,6 +653,18 @@ export const useMockStore = create<MockStore>()(
         wearableRecords: state.wearableRecords,
       }),
       onRehydrateStorage: () => (state) => {
+        if (state?.customAssessmentBundles?.length) {
+          hydrateCustomAssessmentBundles(state.customAssessmentBundles);
+        }
+        if (state?.customTestDefinitions?.length) {
+          state.customTestDefinitions = state.customTestDefinitions.map((def) => {
+            if (!def.isCustom) return def;
+            return {
+              ...def,
+              scientificStatus: resolveCustomScientificStatus(def),
+            };
+          });
+        }
         state?.setHasHydrated(true);
       },
     }

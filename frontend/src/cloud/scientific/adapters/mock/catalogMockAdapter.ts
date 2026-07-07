@@ -30,6 +30,7 @@ import type {
 import { getCatalogMemoryCache } from '../../cache/memoryCache';
 import { getCatalogSeedIndex } from '../../seed/catalogSeedIndex';
 import { createSeedDefinitionRepository } from '../shared/definitionRepositoryHelpers';
+import { createCustomAwareDefinitionRepository } from './customDefinitionOverlay';
 import { createSeedNormativeRepository } from '../shared/normativeRepositoryHelpers';
 
 function cacheKey(scope: string, id: string): string {
@@ -75,7 +76,7 @@ function createCategoryRepository(seed = getCatalogSeedIndex()): CatalogAssessme
 }
 
 function createDefinitionRepository(seed = getCatalogSeedIndex()): CatalogAssessmentDefinitionRepository {
-  return createSeedDefinitionRepository(seed);
+  return createCustomAwareDefinitionRepository(createSeedDefinitionRepository(seed));
 }
 
 function createEvidenceTierRepository(seed = getCatalogSeedIndex()): CatalogEvidenceTierRepository {

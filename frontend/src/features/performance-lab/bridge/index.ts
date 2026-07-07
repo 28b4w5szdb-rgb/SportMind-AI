@@ -64,3 +64,16 @@ export { usePerformanceLabCompare } from './usePerformanceLabCompare';
 export type { PerformanceLabCompareRow } from './usePerformanceLabCompare';
 export { usePerformanceLabBenchmark } from './usePerformanceLabBenchmark';
 export { PERFORMANCE_LAB_CONDUCTED_BY, PERFORMANCE_LAB_MOCK_ORG_ID } from './constants';
+export {
+  buildCustomCatalogDefinition,
+  buildUniqueCustomKey,
+  canUseScientificCustomPipeline,
+  createCustomAssessmentBundle,
+  hasScientificCustomDefinition,
+  resolveCustomScientificStatus,
+  validateCustomAssessmentInput,
+} from './customAssessmentBridge';
+export type {
+  CreateCustomAssessmentResult,
+  CustomAssessmentValidationResult,
+} from './customAssessmentBridge';
