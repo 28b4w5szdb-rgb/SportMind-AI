@@ -9,6 +9,39 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+---
+
+## [Phase 8.2 — Scientific Core Unification] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Changed
+
+- **Calculation unification** — `calculators.ts` and passport BMI route through `calculationBridge` → `executeFormula`
+- **SSID unification** — `metricRegistry.interpretMetric` delegates to `ssidMetricBridge` → cloud `ssidMetricRules`
+- **Decision unification** — `decisionBridge.ts` replaces duplicated `decisionForLevel` in Performance Lab bridges
+- **Timeline unification** — `timelineBuilder.ts` prefers scientific timeline via `mapScientificTimelineToUiEvents`
+- **Passport/report unification** — `useScientificReport` uses `buildWorkspaceArtifacts` (canonical `passportBuilder` + `scientificTimelineBuilder`)
+- **Repository** — all scientific repos resolve via `ScientificRepositoryRegistry` (no special-case report repo)
+
+### Added
+
+- `frontend/src/cloud/scientific/bridge/` — `calculationBridge`, `ssidMetricBridge`, `decisionBridge`
+- `scientificIntegrity.ts` — pipeline ownership validation + 3 unit tests
+
+### Remaining compatibility (by design)
+
+- `timelineBuilder.ts` — `MOCK_EXTRAS` demo events for workspace cockpit
+- `mapScientificToLegacy.ts` — legacy report section mapping for Report Builder UI
+- `TEST_REGISTRY` — Performance Lab UI seed fallback; Assessment Definition Catalog is primary
+- `buildAthleteTimelineLegacy` — fallback when scientific timeline unavailable
+
+### Unchanged (by design)
+
+- No UI redesign, Dashboard UX, Performance Lab UX, Firestore rules, AI, or PDF changes
+
+---
+
 ## [Phase 8.1 — Production Hardening (P0 Remediation)] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`

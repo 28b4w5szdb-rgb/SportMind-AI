@@ -1,5 +1,21 @@
+/**
+ * Athlete workspace timeline — UI compat layer over Scientific Timeline (Phase 8.2).
+ *
+ * Canonical builder: scientificTimelineBuilder.ts
+ * This module maps scientific events → AthleteTimelineEvent and merges demo MOCK_EXTRAS.
+ */
+
 import type { RecommendationItem } from '@/src/analytics/types';
-import type { MockAthlete, MockPerformanceTest, MockReport, DailyCheckIn, InjuryRecord, TrainingPlan, DailyNutritionLog } from '@/src/data/mock/types';
+import type { AthleteScientificTimeline, ScientificTimelineEvent } from '@/src/cloud/scientific/models/timeline';
+import type {
+  MockAthlete,
+  MockPerformanceTest,
+  MockReport,
+  DailyCheckIn,
+  InjuryRecord,
+  TrainingPlan,
+  DailyNutritionLog,
+} from '@/src/data/mock/types';
 import { sessionTimelineCopy } from '@/src/features/training-builder';
 import type { AthleteTimelineEvent } from '../types';
 
@@ -81,6 +97,53 @@ const MOCK_EXTRAS: Record<
   ],
 };
 
+const SCIENTIFIC_TO_UI_TYPE: Record<string, AthleteTimelineEvent['type']> = {
+  assessment: 'test',
+  training: 'training',
+  injury: 'injury',
+  recovery: 'recovery',
+  nutrition: 'nutrition',
+  report: 'report',
+  ai_recommendation: 'ai_recommendation',
+  laboratory: 'test',
+  match: 'training',
+  wearable: 'recovery',
+  gps: 'training',
+  research: 'report',
+  passport_version: 'report',
+};
+
+function scientificEventToUi(event: ScientificTimelineEvent, athleteId: string): AthleteTimelineEvent {
+  return {
+    id: `sci_${event.event_id}`,
+    athleteId,
+    type: SCIENTIFIC_TO_UI_TYPE[event.event_type] ?? 'report',
+    titleEn: event.title,
+    titleAr: event.title,
+    subtitleEn: event.summary,
+    subtitleAr: event.summary,
+    date: event.occurred_at.slice(0, 10),
+  };
+}
+
+/** Map canonical scientific timeline → workspace UI events. */
+export function mapScientificTimelineToUiEvents(
+  timeline: AthleteScientificTimeline
+): AthleteTimelineEvent[] {
+  return timeline.events.map((e) => scientificEventToUi(e, timeline.athlete_id));
+}
+
+function mergeDemoExtras(athleteId: string, events: AthleteTimelineEvent[]): AthleteTimelineEvent[] {
+  const extras = (MOCK_EXTRAS[athleteId] ?? []).map((e, i) => ({
+    ...e,
+    id: `mock_${athleteId}_${i}`,
+    athleteId,
+  }));
+  return [...events, ...extras].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+}
+
 function testToEvent(test: MockPerformanceTest): AthleteTimelineEvent {
   return {
     id: `test_${test.id}`,
@@ -121,7 +184,8 @@ function recommendationToEvent(rec: RecommendationItem, athleteId: string, index
   };
 }
 
-export function buildAthleteTimeline(
+/** @deprecated Legacy mock aggregation — prefer buildAthleteTimeline with scientificTimeline. */
+function buildAthleteTimelineLegacy(
   athlete: MockAthlete,
   tests: MockPerformanceTest[],
   reports: MockReport[],
@@ -136,11 +200,6 @@ export function buildAthleteTimeline(
     .filter((r) => r.athlete_id === athlete.id)
     .map(reportToEvent)
     .filter((e): e is AthleteTimelineEvent => e !== null);
-  const extras = (MOCK_EXTRAS[athlete.id] ?? []).map((e, i) => ({
-    ...e,
-    id: `mock_${athlete.id}_${i}`,
-    athleteId: athlete.id,
-  }));
   const aiEvents = recommendations.slice(0, 2).map((r, i) => recommendationToEvent(r, athlete.id, i));
   const checkInEvents: AthleteTimelineEvent[] = latestCheckIn
     ? [
@@ -209,9 +268,40 @@ export function buildAthleteTimeline(
       };
     });
 
-  return [...injuryEvents, ...trainingEvents, ...nutritionEvents, ...checkInEvents, ...athleteTests, ...athleteReports, ...extras, ...aiEvents].sort(
+  return [...injuryEvents, ...trainingEvents, ...nutritionEvents, ...checkInEvents, ...athleteTests, ...athleteReports, ...aiEvents].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
+}
+
+/**
+ * Build workspace timeline — prefers scientific timeline when provided.
+ */
+export function buildAthleteTimeline(
+  athlete: MockAthlete,
+  tests: MockPerformanceTest[],
+  reports: MockReport[],
+  recommendations: RecommendationItem[],
+  latestCheckIn?: DailyCheckIn,
+  injuries: InjuryRecord[] = [],
+  trainingPlans: TrainingPlan[] = [],
+  nutritionLogs: DailyNutritionLog[] = [],
+  scientificTimeline?: AthleteScientificTimeline | null
+): AthleteTimelineEvent[] {
+  if (scientificTimeline && scientificTimeline.events.length > 0) {
+    return mergeDemoExtras(athlete.id, mapScientificTimelineToUiEvents(scientificTimeline));
+  }
+
+  const legacy = buildAthleteTimelineLegacy(
+    athlete,
+    tests,
+    reports,
+    recommendations,
+    latestCheckIn,
+    injuries,
+    trainingPlans,
+    nutritionLogs
+  );
+  return mergeDemoExtras(athlete.id, legacy);
 }
 
 export function daysSinceLastInjury(athlete: MockAthlete, timeline: AthleteTimelineEvent[]): number | null {

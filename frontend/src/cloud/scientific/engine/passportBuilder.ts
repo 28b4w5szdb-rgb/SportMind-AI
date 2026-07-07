@@ -21,6 +21,7 @@ import {
   type PassportViewerRole,
   type PassportVisibilityLevel,
 } from '../models/passport/AthletePassport';
+import { calculateFormulaSync } from '../bridge/calculationBridge';
 import type { PassportBuildContext, PassportBuildSources } from '../models/passport/PassportBuildInput';
 
 function field(
@@ -147,8 +148,11 @@ function buildAnthropometrySection(sources: PassportBuildSources): PassportSecti
   if (athlete.height_cm != null) fields.push(field('height_cm', 'Height', athlete.height_cm, { unit: 'cm' }));
   if (athlete.weight_kg != null) fields.push(field('weight_kg', 'Weight', athlete.weight_kg, { unit: 'kg' }));
   if (athlete.height_cm && athlete.weight_kg) {
-    const bmi = athlete.weight_kg / ((athlete.height_cm / 100) ** 2);
-    fields.push(field('bmi', 'BMI', Math.round(bmi * 10) / 10));
+    const bmi = calculateFormulaSync('bmi', {
+      weight_kg: athlete.weight_kg,
+      height_cm: athlete.height_cm,
+    }).value;
+    fields.push(field('bmi', 'BMI', bmi));
   }
   if (fields.length === 0) {
     return missingSection('anthropometry', 'Anthropometry', 'coach', 'Height and weight not recorded');

@@ -1,6 +1,12 @@
 import type { CalculatorDefinition, CalculatorType } from './types';
 import {
+  calculateFromCalculator,
+  calculateFormulaSync,
+  interpretMetricViaScientificCore,
+} from '@/src/cloud/scientific/bridge';
+import {
   interpretMetric,
+  mapCalculatorTypeToMetric,
 } from '@/src/features/ssid-engine';
 import { buildHrZoneRanges } from '@/src/features/ssid-engine/utils/hrZoneHelpers';
 import type { SsidMetricContext } from '@/src/features/ssid-engine';
@@ -124,107 +130,58 @@ export function computeCalculator(
   ssid?: ReturnType<typeof interpretMetric>;
   hrZoneMeta?: { maxHr: number; zones: ReturnType<typeof buildHrZoneRanges> };
 } {
-  switch (type) {
-    case 'bmi': {
-      const h = (inputs.height ?? 170) / 100;
-      const w = inputs.weight ?? 70;
-      const bmi = w / (h * h);
-      const value = Math.round(bmi * 10) / 10;
-      const unit = 'kg/m²';
-      const ssid = interpretMetric('bmi', value, unit, buildCalcContext(inputs));
-      return { value, unit, interpretation: ssid.classificationKey, ssid };
-    }
-    case 'vo2max': {
-      const d = inputs.distance ?? 800;
-      const age = inputs.age ?? 22;
-      const vo2 = d * 0.0225 - 11.3 - age * 0.04;
-      const value = Math.round(vo2 * 10) / 10;
-      const unit = 'ml/kg/min';
-      const ssid = interpretMetric('vo2_max', value, unit, buildCalcContext(inputs));
-      return { value, unit, interpretation: ssid.classificationKey, ssid };
-    }
-    case 'body-fat': {
-      const bf = 495 / (1.0324 - 0.19077 * Math.log10((inputs.waist ?? 80) - (inputs.neck ?? 38))) - 450;
-      const value = Math.round(bf * 10) / 10;
-      const unit = '%';
-      const ssid = interpretMetric('body_fat', value, unit, buildCalcContext(inputs));
-      return { value, unit, interpretation: ssid.classificationKey, ssid };
-    }
-    case 'heart-rate-zones': {
-      const max = inputs.maxHr ?? 190;
-      const targetHr = inputs.targetHr && inputs.targetHr > 0 ? inputs.targetHr : Math.round(max * 0.7);
-      const unit = 'bpm';
-      const ssid = interpretMetric('hr_zones', targetHr, unit, { extras: { maxHr: max, targetHr } });
-      return {
-        value: targetHr,
-        unit,
-        interpretation: ssid.classificationKey,
-        ssid,
-        hrZoneMeta: { maxHr: max, zones: buildHrZoneRanges(max) },
-      };
-    }
-    case 'training-load': {
-      const duration = inputs.duration ?? 60;
-      const rpe = inputs.rpe ?? 6;
-      const load = duration * rpe;
-      const value = load;
-      const unit = 'AU';
-      const ssid = interpretMetric('session_load', value, unit, {
-        ...buildCalcContext(inputs),
-        extras: { duration, rpe, ...inputs },
+  const ctx = buildCalcContext(inputs);
+  const metricId = mapCalculatorTypeToMetric(type);
+
+  try {
+    const calc = calculateFromCalculator(type, inputs);
+
+    let interpretValue = calc.value;
+    let interpretUnit = calc.unit;
+
+    if (type === 'recovery-time') {
+      const load = inputs.load ?? 300;
+      const sleep = inputs.sleep ?? 7;
+      const scoreResult = calculateFormulaSync('recovery_score', {
+        sleep_quality: Math.min(10, Math.max(1, sleep)),
+        soreness: Math.min(10, Math.max(1, 5 + load / 200)),
+        fatigue: Math.min(10, Math.max(1, load / 100)),
       });
-      return { value, unit, interpretation: ssid.classificationKey, ssid };
+      interpretValue = scoreResult.value;
+      interpretUnit = '%';
     }
-    case 'recovery-time': {
-      const hours = Math.max(12, (inputs.load ?? 300) / 20 - (inputs.sleep ?? 7) * 2);
-      const value = Math.round(hours);
-      const recoveryScore = Math.max(0, Math.min(100, 100 - (value - 12) * 1.5));
-      const ssid = interpretMetric('recovery_score', recoveryScore, '%', {
-        extras: { recoveryHours: value, ...inputs },
-      });
-      return {
-        value,
-        unit: 'hr',
-        interpretation: ssid.classificationKey,
-        ssid,
-      };
+
+    const ssidContext: SsidMetricContext =
+      type === 'heart-rate-zones'
+        ? { extras: { maxHr: inputs.maxHr ?? 190, targetHr: calc.value, ...inputs } }
+        : type === 'training-load'
+          ? { ...ctx, extras: { duration: inputs.duration, rpe: inputs.rpe, ...inputs } }
+          : type === 'acwr'
+            ? { extras: { acuteLoad: inputs.acuteLoad, chronicLoad: inputs.chronicLoad } }
+            : type === 'recovery-time'
+              ? { extras: { recoveryHours: calc.value, ...inputs } }
+              : ctx;
+
+    const ssid =
+      metricId != null
+        ? interpretMetricViaScientificCore(metricId, interpretValue, interpretUnit, ssidContext)
+        : undefined;
+
+    const result: ReturnType<typeof computeCalculator> = {
+      value: calc.value,
+      unit: calc.unit,
+      interpretation: ssid?.classificationKey ?? '',
+      ssid,
+    };
+
+    if (type === 'heart-rate-zones') {
+      const maxHr = inputs.maxHr ?? 190;
+      result.hrZoneMeta = { maxHr, zones: buildHrZoneRanges(maxHr) };
     }
-    case 'body-water': {
-      const value = inputs.bodyWater ?? 55;
-      const unit = '%';
-      const ssid = interpretMetric('body_water', value, unit, buildCalcContext(inputs));
-      return { value, unit, interpretation: ssid.classificationKey, ssid };
-    }
-    case 'lean-mass': {
-      const weight = inputs.weight ?? 75;
-      const bf = inputs.bodyFat ?? 15;
-      const value = Math.round(weight * (1 - bf / 100) * 10) / 10;
-      const unit = 'kg';
-      const ssid = interpretMetric('lean_mass', value, unit, { ...buildCalcContext(inputs), weightKg: weight });
-      return { value, unit, interpretation: ssid.classificationKey, ssid };
-    }
-    case 'muscle-mass': {
-      const value = inputs.muscleMass ?? 35;
-      const unit = 'kg';
-      const ssid = interpretMetric('muscle_mass', value, unit, buildCalcContext(inputs));
-      return { value, unit, interpretation: ssid.classificationKey, ssid };
-    }
-    case 'acwr': {
-      const acute = inputs.acuteLoad ?? 3000;
-      const chronic = inputs.chronicLoad ?? 2800;
-      const value = chronic > 0 ? Math.round((acute / chronic) * 100) / 100 : 0;
-      const unit = 'ratio';
-      const ssid = interpretMetric('acwr', value, unit, { extras: { acuteLoad: acute, chronicLoad: chronic } });
-      return { value, unit, interpretation: ssid.classificationKey, ssid };
-    }
-    case 'readiness': {
-      const value = Math.max(0, Math.min(100, inputs.score ?? 70));
-      const unit = '%';
-      const ssid = interpretMetric('readiness_score', value, unit, buildCalcContext(inputs));
-      return { value, unit, interpretation: ssid.classificationKey, ssid };
-    }
-    default:
-      return { value: 0, unit: '', interpretation: '' };
+
+    return result;
+  } catch {
+    return { value: 0, unit: '', interpretation: '' };
   }
 }
 

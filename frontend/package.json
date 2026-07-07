@@ -10,7 +10,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test:scientific": "tsx --test src/cloud/scientific/engine/__tests__/scientificCalculation.test.ts",
+    "test:scientific": "tsx --test src/cloud/scientific/engine/__tests__/scientificCalculation.test.ts src/cloud/scientific/validation/__tests__/scientificIntegrity.test.ts",
     "test:ssid": "tsx --test src/cloud/scientific/engine/__tests__/ssidInterpretation.test.ts",
     "test:security": "tsx --test src/cloud/scientific/security/__tests__/accessControl.test.ts",
     "test:export": "tsx --test src/cloud/scientific/export/__tests__/exportPipeline.test.ts",

@@ -10,7 +10,8 @@ import { buildAthleteTimeline, daysSinceLastInjury } from '../utils/timelineBuil
 export function useAthleteWorkspace(
   athlete: MockAthlete | undefined,
   tests: MockPerformanceTest[],
-  analytics: AthleteAnalyticsSnapshot | null
+  analytics: AthleteAnalyticsSnapshot | null,
+  scientificTimeline?: import('@/src/cloud/scientific/models/timeline').AthleteScientificTimeline | null
 ) {
   const reports = useMockStore((s) => s.reports);
   const injuryRecords = useMockStore((s) => s.injuryRecords);
@@ -38,7 +39,8 @@ export function useAthleteWorkspace(
       latestCheckIn,
       injuryRecords.filter((i) => i.athlete_id === athlete.id),
       trainingPlans.filter((p) => p.athlete_id === athlete.id),
-      nutritionLogs.filter((l) => l.athlete_id === athlete.id)
+      nutritionLogs.filter((l) => l.athlete_id === athlete.id),
+      scientificTimeline
     );
     const sortedTests = [...tests]
       .filter((t) => t.athlete_id === athlete.id)
@@ -52,5 +54,5 @@ export function useAthleteWorkspace(
       latestRecommendation: analytics.recommendations[0],
       latestCheckIn,
     };
-  }, [athlete, tests, reports, analytics, latestCheckIn, injuryRecords, trainingPlans, nutritionLogs]);
+  }, [athlete, tests, reports, analytics, latestCheckIn, injuryRecords, trainingPlans, nutritionLogs, scientificTimeline]);
 }

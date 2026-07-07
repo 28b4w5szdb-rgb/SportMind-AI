@@ -1,19 +1,7 @@
 import type { CalculatorType } from '@/src/data/mock/types';
+import { interpretMetricViaScientificCore } from '@/src/cloud/scientific/bridge';
 
 import type { SsidMetricId, SsidMetricInterpreter, SsidMetricRegistration } from '../types';
-import {
-  interpretAcwr,
-  interpretBodyFat,
-  interpretBodyWater,
-  interpretBmi,
-  interpretHrZones,
-  interpretLeanMass,
-  interpretMuscleMass,
-  interpretReadinessScore,
-  interpretRecoveryScore,
-  interpretSessionLoad,
-  interpretVo2Max,
-} from '../interpreters/metrics';
 
 const registrations = new Map<SsidMetricId, SsidMetricRegistration>();
 
@@ -21,81 +9,87 @@ function register(reg: SsidMetricRegistration): void {
   registrations.set(reg.id, reg);
 }
 
+function scientificInterpret(
+  id: SsidMetricId
+): SsidMetricInterpreter {
+  return (value, unit, context) => interpretMetricViaScientificCore(id, value, unit, context);
+}
+
 register({
   id: 'bmi',
   labelKey: 'ssid.metricLabels.bmi',
   defaultUnit: 'kg/m²',
-  interpret: interpretBmi,
+  interpret: scientificInterpret('bmi'),
 });
 
 register({
   id: 'body_fat',
   labelKey: 'ssid.metricLabels.body_fat',
   defaultUnit: '%',
-  interpret: interpretBodyFat,
+  interpret: scientificInterpret('body_fat'),
 });
 
 register({
   id: 'body_water',
   labelKey: 'ssid.metricLabels.body_water',
   defaultUnit: '%',
-  interpret: interpretBodyWater,
+  interpret: scientificInterpret('body_water'),
 });
 
 register({
   id: 'muscle_mass',
   labelKey: 'ssid.metricLabels.muscle_mass',
   defaultUnit: 'kg',
-  interpret: interpretMuscleMass,
+  interpret: scientificInterpret('muscle_mass'),
 });
 
 register({
   id: 'lean_mass',
   labelKey: 'ssid.metricLabels.lean_mass',
   defaultUnit: 'kg',
-  interpret: interpretLeanMass,
+  interpret: scientificInterpret('lean_mass'),
 });
 
 register({
   id: 'vo2_max',
   labelKey: 'ssid.metricLabels.vo2_max',
   defaultUnit: 'ml/kg/min',
-  interpret: interpretVo2Max,
+  interpret: scientificInterpret('vo2_max'),
 });
 
 register({
   id: 'hr_zones',
   labelKey: 'ssid.metricLabels.hr_zones',
   defaultUnit: 'bpm',
-  interpret: interpretHrZones,
+  interpret: scientificInterpret('hr_zones'),
 });
 
 register({
   id: 'session_load',
   labelKey: 'ssid.metricLabels.session_load',
   defaultUnit: 'AU',
-  interpret: interpretSessionLoad,
+  interpret: scientificInterpret('session_load'),
 });
 
 register({
   id: 'acwr',
   labelKey: 'ssid.metricLabels.acwr',
   defaultUnit: 'ratio',
-  interpret: interpretAcwr,
+  interpret: scientificInterpret('acwr'),
 });
 
 register({
   id: 'recovery_score',
   labelKey: 'ssid.metricLabels.recovery_score',
   defaultUnit: '%',
-  interpret: interpretRecoveryScore,
+  interpret: scientificInterpret('recovery_score'),
 });
 
 register({
   id: 'readiness_score',
   labelKey: 'ssid.metricLabels.readiness_score',
   defaultUnit: '%',
-  interpret: interpretReadinessScore,
+  interpret: scientificInterpret('readiness_score'),
 });
 
 export function registerMetricInterpreter(registration: SsidMetricRegistration): void {

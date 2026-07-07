@@ -7,6 +7,7 @@ import type { MockAthlete, MockPerformanceTest } from '@/src/data/mock/types';
 import { getTestDefinition } from '@/src/features/performance-lab/registry/tests';
 import { buildTestInterpretation } from '@/src/features/ssid-engine/utils/buildTestInterpretation';
 import { adjustReferenceValues, DEFAULT_DEMOGRAPHIC_CONTEXT } from '@/src/features/testing-science';
+import { decisionForPerformanceLevel } from '@/src/cloud/scientific/bridge/decisionBridge';
 import { getScientificRepositoryRegistry } from '@/src/cloud/scientific/repositories/registry';
 
 import { PERFORMANCE_LAB_MOCK_ORG_ID } from './constants';
@@ -23,23 +24,6 @@ import {
 } from './readMappers';
 import { getTestName } from '../utils/copyHelpers';
 import { performanceLevelFromTest } from '@/src/features/ssid-engine/engine/testInterpretationEngine';
-import type { SsidCoachingDecisionId } from '@/src/features/ssid-engine';
-
-function decisionForLevel(
-  level: ReturnType<typeof mapNormativeBandToPerformanceLevel>
-): SsidCoachingDecisionId {
-  switch (level) {
-    case 'elite':
-    case 'good':
-      return 'train_normally';
-    case 'average':
-      return 'maintain';
-    case 'below':
-      return 'reduce_load';
-    default:
-      return 'maintain';
-  }
-}
 
 function extractSessionValue(session: AssessmentSession): number {
   const primary = session.calculated_metrics[0] ?? session.raw_measurements[0];
@@ -70,7 +54,7 @@ function buildSsidFromSession(session: AssessmentSession, isRTL = false) {
   return buildTestInterpretation({
     categoryId: definition.categoryId,
     level,
-    decision: decisionForLevel(level),
+    decision: decisionForPerformanceLevel(level),
     value,
     unit: extractSessionUnit(session),
     testKey: definition.key,

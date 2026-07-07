@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 8.1 — Production Hardening (complete) |
+| **Current phase** | Phase 8.2 — Scientific Core Unification (complete) |
 | **Next phase** | Phase 6D — Firebase Storage |
 
 ---
@@ -49,6 +49,7 @@
 | **7.2.1** | Firestore rules regression fix — reports test SDK alignment | ✅ Complete |
 | **7.3** | Unified Scientific Export Layer — pipeline, templates, mock adapters | ✅ Complete |
 | **8.1** | Production Hardening — P0 remediation, role-aware report persistence, indexes | ✅ Complete |
+| **8.2** | Scientific Core Unification — single source of truth for calc, SSID, timeline, passport, report | ✅ Complete |
 
 ---
 
@@ -91,6 +92,22 @@ frontend/src/cloud/
 | **Cloud errors** | `ScientificCloudError` — read helpers throw instead of silent empty arrays |
 | **Registry** | `ScientificReportRepository` registered in `getScientificRepositoryRegistry()` |
 | **UI** | Cloud sync / size warnings on report save; list/detail cloud error surfacing |
+
+#### Phase 8.2 — Scientific Core Unification
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Calculation** | `calculationBridge.ts` — sync `executeFormula` path; `calculators.ts` + `passportBuilder.ts` BMI unified |
+| **SSID** | `ssidMetricBridge.ts` — UI `interpretMetric` delegates to `ssidMetricRules`; `decisionBridge.ts` shared |
+| **Timeline** | `scientificTimelineBuilder.ts` canonical; `timelineBuilder.ts` maps scientific → UI + `MOCK_EXTRAS` compat |
+| **Passport** | `passportBuilder.ts` only; `useScientificReport` uses `buildWorkspaceArtifacts` |
+| **Report** | `scientificReportBuilder.ts` only; `mapScientificToLegacy.ts` compatibility-only |
+| **TEST_REGISTRY** | Assessment Definition Catalog primary; `TEST_REGISTRY` fallback for Performance Lab UI seed only |
+| **Integrity** | `scientificIntegrity.ts` + unit tests validate canonical pipeline ownership |
+
+**Remaining compatibility wrappers:** `timelineBuilder.ts` (MOCK_EXTRAS demo events), `mapScientificToLegacy.ts`, `TEST_REGISTRY` (Performance Lab), legacy `interpreters/metrics.ts` (unused, retained for reference).
+
+**Canonical scientific flow:** Raw Measurement → Assessment Session → Scientific Calculation → Normative Engine → SSID → Passport → Timeline → Scientific Report → Export Layer
 
 #### Phase 7.3 — Unified Scientific Export Layer
 

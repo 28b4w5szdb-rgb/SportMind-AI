@@ -1,18 +1,15 @@
 /**
  * Hook for building scientific reports from report builder config (Phase 7.0).
+ * Phase 8.2 — passport/timeline via canonical buildWorkspaceArtifacts.
  */
 
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { buildSecurityContext } from '@/src/cloud/scientific/security/accessControl';
-import { buildAthletePassport } from '@/src/cloud/scientific/engine/passportBuilder';
-import { buildAthleteScientificTimeline } from '@/src/cloud/scientific/engine/scientificTimelineBuilder';
-import { filterPassportForContext } from '@/src/cloud/scientific/security/passportAccess';
-import { filterTimelineForContext } from '@/src/cloud/scientific/security/timelineAccess';
 import { useMockStore } from '@/src/data/mock/store';
+import { buildWorkspaceArtifacts } from '@/src/features/athlete-workspace/context/buildWorkspaceArtifacts';
 import { mapMockAthleteToPassportProfile } from '@/src/features/athlete-passport/bridge/athletePassportMockBridge';
-import { resolveViewerRoleFromContext } from '@/src/features/athlete-workspace/security/resolveWorkspaceViewerRole';
 import { WORKSPACE_MOCK_ORG_ID } from '@/src/features/athlete-workspace/security/workspaceRolePresets';
 import type { ReportBuilderConfig } from '@/src/features/report-builder/types';
 import { computeAthleteAnalytics } from '@/src/analytics/engine/performanceAnalyticsEngine';
@@ -63,7 +60,6 @@ export function useScientificReport(config: ReportBuilderConfig) {
     });
     const team = teams.find((t) => t.athlete_ids.includes(athlete.id));
 
-    const viewerRole = resolveViewerRoleFromContext(securityContext);
     const passportSources = {
       checkIn: checkIn ?? null,
       injuries: injuries.filter((i) => i.athlete_id === athlete.id),
@@ -76,37 +72,17 @@ export function useScientificReport(config: ReportBuilderConfig) {
       wearableSummary: null,
     };
 
-    const rawPassport = buildAthletePassport({
+    const { passport, timeline } = buildWorkspaceArtifacts({
       orgId: WORKSPACE_MOCK_ORG_ID,
-      athleteId: athlete.id,
-      viewerRole,
-      sources: {
-        athlete: mapMockAthleteToPassportProfile(athlete, team?.name, team?.sport),
-        tests: athleteTests,
-        analytics,
-        ...passportSources,
-      },
+      athlete,
+      tests: athleteTests,
+      analytics,
+      securityContext,
+      passportSources,
+      teamName: team?.name,
+      teamSport: team?.sport,
+      reports: reports.filter((r) => r.athlete_id === athlete.id),
     });
-    const passport = filterPassportForContext(rawPassport, securityContext);
-
-    const rawTimeline = buildAthleteScientificTimeline({
-      orgId: WORKSPACE_MOCK_ORG_ID,
-      athleteId: athlete.id,
-      viewerRole,
-      sources: {
-        tests: athleteTests,
-        analytics,
-        checkIns: checkIn ? [checkIn] : [],
-        injuries: passportSources.injuries,
-        trainingPlans: passportSources.trainingPlans,
-        nutritionLogs,
-        wearableRecords: passportSources.wearableRecords,
-        reports: reports.filter((r) => r.athlete_id === athlete.id),
-        recommendations: analytics.recommendations,
-        passport: rawPassport,
-      },
-    });
-    const timeline = filterTimelineForContext(rawTimeline, securityContext);
 
     return buildScientificReportFromWorkspace({
       config,

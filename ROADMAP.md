@@ -287,6 +287,22 @@
 
 ---
 
+### Phase 8.2 — Scientific Core Unification ✅
+
+**Goal:** Scientific Core becomes the only scientific source of truth — no duplicated calculations, interpretation, timeline, passport, or report assembly.
+
+- `calculationBridge` — sync formula executors for calculators + passport BMI
+- `ssidMetricBridge` — UI SSID via cloud `ssidMetricRules`
+- `decisionBridge` — shared normative-level → coaching decision
+- `timelineBuilder` — wrapper over `scientificTimelineBuilder` + demo MOCK_EXTRAS
+- `buildWorkspaceArtifacts` — canonical passport/timeline for workspace + report builder
+- `scientificIntegrity` validation module + 3 unit tests
+- TEST_REGISTRY retirement plan — catalog primary; registry compat fallback documented
+
+**Exit criteria:** No inline scientific formulas in calculators/passport; SSID unified; timeline/passport/report paths consolidated; tests pass; UI unchanged.
+
+---
+
 ### Phase 7 — Real AI
 
 **Goal:** Connect AI Coach to production LLM with guardrails.

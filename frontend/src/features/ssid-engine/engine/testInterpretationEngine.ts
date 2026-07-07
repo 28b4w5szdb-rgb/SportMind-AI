@@ -1,9 +1,11 @@
 import type { TestDefinition } from '@/src/features/performance-lab/types';
 import type { PerformanceLevel } from '@/src/features/performance-lab/types';
+import { TEST_SSID_METRIC_MAP } from '@/src/features/performance-lab/registry/testRegistration';
+import { decisionForPerformanceLevel } from '@/src/cloud/scientific/bridge/decisionBridge';
 import { rateTestResult } from '@/src/features/performance-lab/utils/benchmark';
 import { adjustReferenceValues, type ReferenceContext } from '@/src/features/testing-science';
 
-import type { SsidCoachingDecisionId, SsidInterpretation } from '../types';
+import type { SsidInterpretation } from '../types';
 import { interpretMetric } from '../registry/metricRegistry';
 import { buildTestInterpretation } from '../utils/buildTestInterpretation';
 
@@ -11,26 +13,6 @@ export type TestInterpretationContext = ReferenceContext & {
   weightKg?: number;
   heightCm?: number;
 };
-
-const TEST_SSID_METRIC_MAP: Record<string, import('../types').SsidMetricId> = {
-  bmi: 'bmi',
-  body_fat: 'body_fat',
-  skeletal_muscle_mass: 'muscle_mass',
-};
-
-function decisionForLevel(level: PerformanceLevel): SsidCoachingDecisionId {
-  switch (level) {
-    case 'elite':
-    case 'good':
-      return 'train_normally';
-    case 'average':
-      return 'maintain';
-    case 'below':
-      return 'reduce_load';
-    default:
-      return 'maintain';
-  }
-}
 
 /** Primary SSID entry point for performance test results — replaces legacy static interpretation. */
 export function interpretPerformanceTest(
@@ -59,7 +41,7 @@ export function interpretPerformanceTest(
 
   const adjustedRef = adjustReferenceValues(test.referenceValues, test.categoryId, context);
   const level = rateTestResult(value, adjustedRef);
-  const decision = decisionForLevel(level);
+  const decision = decisionForPerformanceLevel(level);
 
   return buildTestInterpretation({
     categoryId: test.categoryId,

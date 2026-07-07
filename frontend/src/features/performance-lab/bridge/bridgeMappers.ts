@@ -3,7 +3,8 @@
  */
 
 import type { AssessmentSession, CreateAssessmentSessionInput } from '@/src/cloud/scientific/models/session';
-import type { SsidCoachingDecisionId, SsidInterpretation } from '@/src/features/ssid-engine';
+import { decisionForPerformanceLevel } from '@/src/cloud/scientific/bridge/decisionBridge';
+import type { SsidInterpretation } from '@/src/features/ssid-engine';
 import { buildTestInterpretation } from '@/src/features/ssid-engine/utils/buildTestInterpretation';
 import {
   adjustReferenceValues,
@@ -43,20 +44,6 @@ export interface PerformanceLabBridgeResult {
     import('@/src/data/mock/types').MockPerformanceTest,
     'id'
   >;
-}
-
-function decisionForLevel(level: PerformanceLevel): SsidCoachingDecisionId {
-  switch (level) {
-    case 'elite':
-    case 'good':
-      return 'train_normally';
-    case 'average':
-      return 'maintain';
-    case 'below':
-      return 'reduce_load';
-    default:
-      return 'maintain';
-  }
 }
 
 export function mapNormativeBandToPerformanceLevel(
@@ -129,7 +116,7 @@ export function mapSessionToBridgeResult(
   const ssid = buildTestInterpretation({
     categoryId: input.definition.categoryId,
     level,
-    decision: decisionForLevel(level),
+    decision: decisionForPerformanceLevel(level),
     value: input.value,
     unit: input.definition.unit,
     testKey: input.definition.key,

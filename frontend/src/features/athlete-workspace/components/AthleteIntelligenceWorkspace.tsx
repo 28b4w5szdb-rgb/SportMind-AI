@@ -60,7 +60,7 @@ function AthleteIntelligenceWorkspaceContent() {
 
   const { athlete, tests, analytics, passport, scientificTimeline } = useAthleteWorkspaceContext();
 
-  const workspace = useAthleteWorkspace(athlete, tests, analytics);
+  const workspace = useAthleteWorkspace(athlete, tests, analytics, scientificTimeline);
   const latestCheckIn = useLatestCheckInForAthlete(athlete.id);
   const reports = useMockStore((s) => s.reports);
   const injuryRecords = useMockStore((s) => s.injuryRecords);
