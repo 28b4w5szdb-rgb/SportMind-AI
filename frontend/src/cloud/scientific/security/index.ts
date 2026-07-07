@@ -104,3 +104,11 @@ export {
   requiresAuditOnRead,
 } from './auditPolicy';
 export type { AuditEventType, AuditEventPayload, AuditSeverity } from './auditPolicy';
+
+export {
+  resolvePassportViewerRole,
+  defaultMockPassportViewerRole,
+  filterPassportForViewer,
+  filterPassportForContext,
+  canViewAthletePassport,
+} from './passportAccess';

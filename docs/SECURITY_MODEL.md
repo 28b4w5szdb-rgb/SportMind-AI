@@ -237,6 +237,18 @@ yarn emulators:start
 | **Firestore rules** | `membershipGrantsPermission(orgId, permission)` mirrors static role map + flags; `/users/{uid}` self-read avoids `get()` recursion |
 | **Cloud Functions** | 🔜 `buildCustomClaimsPayload()` ready; not deployed |
 
+### Phase 6D.1 — Athlete Passport Visibility
+
+| Viewer role | Visible sections | Restrictions |
+|-------------|------------------|--------------|
+| **Coach** | Identity, sport, performance, readiness, recovery, injury (limited), training, nutrition, wearables, SSID | No diagnosis/pain; availability + RTP phase only |
+| **Sports scientist** | Coach sections + body composition, equipment | Full assessment summaries |
+| **Clinical** | All coach sections + medical, laboratory, full injury details | Requires `read_medical` |
+| **Research** | De-identified performance index, pseudonym, consent | PII stripped; no clinical sections |
+| **Athlete (portal)** | Self profile, assessments, readiness | No staff medical details |
+
+Passport is a **computed summary** — not persisted in Firestore in this phase. Source collections remain authoritative.
+
 ### Remaining untested
 
 - Team-scoped ABAC (`teamIds` claim enforcement)

@@ -1402,6 +1402,27 @@
       }
     }
   },
+  "athletePassport": {
+    "title": "الجواز الرقمي",
+    "unknownAthlete": "اللاعب",
+    "latestInsights": "أحدث الرؤى العلمية",
+    "missingData": "{{count}} أقسام بيانات تحتاج متابعة",
+    "showDetails": "عرض تفاصيل الجواز",
+    "hideDetails": "إخفاء تفاصيل الجواز",
+    "sourceNote": "الملخصات تشير إلى السجلات المصدر — البيانات الخام تبقى في المجموعات العلمية.",
+    "badges": {
+      "readiness": "الجاهزية",
+      "performance": "الأداء",
+      "injuryRisk": "خطر الإصابة"
+    },
+    "sections": {
+      "recovery": "التعافي",
+      "training_load": "حمل التدريب",
+      "nutrition": "التغذية",
+      "wearable": "الأجهزة القابلة للارتداء",
+      "medical": "طبي"
+    }
+  },
   "dailyCheckIn": {
     "title": "التسجيل اليومي",
     "subtitle": "سجّل النوم والعافية ومؤشرات الجاهزية",

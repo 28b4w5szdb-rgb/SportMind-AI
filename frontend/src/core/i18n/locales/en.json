@@ -1398,6 +1398,27 @@
       }
     }
   },
+  "athletePassport": {
+    "title": "Digital Passport",
+    "unknownAthlete": "Athlete",
+    "latestInsights": "Latest scientific insights",
+    "missingData": "{{count}} data sections need attention",
+    "showDetails": "Show passport details",
+    "hideDetails": "Hide passport details",
+    "sourceNote": "Summaries reference source records — raw data stays in scientific collections.",
+    "badges": {
+      "readiness": "Readiness",
+      "performance": "Performance",
+      "injuryRisk": "Injury risk"
+    },
+    "sections": {
+      "recovery": "Recovery",
+      "training_load": "Training load",
+      "nutrition": "Nutrition",
+      "wearable": "Wearables",
+      "medical": "Medical"
+    }
+  },
   "dailyCheckIn": {
     "title": "Daily Check-in",
     "subtitle": "Log sleep, wellness, and readiness markers",

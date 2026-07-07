@@ -302,6 +302,28 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6D.1 — Athlete Digital Passport] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Passport domain model** — 18 summary sections with source references, confidence, visibility, and missing-data state
+- **Passport builder** — `buildAthletePassport()` from profile, assessments, analytics, wellness, training, nutrition, wearables
+- **Role-based visibility** — `passportAccess.ts` filters coach, clinical, research, and athlete views
+- **Mock bridge** — `buildMockAthletePassport()` + `useAthletePassport()` hook
+- **Workspace UI** — `WorkspacePassportOverview` in Athlete Intelligence Workspace overview (badges, SSID insights, collapsible details)
+- **Unit tests** — 7 tests for builder and access filtering
+- **i18n** — `athletePassport.*` keys (EN/AR)
+
+### Unchanged (by design)
+
+- No Dashboard, Performance Lab pipeline, Timeline, AI, Reports, or Firestore rules changes
+- No passport cloud persistence, transfer, or research export
+- Mock mode remains default runtime
+
+---
+
 ## [Phase 6C.11 — Custom Claims & Membership Permissions] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`
@@ -516,4 +538,4 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6C.11*
+*Last updated: Phase 6D.1*

@@ -124,6 +124,22 @@
 
 ---
 
+---
+
+### Phase 6D.1 — Athlete Digital Passport
+
+**Goal:** First athlete-centered product layer — summarize scientific data without exposing unnecessary complexity.
+
+- `AthletePassport` domain model (18 summary sections + privacy/version metadata)
+- `passportBuilder` — assemble from profile, sessions, metrics, SSID, injuries, wellness, training, nutrition, wearables
+- Role-based visibility (coach, sports scientist, clinical, research, athlete)
+- Mock bridge + `useAthletePassport` hook; cloud-ready builder inputs
+- `WorkspacePassportOverview` in Athlete Intelligence Workspace (overview section)
+
+**Exit criteria (met):** Passport builds in mock mode; overview UI shows badges, SSID insights, missing-data prompts; clinical/research fields gated; TypeScript + 7 unit tests pass.
+
+---
+
 ### Phase 6D — Storage
 
 **Goal:** Firebase Storage for files and exports.

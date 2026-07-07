@@ -20,6 +20,7 @@ import { useTrainingBuilderSnapshot, WorkspaceTrainingSection } from '@/src/feat
 import { useNutritionSnapshot, WorkspaceNutritionSection } from '@/src/features/nutrition';
 import { useWearablesSnapshot, WorkspaceWearablesSection } from '@/src/features/wearables';
 import { buildWorkspaceSsidEntries, SsidBundleSection } from '@/src/features/ssid-engine';
+import { useAthletePassport, WorkspacePassportOverview } from '@/src/features/athlete-passport';
 
 import { useAthleteWorkspace } from '../hooks/useAthleteWorkspace';
 import { useAthleteCockpitPresentation } from '../hooks/useAthleteCockpitPresentation';
@@ -63,6 +64,7 @@ export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: Athl
   const trainingSnapshot = useTrainingBuilderSnapshot(athlete, tests);
   const nutritionSnapshot = useNutritionSnapshot(athlete);
   const wearableSnapshot = useWearablesSnapshot(athlete);
+  const passport = useAthletePassport(athlete, tests, analytics);
 
   const latestReport = useMemo(
     () =>
@@ -150,6 +152,7 @@ export function AthleteIntelligenceWorkspace({ athlete, tests, analytics }: Athl
       >
         <View onLayout={registerSection('overview')}>
           <CockpitHero athlete={athlete} team={team} analytics={analytics} />
+          {passport ? <WorkspacePassportOverview passport={passport} /> : null}
           <CockpitKpiGrid kpis={analytics.kpis} />
           <CockpitPerformanceSnapshot items={snapshotItems} />
           <View style={{ marginTop: theme.spacing.lg }}>

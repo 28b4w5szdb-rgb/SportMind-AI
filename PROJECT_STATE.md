@@ -7,8 +7,8 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.11 — Custom Claims & Membership Permissions (complete) |
-| **Next phase** | Phase 6C.12 — Cloud Functions Claims Provisioning & Rules Deployment |
+| **Current phase** | Phase 6D.1 — Athlete Digital Passport (complete) |
+| **Next phase** | Phase 6D — Firebase Storage |
 
 ---
 
@@ -40,6 +40,7 @@
 | **6C.10** | Scientific Security & RBAC — Firestore rules, multi-tenant isolation, permission helpers | ✅ Complete |
 | **6C.10.1** | Firebase Rules Emulator & Security Tests — 36 rules tests, emulator config | ✅ Complete |
 | **6C.11** | Custom Claims & Membership Permissions — effective resolver, rules + tests | ✅ Complete |
+| **6D.1** | Athlete Digital Passport — summary layer, builder, workspace overview | ✅ Complete |
 
 ---
 
@@ -70,6 +71,17 @@ frontend/src/cloud/
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6D.1 — Athlete Digital Passport
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Summary layer** | `AthletePassport` with 18 sections — references source collections, no raw duplication |
+| **Builder** | `passportBuilder.ts` assembles from athlete profile, tests, analytics, wellness, training, nutrition, wearables |
+| **Visibility** | `passportAccess.ts` — coach, sports scientist, clinical, research, athlete views |
+| **Mock bridge** | `athletePassportMockBridge.ts` + `useAthletePassport()` hook |
+| **UI** | `WorkspacePassportOverview` in Athlete Intelligence Workspace overview section |
+| **Tests** | 7 unit tests (builder + access) |
 
 #### Phase 6C.11 — Custom Claims & Membership Permissions
 
@@ -286,7 +298,7 @@ frontend/src/cloud/
 | **Security** | Collection policy metadata for future Firestore rules |
 | **Repositories** | Interface contracts + registry with mock/Firestore adapter factories |
 
-**Not implemented (by design):** passport, timeline, equipment business logic, environmental records, Firestore session persistence, security rules deployment, SSID/AI/report generation from sessions.
+**Not implemented (by design):** timeline, equipment business logic, environmental records, Firestore session persistence, security rules deployment, SSID/AI/report generation from sessions, passport cloud persistence, passport transfer.
 
 ### Authentication (Phase 6B / 6B.1)
 
