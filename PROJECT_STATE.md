@@ -7,7 +7,7 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.9.1 — Performance Lab Read Path Bridge (complete) |
+| **Current phase** | Phase 6C.9.2 — Performance Lab Read Screen Bridge (complete) |
 | **Next phase** | Phase 6C.10 — Firestore Security Rules Deployment |
 
 ---
@@ -35,6 +35,7 @@
 | **6C.8.1** | Atomic Scientific Persistence — transactional bundle writes, audit, retry | ✅ Complete |
 | **6C.9** | Performance Lab Bridge — Scientific Core integration via adapter layer | ✅ Complete |
 | **6C.9.1** | Performance Lab Read Path Bridge — result/history scientific read + dedup | ✅ Complete |
+| **6C.9.2** | Performance Lab Read Screen Bridge — dashboard, library, category, benchmark, compare | ✅ Complete |
 
 ---
 
@@ -65,6 +66,16 @@ frontend/src/cloud/
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6C.9.2 — Performance Lab Read Screen Bridge
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Dashboard** | Scientific session stats via merged history + catalog protocol count |
+| **Library** | `useScientificTestLibrary` — Assessment Definition Engine with lazy cache |
+| **Category** | `useScientificCategoryAssessments` — dynamic catalog load per category |
+| **Compare / Benchmark** | Merged scientific sessions with SSID/normative-enriched ratings |
+| **Filters** | Evidence tier + usability mode filters using existing filter bar pattern |
 
 #### Phase 6C.9.1 — Performance Lab Read Path Bridge
 
@@ -290,4 +301,4 @@ See [ROADMAP.md](./ROADMAP.md).
 | Brand guide | [frontend/BRAND_GUIDE.md](./frontend/BRAND_GUIDE.md) |
 | Env template | [frontend/.env.example](./frontend/.env.example) |
 
-*Last updated: Phase 6C.9.1*
+*Last updated: Phase 6C.9.2*

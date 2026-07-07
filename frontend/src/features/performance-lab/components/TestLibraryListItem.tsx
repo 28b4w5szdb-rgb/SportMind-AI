@@ -51,6 +51,18 @@ export function TestLibraryListItem({ test, isFavorite, onPress, onToggleFavorit
             <View style={{ flexDirection: flexRow(true), gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
               <Badge label={test.unit} variant="neutral" />
               <Badge label={t('testingCenter.analyticsLinked')} variant="info" />
+              {test.evidenceTier ? (
+                <Badge label={t(`testingCenter.library.evidenceTier.${test.evidenceTier}`)} variant="neutral" />
+              ) : null}
+              {test.usabilityModes?.beginner?.length ? (
+                <Badge label={t('testingCenter.library.usabilityMode.beginner')} variant="info" />
+              ) : null}
+              {test.usabilityModes?.professional?.length ? (
+                <Badge label={t('testingCenter.library.usabilityMode.professional')} variant="info" />
+              ) : null}
+              {test.usabilityModes?.research?.length ? (
+                <Badge label={t('testingCenter.library.usabilityMode.research')} variant="info" />
+              ) : null}
             </View>
           </View>
           <TouchableOpacity onPress={onToggleFavorite} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>

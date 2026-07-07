@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
@@ -13,10 +13,9 @@ import { useDirection } from '@/src/providers/DirectionProvider';
 import {
   TestLibraryFiltersBar,
   TestLibraryListItem,
-  useTestLibrary,
   useTestLibraryActions,
-  getTotalTestCount,
 } from '@/src/features/performance-lab';
+import { useScientificTestLibrary } from '@/src/features/performance-lab/bridge';
 import type { TestLibraryFilters } from '@/src/features/performance-lab/types';
 
 export default function TestLibraryScreen() {
@@ -24,9 +23,8 @@ export default function TestLibraryScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
-  const { textAlign, isRTL } = useDirection();
+  const { textAlign } = useDirection();
   const favorites = useMockStore((s) => s.favoriteTestKeys);
-  const customTests = useMockStore((s) => s.customTestDefinitions);
   const { toggleFavorite, pushRecent } = useTestLibraryActions();
 
   const [filters, setFilters] = useState<TestLibraryFilters>({
@@ -34,10 +32,12 @@ export default function TestLibraryScreen() {
     categoryId: 'all',
     objective: 'all',
     favoritesOnly: false,
+    evidenceTier: 'all',
+    usabilityMode: 'all',
   });
 
-  const { items, favoriteItems, recentItems } = useTestLibrary(filters);
-  const total = useMemo(() => getTotalTestCount(customTests), [customTests]);
+  const { items, favoriteItems, recentItems, totalCount, loading, readErrorKey } =
+    useScientificTestLibrary(filters);
 
   const openTest = (key: string) => {
     pushRecent(key);
@@ -47,8 +47,14 @@ export default function TestLibraryScreen() {
   return (
     <FeatureScrollScreen title={t('testingCenter.library.title')}>
       <Text style={[type.body, { color: theme.colors.textSecondary, marginBottom: theme.spacing.md, textAlign: textAlign('start') }]}>
-        {t('testingCenter.library.subtitle', { count: total })}
+        {t('testingCenter.library.subtitle', { count: totalCount })}
       </Text>
+
+      {readErrorKey ? (
+        <Text style={[type.caption, { color: theme.colors.textSecondary, marginBottom: theme.spacing.md, textAlign: textAlign('start') }]}>
+          {t(readErrorKey)}
+        </Text>
+      ) : null}
 
       <Button
         title={t('testingCenter.library.createCustom')}
@@ -60,6 +66,15 @@ export default function TestLibraryScreen() {
       />
 
       <TestLibraryFiltersBar filters={filters} onChange={(next) => setFilters((f) => ({ ...f, ...next }))} />
+
+      {loading ? (
+        <View style={{ alignItems: 'center', paddingVertical: theme.spacing.lg }}>
+          <ActivityIndicator color={theme.colors.primary} />
+          <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: theme.spacing.sm }]}>
+            {t('testingCenter.bridge.loading')}
+          </Text>
+        </View>
+      ) : null}
 
       {recentItems.length > 0 && !filters.query && filters.categoryId === 'all' && !filters.favoritesOnly && (
         <FormSection title={t('testingCenter.library.recent')}>

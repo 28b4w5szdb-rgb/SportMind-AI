@@ -32,7 +32,7 @@ export function LabDashboard() {
   const { flexRow, textAlign, isRTL } = useDirection();
   const { isDesktop } = useResponsiveLayout();
   const customTests = useCustomTestDefinitions();
-  const { recentTests, todayTests, pendingAthletes, scientificInsight, stats, teamAnalytics } = useLabDashboardPresentation();
+  const { recentTests, todayTests, pendingAthletes, scientificInsight, stats, teamAnalytics, readErrorKey } = useLabDashboardPresentation();
 
   return (
     <View style={{ paddingBottom: theme.spacing[20] }}>
@@ -64,6 +64,12 @@ export function LabDashboard() {
           </TouchableOpacity>
         </View>
       </LinearGradient>
+
+      {readErrorKey ? (
+        <Text style={[type.caption, { color: theme.colors.textSecondary, marginBottom: theme.spacing.md, textAlign: textAlign('start') }]}>
+          {t(readErrorKey)}
+        </Text>
+      ) : null}
 
       <SectionHeader title={t('performanceLab.overview')} subtitle={t('performanceLab.overviewSub')} titleSize="h5" />
       <View style={{ flexDirection: flexRow(true), flexWrap: 'wrap', gap: theme.spacing.sm, marginBottom: theme.spacing.lg }}>

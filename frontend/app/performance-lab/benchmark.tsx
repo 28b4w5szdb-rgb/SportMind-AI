@@ -1,13 +1,12 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
 import { Card } from '@/src/components/common/Card';
-import { BENCHMARK_NORMS, benchmarkRating } from '@/src/data/mock/lab';
 import { getTestDefinition, getTestName } from '@/src/features/performance-lab';
-import { useMockStore } from '@/src/data/mock/store';
+import { usePerformanceLabBenchmark } from '@/src/features/performance-lab/bridge';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 
@@ -19,7 +18,7 @@ export default function LabBenchmarkScreen() {
   const theme = useTheme();
   const type = useTypography();
   const { flexRow, textAlign, isRTL } = useDirection();
-  const tests = useMockStore((s) => s.tests);
+  const { rows, loading, readErrorKey } = usePerformanceLabBenchmark();
 
   return (
     <FeatureScrollScreen title={t('performanceLab.benchmarkScreen.title')}>
@@ -27,9 +26,22 @@ export default function LabBenchmarkScreen() {
         {t('performanceLab.benchmarkScreen.subtitle')}
       </Text>
 
-      {BENCHMARK_NORMS.map((norm) => {
-        const latest = tests.find((test) => test.test_type_key === norm.testKey);
-        const rating = latest ? benchmarkRating(latest.value, norm) : null;
+      {readErrorKey ? (
+        <Text style={[type.caption, { color: theme.colors.textSecondary, marginBottom: theme.spacing.md, textAlign: textAlign('start') }]}>
+          {t(readErrorKey)}
+        </Text>
+      ) : null}
+
+      {loading ? (
+        <View style={{ alignItems: 'center', paddingVertical: theme.spacing.lg }}>
+          <ActivityIndicator color={theme.colors.primary} />
+          <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: theme.spacing.sm }]}>
+            {t('testingCenter.bridge.loading')}
+          </Text>
+        </View>
+      ) : null}
+
+      {rows.map(({ norm, latest, rating }) => {
         const color = rating ? RATING_COLORS[rating] : theme.colors.textTertiary;
         const def = getTestDefinition(norm.testKey);
         const label = def ? getTestName(def, isRTL) : norm.testKey;

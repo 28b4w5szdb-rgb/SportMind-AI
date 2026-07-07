@@ -87,7 +87,10 @@
 | **6C.8.1** | Atomic Scientific Persistence — transactional bundle writes, audit, retry | ✅ Complete |
 | **6C.9** | Performance Lab Bridge — Scientific Core integration via adapter layer | ✅ Complete |
 | **6C.9.1** | Performance Lab Read Path Bridge — result/history scientific read + dedup | ✅ Complete |
+| **6C.9.2** | Performance Lab Read Screen Bridge — dashboard, library, category, benchmark, compare | ✅ Complete |
 | **6C.10** | Firestore security rules deployment | 🔜 Next |
+
+**6C.9.2 exit criteria (met):** Dashboard, library, category, benchmark, and compare screens bridged to Scientific Core with catalog cache, legacy fallback, and friendly read errors — no UI redesign.
 
 **6C.9.1 exit criteria (met):** Result and history read bridges, view model mappers, deduplicated history merge, session id alignment on save, friendly read errors — no UI redesign.
 

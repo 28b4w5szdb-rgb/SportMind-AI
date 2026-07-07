@@ -84,6 +84,14 @@ export interface TestDefinition {
   retestIntervalDays: number;
   /** Structured knowledge surfaced in Testing Center UI. */
   knowledge: TestKnowledgeBundle;
+  /** Scientific catalog evidence tier when loaded from Assessment Definition Engine. */
+  evidenceTier?: import('@/src/cloud/scientific/models/common').EvidenceTier;
+  /** Scientific usability modes for progressive disclosure badges. */
+  usabilityModes?: {
+    beginner: string[];
+    professional: string[];
+    research: string[];
+  };
   /** Optional SSID metric bridge for body-comp tests mapped to calculator metrics. */
   ssidMetricId?: import('@/src/features/ssid-engine').SsidMetricId;
   /** Legacy i18n keys — optional when copy bundle is present. */
@@ -133,4 +141,6 @@ export interface TestLibraryFilters {
   categoryId: TestCategoryId | 'all';
   objective: TestObjective | 'all';
   favoritesOnly: boolean;
+  evidenceTier?: import('@/src/cloud/scientific/models/common').EvidenceTier | 'all';
+  usabilityMode?: 'beginner' | 'professional' | 'research' | 'all';
 }

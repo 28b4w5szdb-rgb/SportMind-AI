@@ -492,6 +492,20 @@
       "results": "النتائج ({{count}})",
       "noResults": "لا توجد اختبارات مطابقة.",
       "createCustom": "إنشاء اختبار مخصص",
+      "allEvidenceTiers": "كل مستويات الدليل",
+      "allModes": "كل الأوضاع",
+      "evidenceTier": {
+        "screening": "فحص",
+        "field": "ميداني",
+        "professional": "احترافي",
+        "clinical": "سريري",
+        "research": "بحثي"
+      },
+      "usabilityMode": {
+        "beginner": "مبتدئ",
+        "professional": "احترافي",
+        "research": "بحثي"
+      },
       "analyticsWeight": "وزن التحليلات",
       "expectedTrend": "الاتجاه المتوقع"
     },

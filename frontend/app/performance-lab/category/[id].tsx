@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,19 +9,17 @@ import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen
 import { Badge } from '@/src/components/common/Badge';
 import { EmptyState } from '@/src/components/common/EmptyState';
 import { Button } from '@/src/components/common/Button';
-import { useMockStore } from '@/src/data/mock/store';
 import { APP_ROUTES } from '@/src/core/constants/routes';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
 import {
   getCategoryById,
-  getTestsByCategory,
   getFeaturedTestForCategory,
   getTestName,
   TestResultCard,
-  useCustomTestDefinitions,
   LabProtocolCard,
 } from '@/src/features/performance-lab';
+import { useScientificCategoryAssessments } from '@/src/features/performance-lab/bridge';
 
 export default function LabCategoryScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -30,10 +28,10 @@ export default function LabCategoryScreen() {
   const theme = useTheme();
   const type = useTypography();
   const { flexRow, textAlign, isRTL } = useDirection();
-  const tests = useMockStore((s) => s.tests);
-  const customTests = useCustomTestDefinitions();
   const category = getCategoryById(id ?? '');
-  const categoryTests = getTestsByCategory(id ?? '', customTests);
+  const { assessments: categoryTests, recorded, loading, readErrorKey } = useScientificCategoryAssessments(
+    id ?? ''
+  );
   const featured = getFeaturedTestForCategory(id ?? '');
 
   if (!category) {
@@ -44,10 +42,14 @@ export default function LabCategoryScreen() {
     );
   }
 
-  const recorded = tests.filter((tst) => categoryTests.some((def) => def.key === tst.test_type_key));
-
   return (
     <FeatureScrollScreen title={t(category.nameKey)}>
+      {readErrorKey ? (
+        <Text style={[type.caption, { color: theme.colors.textSecondary, marginBottom: theme.spacing.md, textAlign: textAlign('start') }]}>
+          {t(readErrorKey)}
+        </Text>
+      ) : null}
+
       <LinearGradient colors={[category.color, category.color + '99']} style={{ borderRadius: theme.borderRadius['2xl'], padding: theme.spacing.lg, marginBottom: theme.spacing.lg }}>
         <View style={{ flexDirection: flexRow(true), alignItems: 'center' }}>
           <View style={{ width: 72, height: 72, borderRadius: theme.borderRadius['2xl'], backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' }}>
@@ -67,6 +69,15 @@ export default function LabCategoryScreen() {
           </View>
         </View>
       </LinearGradient>
+
+      {loading ? (
+        <View style={{ alignItems: 'center', paddingVertical: theme.spacing.lg }}>
+          <ActivityIndicator color={theme.colors.primary} />
+          <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: theme.spacing.sm }]}>
+            {t('testingCenter.bridge.loading')}
+          </Text>
+        </View>
+      ) : null}
 
       {categoryTests.map((def) => (
         <LabProtocolCard

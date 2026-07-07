@@ -488,6 +488,20 @@
       "results": "Results ({{count}})",
       "noResults": "No tests match your filters.",
       "createCustom": "Create custom test",
+      "allEvidenceTiers": "All evidence tiers",
+      "allModes": "All modes",
+      "evidenceTier": {
+        "screening": "Screening",
+        "field": "Field",
+        "professional": "Professional",
+        "clinical": "Clinical",
+        "research": "Research"
+      },
+      "usabilityMode": {
+        "beginner": "Beginner",
+        "professional": "Professional",
+        "research": "Research"
+      },
       "analyticsWeight": "Analytics weight",
       "expectedTrend": "Expected trend"
     },

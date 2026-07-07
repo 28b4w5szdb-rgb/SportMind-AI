@@ -302,6 +302,28 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6C.9.2 — Performance Lab Read Screen Bridge] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Dashboard bridge** — scientific session statistics via merged history + catalog protocol count
+- **Library bridge** — `useScientificTestLibrary` loads from Assessment Definition Engine with lazy cache
+- **Category bridge** — `useScientificCategoryAssessments` dynamic catalog per category
+- **Benchmark bridge** — `usePerformanceLabBenchmark` uses merged sessions with SSID-based ratings
+- **Compare bridge** — `usePerformanceLabCompare` reads merged scientific sessions
+- **Catalog mapper** — `catalogDefinitionMapper` maps scientific definitions to TestDefinition
+- **Extended filters** — evidence tier and usability mode filters/badges (existing UI patterns)
+
+### Unchanged (by design)
+
+- No UI redesign, navigation, colors, or layout changes
+- Legacy registry and mock store remain as fallback
+- Mock mode fully functional when cloud disabled
+
+---
+
 ## [Phase 6C.9.1 — Performance Lab Read Path Bridge] — 2026-07-07
 
 **Branch:** `develop/cloud-foundation`
@@ -406,4 +428,4 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6C.9.1*
+*Last updated: Phase 6C.9.2*

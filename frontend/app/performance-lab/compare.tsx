@@ -1,42 +1,51 @@
-import React, { useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import React from 'react';
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { FeatureScrollScreen } from '@/src/components/layout/FeatureScrollScreen';
 import { Card } from '@/src/components/common/Card';
-import { useMockStore } from '@/src/data/mock/store';
 import { useTheme, useTypography } from '@/src/core/theme';
 import { useDirection } from '@/src/providers/DirectionProvider';
+import { usePerformanceLabCompare } from '@/src/features/performance-lab/bridge';
 
 export default function LabCompareScreen() {
   const { t } = useTranslation();
   const theme = useTheme();
   const type = useTypography();
   const { flexRow, textAlign } = useDirection();
-  const athletes = useMockStore((s) => s.athletes);
-  const tests = useMockStore((s) => s.tests);
-  const [aId, setAId] = useState(athletes[0]?.id ?? '');
-  const [bId, setBId] = useState(athletes[1]?.id ?? athletes[0]?.id ?? '');
-
-  const comparison = useMemo(() => {
-    const aTests = tests.filter((tst) => tst.athlete_id === aId);
-    const bTests = tests.filter((tst) => tst.athlete_id === bId);
-    const keys = [...new Set([...aTests, ...bTests].map((tst) => tst.test_type_key))];
-    return keys.map((key) => {
-      const at = aTests.find((tst) => tst.test_type_key === key);
-      const bt = bTests.find((tst) => tst.test_type_key === key);
-      return { key, label: at?.test_type ?? bt?.test_type ?? key, a: at, b: bt };
-    });
-  }, [aId, bId, tests]);
-
-  const athleteA = athletes.find((a) => a.id === aId);
-  const athleteB = athletes.find((a) => a.id === bId);
+  const {
+    athletes,
+    aId,
+    bId,
+    setAId,
+    setBId,
+    athleteA,
+    athleteB,
+    comparison,
+    loading,
+    readErrorKey,
+  } = usePerformanceLabCompare();
 
   return (
     <FeatureScrollScreen title={t('performanceLab.compareScreen.title')}>
       <Text style={[type.body, { color: theme.colors.textSecondary, marginBottom: theme.spacing.lg, textAlign: textAlign('start') }]}>
         {t('performanceLab.compareScreen.subtitle')}
       </Text>
+
+      {readErrorKey ? (
+        <Text style={[type.caption, { color: theme.colors.textSecondary, marginBottom: theme.spacing.md, textAlign: textAlign('start') }]}>
+          {t(readErrorKey)}
+        </Text>
+      ) : null}
+
+      {loading ? (
+        <View style={{ alignItems: 'center', paddingVertical: theme.spacing.lg, marginBottom: theme.spacing.md }}>
+          <ActivityIndicator color={theme.colors.primary} />
+          <Text style={[type.caption, { color: theme.colors.textSecondary, marginTop: theme.spacing.sm }]}>
+            {t('testingCenter.bridge.loading')}
+          </Text>
+        </View>
+      ) : null}
 
       {[
         { label: t('performanceLab.compareScreen.athleteA'), selectedId: aId, setSelectedId: setAId, key: 'a' },

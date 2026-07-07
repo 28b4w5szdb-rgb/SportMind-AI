@@ -29,6 +29,10 @@ export {
   useScientificTestPreview,
   usePerformanceLabResult,
   usePerformanceLabHistory,
+  useScientificTestLibrary,
+  useScientificCategoryAssessments,
+  usePerformanceLabCompare,
+  usePerformanceLabBenchmark,
 } from './bridge';
 export { getTestProtocolMeta, levelToPercentile } from './utils/labPresentation';
 export { useLabDashboardPresentation, buildTestHistoryTrend } from './hooks/useLabDashboardPresentation';

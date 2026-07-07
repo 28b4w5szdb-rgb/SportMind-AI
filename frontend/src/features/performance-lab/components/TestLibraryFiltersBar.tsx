@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { Input } from '@/src/components/common/Input';
 import { Button } from '@/src/components/common/Button';
 import { useTheme } from '@/src/core/theme';
-import { useDirection } from '@/src/providers/DirectionProvider';
 import { TESTING_CATEGORIES } from '../registry/categories';
 import { TEST_OBJECTIVES } from '../registry/objectives';
+import { EVIDENCE_TIER_OPTIONS, USABILITY_MODE_OPTIONS } from '../bridge/catalogDefinitionMapper';
 import type { TestCategoryId, TestLibraryFilters, TestObjective } from '../types';
 
 interface TestLibraryFiltersBarProps {
@@ -18,7 +18,6 @@ interface TestLibraryFiltersBarProps {
 export function TestLibraryFiltersBar({ filters, onChange }: TestLibraryFiltersBarProps) {
   const { t } = useTranslation();
   const theme = useTheme();
-  const { flexRow, isRTL } = useDirection();
 
   return (
     <View style={{ marginBottom: theme.spacing.md }}>
@@ -68,6 +67,40 @@ export function TestLibraryFiltersBar({ filters, onChange }: TestLibraryFiltersB
           onPress={() => onChange({ favoritesOnly: !filters.favoritesOnly })}
           icon={filters.favoritesOnly ? 'star' : 'star-outline'}
         />
+      </ScrollView>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, marginTop: theme.spacing.sm }}>
+        <Button
+          title={t('testingCenter.library.allEvidenceTiers')}
+          size="small"
+          variant={(filters.evidenceTier ?? 'all') === 'all' ? 'primary' : 'outline'}
+          onPress={() => onChange({ evidenceTier: 'all' })}
+        />
+        {EVIDENCE_TIER_OPTIONS.map((tier) => (
+          <Button
+            key={tier}
+            title={t(`testingCenter.library.evidenceTier.${tier}`)}
+            size="small"
+            variant={filters.evidenceTier === tier ? 'secondary' : 'outline'}
+            onPress={() => onChange({ evidenceTier: tier })}
+          />
+        ))}
+      </ScrollView>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, marginTop: theme.spacing.sm }}>
+        <Button
+          title={t('testingCenter.library.allModes')}
+          size="small"
+          variant={(filters.usabilityMode ?? 'all') === 'all' ? 'primary' : 'outline'}
+          onPress={() => onChange({ usabilityMode: 'all' })}
+        />
+        {USABILITY_MODE_OPTIONS.map((mode) => (
+          <Button
+            key={mode}
+            title={t(`testingCenter.library.usabilityMode.${mode}`)}
+            size="small"
+            variant={filters.usabilityMode === mode ? 'secondary' : 'outline'}
+            onPress={() => onChange({ usabilityMode: mode })}
+          />
+        ))}
       </ScrollView>
     </View>
   );
