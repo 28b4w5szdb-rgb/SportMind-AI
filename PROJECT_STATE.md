@@ -7,8 +7,8 @@
 | **Current version** | v0.9-alpha |
 | **Current branch** | `develop/cloud-foundation` |
 | **Stable tag** | `v0.9-alpha` on `main` |
-| **Current phase** | Phase 6C.7 — SSID Scientific Sports Intelligence Engine (complete) |
-| **Next phase** | Phase 6C.8 — Firestore Session Persistence + Security Rules |
+| **Current phase** | Phase 6C.8 — Scientific Persistence Layer (complete) |
+| **Next phase** | Phase 6C.9 — Organization Write Paths + Performance Lab Bridge |
 
 ---
 
@@ -31,6 +31,7 @@
 | **6C.6** | Scientific Calculation Engine — 14 versioned formulas, sole calculation layer | ✅ Complete |
 | **6C.6.1** | Scientific Calculation Audit — validation hardening, HR zones v1.1, 24 tests | ✅ Complete |
 | **6C.7** | SSID Scientific Sports Intelligence Engine — rule-based bilingual interpretation | ✅ Complete |
+| **6C.8** | Scientific Persistence Layer — repository-backed mock/Firestore gateway | ✅ Complete |
 
 ---
 
@@ -57,10 +58,26 @@ frontend/src/cloud/
 ├── firebase/       # Lazy-init app, auth, firestore, storage
 ├── auth/           # Firebase + Supabase unified AuthProvider
 ├── firestore/      # Phase 6A entity models + repository interfaces
-├── scientific/     # Phase 6C.1–6C.7 — catalog, engines, session + calculation + SSID pipeline
+├── scientific/     # Phase 6C.1–6C.8 — catalog, engines, persistence gateway
 ├── storage/        # Placeholder
 └── sync/           # Readiness diagnostics + sync placeholder
 ```
+
+#### Phase 6C.8 — Scientific Persistence Layer
+
+| Principle | Implementation |
+|-----------|----------------|
+| **Single gateway** | `ScientificPersistenceGateway` — sole write path to mock or Firestore |
+| **Append-only** | Rejects duplicate sessions; immutable scientific records |
+| **Feature gate** | Cloud enabled → Firestore adapters; cloud disabled → mock adapters |
+| **Validate before write** | `validatePersistableAssessmentSession` rejects invalid records |
+
+| Area | Contents |
+|------|----------|
+| **Repositories** | `AssessmentSessionRepository`, `ScientificCalculationRepository`, `NormativeSnapshotRepository`, `ScientificInterpretationRepository` |
+| **Entities persisted** | Session metadata, raw measurements, calculated metrics, normative snapshot, SSID interpretation, audit metadata (6 types) |
+| **Adapters** | Identical mock + Firestore APIs for all four repositories |
+| **Integration** | Session engine persists via gateway when injected from registry |
 
 #### Phase 6C.7 — SSID Scientific Sports Intelligence Engine
 
@@ -193,7 +210,8 @@ frontend/src/cloud/
 
 | Commit | Phase | Description |
 |--------|-------|-------------|
-| *(pending)* | 6C.7 | SSID Scientific Sports Intelligence Engine — 36 rules, 130 definitions |
+| *(pending)* | 6C.8 | Scientific Persistence Layer — 4 repositories, mock/Firestore gateway |
+| `84b163e` | 6C.7 | SSID Scientific Sports Intelligence Engine — 36 rules, 130 definitions |
 | `a91f98f` | 6C.6.1 | Scientific Calculation Audit — HR zones, validation, 24 tests |
 | `4b9c54f` | 6C.6 | Scientific Calculation Engine — 14 versioned formulas |
 | `96a1133` | 6C.5 | Universal Assessment Session Engine |
@@ -206,11 +224,10 @@ frontend/src/cloud/
 
 ---
 
-## Next Planned Phase: 6C.8
+## Next Planned Phase: 6C.9
 
-- Firestore assessment session persistence
-- Security rules deployment from `scientific/security/collectionPolicy.ts`
-- Performance Lab bridge (optional)
+- Organization write paths
+- Performance Lab bridge to cloud scientific pipeline
 
 See [ROADMAP.md](./ROADMAP.md).
 
@@ -218,15 +235,15 @@ See [ROADMAP.md](./ROADMAP.md).
 
 ## Important Notes
 
-1. **Mock data is active by default.** No Firestore scientific writes occur in UI paths.
+1. **Mock data is active by default.** Persistence uses in-memory mock adapters when cloud is disabled.
 2. **Scientific catalog reads use seed data in mock mode.** Firestore adapters fall back to seed when collections are empty.
 3. **`USE_CLOUD_DATA=false` by default.** Safe for v0.9-alpha demos.
 4. **Do not commit secrets.** Use `frontend/.env.example`.
-5. **UI, dashboard, analytics, AI Coach unchanged** through Phase 6C.7 — cloud SSID is engine-only.
-6. **Sessions are in-memory only** — append-only mock store until Firestore persistence phase.
-7. **All derived metrics must flow through `ScientificCalculationEngine`** — no duplicated equations in session or UI paths.
-8. **SSID interpretation is rule-based and deterministic** — use `createSsidInterpretationEngineFromRegistry()` in cloud pipeline.
-9. **Scientific Calculation Audit complete** — run `npm run test:scientific` before integration work.
+5. **UI, dashboard, analytics, AI Coach unchanged** through Phase 6C.8.
+6. **All scientific writes route through `ScientificPersistenceGateway`** — append-only, validated, version-aware.
+7. **All derived metrics must flow through `ScientificCalculationEngine`** — no duplicated equations.
+8. **SSID interpretation is rule-based and deterministic** — persisted as immutable session sub-records.
+9. **Run `npm run test:scientific` and `npm run test:ssid`** before integration work.
 
 ---
 
@@ -239,4 +256,4 @@ See [ROADMAP.md](./ROADMAP.md).
 | Brand guide | [frontend/BRAND_GUIDE.md](./frontend/BRAND_GUIDE.md) |
 | Env template | [frontend/.env.example](./frontend/.env.example) |
 
-*Last updated: Phase 6C.7*
+*Last updated: Phase 6C.8*

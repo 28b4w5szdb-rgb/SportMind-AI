@@ -2,7 +2,7 @@
  * Universal Assessment Session Engine — Raw → Derived → Interpretation.
  *
  * The only future pathway for recording scientific assessments.
- * No SSID, AI, reports, or Firestore writes in Phase 6C.5.
+ * No UI, AI, reports, or direct Firestore access from engines — persistence via gateway (Phase 6C.8).
  */
 
 import type { CatalogAssessmentDefinition } from '../models/catalog/AssessmentDefinition';
@@ -25,7 +25,7 @@ import {
   validateRequiredInputsCompleted,
   validateSessionSnapshotIntegrity,
 } from '../validation/sessionValidators';
-import { appendAssessmentSession } from '../session/sessionMemoryStore';
+import type { ScientificPersistenceGateway } from '../persistence/scientificPersistenceGateway';
 import {
   createNormativeReferenceEngine,
   type NormativeLookupParams,
@@ -50,6 +50,7 @@ export interface AssessmentSessionEngineDependencies {
   normative?: NormativeReferenceEngine;
   calculation?: ScientificCalculationEngine;
   ssid?: SsidInterpretationEngine;
+  persistence?: ScientificPersistenceGateway;
 }
 
 export interface CompareSessionParams extends NormativeLookupParams {
@@ -139,12 +140,14 @@ export class AssessmentSessionEngine {
   private readonly normative: NormativeReferenceEngine;
   private readonly calculation: ScientificCalculationEngine;
   private readonly ssid?: SsidInterpretationEngine;
+  private readonly persistence?: ScientificPersistenceGateway;
 
   constructor(private readonly deps: AssessmentSessionEngineDependencies) {
     this.normative = deps.normative ?? createNormativeReferenceEngine(deps.catalog);
     this.calculation =
       deps.calculation ?? createScientificCalculationEngine(deps.catalog);
     this.ssid = deps.ssid;
+    this.persistence = deps.persistence;
   }
 
   async createAssessmentSession(input: CreateAssessmentSessionInput): Promise<AssessmentSession> {
@@ -232,7 +235,12 @@ export class AssessmentSessionEngine {
       ? await this.generateScientificInterpretation(compared, definition)
       : compared;
 
-    return appendAssessmentSession(withInterpretation);
+    if (this.persistence) {
+      await this.persistence.persist(withInterpretation);
+      return withInterpretation;
+    }
+
+    return withInterpretation;
   }
 
   async generateScientificInterpretation(

@@ -31,7 +31,14 @@ export {
   validateScientificFormulaDefinition,
 } from './calculationValidators';
 
+export { validateCalculationOutput } from './calculationOutputValidators';
+
 export {
   validateSessionInterpretationState,
   validateScientificInterpretation,
 } from './interpretationValidators';
+
+export {
+  validatePersistableAssessmentSession,
+  validateAppendNotDuplicate,
+} from './persistenceValidators';

@@ -1,6 +1,6 @@
 /**
  * Scientific Firestore foundation — feature gate.
- * Infrastructure only; no runtime writes until future phases.
+ * Persistence writes route through ScientificPersistenceGateway when cloud enabled.
  */
 
 import { isCloudDataEnabled } from '@/src/core/config/cloud';

@@ -1,9 +1,7 @@
 /**
- * SportMind AI — Scientific Firestore Core (Phase 6C.1–6C.7)
+ * SportMind AI — Scientific Firestore Core (Phase 6C.1–6C.8)
  *
- * Catalog, definition, normative, session, calculation, and SSID engines.
- * Activation: USE_CLOUD_DATA=true AND Firebase configured (catalog/org).
- * Sessions: in-memory mock store only in Phase 6C.5+.
+ * Catalog, engines, and repository-backed persistence (mock or Firestore).
  */
 
 export {
@@ -22,3 +20,4 @@ export * from './cache';
 export * from './adapters';
 export * from './engine';
 export * from './session';
+export * from './persistence';

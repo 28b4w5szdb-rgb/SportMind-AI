@@ -302,13 +302,42 @@ v0.9-alpha is the first stable product baseline before Firebase integration. The
 
 ---
 
+## [Phase 6C.8 — Scientific Persistence Layer] — 2026-07-07
+
+**Branch:** `develop/cloud-foundation`
+
+### Added
+
+- **Scientific Persistence Gateway** — sole write path: Scientific Core → Repository → Adapter → Mock/Firestore
+- **Four persistence repositories** — `AssessmentSessionRepository`, `ScientificCalculationRepository`, `NormativeSnapshotRepository`, `ScientificInterpretationRepository`
+- **Mock + Firestore adapters** — identical APIs for all repositories; feature-gated by `canAccessScientificFirestore()`
+- **Append-only semantics** — rejects duplicate sessions; immutable versioned scientific records
+- **Six persistence entity types** — session metadata, raw measurements, calculated metrics, normative snapshot, SSID interpretation, audit metadata
+- **Pre-write validation** — `validatePersistableAssessmentSession` rejects invalid records
+- **Session engine integration** — persists via gateway when injected from registry
+- **Security policy metadata** — assessment session + subcollection paths documented
+
+### Design principles documented
+
+- Repository layer as only persistence gateway
+- Cloud disabled → mock; cloud enabled → Firestore
+- No UI, navigation, or report changes
+
+### Unchanged (by design)
+
+- No UI, dashboard, Performance Lab, AI Coach, passport, or timeline
+- Mock mode fully functional when cloud disabled
+- Security rules deployment deferred to Phase 6C.10
+
+---
+
 ## Upcoming
 
-- **Phase 6C.8** — Firestore session persistence + security rules
 - **Phase 6C.9** — Organization write paths + Performance Lab bridge
+- **Phase 6C.10** — Firestore security rules deployment
 - **Phase 6D** — Firebase Storage
 - **Phase 6E** — Cloud sync engine
 
 See [ROADMAP.md](../ROADMAP.md) for details.
 
-*Last updated: Phase 6C.7*
+*Last updated: Phase 6C.8*

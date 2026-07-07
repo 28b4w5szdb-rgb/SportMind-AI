@@ -83,8 +83,11 @@
 | **6C.6** | Scientific Calculation Engine — 14 versioned formulas, sole calculation layer | ✅ Complete |
 | **6C.6.1** | Scientific Calculation Audit — validation hardening, HR zones v1.1, test suite | ✅ Complete |
 | **6C.7** | SSID Scientific Sports Intelligence Engine — rule-based bilingual interpretation | ✅ Complete |
-| **6C.8** | Firestore session persistence + security rules deployment | 🔜 Next |
-| **6C.9** | Organization write paths + Performance Lab bridge | Planned |
+| **6C.8** | Scientific Persistence Layer — repository-backed mock/Firestore gateway | ✅ Complete |
+| **6C.9** | Organization write paths + Performance Lab bridge | 🔜 Next |
+| **6C.10** | Firestore security rules deployment | Planned |
+
+**6C.8 exit criteria (met):** Four persistence repositories, mock + Firestore adapters, append-only gateway, validation before write, session engine integration — no UI/AI/report changes.
 
 **6C.7 exit criteria (met):** SSID engine with five interpretation layers, 36 rules covering 130 definitions, bilingual output, session pipeline integration — no UI/Firestore/AI changes.
 

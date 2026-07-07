@@ -1,4 +1,7 @@
 export type { AssessmentSessionRepository } from './AssessmentSessionRepository';
+export type { ScientificCalculationRepository } from './ScientificCalculationRepository';
+export type { NormativeSnapshotRepository } from './NormativeSnapshotRepository';
+export type { ScientificInterpretationRepository } from './ScientificInterpretationRepository';
 
 export type {
   CatalogSportRepository,

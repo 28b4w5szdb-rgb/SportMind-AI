@@ -58,6 +58,22 @@ export const SCIENTIFIC_COLLECTION_POLICIES: CollectionSecurityPolicy[] = [
     notes: 'Organization root — tenant isolation anchor.',
   },
   {
+    pathPattern: `${ORGANIZATIONS_ROOT}/{orgId}/assessment_sessions/{sessionId}`,
+    scope: 'tenant',
+    read: 'org_member',
+    write: 'org_role',
+    tenantField: 'orgId',
+    notes: 'Append-only assessment sessions — immutable scientific records (Phase 6C.8).',
+  },
+  {
+    pathPattern: `${ORGANIZATIONS_ROOT}/{orgId}/assessment_sessions/{sessionId}/**`,
+    scope: 'tenant',
+    read: 'org_member',
+    write: 'org_role',
+    tenantField: 'orgId',
+    notes: 'Session subcollections: raw_measurements, calculated_metrics, normative_snapshot, interpretations.',
+  },
+  {
     pathPattern: `${ORGANIZATIONS_ROOT}/{orgId}/**`,
     scope: 'tenant',
     read: 'org_member',

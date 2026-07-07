@@ -4,3 +4,4 @@ export * from './organization';
 export * from './session';
 export * from './calculation';
 export * from './interpretation';
+export * from './persistence';

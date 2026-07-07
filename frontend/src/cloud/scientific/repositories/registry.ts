@@ -3,17 +3,27 @@
  */
 
 import {
+  createAssessmentSessionRepository,
   createCatalogRepository,
+  createNormativeSnapshotRepository,
   createOrganizationRepository,
+  createScientificCalculationRepository,
+  createScientificInterpretationRepository,
 } from '../adapters';
-import { createAssessmentSessionMockRepository } from '../adapters/mock/assessmentSessionMockAdapter';
 import { canAccessScientificFirestore } from '../config';
 import { createAssessmentSessionEngine } from '../engine/assessmentSessionEngine';
 import { createScientificCalculationEngine } from '../engine/scientificCalculationEngine';
 import { createSsidInterpretationEngine } from '../engine/ssidInterpretationEngine';
+import {
+  createScientificPersistenceGateway,
+  type ScientificPersistenceGateway,
+} from '../persistence/scientificPersistenceGateway';
 import type {
   AssessmentSessionRepository,
+  NormativeSnapshotRepository,
+  ScientificCalculationRepository,
   ScientificCatalogRepository,
+  ScientificInterpretationRepository,
   ScientificOrganizationRepository,
 } from './contracts';
 
@@ -22,21 +32,41 @@ export interface ScientificRepositoryRegistry {
   readonly catalog: ScientificCatalogRepository;
   readonly organization: ScientificOrganizationRepository;
   readonly sessions: AssessmentSessionRepository;
+  readonly calculations: ScientificCalculationRepository;
+  readonly normativeSnapshots: NormativeSnapshotRepository;
+  readonly interpretations: ScientificInterpretationRepository;
+  readonly persistence: ScientificPersistenceGateway;
 }
 
 let cachedRegistry: ScientificRepositoryRegistry | undefined;
 
-/** Returns catalog, organization, and session repositories. */
+/** Returns catalog, organization, persistence, and session repositories. */
 export function getScientificRepositoryRegistry(): ScientificRepositoryRegistry {
   if (cachedRegistry !== undefined) return cachedRegistry;
 
   const enabled = canAccessScientificFirestore();
+  const adapter = enabled ? 'firestore' : 'mock';
+
+  const sessions = createAssessmentSessionRepository(enabled);
+  const calculations = createScientificCalculationRepository(enabled);
+  const normativeSnapshots = createNormativeSnapshotRepository(enabled);
+  const interpretations = createScientificInterpretationRepository(enabled);
 
   cachedRegistry = {
     enabled,
     catalog: createCatalogRepository(enabled),
     organization: createOrganizationRepository(enabled),
-    sessions: createAssessmentSessionMockRepository(),
+    sessions,
+    calculations,
+    normativeSnapshots,
+    interpretations,
+    persistence: createScientificPersistenceGateway({
+      sessions,
+      calculations,
+      normative: normativeSnapshots,
+      interpretations,
+      adapter,
+    }),
   };
 
   return cachedRegistry;
@@ -57,6 +87,7 @@ export function createAssessmentSessionEngineFromRegistry(options?: { includeSsi
     sessions: registry.sessions,
     calculation,
     ssid,
+    persistence: registry.persistence,
   });
 }
 
@@ -70,4 +101,9 @@ export function createScientificCalculationEngineFromRegistry() {
 export function createSsidInterpretationEngineFromRegistry() {
   const registry = getScientificRepositoryRegistry();
   return createSsidInterpretationEngine(registry.catalog);
+}
+
+/** Factory for the Scientific Persistence Gateway from registry dependencies. */
+export function createScientificPersistenceGatewayFromRegistry() {
+  return getScientificRepositoryRegistry().persistence;
 }
